@@ -1,2 +1,2 @@
 # gig-forge
-Platform connecting student musicians with student creators for gigs and collaborations.
+MVP platform connecting student musicians with creators who need collaborators for gigs, films, events, and creative projects.
