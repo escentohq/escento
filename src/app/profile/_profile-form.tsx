@@ -47,7 +47,7 @@ export function ProfileForm({
       <div className="mx-auto w-full max-w-3xl">
         <div className="card p-6">
           <div className="mb-6">
-            <h1 className="text-2xl font-semibold tracking-tight">{header}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">{header}</h1>
             <p className="mt-2 text-sm text-zinc-400">
               Creators will use this to discover and contact you. Keep it clear
               and skimmable.

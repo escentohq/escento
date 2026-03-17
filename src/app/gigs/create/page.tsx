@@ -16,7 +16,7 @@ export default async function CreateGigPage() {
         <div className="card p-6">
           <div className="mb-6">
             <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
-              Post a Gig
+              Post a gig
             </h1>
             <p className="mt-2 text-sm text-zinc-400">
               Keep it clear and structured so musicians can respond fast.

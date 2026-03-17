@@ -119,7 +119,7 @@ export default async function GigsPage({
               {hasFilters ? (
                 <Link
                   href="/gigs"
-                  className="whitespace-nowrap text-sm text-zinc-400 hover:text-zinc-200"
+                  className="whitespace-nowrap text-sm text-zinc-400 transition-colors hover:text-zinc-200"
                 >
                   Clear
                 </Link>
@@ -128,16 +128,16 @@ export default async function GigsPage({
           </form>
         </div>
 
-        <section className="mt-6">
+        <section className="mt-8">
           {gigs.length === 0 ? (
-            <div className="card flex flex-col items-center justify-center gap-4 p-10 text-center">
-              <p className="text-sm text-zinc-300">
+            <div className="card flex flex-col items-center justify-center gap-5 p-12 text-center">
+              <p className="max-w-sm text-sm text-zinc-400">
                 {hasFilters
-                  ? "No gigs match your filters yet."
-                  : "No gigs posted yet. Post the first one."}
+                  ? "No gigs match these filters. Try changing or clearing them."
+                  : "No gigs posted yet. Post one to find musicians."}
               </p>
               {hasFilters ? (
-                <Link href="/gigs" className="text-sm font-semibold text-violet-300 hover:text-violet-200">
+                <Link href="/gigs" className="text-sm font-medium text-violet-300 transition-colors hover:text-violet-200">
                   Clear filters
                 </Link>
               ) : (
@@ -147,7 +147,7 @@ export default async function GigsPage({
               )}
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {gigs.map((g) => {
                 const inst = g.instruments.map((x) => x.instrument.name).slice(0, 3);
                 const gen = g.genres.map((x) => x.genre.name).slice(0, 3);

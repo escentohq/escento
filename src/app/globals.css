@@ -39,3 +39,22 @@ body {
   @apply rounded-2xl border border-zinc-800 bg-zinc-950/50 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_4px_24px_rgba(0,0,0,0.4)] transition-colors hover:border-zinc-700 hover:bg-zinc-950/70;
 }
 
+/* Status badges for gigs */
+.badge-status-open {
+  @apply rounded-full border border-emerald-900/50 bg-emerald-950/40 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-emerald-200;
+}
+
+.badge-status-closed {
+  @apply rounded-full border border-amber-900/50 bg-amber-950/40 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-amber-200;
+}
+
+/* Back / secondary navigation links */
+.link-back {
+  @apply text-sm text-zinc-400 transition-colors hover:text-zinc-200;
+}
+
+/* Small secondary action (e.g. Edit, Mark filled) */
+.btn-ghost {
+  @apply rounded-xl border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-800/50;
+}
+

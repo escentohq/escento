@@ -102,7 +102,7 @@ export default async function MusiciansPage({
               {hasFilters ? (
                 <Link
                   href="/musicians"
-                  className="whitespace-nowrap text-sm text-zinc-400 hover:text-zinc-200"
+                  className="whitespace-nowrap text-sm text-zinc-400 transition-colors hover:text-zinc-200"
                 >
                   Clear
                 </Link>
@@ -111,16 +111,16 @@ export default async function MusiciansPage({
           </form>
         </div>
 
-        <section className="mt-6">
+        <section className="mt-8">
           {profiles.length === 0 ? (
-            <div className="card flex flex-col items-center justify-center gap-4 p-10 text-center">
-              <p className="text-sm text-zinc-300">
+            <div className="card flex flex-col items-center justify-center gap-5 p-12 text-center">
+              <p className="max-w-sm text-sm text-zinc-400">
                 {hasFilters
-                  ? "No musicians match these filters yet."
-                  : "No musician profiles yet. Create one to get discovered."}
+                  ? "No musicians match these filters. Try changing or clearing them."
+                  : "No musician profiles yet. Create one to get discovered by creators."}
               </p>
               {hasFilters ? (
-                <Link href="/musicians" className="text-sm font-semibold text-violet-300 hover:text-violet-200">
+                <Link href="/musicians" className="text-sm font-medium text-violet-300 transition-colors hover:text-violet-200">
                   Clear filters
                 </Link>
               ) : (
@@ -130,7 +130,7 @@ export default async function MusiciansPage({
               )}
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {profiles.map((p) => {
                 const instruments = p.instruments
                   .map((x) => x.instrument.name)

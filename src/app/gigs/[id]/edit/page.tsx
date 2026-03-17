@@ -57,10 +57,7 @@ export default async function EditGigPage({
     <div className="py-6">
       <div className="mx-auto w-full max-w-3xl">
         <div className="mb-6">
-          <Link
-            href="/gigs/manage"
-            className="text-sm text-zinc-400 transition-colors hover:text-zinc-200"
-          >
+          <Link href="/gigs/manage" className="link-back">
             ← Back to manage gigs
           </Link>
         </div>

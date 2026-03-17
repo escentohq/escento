@@ -45,10 +45,7 @@ export default async function MusicianPublicProfilePage({
     <div className="py-6">
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-6">
-          <Link
-            href="/musicians"
-            className="text-sm text-zinc-400 transition-colors hover:text-zinc-200"
-          >
+          <Link href="/musicians" className="link-back">
             ← Back to musicians
           </Link>
         </div>

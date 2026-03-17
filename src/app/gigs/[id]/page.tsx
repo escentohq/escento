@@ -34,10 +34,7 @@ export default async function GigDetailPage({
     <div className="py-6">
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-6">
-          <Link
-            href="/gigs"
-            className="text-sm text-zinc-400 transition-colors hover:text-zinc-200"
-          >
+          <Link href="/gigs" className="link-back">
             ← Back to gigs
           </Link>
         </div>
@@ -50,13 +47,7 @@ export default async function GigDetailPage({
                   {gig.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-400">
-                  <span
-                    className={
-                      gig.status === "CLOSED"
-                        ? "rounded-full border border-amber-900/50 bg-amber-950/40 px-2.5 py-0.5 text-xs font-semibold uppercase text-amber-200"
-                        : "rounded-full border border-emerald-900/50 bg-emerald-950/40 px-2.5 py-0.5 text-xs font-semibold uppercase text-emerald-200"
-                    }
-                  >
+                  <span className={gig.status === "CLOSED" ? "badge-status-closed" : "badge-status-open"}>
                     {gig.status}
                   </span>
                   <span>{gig.projectType.replace("_", " ")}</span>

@@ -41,14 +41,14 @@ export default async function ManageGigsPage() {
             </p>
           </div>
           <Link href="/gigs/create" className="btn-primary">
-            Post a new gig
+            Post a gig
           </Link>
         </header>
 
-        <section className="mt-6 space-y-4">
+        <section className="mt-8 space-y-4">
           {gigs.length === 0 ? (
-            <div className="card flex flex-col items-center justify-center gap-4 p-10 text-center">
-              <p className="text-sm text-zinc-300">You haven’t posted any gigs yet.</p>
+            <div className="card flex flex-col items-center justify-center gap-5 p-12 text-center">
+              <p className="max-w-sm text-sm text-zinc-400">You haven’t posted any gigs yet. Post one to find musicians.</p>
               <Link href="/gigs/create" className="btn-primary">
                 Post a gig
               </Link>
@@ -69,13 +69,7 @@ export default async function ManageGigsPage() {
                       <h2 className="text-base font-semibold text-zinc-100">
                         {g.title}
                       </h2>
-                      <span
-                        className={
-                          isClosed
-                            ? "rounded-full border border-amber-900/50 bg-amber-950/40 px-2.5 py-1 text-xs text-amber-200"
-                            : "rounded-full border border-emerald-900/50 bg-emerald-950/40 px-2.5 py-1 text-xs text-emerald-200"
-                        }
-                      >
+                      <span className={isClosed ? "badge-status-closed" : "badge-status-open"}>
                         {g.status}
                       </span>
                     </div>
@@ -100,18 +94,12 @@ export default async function ManageGigsPage() {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
-                    <Link
-                      href={`/gigs/${g.id}/edit`}
-                      className="rounded-xl border border-zinc-700 px-3 py-1.5 text-xs font-semibold text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-900/50"
-                    >
+                    <Link href={`/gigs/${g.id}/edit`} className="btn-ghost">
                       Edit
                     </Link>
                     {!isClosed && (
                       <form action={closeGig.bind(null, g.id)} className="inline">
-                        <button
-                          type="submit"
-                          className="rounded-xl border border-zinc-700 px-3 py-1.5 text-xs font-semibold text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-900/50"
-                        >
+                        <button type="submit" className="btn-ghost">
                           Mark filled
                         </button>
                       </form>
@@ -119,7 +107,7 @@ export default async function ManageGigsPage() {
                     <DeleteGigButton gigId={g.id} />
                     <Link
                       href={`/gigs/${g.id}`}
-                      className="text-xs font-semibold text-violet-300 hover:text-violet-200"
+                      className="text-sm font-medium text-violet-300 transition-colors hover:text-violet-200"
                     >
                       View →
                     </Link>
