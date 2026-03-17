@@ -44,21 +44,21 @@ export default async function RootLayout({
                 GigForge
               </Link>
               <div className="flex items-center gap-4 text-sm text-zinc-300">
-                <Link href="/musicians" className="hover:text-white">
+                <Link href="/musicians" className="transition-colors hover:text-white">
                   Browse Musicians
                 </Link>
-                <Link href="/gigs" className="hover:text-white">
+                <Link href="/gigs" className="transition-colors hover:text-white">
                   Browse Gigs
                 </Link>
                 {musicianProfilePath ? (
-                  <Link href={musicianProfilePath} className="hover:text-white">
+                  <Link href={musicianProfilePath} className="transition-colors hover:text-white">
                     {musicianProfilePath === "/profile/create"
                       ? "Create Profile"
                       : "Edit Profile"}
                   </Link>
                 ) : null}
                 {isCreator ? (
-                  <Link href="/gigs/create" className="hover:text-white">
+                  <Link href="/gigs/create" className="transition-colors hover:text-white">
                     Post a Gig
                   </Link>
                 ) : null}
@@ -98,7 +98,7 @@ export default async function RootLayout({
           </nav>
         </header>
 
-        <main className="mx-auto max-w-6xl px-4 pb-10 pt-6">{children}</main>
+        <main className="mx-auto max-w-6xl px-4 pb-12 pt-6">{children}</main>
       </body>
     </html>
   );

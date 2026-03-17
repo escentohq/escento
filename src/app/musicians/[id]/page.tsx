@@ -42,10 +42,13 @@ export default async function MusicianPublicProfilePage({
   ];
 
   return (
-    <main className="px-4 py-10">
+    <div className="py-6">
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-6">
-          <Link href="/musicians" className="text-sm text-zinc-400 hover:text-zinc-200">
+          <Link
+            href="/musicians"
+            className="text-sm text-zinc-400 transition-colors hover:text-zinc-200"
+          >
             ← Back to musicians
           </Link>
         </div>
@@ -180,7 +183,7 @@ export default async function MusicianPublicProfilePage({
           </aside>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 

@@ -47,11 +47,11 @@ export default async function MusiciansPage({
   const hasFilters = Boolean(instrument || genre);
 
   return (
-    <main className="px-4 py-10">
+    <div className="py-6">
       <div className="mx-auto w-full max-w-6xl">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
               Browse Musicians
             </h1>
             <p className="mt-2 text-sm text-zinc-400">
@@ -61,14 +61,14 @@ export default async function MusiciansPage({
           <PrimaryLink href="/profile/create">Create Profile</PrimaryLink>
         </header>
 
-        <div className="mt-6 rounded-2xl border border-zinc-800 bg-zinc-950/40 p-4">
-          <form className="grid gap-3 sm:grid-cols-3" action="/musicians">
+        <div className="card mt-6 p-4">
+          <form method="GET" className="grid gap-3 sm:grid-cols-3" action="/musicians">
             <label className="text-sm text-zinc-300">
               Instrument
               <select
                 name="instrument"
                 defaultValue={instrument ?? ""}
-                className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-zinc-100 shadow-sm focus:border-violet-500/60"
+                className="select-base"
               >
                 <option value="">All instruments</option>
                 {instruments.map((i) => (
@@ -84,7 +84,7 @@ export default async function MusiciansPage({
               <select
                 name="genre"
                 defaultValue={genre ?? ""}
-                className="mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-zinc-100 shadow-sm focus:border-violet-500/60"
+                className="select-base"
               >
                 <option value="">All genres</option>
                 {genres.map((g) => (
@@ -96,10 +96,7 @@ export default async function MusiciansPage({
             </label>
 
             <div className="flex items-end gap-3">
-              <button
-                type="submit"
-                className="inline-flex w-full items-center justify-center rounded-xl bg-violet-500 px-3 py-2 text-sm font-semibold text-zinc-950 shadow-sm hover:bg-violet-400"
-              >
+              <button type="submit" className="btn-primary w-full">
                 Apply filters
               </button>
               {hasFilters ? (
@@ -116,20 +113,21 @@ export default async function MusiciansPage({
 
         <section className="mt-6">
           {profiles.length === 0 ? (
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-8 text-center">
+            <div className="card flex flex-col items-center justify-center gap-4 p-10 text-center">
               <p className="text-sm text-zinc-300">
-                No musicians match these filters yet.
+                {hasFilters
+                  ? "No musicians match these filters yet."
+                  : "No musician profiles yet. Create one to get discovered."}
               </p>
               {hasFilters ? (
-                <div className="mt-4">
-                  <Link
-                    href="/musicians"
-                    className="text-sm font-semibold text-violet-300 hover:text-violet-200"
-                  >
-                    Clear filters
-                  </Link>
-                </div>
-              ) : null}
+                <Link href="/musicians" className="text-sm font-semibold text-violet-300 hover:text-violet-200">
+                  Clear filters
+                </Link>
+              ) : (
+                <Link href="/profile/create" className="btn-primary">
+                  Create profile
+                </Link>
+              )}
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -143,7 +141,7 @@ export default async function MusiciansPage({
                   <Link
                     key={p.id}
                     href={`/musicians/${p.id}`}
-                    className="group rounded-2xl border border-zinc-800 bg-zinc-950/40 p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_20px_60px_rgba(0,0,0,0.35)] transition hover:border-zinc-700 hover:bg-zinc-950/55"
+                    className="card-hover group block p-5"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
@@ -187,7 +185,7 @@ export default async function MusiciansPage({
           )}
         </section>
       </div>
-    </main>
+    </div>
   );
 }
 

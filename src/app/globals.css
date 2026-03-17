@@ -14,3 +14,28 @@ body {
   outline-offset: 2px;
 }
 
+/* Shared form and card tokens for consistency */
+.input-base {
+  @apply mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5 text-zinc-100 placeholder:text-zinc-500 shadow-sm transition-colors focus:border-violet-500/70 focus:outline-0;
+}
+
+.select-base {
+  @apply mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5 text-zinc-100 shadow-sm transition-colors focus:border-violet-500/70 focus:outline-0;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center rounded-xl bg-violet-500 px-4 py-2.5 text-sm font-semibold text-zinc-950 shadow-sm transition-colors hover:bg-violet-400 disabled:pointer-events-none disabled:opacity-60;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center rounded-xl border border-zinc-700 px-4 py-2.5 text-sm font-semibold text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-900/50;
+}
+
+.card {
+  @apply rounded-2xl border border-zinc-800 bg-zinc-950/50 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_4px_24px_rgba(0,0,0,0.4)];
+}
+
+.card-hover {
+  @apply rounded-2xl border border-zinc-800 bg-zinc-950/50 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_4px_24px_rgba(0,0,0,0.4)] transition-colors hover:border-zinc-700 hover:bg-zinc-950/70;
+}
+

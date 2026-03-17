@@ -11,30 +11,40 @@ export default async function RoleOnboardingPage() {
   if (session.user.role) redirect("/");
 
   return (
-    <main style={{ padding: 24, maxWidth: 720, margin: "0 auto" }}>
-      <h1>Choose your role</h1>
-      <p>This helps GigForge show the right tools for you.</p>
+    <div className="mx-auto max-w-xl py-8">
+      <div className="card p-6">
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
+          Choose your role
+        </h1>
+        <p className="mt-2 text-sm text-zinc-400">
+          This helps GigForge show the right tools for you.
+        </p>
 
-      <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
-        <form
-          action={async () => {
-            "use server";
-            await setRole("MUSICIAN");
-          }}
-        >
-          <button type="submit">I’m a Musician</button>
-        </form>
-
-        <form
-          action={async () => {
-            "use server";
-            await setRole("CREATOR");
-          }}
-        >
-          <button type="submit">I’m a Creator</button>
-        </form>
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
+          <form
+            action={async () => {
+              "use server";
+              await setRole("MUSICIAN");
+            }}
+            className="flex-1"
+          >
+            <button type="submit" className="btn-primary w-full">
+              I’m a Musician
+            </button>
+          </form>
+          <form
+            action={async () => {
+              "use server";
+              await setRole("CREATOR");
+            }}
+            className="flex-1"
+          >
+            <button type="submit" className="btn-primary w-full">
+              I’m a Creator
+            </button>
+          </form>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
-

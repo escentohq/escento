@@ -1,11 +1,12 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/auth";
 import { createGig } from "./actions";
 
-const inputBase =
-  "mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-zinc-100 placeholder:text-zinc-500 shadow-sm focus:border-violet-500/60";
+const inputBase = "input-base";
+const selectBase = "select-base";
 
 export default async function CreateGigPage() {
   const session = await getServerSession(authOptions);
@@ -13,9 +14,9 @@ export default async function CreateGigPage() {
   if (session.user.role !== "CREATOR") redirect("/");
 
   return (
-    <main className="px-4 py-10">
+    <div className="py-6">
       <div className="mx-auto w-full max-w-3xl">
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_20px_60px_rgba(0,0,0,0.5)]">
+        <div className="card p-6">
           <div className="mb-6">
             <h1 className="text-2xl font-semibold tracking-tight">Post a Gig</h1>
             <p className="mt-2 text-sm text-zinc-400">
@@ -57,7 +58,7 @@ export default async function CreateGigPage() {
                 <label className="text-sm text-zinc-300">
                   Project type <span className="text-violet-300">*</span>
                 </label>
-                <select name="projectType" className={inputBase} required>
+                <select name="projectType" className={selectBase} required>
                   <option value="">Select…</option>
                   <option value="FILM">Film</option>
                   <option value="LIVE_EVENT">Live event</option>
@@ -135,7 +136,7 @@ export default async function CreateGigPage() {
                   <label className="text-sm text-zinc-300">
                     Compensation type <span className="text-violet-300">*</span>
                   </label>
-                  <select name="compensationType" className={inputBase} required>
+                  <select name="compensationType" className={selectBase} required>
                     <option value="">Select…</option>
                     <option value="PAID">Paid</option>
                     <option value="UNPAID">Unpaid</option>
@@ -155,21 +156,21 @@ export default async function CreateGigPage() {
               </div>
             </section>
 
-            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <a href="/" className="text-sm text-zinc-400 hover:text-zinc-200">
-                Cancel
-              </a>
-              <button
-                type="submit"
-                className="inline-flex items-center justify-center rounded-xl bg-violet-500 px-4 py-2 text-sm font-semibold text-zinc-950 shadow-sm hover:bg-violet-400"
+            <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+              <Link
+                href="/gigs"
+                className="text-sm text-zinc-400 hover:text-zinc-200"
               >
+                Cancel
+              </Link>
+              <button type="submit" className="btn-primary">
                 Publish Gig
               </button>
             </div>
           </form>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 

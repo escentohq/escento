@@ -197,7 +197,7 @@ export default async function Home() {
           </h2>
           <p className="mt-2 text-xs text-zinc-400">
             No messaging, payments, or ratings yet—just the fastest path from
-            &ldquo;I need someone&ldquo; to &ldquo;I found them.&ldquo;
+            &ldquo;I need someone&rdquo; to &ldquo;I found them.&rdquo;
           </p>
         </div>
       </section>

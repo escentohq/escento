@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 type ProfileFormState = {
@@ -22,8 +23,7 @@ type ProfileFormState = {
   genresCsv: string;
 };
 
-const inputBase =
-  "mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950/40 px-3 py-2 text-zinc-100 placeholder:text-zinc-500 shadow-sm focus:border-violet-500/60";
+const inputBase = "input-base";
 
 export function ProfileForm({
   mode,
@@ -43,9 +43,9 @@ export function ProfileForm({
   );
 
   return (
-    <main className="px-4 py-10">
+    <div className="py-6">
       <div className="mx-auto w-full max-w-3xl">
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950/40 p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_20px_60px_rgba(0,0,0,0.5)]">
+        <div className="card p-6">
           <div className="mb-6">
             <h1 className="text-2xl font-semibold tracking-tight">{header}</h1>
             <p className="mt-2 text-sm text-zinc-400">
@@ -195,9 +195,8 @@ export function ProfileForm({
                     placeholder="Comma-separated (e.g. Guitar, Vocals, Piano)"
                     required
                   />
-                  <p className="mt-2 text-xs text-zinc-500">
-                    MVP input: comma-separated list. We’ll turn these into
-                    searchable tags later.
+                  <p className="mt-1.5 text-xs text-zinc-500">
+                    Comma-separated (e.g. Guitar, Vocals, Piano).
                   </p>
                 </div>
                 <div>
@@ -286,25 +285,21 @@ export function ProfileForm({
               </div>
             </section>
 
-            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <a
+            <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
+              <Link
                 href="/"
                 className="text-sm text-zinc-400 hover:text-zinc-200"
               >
                 Cancel
-              </a>
-              <button
-                type="submit"
-                disabled={saving}
-                className="inline-flex items-center justify-center rounded-xl bg-violet-500 px-4 py-2 text-sm font-semibold text-zinc-950 shadow-sm hover:bg-violet-400 disabled:opacity-60"
-              >
-                {saving ? "Saving..." : "Save Profile"}
+              </Link>
+              <button type="submit" disabled={saving} className="btn-primary">
+                {saving ? "Saving…" : "Save Profile"}
               </button>
             </div>
           </form>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 
