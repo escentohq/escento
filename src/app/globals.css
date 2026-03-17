@@ -9,3 +9,8 @@ body {
   margin: 0;
 }
 
+:focus-visible {
+  outline: 2px solid rgb(139 92 246);
+  outline-offset: 2px;
+}
+
