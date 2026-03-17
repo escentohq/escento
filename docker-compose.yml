@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: gigforge-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gigforge
+    ports:
+      - "5432:5432"
+    volumes:
+      - gigforge_pgdata:/var/lib/postgresql/data
+
+volumes:
+  gigforge_pgdata:
+
