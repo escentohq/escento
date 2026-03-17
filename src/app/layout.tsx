@@ -58,9 +58,14 @@ export default async function RootLayout({
                   </Link>
                 ) : null}
                 {isCreator ? (
-                  <Link href="/gigs/create" className="transition-colors hover:text-white">
-                    Post a Gig
-                  </Link>
+                  <>
+                    <Link href="/gigs/manage" className="transition-colors hover:text-white">
+                      Manage Gigs
+                    </Link>
+                    <Link href="/gigs/create" className="transition-colors hover:text-white">
+                      Post a Gig
+                    </Link>
+                  </>
                 ) : null}
               </div>
             </div>

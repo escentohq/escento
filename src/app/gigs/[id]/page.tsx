@@ -50,6 +50,15 @@ export default async function GigDetailPage({
                   {gig.title}
                 </h1>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-400">
+                  <span
+                    className={
+                      gig.status === "CLOSED"
+                        ? "rounded-full border border-amber-900/50 bg-amber-950/40 px-2.5 py-0.5 text-xs font-semibold uppercase text-amber-200"
+                        : "rounded-full border border-emerald-900/50 bg-emerald-950/40 px-2.5 py-0.5 text-xs font-semibold uppercase text-emerald-200"
+                    }
+                  >
+                    {gig.status}
+                  </span>
                   <span>{gig.projectType.replace("_", " ")}</span>
                   <span className="text-zinc-700">•</span>
                   <span>
