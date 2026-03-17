@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
 
+import { authOptions } from "@/auth";
 import { db } from "@/lib/db";
 import { Chip, PrimaryLink } from "./_ui";
 
@@ -46,6 +48,8 @@ export default async function GigsPage({
   ]);
 
   const hasFilters = Boolean(projectType || instrument || genre);
+  const session = await getServerSession(authOptions);
+  const showPostGigCta = !session?.user || session.user.role === "CREATOR";
 
   return (
     <div className="py-6">
@@ -59,7 +63,9 @@ export default async function GigsPage({
               Discover creative opportunities posted by student creators.
             </p>
           </div>
-          <PrimaryLink href="/gigs/create">Post a Gig</PrimaryLink>
+          {showPostGigCta ? (
+            <PrimaryLink href="/gigs/create">Post a Gig</PrimaryLink>
+          ) : null}
         </header>
 
         <div className="card mt-6 p-4">
@@ -140,11 +146,11 @@ export default async function GigsPage({
                 <Link href="/gigs" className="text-sm font-medium text-violet-300 transition-colors hover:text-violet-200">
                   Clear filters
                 </Link>
-              ) : (
+              ) : showPostGigCta ? (
                 <Link href="/gigs/create" className="btn-primary">
                   Post a gig
                 </Link>
-              )}
+              ) : null}
             </div>
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

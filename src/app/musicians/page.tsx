@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
 
+import { authOptions } from "@/auth";
 import { db } from "@/lib/db";
 import { Chip, PrimaryLink } from "./_ui";
 
@@ -45,6 +47,8 @@ export default async function MusiciansPage({
   ]);
 
   const hasFilters = Boolean(instrument || genre);
+  const session = await getServerSession(authOptions);
+  const showCreateProfileCta = !session?.user || session.user.role === "MUSICIAN";
 
   return (
     <div className="py-6">
@@ -58,7 +62,9 @@ export default async function MusiciansPage({
               Discover collaborators by instrument and genre.
             </p>
           </div>
-          <PrimaryLink href="/profile/create">Create Profile</PrimaryLink>
+          {showCreateProfileCta ? (
+            <PrimaryLink href="/profile/create">Create Profile</PrimaryLink>
+          ) : null}
         </header>
 
         <div className="card mt-6 p-4">
@@ -123,11 +129,11 @@ export default async function MusiciansPage({
                 <Link href="/musicians" className="text-sm font-medium text-violet-300 transition-colors hover:text-violet-200">
                   Clear filters
                 </Link>
-              ) : (
+              ) : showCreateProfileCta ? (
                 <Link href="/profile/create" className="btn-primary">
                   Create profile
                 </Link>
-              )}
+              ) : null}
             </div>
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
