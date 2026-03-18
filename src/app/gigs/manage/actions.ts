@@ -30,6 +30,10 @@ export async function closeGig(gigId: string) {
 
 export async function deleteGig(gigId: string) {
   await ensureCreatorOwnsGig(gigId);
-  await db.gig.delete({ where: { id: gigId } });
+  await db.$transaction(async (tx) => {
+    await tx.gigInstrument.deleteMany({ where: { gigId } });
+    await tx.gigGenre.deleteMany({ where: { gigId } });
+    await tx.gig.delete({ where: { id: gigId } });
+  });
   redirect("/gigs/manage");
 }
