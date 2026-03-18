@@ -73,7 +73,7 @@ export default async function RootLayout({
             <div className="flex items-center gap-3 text-sm">
               {!session?.user ? (
                 <a
-                  href="/api/auth/signin"
+                  href="/signin"
                   className="rounded-xl bg-zinc-100 px-3 py-1.5 text-xs font-semibold text-zinc-950 hover:bg-white"
                 >
                   Sign in
