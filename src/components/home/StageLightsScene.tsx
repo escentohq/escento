@@ -5,6 +5,17 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
 
+type Particle = {
+  t: number;
+  factor: number;
+  speed: number;
+  xFactor: number;
+  yFactor: number;
+  zFactor: number;
+  mx: number;
+  my: number;
+};
+
 function LightBeam({
   color,
   position,
@@ -53,7 +64,7 @@ function FloatingParticles({ count = 50 }: { count?: number }) {
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   const particles = useMemo(() => {
-    const temp = [];
+    const temp: Particle[] = [];
     for (let i = 0; i < count; i += 1) {
       const t = Math.random() * 100;
       const factor = 20 + Math.random() * 100;
