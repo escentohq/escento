@@ -1,7 +1,21 @@
 # AGENTS.md — GigForge
 
 > Canonical instructions for AI coding agents (Codex, Claude Code, Cursor, Copilot, Gemini).
-> If you are an agent: **read this file first, every session.** Then read the topical doc that matches your task.
+> If you are an agent: **read this file first, every session.** Then load the sub-agent that matches your task.
+
+---
+
+## Sub-agents (pick one per session)
+
+| Task | Sub-agent file |
+|------|---------------|
+| New page / component / styling | [`ai-context/agents/ui-agent.md`](ai-context/agents/ui-agent.md) |
+| Prisma / server actions / auth | [`ai-context/agents/backend-agent.md`](ai-context/agents/backend-agent.md) |
+| Complete feature (UI + data) | [`ai-context/agents/feature-agent.md`](ai-context/agents/feature-agent.md) |
+| Bug diagnosis | [`ai-context/agents/debug-agent.md`](ai-context/agents/debug-agent.md) |
+| Headlines / copy / microcopy | [`ai-context/agents/copy-agent.md`](ai-context/agents/copy-agent.md) |
+
+Load the sub-agent **in addition to** this file — sub-agents scope your task, AGENTS.md sets the rules.
 
 ---
 
