@@ -31,6 +31,7 @@ const MOCKUPS: Mockup[] = [
   { slug: "partner-09", title: "Blueprint", author: "partner", blurb: "Technical drawing grid with a 3D exploded profile card", status: "ready" },
   { slug: "partner-10", title: "Stage", author: "partner", blurb: "Concert venue Three.js scene, violet & gold, Cormorant serif", status: "ready" },
   { slug: "partner-11", title: "Mosaic", author: "partner", blurb: "3D floating bulletin board, 6-slot color identity, Fraunces variable font", status: "ready" },
+  { slug: "finalized", title: "Finalized Signal", author: "partner", blurb: "Partner-06 base evolved with stack cards, reactive mesh, and compact live layers", status: "ready" },
 ];
 
 export default function MockupGallery() {
