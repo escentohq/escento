@@ -3,18 +3,18 @@ import { Section } from "@/components/mockups/_shared/Section";
 const COLS = [
   {
     n: "01",
-    title: "For venues",
-    body: "Post gigs in 60 seconds. Filter by genre, budget, distance. Lock the lineup.",
+    title: "For creators",
+    body: "Post project needs in 60 seconds. Share the brief, deadline, instruments, and contact email.",
   },
   {
     n: "02",
     title: "For musicians",
-    body: "One profile. Real gigs. Direct payment. No commissions skimmed.",
+    body: "One profile for instruments, genres, links, location, availability, and direct contact.",
   },
   {
     n: "03",
     title: "For the scene",
-    body: "Local-first discovery. Surface working artists, not influencer rosters.",
+    body: "Campus-first discovery for films, podcasts, events, games, and student creative work.",
   },
 ];
 

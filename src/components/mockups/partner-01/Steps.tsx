@@ -1,7 +1,7 @@
 const STEPS = [
-  { cmd: "> post_gig", out: "venue defines: date, genre, budget, capacity" },
-  { cmd: "> match", out: "musicians within radius apply directly" },
-  { cmd: "> book", out: "venue locks lineup. payment flows direct." },
+  { cmd: "> post_gig", out: "creator defines: project, deadline, instruments, email" },
+  { cmd: "> filter", out: "musicians are browsed by instrument and genre" },
+  { cmd: "> contact", out: "conversation moves directly to email" },
 ];
 
 export function Steps() {

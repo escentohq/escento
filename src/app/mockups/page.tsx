@@ -10,7 +10,16 @@ type Mockup = {
 
 const MOCKUPS: Mockup[] = [
   { slug: "you-01", title: "Bold Editorial", author: "you", blurb: "Big serif, brutalist grid", status: "ready" },
-  { slug: "you-02", title: "Gradient SaaS", author: "you", blurb: "Mesh gradient hero, glass cards", status: "draft" },
+  { slug: "you-02", title: "Campus Signal", author: "you", blurb: "Focused marketplace, split role paths", status: "ready" },
+  { slug: "you-03", title: "Studio Ledger", author: "you", blurb: "Operational, dense, trust-forward", status: "ready" },
+  { slug: "you-04", title: "Poster Wall", author: "you", blurb: "Campus flyer energy with structured CTAs", status: "ready" },
+  { slug: "you-05", title: "Clean Directory", author: "you", blurb: "Search-first product surface", status: "ready" },
+  { slug: "you-06", title: "Indie Magazine", author: "you", blurb: "Editorial music culture with sharp cards", status: "ready" },
+  { slug: "you-07", title: "Finder Console", author: "you", blurb: "Fast command-center for projects", status: "ready" },
+  { slug: "you-08", title: "Soft Campus", author: "you", blurb: "Warm approachable student network", status: "ready" },
+  { slug: "you-09", title: "Tape Deck", author: "you", blurb: "Analog music motif, modern funnel", status: "ready" },
+  { slug: "you-10", title: "Portfolio Grid", author: "you", blurb: "Visual creator-first discovery", status: "ready" },
+  { slug: "you-11", title: "Black Box", author: "you", blurb: "Premium minimalist, stage-lit", status: "ready" },
   { slug: "partner-01", title: "Dark Minimal", author: "partner", blurb: "Monospace, single-column", status: "draft" },
 ];
 
@@ -24,7 +33,7 @@ export default function MockupGallery() {
     <main className="mx-auto max-w-7xl px-6 py-12">
       <h1 className="text-4xl font-bold tracking-tight">Landing Page Mockups</h1>
       <p className="mt-2 max-w-2xl text-neutral-600">
-        Twenty competing directions. Open any to view full-page. Each lives in its own folder — zero
+        Competing directions. Open any to view full-page. Each lives in its own folder — zero
         cross-contamination. Promote winner via the migration steps in <code className="rounded bg-neutral-200 px-1">README.md</code>.
       </p>
 
