@@ -1,183 +1,218 @@
 # Landing Design 07 — **Campus Network**
 
-> I'm a senior product designer who's built identity systems for university tools and two professional networks. Campus-targeted products fail when they try to look like consumer apps. This version takes the opposite path: clean LinkedIn-grade professionalism applied to the campus context — structured, trusted, light. The kind of page a music department would proudly link to.
+> I've built identity systems for four university tools and two professional networks. The insight I keep coming back to: campus products fail when they feel like consumer apps. They succeed when they feel like infrastructure — the kind of thing a department chair links to, not just a student. Campus Network applies that lesson with a twist: behind the professional white grid, a Three.js campus map renders in real time — a topographic wireframe of a generic university quad, glowing dots marking which buildings have active musicians. It's institutional AND alive.
 
 ---
 
 ## 1. The Concept
 
-A wide, clean white page in the professional-network register. Left half: the pitch. Right half: a 2-column mini-directory showing real profiles. The design looks like a cross between a university department site and LinkedIn's "people" section — because that's exactly what GigForge is. No hero illustration. The directory IS the hero.
+Wide, clean, white. Left half: the pitch and CTAs. Right half: a 2-column mini-directory of real musician profiles with Framer Motion 3D tilt. But the REAL signature is below: a Three.js topographic campus wireframe — imagine a Google Maps elevation view of a university campus, rendered in indigo lines on white, with glowing blue dots pulsing at music buildings. This is the network made spatial. You can see which campuses are active.
 
 ## 2. Why This Direction
 
-Student tools succeed when they feel institutional and trustworthy, not when they ape consumer social. Quiet Campus Professional communicates: *this is a real network, run with care, built for the campus context*. Professors who discover it will link to it. Department chairs will share it. That's how student tools spread.
+LinkedIn's network map concept but made physical and geographic. GigForge IS a campus product — it lives in specific places (UT Austin, Berklee, NYU). Showing a stylized campus topology makes the product feel grounded in real academic geography. The wireframe aesthetic is technical enough to feel credible to music tech students, warm enough to feel accessible to performance majors. The glowing campus dots are the activity feed made cartographic.
 
 ## 3. Color System
 
 | Token | Hex | Use |
 |---|---|---|
-| `bg.page` | `#FFFFFF` | Pure white base |
-| `bg.section` | `#F3F2EF` | Alternating section background |
+| `bg.page` | `#FFFFFF` | Pure white professional base |
+| `bg.section` | `#F8F9FF` | Alternating section — faint indigo tint |
 | `bg.card` | `#FFFFFF` | Profile cards |
 | `bg.pill` | `#EEF3FB` | Skill tag backgrounds |
-| `border.heavy` | `#1F1B16` | Nav bottom rule (1px) — the only dark structural line |
+| `topo.line` | `rgba(45,63,219,0.12)` | Campus wireframe contour lines |
+| `topo.active` | `#2D3FDB` | Active campus marker dots |
+| `topo.pulse` | `rgba(45,63,219,0.08)` | Pulse ring expanding from active dot |
+| `topo.grid` | `rgba(45,63,219,0.05)` | Background grid behind campus map |
+| `border.heavy` | `#1F1B16` | Nav bottom rule — the one dark structural line |
 | `border.card` | `rgba(0,0,0,0.08)` | Card edges |
 | `border.divider` | `rgba(0,0,0,0.10)` | Section separators |
 | `ink.primary` | `#191919` | All primary text |
 | `ink.secondary` | `#555555` | Subheads, card meta |
-| `ink.muted` | `#888888` | Timestamps, availability |
-| `accent.blue` | `#0A66C2` | CTA, links, active tags |
-| `accent.gold` | `#B8860B` | Wordmark underline accent only — one use |
+| `ink.muted` | `#888888` | Timestamps, labels |
+| `accent.blue` | `#0A66C2` | CTA, links, active card states |
+| `accent.indigo` | `#2D3FDB` | Campus map accent — distinct from CTA blue |
+| `accent.gold` | `#B8860B` | Wordmark underline only — one use |
 
-A 12-token palette: white and blue as the working duo, gold used once.
+Two blues: professional CTA blue + deeper indigo for the campus map. They're related but distinct.
 
 ## 4. Typography
 
-- **Display:** Inter 700, `clamp(48px, 6.5vw, 88px)`, tracking `-0.025em`, leading `1.0`.
+- **Display:** Inter 700, `clamp(48px, 6.5vw, 88px)`, tracking `-0.025em`, leading `1.0`. Large because it has space.
 - **Subhead:** Inter 400, `clamp(16px, 1.5vw, 20px)`, leading `1.6`, `ink.secondary`.
+- **Mono eyebrow:** `font-mono` 12px uppercase tracking `+0.1em`, `ink.muted`: `CAMPUS LABEL · SPRING '26`
 - **Body:** Inter 400, 16/26.
-- **Label:** Inter 500, 12px uppercase tracking `+0.1em`, `ink.muted`.
 - **Card name:** Inter 600, 18px.
+- **Map label:** `font-mono` 9px uppercase `topo.active` — campus names on the map.
 
-The headline is large because it has room. The whitespace around it is doing as much work as the type.
+```bash
+npm install framer-motion three @react-three/fiber @react-three/drei
+```
 
 ## 5. Layout
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│   GIGFORGE  ──  (gold underline, 24px wide)   Sign in  →       │
-│   ──────────────────────────────────────────────────────────   │  ← 1px border.heavy
+│   GIGFORGE ── (gold underline)   Sign in  →                     │
+│   ──────────────────────────────────────────────────────────   │
 ├────────────────────────────┬───────────────────────────────────┤
 │                            │                                     │
-│   CAMPUS LABEL · SPRING '26│  ┌────────────┐  ┌────────────┐  │  ← mono eyebrow
-│                            │  │ ● Maya C.   │  │ ● Jordan L. │  │
+│   CAMPUS LABEL · SPRING '26│  ┌────────────┐  ┌────────────┐  │
+│                            │  │ ● Maya C.   │  │ ● Jordan L. │  │  ← 3D tilt cards
 │   Find the right           │  │  Guitar     │  │  Cello      │  │
 │   student musician         │  │  UT Austin  │  │  USC        │  │
-│   for your next            │  │  →          │  │  →          │  │
-│   project.                 │  └────────────┘  └────────────┘  │
+│   for your next project.   │  └────────────┘  └────────────┘  │
 │                            │  ┌────────────┐  ┌────────────┐  │
 │   The campus directory     │  │ ● Sam P.    │  │ ● Priya K.  │  │
 │   for student creators.    │  │  Piano      │  │  Violin     │  │
 │   No feed. Direct email.   │  │  Berklee    │  │  UCLA       │  │
-│                            │  │  →          │  │  →          │  │
-│   [ Browse musicians ]     │  └────────────┘  └────────────┘  │
-│   Post a gig               │                                     │
-│                            │  + 138 more musicians →            │  ← directory link
+│                            │  └────────────┘  └────────────┘  │
+│   [ Browse musicians ]     │                                     │
+│   Post a gig               │  + 138 more musicians →            │
 │                            │                                     │
 └────────────────────────────┴───────────────────────────────────┘
+
+╔══════════════════ THREE.JS CAMPUS MAP (full width) ════════════╗
+║  Topographic wireframe of university campus + active dots      ║
+╚════════════════════════════════════════════════════════════════╝
+
+[ Stat row ] [ How it works ] [ This week section ]
 ```
 
-Left/right split, 45/55. Mini-directory on the right is 2 columns × 2 rows = 4 real profiles. All links to `/musicians/[id]`.
+Left/right split is 45/55. Campus map is below the fold — a discovery moment as the user scrolls.
 
-## 6. The Mini-Directory
+## 6. Mini-Directory Cards — Framer Motion 3D Tilt
 
-Each profile card in the right column:
+Four profile cards in the right column. Each card uses cursor tracking via `useMotionValue`:
 
-```
-┌────────────────────┐
-│  ● AVAILABLE        │  ← availability dot + label (muted mono)
-│  Maya Chen         │  ← Inter 600 18px
-│  Guitar · Vocals   │  ← Inter 400 14px ink.secondary
-│  UT Austin         │  ← Inter 400 13px ink.muted
-│  ─────────────────  │  ← 1px border.divider
-│  →                 │  ← link to profile
-└────────────────────┘
-```
+```tsx
+const mouseX = useMotionValue(0);
+const mouseY = useMotionValue(0);
+const rotateY = useTransform(mouseX, [-1, 1], [-5, 5]);
+const rotateX = useTransform(mouseY, [-1, 1], [4, -4]);
 
-Cards: white, `border-radius: 8px`, `box-shadow: 0 2px 8px rgba(0,0,0,0.08)`.
-
-On hover: border-left 3px `accent.blue` appears, arrow nudges right 4px. Simple, professional.
-
-## 7. The Stat Row
-
-Below the hero fold, a full-width section on `bg.section`:
-
-```
-─────────────────────────────────────────────────────────────
-
-   142          24 open         12
-   musicians    gigs            universities
-
-─────────────────────────────────────────────────────────────
+<motion.div
+  style={{ rotateX, rotateY, transformPerspective: 1200 }}
+  onPointerMove={(e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    mouseX.set((e.clientX - rect.left) / rect.width * 2 - 1);
+    mouseY.set((e.clientY - rect.top) / rect.height * 2 - 1);
+  }}
+  onPointerLeave={() => { mouseX.set(0); mouseY.set(0); }}
+  whileHover={{ boxShadow: "0 8px 24px rgba(10,102,194,0.12)" }}
+>
 ```
 
-Numbers in Inter 700 56px `ink.primary`. Labels in Inter 400 14px uppercase `ink.muted`. Stats pulled from DB in real time. The bar above and below uses `border.divider`.
+On hover: `border-left: 3px solid #0A66C2` appears and arrow nudges right 4px:
+```tsx
+whileHover={{ borderLeftWidth: "3px", x: 2 }}
+transition={{ type: "spring", stiffness: 300, damping: 25 }}
+```
 
-## 8. CTAs
+**Grid entrance stagger:**
+```tsx
+const containerVariants = { visible: { transition: { staggerChildren: 0.09 } } };
+const cardVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1 },
+};
+```
+
+## 7. The Signature: Three.js Campus Topology Map
+
+**Scene setup:**
+- `OrthographicCamera` looking down Z. The map is purely 2D — flat on the screen, but rendered in 3D space.
+- Background: tight `GridHelper`-style grid at `topo.grid` — `0.5px` lines at 0.3 unit spacing, spanning the full canvas width.
+
+**Topographic contours:**
+- 8 concentric `THREE.CatmullRomCurve3` closed curves representing elevation contours of a stylized campus quad
+- Curves are handcrafted `Vector3` arrays — organic but recognizable as a map
+- `THREE.Line` material `topo.line` (indigo 12% opacity), 1px
+- The innermost contour (highest elevation) is `indigo 25% opacity` — the center of campus
+
+**Active campus dots:**
+- 6 `CircleGeometry(0.15, 16)` markers at specific map coordinates — each represents a university (UT Austin, Berklee, NYU, USC, UCLA, Juilliard)
+- Material: `MeshBasicMaterial` `topo.active` (`#2D3FDB`)
+- Campus name label via `<Html>` overlay: `font-mono` 9px uppercase, nudged 14px above the dot
+- Each dot has a pulse ring: `RingGeometry` expanding outward, `opacity` interpolated `1 → 0` via `uPulse` uniform over 2s, then resets. Staggered start times so not all campuses pulse simultaneously.
+- Pulse rings: `topo.pulse` (`rgba(45,63,219,0.08)`) — subtle, not alarm-like
+
+**Hover interaction:**
+- `raycaster` detects hover over campus dots
+- Hovered dot: scales to 2×, label becomes `ink.primary` (was `ink.muted`), tooltip appears via `<Html>`: `"14 musicians active"`
+- Hovered dot's contour ring brightens to 40% opacity
+
+**Map entrance (Framer Motion on scroll):**
+```tsx
+initial={{ opacity: 0, scale: 0.96 }}
+whileInView={{ opacity: 1, scale: 1 }}
+transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+viewport={{ once: true, margin: "-100px" }}
+```
+
+The whole map section fades and scales in on scroll — feels like a map loading.
+
+`prefers-reduced-motion`: no pulse rings, no entrance animation, no dot hover scale. Static map.
+
+## 8. Stats — Animated Counters
+
+```
+142          24 open         12
+musicians    gigs            universities
+```
+
+Numbers in Inter 700 56px `ink.primary`. Framer `animate()` count-up on `useInView`, 1.4s `ease: "easeOut"`. Below each number: a small link arrow `→` in `accent.blue`.
+
+## 9. CTAs
 
 **Primary** — `Browse musicians`:
 ```
 bg: #0A66C2
 text: #FFFFFF
 height: 52px, px: 28px
-radius: 4px   ← slight rounding, institutional not pill
+radius: 4px (institutional, not pill)
 font: Inter 600, 15px
 hover: bg #004182
 focus ring: 3px rgba(10,102,194,0.25)
+shadow: 0 4px 16px rgba(10,102,194,0.2)
 ```
 
 **Secondary** — `Post a gig`:
 ```
-bg: none
-border: none
+bg: none, border: none
 text: #0A66C2
-underline: 1px, offset 3px
-hover: underline color deepens to #004182
+underline: 1px offset 3px
+hover: underline deepens to #004182, x: +4 via Framer
 ```
 
-## 9. The "This Week" Section
-
-Three real listings (mix of musicians and gigs) in a 3-column grid on white. Each entry is minimal:
+## 10. How It Works
 
 ```
-MUSICIAN · UT AUSTIN                  ← mono label, ink.muted
-Maya Chen                              ← Inter 700 24px
-Guitar, vocals. Indie, folk.           ← Inter 400 body
-                                  →
-──────────────────────────────────────  ← border.divider bottom
+01  Browse the directory       No account. Just search.
+02  Find someone you like      Their email is right there.
+03  Reach out directly         No DMs. No platform. No fee.
 ```
 
-No card around them. Architectural, not boxy. Very LinkedIn "People you may know" energy.
+Framer stagger on scroll. Numbers `accent.blue` `font-mono`. Lines `ink.primary` 600. Body `ink.secondary`.
 
-## 10. Wordmark Treatment
+## 11. Wordmark Treatment
 
-`GIGFORGE` in Inter 700 20px, tracking `+0.04em`. Below it, a 20px gold line (`accent.gold`) as wide as the "GIG" portion only — a subtle brand flourish. Used only in the nav. Never repeated.
-
-## 11. What This Version Refuses to Do
-
-- No dark backgrounds
-- No decorative illustrations
-- No animated gradients
-- No music-cliché graphics
-- No multiple accent colors
-- No emoji
-- No motion beyond the card hover border-left
+`GIGFORGE` in Inter 700 20px, tracking `+0.04em`. A 20px gold line (`accent.gold`) under the `GIG` portion only — subtle brand flourish. Nav only. Never repeated.
 
 ## 12. Required Libraries
 
 ```bash
-npm install framer-motion
+npm install framer-motion three @react-three/fiber @react-three/drei
 ```
-
-No Three.js needed. The single 3D card uses CSS `perspective` + `transform-style: preserve-3d` driven by Framer Motion.
 
 ## 13. Implementation Notes
 
-- The right-side mini-directory renders server-side from `musicians ORDER BY updatedAt DESC LIMIT 4`.
-- **Profile card 3D tilt:** Use `framer-motion` `useMotionValue` + `useTransform` to track cursor position within each card. Map `mouseX/Y` → `rotateY/X` in the range `[-5deg, 5deg]`. Apply as `motion.div` `style={{ rotateX, rotateY, transformPerspective: 1200 }}`. This replaces the `pointerover` JS approach from the original spec.
-- **Breathing float animation:** `motion.div` with `animate={{ y: [0, -6, 0] }}` + `transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}` on the featured card — subtle lift cycle.
-- **Stat numbers:** Use Framer Motion's `useInView` to trigger a count-up animation (`motion.span` driving a number interpolation) when the stat row enters the viewport.
-- **Card hover border-left:** `motion.div` with `whileHover={{ borderLeftWidth: "3px", borderLeftColor: "#0A66C2", x: 2 }}`.
-- Stats: server-side DB counts inlined into HTML. Client-side only handles the count-up animation.
-- `prefers-reduced-motion`: guard all `animate` props with `useReducedMotion()` from framer-motion — freeze tilt, float, and count-up.
-
-## 13. Accessibility Notes
-
-- Body contrast: `#191919` on `#FFFFFF` = 18.9:1.
-- Blue CTA: `#FFFFFF` on `#0A66C2` = 4.6:1.
-- All cards are tab-focusable links with descriptive `aria-label`.
-- `prefers-reduced-motion`: nothing to turn off — no motion exists.
+- `CampusMap.tsx` — Three.js scene, always `dynamic(..., { ssr: false })`. Canvas height: `340px desktop / 220px mobile`.
+- Contour curves: define 8 `CatmullRomCurve3` objects with `closed: true`. Generate `curve.getPoints(128)` for each. Convert to `Float32Array`, pass to `BufferGeometry.setAttribute('position', ...)`. This is more performant than individual `Line2` objects.
+- Pulse rings: each is a `THREE.Mesh` with `RingGeometry(r, r + 0.04, 32)` where `r` grows each frame. Reset when `r > 0.9`. Stagger start: `phaseOffset[i] = i * (2000 / numCampuses)` ms.
+- Card tilt: independent `useMotionValue` instances per card — never share motion values between cards or you'll get synchronized tilt.
+- `prefers-reduced-motion`: `useReducedMotion()` from Framer — skip tilt, skip pulse rings, skip entrance animation, skip count-up.
 
 ## 14. The Test
 
-Show this page to a university music department administrator. If they say "this looks like something we'd link to from our site," the design is doing its job. If they say "looks like a startup," the headline serif weight is probably wrong — increase whitespace and reduce any decorative touches.
+Show to a university music department administrator. Cover the headline. Point to the campus map. If they say "that looks like campus" (any campus), the topographic contours are working. Point to the active dots. If they say "those must be active users or locations," the pulse animation is legible. Both reads must happen without explanation. If either fails, increase contour line opacity by 0.06 and dot pulse ring opacity by 0.03.

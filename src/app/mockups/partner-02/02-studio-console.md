@@ -1,105 +1,140 @@
 # Landing Design 02 — **Studio Console**
 
-> I'm a senior product designer with a decade of work on tools for creative communities — record labels, music software, agency portals. The brief was clear: GigForge is a directory, not a feed. Every pixel here defends that. The landing has to feel like a piece of professional studio gear someone in a music school would actually trust with their reputation. Cool, quiet, exact. Nothing chirpy.
+> I spent four years designing interfaces for professional audio software — DAWs, spectrum analyzers, mixing consoles. Every one of those tools has the same visual grammar: dark surfaces, fine hairline grids, a single frequency readout that tells you everything. Studio Console applies that grammar to a musician directory. It looks like gear a real studio would rack-mount. The Three.js oscilloscope IS the heartbeat of the page.
 
 ---
 
-## 1. The Concept in One Sentence
+## 1. The Concept
 
-A pitch-dark studio console: precise typography, a single warm accent, and one ambient motion piece — a slow waveform breathing across the hero — so the page feels alive without ever shouting.
+A pitch-dark studio console aesthetic. The hero centers on a Three.js real-time oscilloscope ring — not a flat waveform plane, but a circular frequency display like a spectrum analyzer in polar coordinates. Mouse position modulates the waveform in real time. Below it: precision typography, a violet CTA, and musician cards that enter like audio channel strips sliding into a mixer rack. The page sounds like it sounds.
 
 ## 2. Why This Direction
 
-GigForge's job-to-be-done is *"find the right person and email them."* That's a focused, almost professional act. The current code already commits to a dark `zinc-950` surface with violet accents (Appendix A). Studio Console keeps that DNA but raises the craft: tighter type scale, real grid discipline, one signature motion piece. This is the version you ship if you only ship one.
+GigForge is a tool for audio professionals-in-training. The landing should feel like something from a studio, not an app store. A polar oscilloscope does what no flat waveform can — it fills the hero with geometric, living complexity that still reads as disciplined and technical. Framer Motion handles the rack-slide entrances. Three.js handles the oscilloscope. Together they communicate: *this platform was built with the same care you put into your music.*
 
 ## 3. Color System
 
 | Token | Hex | Use |
 |---|---|---|
-| `bg.page` | `#08080B` | Page background (a hair darker than zinc-950 for richer contrast) |
+| `bg.page` | `#08080B` | Page (a hair darker than zinc-950) |
 | `bg.surface` | `#101015` | Cards, console panels |
-| `bg.surface.elev` | `#16161D` | Hovered card |
+| `bg.surface.hover` | `#16161D` | Hovered card |
 | `border.hairline` | `#1F1F27` | 1px dividers |
-| `border.focus` | `#7C5CFF` | Input focus ring, active filter pill |
-| `text.primary` | `#F4F4F7` | Headlines, body |
-| `text.secondary` | `#A1A1AA` | Subheads, metadata |
-| `text.tertiary` | `#52525B` | Captions, helper text |
-| `accent.violet` | `#8B6FFF` | Primary CTA, link hovers |
-| `accent.warm` | `#E8C275` | One single warm signal — used **only** on the live waveform and the "open gigs" pulse dot. Restraint is the point. |
+| `osc.ring` | `#8B6FFF` | Oscilloscope main ring — violet |
+| `osc.glow` | `rgba(139,111,255,0.15)` | Ring outer glow |
+| `osc.grid` | `rgba(139,111,255,0.08)` | Polar grid lines |
+| `osc.warm` | `#E8C275` | Single warm accent — the "hot signal" indicator |
+| `ink.primary` | `#F4F4F7` | Headlines, body |
+| `ink.secondary` | `#A1A1AA` | Subheads, metadata |
+| `ink.muted` | `#52525B` | Captions |
+| `accent.violet` | `#8B6FFF` | Primary CTA, active states |
+| `accent.warm` | `#E8C275` | Live pulse dot, open gig count — one warm signal |
 | `status.open` | `#5EE2A0` | OPEN gig badge |
-| `status.closed` | `#D1A05B` | CLOSED gig badge |
 
-No gradient backgrounds. No glow halos. The whole palette is grayscale plus two accents, full stop.
+Grayscale studio surface + violet signal + one warm alert. Maximum restraint.
 
 ## 4. Typography
 
-- **Display:** Söhne or Inter Display, weight 600, tracking `-0.02em`. Hero headline at `clamp(44px, 6vw, 88px)`, leading `1.02`.
-- **Body:** Inter, 400/500. Body at 16px, leading `1.55`.
-- **Mono:** JetBrains Mono 13px — used for the small console-style metadata (e.g., `OPEN · 24 GIGS · UPDATED 2 MIN AGO`) above the hero headline. This single mono line is what sells the "studio gear" feeling.
+- **Display:** Inter Display 700, `clamp(44px, 6vw, 88px)`, tracking `-0.02em`, leading `1.02`.
+- **Mono eyebrow:** JetBrains Mono 11px uppercase `+0.2em`, `ink.muted`: `OPEN · 24 GIGS · UPDATED 2 MIN AGO`
+- **Body:** Inter 400, 16/26.
+- **Console readout:** JetBrains Mono 13px — the oscilloscope frequency/amplitude readout below the ring.
+
+```bash
+npm install @fontsource/jetbrains-mono
+```
 
 ## 5. Layout
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  [logo]                                       [signin] [→]    │  ← thin nav, 64px
+│  [GIGFORGE]                          [OPEN ● 24]  [signin]   │  ← nav; warm dot pulses
 ├──────────────────────────────────────────────────────────────┤
 │                                                                │
-│  OPEN · 24 GIGS · UPDATED 2 MIN AGO         ← mono eyebrow    │
+│                   ╭─────────────────╮                         │
+│                  ╱   OSCILLOSCOPE   ╲                         │  ← Three.js polar ring
+│                 │    RING · 360°     │                         │    full-color, animated
+│                  ╲                  ╱                         │
+│                   ╰─────────────────╯                         │
+│               FREQ: 440Hz   AMP: 0.72   ← mono readout       │
 │                                                                │
-│  Find the right student musician.                              │
-│  Email them directly.                          ← display H1   │
+│   OPEN · 24 GIGS · UPDATED 2 MIN AGO                          │  ← mono eyebrow
 │                                                                │
-│  A directory, not a feed. Built for student creators           │
-│  who need a composer, a guitarist, a vocalist — now.           │
+│   Find the right student musician.                            │
+│   Email them directly.                     ← display H1      │
 │                                                                │
-│  [ Browse musicians → ]   [ Post a gig ]                       │
+│   A directory, not a feed. For student creators               │
+│   who need a composer, guitarist, or vocalist — now.          │
 │                                                                │
-│  ──────────────────────────────────────────────────────────    │
-│  ╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲╱╲  ← ambient waveform, full bleed       │
+│   [ Browse musicians → ]    [ Post a gig ]                    │
 │                                                                │
 ├──────────────────────────────────────────────────────────────┤
-│  [ Sample musician card ]    [ Sample gig card ]               │
-│  Two real cards from the live directory, anonymized.           │
-├──────────────────────────────────────────────────────────────┤
-│  How it works · 3 short steps in a single horizontal row.      │
+│   ┌──────────────────┐   ┌──────────────────┐                │  ← musician + gig cards
+│   │  Channel 01      │   │  Channel 02      │                │     (rack-slide entrance)
 └──────────────────────────────────────────────────────────────┘
 ```
 
-Max width 1152px (`max-w-6xl`), gutters 24px mobile / 48px desktop.
+Max width 1152px. The oscilloscope ring is 360px on desktop, 260px on mobile. It sits centered above the headline.
 
-## 6. The Signature Motion: Ambient Waveform
+## 6. The Signature: Three.js Polar Oscilloscope
 
-A single SVG `<path>` rendered full-bleed below the hero copy. Built from 256 points, animated with `requestAnimationFrame` using a sum of three sine waves at incommensurate frequencies (so it never visibly loops):
-
-```
-y(x, t) = A1·sin(k1·x + ω1·t) + A2·sin(k2·x + ω2·t) + A3·sin(k3·x + ω3·t)
+```bash
+npm install three @react-three/fiber @react-three/drei
 ```
 
-- Stroke: 1.5px, `accent.warm` at 35% opacity.
-- Below the line: same path filled with a vertical gradient `accent.warm 8% → transparent`, 40px tall.
-- Slowed to ~0.15 cycles/sec — it has to feel like ambient sound, not a busy chart.
-- `prefers-reduced-motion: reduce` → freezes to a single still frame.
+A `THREE.Line` drawn in polar coordinates — `r(θ) = R + A(θ, t)` where `A` is the sum of three sine waves with incommensurate frequencies:
 
-This is the **only** moving piece on the page. Its restraint is the design.
+```glsl
+float r = baseRadius
+  + 0.18 * sin(4.0 * theta + uTime * 0.9)
+  + 0.11 * sin(9.0 * theta + uTime * 1.4)
+  + 0.07 * sin(16.0 * theta - uTime * 0.7);
+```
 
-## 7. 3D / Depth Treatment
+- 512 vertices around the circle for smooth resolution
+- Line: `THREE.LineLoop`, material `LineBasicMaterial` color `#8B6FFF`, linewidth 2 (WebGL allows 1 in practice — use a thin tube via `TubeGeometry` for true width control)
+- Outer glow: a second identical loop at 110% radius, `#8B6FFF` 12% opacity, 8px blur via post-processing or a scaled duplicate
+- Polar grid: 8 thin reference rings at 25%, 50%, 75%, 100% radius, `osc.grid` color
+- **Mouse modulation:** `uMouse` uniform (normalized -1 to 1). Mouse X → modulates the `sin(4θ)` frequency by ±1.5; Mouse Y → modulates amplitude of the outermost harmonic. The ring visibly deforms toward the cursor direction.
+- **Camera:** orthographic, looking straight down the Z axis — the ring reads as a perfect 2D circle on screen but lives in 3D space
+- **Warm accent:** when `amplitude > 0.75` (mouse near edge), the ring color briefly bleeds toward `#E8C275` via `mix()` — a "hot signal" moment
 
-No three.js, no WebGL. Depth comes from:
+**Readout below ring:**
+```
+FREQ: 440Hz   AMP: 0.72   PHASE: 180°
+```
+These numbers are fake but update in sync with `uTime` — the display is theater, but it's precise theater.
 
-- 1px hairline borders on every surface
-- A single sub-pixel inner highlight on cards: `box-shadow: inset 0 1px 0 rgba(255,255,255,0.04)` — gives every card the look of brushed-anodized aluminum catching a top light
-- Cards lift on hover via `translateY(-2px)` + border step from `#1F1F27` → `#2C2C36`. 180ms `cubic-bezier(0.4, 0, 0.2, 1)`.
+`prefers-reduced-motion`: ring frozen at `t=0`, mouse modulation off.
+
+## 7. Card Entrances — Rack Slide (Framer Motion)
+
+Cards enter from the right like audio channel strips sliding into a mixing desk rack:
+
+```tsx
+const rackVariants = {
+  hidden: { opacity: 0, x: 48, scaleY: 0.96 },
+  visible: { opacity: 1, x: 0, scaleY: 1 },
+};
+// transition: { type: "spring", stiffness: 180, damping: 24 }
+// staggerChildren: 0.14
+```
+
+Card hover: `border-top` steps from `#1F1F27` → `#8B6FFF` (3px), `translateY(-2px)`. 180ms `cubic-bezier(0.4, 0, 0.2, 1)`. The card activates like a mixer channel being soloed.
+
+Inner highlight: `box-shadow: inset 0 1px 0 rgba(255,255,255,0.04)` — brushed anodized aluminum catching top light.
 
 ## 8. CTAs
 
 **Primary** — `Browse musicians`:
 ```
 bg: #8B6FFF
-text: #08080B (yes, dark text on violet — readable, premium)
+text: #08080B
 height: 48px, px: 20px
 radius: 12px
 font: Inter 600, 15px, tracking -0.005em
-hover: bg #9D85FF, translateY(-1px), shadow 0 8px 24px rgba(139,111,255,0.25)
+hover: bg #9D85FF, translateY(-1px), shadow 0 8px 24px rgba(139,111,255,0.3)
+transition: spring stiffness 280 damping 20
 ```
 
 **Secondary** — `Post a gig`:
@@ -110,37 +145,43 @@ text: #F4F4F7
 hover: border #7C5CFF, bg rgba(124,92,255,0.05)
 ```
 
-## 9. The Two Sample Cards (Right Side of Hero on Desktop, Below on Mobile)
+## 9. Stats — Frequency Counters
 
-These are *real-looking* cards, not illustrations — pulled from the directory but hand-curated:
+Below the cards, three stat blocks:
 
-- **Musician card:** Avatar circle (initials, monogrammed), `Maya Chen`, `Guitar · Vocals`, `UT Austin`, two genre chips, a 2-line bio clamp.
-- **Gig card:** Project type badge (`FILM`), `Composer for 10-min thesis short`, comp badge, deadline, 2-line description.
+```
+142 musicians      24 open gigs      12 universities
+```
 
-The hero literally shows you what the product produces. No mockup illustrations.
+Numbers in Inter 700 64px `accent.violet`. Labels in JetBrains Mono 11px uppercase `ink.muted`. Framer `animate()` counts up on `useInView`, 1.4s `ease: "easeOut"`. The violet numbers climbing on black look like a frequency counter. Dopamine on arrival.
 
-## 10. Section: How It Works
+## 10. How It Works — Console Input Format
 
-Horizontal 3-up with mono numerals (`01` / `02` / `03`) at 32px in `text.tertiary`, headline below in `text.primary`, one-sentence subhead in `text.secondary`. No icons. No cards around them. Numbers and dividers do the work.
+Three steps, formatted like console I/O:
 
-## 11. Empty / Edge States
+```
+IN  →  browse_directory()     No account. Just look.
+IN  →  find_match()           Filter instrument, campus, availability.
+OUT ←  email_contact          Their inbox. No platform middleman.
+```
 
-When the live "OPEN · N GIGS" counter would say `0`, the eyebrow softens to `QUIET RIGHT NOW · CHECK BACK SOON` and the warm accent on the waveform drops to 18% — the page literally dims itself when there's nothing happening. Honest, and beautiful.
+`IN`/`OUT` labels in `accent.warm` mono, small. Commands in `accent.violet` mono. Descriptions in `ink.secondary`. The format is pure studio console.
 
-## 12. What This Version Refuses to Do
+## 11. Required Libraries
 
-- No testimonials (it's a campus tool, social proof is the directory itself)
-- No "trusted by" logos
-- No feature grid with icons
-- No newsletter signup
-- No floating chatbot
+```bash
+npm install framer-motion three @react-three/fiber @react-three/drei @fontsource/jetbrains-mono
+```
 
-## 13. Implementation Notes
+## 12. Implementation Notes
 
-- Hero waveform: single `<canvas>` 1px-DPR-aware, ~3KB JS, no library.
-- All other content is server-rendered.
-- No layout shift — eyebrow counter is fetched server-side, not client-hydrated.
+- Oscilloscope is a separate `OscilloscopeRing.tsx` component, always `dynamic(() => import(...), { ssr: false })`.
+- `TubeGeometry` path: compute 512 `Vector3` points via polar → Cartesian, build a `CatmullRomCurve3`, extrude a 2px tube. This gives true linewidth in WebGL.
+- `uTime` driven by `useFrame(({ clock }) => { mesh.uniforms.uTime.value = clock.elapsedTime })`.
+- Mouse: `onPointerMove` on the canvas container → normalize to [-1, 1] → set `uMouse`.
+- Card data is server-rendered. The oscilloscope is the only dynamic import.
+- Test: CPU 4× throttle in Chrome DevTools. Ring should hold 60fps. Budget ≤2ms GPU.
 
-## 14. The Test
+## 13. The Test
 
-Open the page in a quiet room. The only thing that moves is the waveform. You should want to keep watching it. If you don't, the amplitudes are wrong — tune them down further until you do.
+Play music in the room while the page is open. If the oscilloscope feels like it's reacting to the music (it isn't — it's on a clock), you tuned the harmonics correctly. If it feels like a loading spinner, the frequency ratio between the three sine components is too regular — use `0.9`, `1.4`, `0.7` or any triple that shares no common factor.

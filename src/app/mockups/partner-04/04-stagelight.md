@@ -1,108 +1,152 @@
 # Landing Design 04 — **Stagelight**
 
-> I'm a senior product designer who built rebrand sites for two indie record labels and a national orchestra. Music landing pages always lean on flame and neon. They shouldn't. Real stages are dark, with one warm light pointing somewhere intentional. This version puts a single 3D spotlight at the center of the page and lets it do everything.
+> I've built rebrand sites for two indie record labels and a national touring orchestra. Music landing pages always reach for flame and neon. Real stages don't. Real stages are 90% darkness and 10% intention. Stagelight puts that intention on screen: one Three.js volumetric light cone descending from a physical ceiling rig, with the headline living inside the beam. The spotlight follows your cursor. This is the one design here that makes you feel like you're actually at a venue.
 
 ---
 
 ## 1. The Concept
 
-A near-black stage. One soft spotlight beam falls from the top of the hero, illuminating an invisible performer where the headline sits. The headline appears *inside* that light. Move your cursor — the light follows, gently. That's the entire visual.
+A near-black stage. A Three.js `SpotLight` descends from a visible ceiling rig — you can see the cone of light in the air, the dust motes drifting through it, the pool of warmth on the stage floor. Move your cursor left or right — the light arm swings on a physical pivot, following you with the lag of real theatrical hardware. The headline lives inside the beam. The rest of the page waits in shadow until the cursor reveals it. This is stagecraft, not decoration.
 
 ## 2. Why This Direction
 
-The product helps people *find performers*. A spotlight is the most literal possible visual metaphor that doesn't read as cliché — as long as it's restrained. The 3D here is not a hero animation showing off; it's stagecraft. The page is the stage. The visitor is the audience. The musicians on the directory are the show.
+GigForge helps people *find performers*. A spotlight is the most direct possible metaphor that doesn't read as cliché — because it's realized in actual 3D space with real physics, not CSS trickery. The Three.js scene has a ceiling, a floor, dust particles, and a mechanically-pivoting arm. It feels like standing in a venue during load-in. The musicians on this platform belong on stages. The landing page is the first stage they appear on.
 
 ## 3. Color System
 
 | Token | Hex | Use |
 |---|---|---|
-| `bg.stage` | `#0A0A0C` | Page (deep theater black, not pure black) |
-| `bg.floor` | `#0E0E11` | A 1px-wider band at the bottom of the hero — subliminal "floorline" |
-| `light.warm` | `#FFC880` | Spotlight inner |
-| `light.warm.mid` | `#E8A45C` | Spotlight middle radius |
-| `light.warm.outer` | `rgba(232,164,92,0)` | Spotlight falloff |
-| `text.lit` | `#FFF8EE` | Text inside the light |
-| `text.unlit` | `#52525B` | Text outside the light — visible but quiet |
+| `bg.stage` | `#0A0A0C` | Page (deep theater black) |
+| `bg.floor` | `#0E0E11` | Below-hero band (backstage strip) |
+| `light.warm` | `#FFC880` | SpotLight color + CSS gradient fallback |
+| `light.ambient` | `#1A1520` | Ambient scene light |
+| `text.lit` | `#FFF8EE` | Text inside the beam |
+| `text.unlit` | `#52525B` | Text in shadow |
+| `text.ghost` | `#1E1E26` | Far-shadow text — barely visible |
 | `border.subtle` | `#1A1A1F` | Card edges |
-| `accent.cool` | `#5E8FFF` | Single cool accent on the primary CTA. The CTA is the only thing on the page that *isn't* warm. |
+| `accent.cool` | `#5E8FFF` | Primary CTA — the only non-warm element |
+| `dust.color` | `rgba(255,200,128,0.6)` | Mote particle color inside beam |
+
+One warm light source. One cool counterpoint. Everything else is shadow.
 
 ## 4. Typography
 
-- **Display:** Inter Display 700, `clamp(48px, 7vw, 96px)`, tracking `-0.025em`.
-- **Body:** Inter 400, 16/26.
-- **Mono / metadata:** GT America Mono 12px in `text.unlit` — used for stage directions ("THE STAGE · ROW B · SEAT 14") as a decorative subhead.
+- **Display:** Inter Display 700, `clamp(48px, 7vw, 96px)`, tracking `-0.025em`, leading `1.0`. The headline is large enough to be partially obscured by shadow, with the lit portion commanding attention.
+- **Stage direction mono:** `font-mono` 12px uppercase, `text.unlit`: `THE STAGE · ROW B · SEAT 14`
+- **Body:** Inter 400, 16/26, `text.lit`.
 
 ## 5. Layout
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│   [logo]                              [signin]   →     │
+│   [logo]                              [signin]          │
 ├────────────────────────────────────────────────────────┤
 │                                                          │
-│                      · · ·                              │  ← three dim dots (the rigging)
-│                       │                                 │
-│                       ▼                                 │  ← beam falls
+│   ══╦══ ══╦══ ══╦══    ← Three.js ceiling rig (pipes)  │
+│      ║       ║                                           │
+│     [●]     [●]        ← light housing (PAR cans)       │
+│      ║                                                   │
+│      ╲                                                   │
+│       ╲ ← cone visible in 3D space (volumetric beam)    │
+│        ╲                                                 │
 │                                                          │
-│                  THE STAGE · ROW B                      │  ← unlit, mono, tiny
+│                  THE STAGE · ROW B                      │  ← mono, unlit
 │                                                          │
-│              Find the musician                          │  ← lit text
+│              Find the musician                          │  ← inside beam → lit
 │              your project needs.                        │
 │                                                          │
-│           A directory for student creators.             │  ← lit, smaller
+│         A directory for student creators.               │
 │                                                          │
-│            [ Browse musicians ]  [ Post a gig ]         │  ← CTAs
+│          [ Browse musicians ]  [ Post a gig ]           │
 │                                                          │
-│  ──────────────────────────────────────────────────    │  ← faint floor line
+│  ──────────────────────────────────────────────────    │  ← floor line
+├────────────────────────────────────────────────────────┤
+│  [Musician card]           [Gig card]                   │  ← bg.floor, below stage
 └────────────────────────────────────────────────────────┘
-                                                          
-                  [Two sample cards in a darker band below the stage]
 ```
 
-## 6. The Signature: The 3D Spotlight
+## 6. The Signature: Three.js Volumetric Stage
 
-This is the only 3D element. Implementation:
+```bash
+npm install three @react-three/fiber @react-three/drei framer-motion
+```
 
-- A **CSS radial-gradient + mix-blend-mode** layer, not WebGL. Three.js is overkill and costs 600KB.
-- One full-bleed `<div>` absolutely positioned with `background: radial-gradient(ellipse 600px 800px at var(--mx) var(--my), #FFC880 0%, rgba(232,164,92,0.4) 22%, rgba(232,164,92,0.08) 50%, transparent 70%);` and `mix-blend-mode: screen`.
-- `--mx` and `--my` are CSS custom properties updated on `mousemove`, eased by ~0.08 per frame — the light *lags* the cursor like a real follow-spot.
-- Default position before any cursor movement: dead-center on the headline.
-- On touch devices: the spotlight slowly oscillates side-to-side on a 6s sine — feels alive without needing a cursor.
-- `prefers-reduced-motion`: spotlight locks center, no follow.
+**Scene objects:**
 
-Inside the lit region, text uses `text.lit` and is fully readable. Outside, text fades to `text.unlit` — visible but ghostly. The cursor literally reveals the page.
+*Ceiling rig:* Three `BoxGeometry(0.08, 0.08, 4)` horizontal pipes in `#1A1A22` crossing overhead. Two `CylinderGeometry(0.06, 0.06, 0.14)` PAR-can housings suspended from the center pipe. Physical, recognizable.
 
-## 7. Above the Beam: The Rigging Hint
+*SpotLight:* `THREE.SpotLight` — `color: #FFC880`, `intensity: 80`, `angle: Math.PI / 6`, `penumbra: 0.4`, `decay: 2`. Positioned at `[0, 4.5, 2]`. Casts shadows onto a `PlaneGeometry(20, 20)` floor.
 
-Three 4px circles in `text.unlit` at the top center, spaced 32px apart. They represent the lighting rig overhead — pure decoration, but they sell the metaphor in 12 pixels. A thin 1px vertical line, 24% opacity, descends from the middle circle into the beam.
+*Volumetric cone:* A `ConeGeometry(1.2, 5, 32, 1, true)` with `THREE.MeshStandardMaterial` on `BackSide`, `color: #FFC880`, `transparent: true`, `opacity: 0.06`. The visible beam in the air between the fixture and the floor.
+
+*Dust motes:* 120 `THREE.Points` inside the cone volume. Each mote drifts on a slow Lissajous path within the cone bounds. `PointsMaterial` color `rgba(255,200,128,0.6)`, size 0.015. On cursor move, nearby motes scatter slightly (repulsion radius 0.4 units).
+
+**Cursor follow — spotlight pivot:**
+- Mouse X (normalized -1 to 1) → `spotLight.position.x` target: `mouseX * 2.5`
+- Lerp: `current += (target - current) * 0.055` per frame — the arm swings with the inertia of real theatrical rigging
+- `spotLight.target.position.x` tracks proportionally so the beam stays pointing down
+- The PAR-can housing meshes also rotate to follow — the whole rig moves
+
+**Touch devices:** spotlight oscillates `sin(t * 0.4) * 1.8` on a slow sine — the venue feels live.
+
+`prefers-reduced-motion`: spotlight locked at `[0, 4.5, 2]`, motes frozen.
+
+## 7. Framer Motion — Reveal Entrance
+
+On page load, all hero text starts as `opacity: 0`. Framer staggered reveal:
+
+```tsx
+const stageVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.18, delayChildren: 0.6 } },
+};
+const lineVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] } },
+};
+```
+
+The delay of 0.6s lets the Three.js scene load and the first frame render before the text appears — feels like the lights coming on before the performer steps out.
+
+**CTA entrance:**
+```tsx
+whileHover={{ scale: 1.02 }}
+transition={{ type: "spring", stiffness: 300, damping: 20 }}
+```
 
 ## 8. CTAs
 
 **Primary** — `Browse musicians`:
 ```
-bg: #5E8FFF (the cool counterpoint to the warm stage)
+bg: #5E8FFF  ← the cool counterpoint to the warm stage
 text: #0A0A0C
 height: 50px, px: 24px
-radius: 100px (pill — the only round shape on the page)
+radius: 100px (pill)
 hover: bg #7BA3FF, scale 1.02, shadow 0 12px 32px rgba(94,143,255,0.3)
 ```
-
-The cool blue against the warm stage is the chromatic tension that makes the page *feel*. Don't lose it.
 
 **Secondary** — `Post a gig`:
 ```
 bg: transparent
-border: 1px rgba(255,200,128,0.4)   ← borrows the spotlight color, faintly
+border: 1px rgba(255,200,128,0.4)
 text: #FFF8EE
 hover: border rgba(255,200,128,0.8)
 ```
 
 ## 9. Below the Stage: Two Sample Cards
 
-A separate band with `bg.floor`. Two cards side-by-side, full-color, *not* affected by the spotlight (they live below the stage in a backstage-style strip). One musician, one gig. Each is a real preview of a directory entry.
+Band with `bg.floor`. Two cards side-by-side. NOT inside the spotlight scene — these are the backstage strip. One musician card, one gig card. Each has `border: 1px border.subtle`, `border-radius: 8px`, `bg: #101015`.
+
+**Framer entrance from below:**
+```tsx
+initial={{ opacity: 0, y: 32 }}
+animate={{ opacity: 1, y: 0 }}
+transition={{ delay: 1.2, type: "spring", stiffness: 160, damping: 22 }}
+```
 
 ## 10. How It Works
 
-A 3-row vertical list (not a grid). Each row:
+Three-row vertical list:
 
 ```
 [01]  Browse the directory          A no-account page. Just look.
@@ -110,25 +154,27 @@ A 3-row vertical list (not a grid). Each row:
 [03]  Hire them, or not              That's it. That's the product.
 ```
 
-Numbers in `light.warm.mid`, headline in `text.lit`, body in `text.unlit`. Spaced 32px apart.
+Numbers in `light.warm` (`#FFC880`), headline in `text.lit`, body in `text.unlit`. Framer stagger on scroll.
 
 ## 11. Stage-Direction Footer
 
-Footer copy uses theater language: `EXIT · STAGE LEFT` for the back-to-top link, `INTERMISSION` for the privacy policy section header, `PROGRAMME` instead of "About". This is the only place the theater metaphor gets cheeky — and it stays in the footer where power users find it.
+Theater language throughout the footer: `EXIT · STAGE LEFT` for the back-to-top link, `INTERMISSION` for the privacy section, `PROGRAMME` for About. The one place the metaphor gets cheeky. Stays legible. Never tries too hard.
 
-## 12. What This Version Refuses to Do
+## 12. Required Libraries
 
-- No actual three.js (avoid bundle bloat)
-- No spotlight on the cards section (the spotlight is only on the stage)
-- No multiple beams (one spotlight, always)
-- No "fog machine" particles (one cliché too many)
+```bash
+npm install framer-motion three @react-three/fiber @react-three/drei
+```
 
 ## 13. Implementation Notes
 
-- Total JS: < 2KB for the spotlight tracking.
-- The radial-gradient approach renders at 60fps on a 5-year-old laptop. WebGL would not.
-- Test the cool-blue CTA on color-blind users: under deuteranopia it reads warmer; the contrast against the page is still sufficient (≥4.5:1).
+- `StageScene.tsx` — the entire Three.js scene. Always `dynamic(..., { ssr: false })`.
+- Scene canvas: `position: absolute, inset: 0, pointer-events: none`. Hero section: `position: relative, min-height: 100vh, overflow: hidden`.
+- `shadows` must be enabled on `<Canvas>`: `<Canvas shadows>`. `DirectionalLight` and `SpotLight` both set `castShadow`. Floor plane sets `receiveShadow`.
+- Mote positions: `useMemo` with deterministic seeds so the scatter looks consistent on reload.
+- The volumetric cone `ConeGeometry` must be `openEnded: true` to avoid a base cap closing the beam.
+- Test spotlight pivot latency: if the light feels "sticky" increase lerp factor to 0.075. If it feels "nervous" decrease to 0.035.
 
 ## 14. The Test
 
-Take a screenshot. Crop to just the hero. Hand it to a graphic designer with no context. If they say "theater poster," you got it. If they say "gaming site," your beam falloff is too sharp — soften the outer stop to 75%.
+Dim your monitor to 40% brightness. Sit two feet back. Move your cursor slowly left to right across the hero. If the spotlight pivot feels like a real follow-spot — deliberate, weighty, just slightly behind your hand — the lerp factor is correct. If it feels like a CSS hover effect, the Three.js scene isn't landing. Check that the volumetric cone opacity is ≥0.06 (lower and it disappears on bright monitors).
