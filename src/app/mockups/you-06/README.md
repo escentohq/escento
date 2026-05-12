@@ -1,46 +1,46 @@
-# Landing Design 06 — **Indie Magazine**
+# Landing Design 06 - **Indie Magazine**
 
-> I spent seven years in independent music publishing. Music editorial at its best is alive: pages that feel like the record is playing while you read. Indie Magazine takes that literally. The Three.js piece is a slowly rotating 3D magazine — real geometry, a spine, two covers, inner pages that fan slightly as it turns — like finding a copy of the magazine on a coffee table. Framer Motion handles the article entrances: each card folds in from the spine, as if the magazine is opening in front of you. The page doesn't reference music culture. It IS music culture.
+> I have art-directed small-run music publications, and the good ones never feel like content templates. They feel like somebody chose every rule, every margin, every caption. Indie Magazine makes GigForge feel like a campus arts periodical: local, curated, useful, and alive. The signature is a Three.js rotating magazine object, not because print is nostalgic, but because it turns student work into something worth publishing.
 
 ---
 
 ## 1. The Concept
 
-Very light warm white page. A Three.js 3D magazine object slowly rotates in the hero center — a real book geometry with visible spine, cover image area, and inner pages visible when the angle catches them. The magazine turns on a gentle Y-axis rotation, hovering slightly above a shadow on the surface below it. The cursor tilts it slightly on X. Over and below: editorial serif content, muted red accent, a sidebar with three active gig listings, and article-style card entrances via Framer. The page is a periodical. GigForge is the publication.
+Very light warm page. A 3D magazine floats in the hero, slowly rotating just enough to reveal cover, spine, and page block. The headline sits beside it like a feature story. A right-side column lists "Now listing" items as editorial blurbs. Below, article-style cards show project categories and direct actions.
+
+This design frames GigForge as the publication of a campus creative scene.
 
 ## 2. Why This Direction
 
-Independent music culture is delivered through publications — zines, college papers, record store newsletters. Every student musician reads them. By making the landing page feel like one — in visual language, in article structure, AND in the physical presence of a rotating 3D magazine — Indie Magazine earns trust from the audience most likely to use GigForge. The 3D magazine is not a gimmick: it communicates that GigForge takes the work of student musicians seriously enough to publish it.
+GigForge is not only a utility. It is also a way to reveal the creative life already happening around campus. Indie Magazine gives the platform taste and cultural context while keeping the workflow simple. It is softer and more literary than Bold Editorial, but still structured.
 
 ## 3. Color System
 
 | Token | Hex | Use |
 |---|---|---|
-| `bg.page` | `#FAF8F2` | Very light warm white — aged paper tint |
-| `bg.surface` | `#FFFFFF` | Cards, article blocks |
-| `bg.sidebar` | `#F4F0E8` | Sidebar background |
-| `mag.cover` | `#1A1410` | Magazine cover — ink black |
-| `mag.spine` | `#2C2418` | Spine — slightly lighter dark |
-| `mag.page` | `#FDFAF4` | Inner pages — warm white |
-| `mag.title` | `#FAF8F2` | Cover title text |
-| `mag.accent` | `#C8331C` | Cover accent stripe |
-| `border.rule` | `#1A1410` | All editorial rules |
-| `ink.primary` | `#1A1410` | Body, headlines |
-| `ink.secondary` | `#4A4440` | Subheads |
-| `ink.muted` | `#8A8278` | Metadata, section labels |
-| `accent.red` | `#C8331C` | Kicker, links, "OPEN" dot, CTA hover |
-| `accent.red.wash` | `#F8EAE6` | Sidebar border, active article highlight |
+| `bg.page` | `#FFFDF7` | Warm editorial paper |
+| `bg.page.alt` | `#F6EFE3` | Section bands |
+| `mag.cover` | `#F2D6C9` | 3D magazine cover |
+| `mag.spine` | `#B23B2E` | Magazine spine accent |
+| `mag.pages` | `#FFF8EC` | Page block |
+| `ink.primary` | `#1B1712` | Headlines |
+| `ink.secondary` | `#655D52` | Body |
+| `ink.muted` | `#9A8F80` | Captions |
+| `accent.red` | `#B23B2E` | Kicker, issue labels |
+| `accent.gold` | `#D6A84C` | Highlight rules |
+| `border.rule` | `#1B1712` | Editorial rules |
+| `shadow.paper` | `rgba(76,50,24,0.16)` | Magazine shadow |
 
-Warm white + ink black + editorial red. Three colors. Magazine discipline.
+The palette should feel like cream paper, red ink, and sunlit page edges.
 
 ## 4. Typography
 
-- **Display:** Playfair Display 700 Italic, `clamp(48px, 6.5vw, 96px)`, tracking `-0.01em`, leading `1.02`.
-- **Masthead:** Playfair Display 900, 28px centered, `GIGFORGE REVIEW`. Italic subline: `A directory for campus sound`.
-- **Kicker:** Inter 500 11px uppercase tracking `+0.14em` `accent.red`: `A DIRECTORY FOR CAMPUS SOUND`.
-- **Body:** Inter 400, 17/1.62, `ink.secondary`.
-- **Sidebar label:** Inter 500 11px small-caps tracking `+0.12em`, `ink.muted`.
-- **Article headline:** Playfair Display 700 24px.
+- **Display:** Playfair Display 700, `clamp(54px, 7vw, 104px)`, leading `0.96`, tracking `-0.02em`.
+- **Masthead:** Playfair Display Italic 28px.
+- **Kicker:** Inter 800 11px uppercase tracking `+0.24em`, `accent.red`.
+- **Body:** Inter 400, 17/1.65, `ink.secondary`.
+- **Listing headings:** Playfair Display 600, 30px.
+- **Captions:** `font-mono` 11px uppercase.
 
 ```bash
 npm install @fontsource/playfair-display framer-motion three @react-three/fiber @react-three/drei
@@ -48,150 +48,124 @@ npm install @fontsource/playfair-display framer-motion three @react-three/fiber 
 
 ## 5. Layout
 
-```
-┌────────────────────────────────────────────────────────────┐
-│              GIGFORGE REVIEW                                 │  ← masthead centered
-│              A directory for campus sound                    │
-│  ──────────────────────────────────────────────────────    │  ← 2px rule
-├────────────────────────────────────────────────────────────┤
-│                                                              │
-│                 [THREE.JS MAGAZINE OBJECT]                   │
-│            spinning slowly, lit from upper left             │
-│                                                              │
-├──────────────────────────┬─────────────────────────────────┤
-│                          │                                   │  ← sidebar
-│  A DIRECTORY FOR         │  NOW LISTING                     │
-│  CAMPUS SOUND            │  ─────────────                  │
-│                          │                                   │
-│  The next collaborator   │  Feature 01 / Short films →      │
-│  is probably three       │  Feature 02 / Indie games →      │
-│  buildings away.         │  Feature 03 / Live events →      │
-│                          │                                   │
-│  [ Read the directory ]  │  142 musicians listed            │
-│  Submit a gig →          │                                   │
-│                          │                                   │
-├──────────────────────────┴─────────────────────────────────┤
-│                                                              │
-│  THIS WEEK ON GIGFORGE   ← 3 article-style feature cards   │
-│                                                              │
-└────────────────────────────────────────────────────────────┘
+```text
+MASTHEAD: GigForge Review
+
+LEFT
+A DIRECTORY FOR CAMPUS SOUND
+The next collaborator is probably three buildings away.
+Editorial support copy
+[ Read the directory ] [ Submit a gig ]
+
+CENTER/RIGHT
+3D magazine object
+Now listing sidebar with 3 feature blurbs
+
+BELOW
+This week cards: Short films / Indie games / Campus events
 ```
 
-## 6. The Signature: Three.js Rotating 3D Magazine
+Desktop can use a 60/40 split or three-column editorial grid. Mobile stacks masthead, headline, magazine, listings.
 
-**Magazine geometry:**
-- Cover: `BoxGeometry(2.2, 3.0, 0.08)` — the cover/back, slightly thick.
-- Spine: `BoxGeometry(0.18, 3.0, 0.08)` positioned at the left edge, merged visually with the cover.
-- Inner pages: 8 `PlaneGeometry(2.0, 2.9)` planes stacked at Z `0.005` apart, each at a slightly different color graduation from `#FDFAF4` (near) to `#EDE8DC` (back). They fan very slightly — `rotation.z` varies by `0.004 * index` — visible from the side as the magazine rotates.
+## 6. The Signature: Three.js Magazine Object
 
-**Cover design:**
-- Cover face: `MeshStandardMaterial` with a canvas texture drawn on load. The canvas renders: black background, `GIGFORGE REVIEW` in large text (Inter 900), a horizontal `#C8331C` rule stripe, and `Spring '26` in `#FAF8F2` mono.
-- Spine face: separate material, `mag.spine` color. Small vertical text via canvas texture: `GIGFORGE · VOL. 01`.
-- Back cover: plain `#FAF8F2` — the back is boring, realistic.
+**Geometry:**
+- Cover: `BoxGeometry(2.6, 3.6, 0.06)`, material `mag.cover`.
+- Back cover: same size, slight Z offset.
+- Page block: `BoxGeometry(2.5, 3.45, 0.28)`, material `mag.pages`.
+- Spine: `BoxGeometry(0.18, 3.6, 0.36)`, material `mag.spine`.
+- Add 12 thin page-line planes along the right edge, color `#E8DCC8`.
 
-**Lighting:**
-- `ambientLight` 0.4 color `#FFF8F4`.
-- `directionalLight` from `[-4, 6, 5]` intensity `0.8` — upper left, casts shadow on the surface below.
-- `PointLight` from `[2, 2, 4]` intensity `0.3` — a soft rim light on the right edge.
-
-**Animation:**
-- Auto Y-rotation: `mesh.rotation.y += 0.005` — the magazine completes one rotation every ~20 seconds.
-- Hover: cursor X position → lerp `rotation.y` speed ±0.003; cursor Y → `rotation.x` ±4deg.
-- Levitation: `mesh.position.y = sin(t * 0.5) * 0.04` — gentle breathing float above the implied surface.
-- Ground shadow: a blurred `PlaneGeometry` beneath the magazine with `MeshBasicMaterial` at `rgba(26,20,16,0.12)` — a soft elliptical shadow that scales with Y position.
-
-`prefers-reduced-motion`: rotation frozen at 15-degree angle (good view of cover), no float.
-
-## 7. Article Entrances — Framer Motion
-
-The three "THIS WEEK" cards enter as if pages are opening:
-
-```tsx
-const articleVariants = {
-  hidden: { opacity: 0, rotateY: -15, x: -20 },
-  visible: { opacity: 1, rotateY: 0, x: 0 },
-};
-// transformPerspective: 1000 on parent
-// staggerChildren: 0.14
-// transition: { type: "spring", stiffness: 160, damping: 20 }
+**Cover content:**
+- Use `<Html transform>` on the cover:
+```text
+GIGFORGE REVIEW
+Campus Sound Issue
+142 musicians / 24 open gigs
 ```
 
-Each card rotates from -15deg on Y to 0 — as if a page is being turned toward you. The stagger makes the three cards open in sequence like flipping pages.
+**Motion:**
+- Magazine floats at `[0, 0, 0]`.
+- Rotate Y slowly: `Math.sin(t * 0.25) * 0.16`.
+- Cursor tilts X/Y by up to `5deg`.
+- Shadow ellipse beneath the magazine via a translucent plane.
+- Reduced motion: static three-quarter angle.
 
-**Article card hover:**
-```tsx
-whileHover={{ y: -2, borderTopColor: "#C8331C" }}
-transition={{ duration: 0.2 }}
+## 7. Editorial Listings
+
+Sidebar heading: `Now listing`.
+
+Entries:
+```text
+Feature 01 / Short films seeking score
+Feature 02 / Indie games needing texture
+Feature 03 / Campus events booking live sets
 ```
 
-The top border shifts from `ink.muted` to `accent.red` — the "active article" signal.
+Each has a top rule, red feature label, serif heading, and one sentence: `Browse anonymously, contact by email, keep the project moving.`
 
-## 8. Sidebar — Article Listings
+Framer entrance: opacity 0, `y: 18`, stagger `0.12`.
 
-Each sidebar entry:
-```
-──────────────────────────────
-SHORT FILMS SEEKING SCORE
-Browse anonymously. Contact by email. Keep the project moving.
-                                                              →
-```
+## 8. Article Cards
 
-Small-caps category label in `ink.muted`. Headline Playfair 700 18px. Body Inter 400 14px. Arrow `→` in `accent.red`.
+Three below-fold cards:
+```text
+Short films
+Composers, string players, ambient producers.
 
-Framer entrance from right on scroll:
-```tsx
-initial={{ opacity: 0, x: 24 }}
-whileInView={{ opacity: 1, x: 0 }}
-transition={{ staggerChildren: 0.1 }}
+Podcasts
+Theme music, editing help, voice-friendly instrumentals.
+
+Games
+Loops, textures, UI sounds, trailer scoring.
 ```
 
-Row hover: `whileHover={{ borderLeftWidth: "3px", borderLeftColor: "#C8331C", paddingLeft: "12px" }}`.
+Cards should be unrounded or 4px radius max, with thin editorial rules. Hover: underline title and shift image/magazine swatch by 4px.
 
 ## 9. CTAs
 
-**Primary** — `Read the directory`:
-```
-bg: #1A1410
-text: #FAF8F2
-height: 52px, px: 28px
-radius: 2px (editorial — not a SaaS pill)
-font: Inter 500, 15px
-hover: bg #C8331C (ink to red — the masthead moment)
-transition: 220ms
-```
-
-**Secondary** — `Submit a gig →`:
-```
-No button. Playfair Display 400 Italic #C8331C, 1px underline.
-Arrow nudges 6px right on Framer whileHover.
+**Primary - `Read the directory`:**
+```text
+bg #1B1712
+text #FFFDF7
+height 52px
+radius 0
+padding x 26px
+hover bg #B23B2E
 ```
 
-## 10. Stats — Pull Quotes
-
-Instead of a stat grid, stats are formatted as editorial pull quotes with large Playfair numbers:
-
-```
-"142 musicians.
- 24 open gigs.
- 12 universities."
+**Secondary - `Submit a gig`:**
+```text
+bg transparent
+text #1B1712
+border-bottom 1px #1B1712
+hover color #B23B2E, border-color #B23B2E
 ```
 
-Centered, Playfair Display 700 80px `ink.primary`, quotation marks in `accent.red` at 120px. The numbers are in the text, not separate — they're a pull quote from an article the reader hasn't read yet.
+## 10. Stats
+
+Set stats like a magazine contents line:
+
+```text
+142 musicians / 24 open gigs / 12 universities
+```
+
+Use inline editorial separators, not dashboard cards. Numbers can count up once in view, but keep animation understated.
 
 ## 11. Required Libraries
 
 ```bash
-npm install framer-motion three @react-three/fiber @react-three/drei @fontsource/playfair-display
+npm install @fontsource/playfair-display framer-motion three @react-three/fiber @react-three/drei
 ```
 
 ## 12. Implementation Notes
 
-- `MagazineObject.tsx` — Three.js scene, `dynamic(..., { ssr: false })`. Canvas: `400px × 500px` centered in the hero, `pointer-events: auto`.
-- Cover canvas texture: `useMemo` — create once. `const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 720`. Draw text with `ctx.font = "bold 64px Inter, sans-serif"` — fonts available via system fallback.
-- Page fan: the inner `PlaneGeometry` sheets require `side: THREE.FrontSide` and must be rendered with slight Z fighting prevention: `renderer.polygonOffset = true`, `material.polygonOffsetFactor = -1 * index`.
-- The ground shadow ellipse: `<mesh rotation={[-Math.PI/2, 0, 0]} position={[0, -1.52, 0]}>`. Scale it inversely with `position.y` so it "lifts" as the magazine floats.
-- On mobile: rotate the magazine to portrait orientation (no change needed — the geometry is already portrait). Scale to 75% of desktop size.
+- `MagazineObject.tsx` is client-only via `dynamic(..., { ssr: false })`.
+- Use `<Html transform>` sparingly for cover typography.
+- Use a static DOM fallback card on mobile if the canvas text gets too small.
+- Keep body text generous and readable. This concept lives or dies by editorial spacing.
+- Avoid stock photography. The 3D magazine is the visual asset.
 
 ## 13. The Test
 
-Find a physical magazine. Place it on a table. Look at the page. The 3D magazine should feel like you could reach forward and pick it up. If it feels flat, increase `directionalLight` intensity from 0.8 to 1.1 and add a second fill light from `[4, -2, 3]` at 0.2 intensity — the interplay of two light sources gives the cover its depth. The articles below the magazine should feel like the inside of the magazine spilled out onto the page.
+Print the hero screenshot in grayscale. It should still feel designed because the grid, type, and rules carry the identity. Then view it in color. The red spine and labels should feel intentional, not decorative. Indie Magazine succeeds when GigForge feels like the place campus work gets published and found.

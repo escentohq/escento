@@ -1,47 +1,48 @@
-# Landing Design 02 — **Campus Signal**
+# Landing Design 02 - **Campus Signal**
 
-> I've shipped campus-facing tools at three universities and two edtech startups. The most successful ones feel like the place they live — the campus, the studio, the music building. Campus Signal takes the campus literally: a Three.js low-poly campus quad rendered from a 45-degree bird's-eye view, buildings glowing when they have active musicians. Below it: a brutally clear split-hero with a product preview that looks exactly like the real app. Students land here and know in three seconds whether GigForge is for them. It is.
+> I'm a product designer who has built student-facing tools for campus orgs, research labs, and arts programs. The mistake most campus software makes is pretending the internet erased geography. It did not. Students still work in buildings, rehearse in practice rooms, edit in labs, and run across the quad with deadlines in their bags. Campus Signal makes GigForge feel physically local: a low-poly 3D campus map where music buildings glow when there is creative activity inside.
 
 ---
 
 ## 1. The Concept
 
-Warm parchment page. The top third of the hero is a Three.js low-poly campus scene — a stylized bird's-eye quad with 8 buildings rendered as simple geometric volumes, casting real shadows on a ground plane. Two or three buildings pulse with a soft yellow-green glow: those are the active music buildings. Below the campus: a two-column hero with a bold headline on the left and a real product-preview search panel on the right. The campus IS the opening argument. Your musicians are physically here.
+Warm parchment page. The hero opens with a Three.js low-poly campus quad viewed from a 45-degree bird's-eye angle. Eight simple building volumes sit on a soft map plane. Two buildings pulse with yellow-green light to indicate active musicians and open gigs. Below the map, the page splits: a massive headline on the left, and a product preview card on the right showing real GigForge actions: search, musician rows, email contact, and role cards.
+
+The page should feel like a campus orientation map crossed with a clean marketplace. Not cute. Not childish. The campus is the first argument: the talent is already around you.
 
 ## 2. Why This Direction
 
-GigForge is spatially grounded — it's not remote-first, it's campus-first. Most directory tools ignore that. Campus Signal makes the campus the hero. The low-poly style signals technical craft without feeling cold. The glowing buildings answer "is anyone here?" before a word is read. Then the search panel on the right answers "how does it work?" in one glance. The two questions every new visitor has — answered in the first viewport, without copy.
+GigForge is about reducing the distance between student creators and student musicians. Campus Signal visualizes that distance literally. The glowing buildings answer the emotional question: "Is anyone here?" The search panel answers the practical question: "How do I find them?" The design is clear enough for first-time visitors and spatial enough to feel proprietary.
 
 ## 3. Color System
 
 | Token | Hex | Use |
 |---|---|---|
-| `bg.page` | `#FAF6EE` | Warm parchment — campus map paper |
+| `bg.page` | `#FAF6EE` | Warm campus-map parchment |
+| `bg.map` | `#EFE6D2` | Low-poly ground plane |
 | `bg.card` | `#FFFFFF` | Product preview card |
-| `bg.row.hover` | `#F5F1E6` | Search result row hover |
-| `building.base` | `#D8CEBC` | Default building face |
-| `building.active` | `#A8C456` | Active music building fill — yellow-green |
-| `building.glow` | `rgba(168,196,86,0.25)` | Glow halo around active building |
-| `ground.plane` | `#EAE3D0` | Campus quad ground |
-| `shadow.soft` | `rgba(60,44,20,0.12)` | Building shadows on ground |
-| `ink.primary` | `#1A1510` | Headlines, body |
-| `ink.secondary` | `#6B5B3E` | Subheads, metadata |
-| `ink.muted` | `#A89070` | Timestamps, labels |
-| `accent.green` | `#5D8C1E` | CTA fill, OPEN badge, active state |
-| `accent.yellow` | `#E8C44A` | Secondary CTA, kicker pill bg |
-| `border.card` | `#1A1510` | Hard black card borders — flat, graphic |
-| `shadow.offset` | `#1A1510` | Hard offset shadow on preview card |
-| `tag.bg` | `#EEF5DA` | Role card / filter chip background |
+| `building.base` | `#D8CEBC` | Inactive campus buildings |
+| `building.roof` | `#C9BDA8` | Building top planes |
+| `building.active` | `#B7D85A` | Active music buildings |
+| `building.glow` | `rgba(183,216,90,0.28)` | Soft activity halo |
+| `path.walkway` | `#DDD1BA` | Campus paths |
+| `ink.primary` | `#1A1510` | Headlines and nav |
+| `ink.secondary` | `#66563D` | Body copy |
+| `ink.muted` | `#9B835E` | Labels and metadata |
+| `accent.green` | `#5D8C1E` | Primary CTA, active state |
+| `accent.yellow` | `#E8C44A` | Kicker pill, secondary CTA |
+| `border.ink` | `#1A1510` | Hard graphic borders |
+| `shadow.offset` | `#1A1510` | Preview card offset shadow |
 
-Parchment + yellow-green + hard black. Looks like a campus map marker system.
+Use mostly parchment, white, and map neutrals. Green is the signal. Yellow is the highlighter.
 
 ## 4. Typography
 
-- **Display:** Inter 900, `clamp(40px, 6vw, 80px)`, tracking `-0.03em`, leading `0.96`.
-- **Kicker:** Inter 700 11px uppercase tracking `+0.16em` in `accent.green`, in a tight `accent.yellow` pill — `GF · STUDENT CREATIVE NETWORK`.
-- **Body:** Inter 400, 16/27, `ink.secondary`.
-- **Preview labels:** `font-mono` 12px `ink.muted`.
-- **Preview result names:** Inter 600 15px `ink.primary`.
+- **Display:** Inter 900, `clamp(44px, 6.5vw, 88px)`, tracking `-0.035em`, leading `0.94`.
+- **Kicker:** Inter 800, 11px uppercase tracking `+0.16em`, `accent.green`, on an `accent.yellow` pill.
+- **Body:** Inter 400, 17/1.6, `ink.secondary`.
+- **Preview UI:** Inter 500/700, 14px, with `font-mono` 11px for row labels.
+- **Map labels:** `font-mono` 10px uppercase, `ink.muted`.
 
 ```bash
 npm install framer-motion three @react-three/fiber @react-three/drei
@@ -49,154 +50,138 @@ npm install framer-motion three @react-three/fiber @react-three/drei
 
 ## 5. Layout
 
+```text
+TOP: full-width 3D campus map, 35vh min 300px
+
+LEFT HERO
+GF / STUDENT CREATIVE NETWORK
+Find the student musician your project is missing.
+Browse free. Post gigs. Email directly.
+[ Browse musicians -> ]  [ Post a gig + ]
+
+RIGHT HERO
+Hard-bordered search card with offset shadow
+Search row
+3 musician results with Email actions
+2 role cards: I need music / I make music
 ```
-┌────────────────────────────────────────────────────────────┐
-│   [campus low-poly Three.js scene — full width, 35vh]       │
-│   Buildings glow green where musicians are active          │
-│   Bird's-eye 45° view, slow auto-rotate                    │
-├──────────────────────────┬─────────────────────────────────┤
-│                          │                                   │
-│  [GF · STUDENT CREATIVE] │  ┌──────────────────────────┐  │  ← preview card
-│                          │  │ ▸ Search musicians...      │  │    black border
-│  Find the student        │  │ ─────────────────────────  │  │    hard offset shadow
-│  musician your           │  │ Maya R.  Guitar + prod    │  │
-│  project is missing.     │  │ Theo L.  Film score       │  │
-│                          │  │ Nina P.  Violin            │  │
-│  Browse free. Post gigs. │  │ ──────── + 139 more ───── │  │
-│  Email directly.         │  └──────────────────────────┘  │
-│                          │                                   │
-│  [ Browse musicians → ]  │  ┌──────────┐  ┌──────────┐    │
-│  [ Post a gig + ]        │  │ I need   │  │ I make   │    │  ← role cards
-│                          │  │ music    │  │ music    │    │
-└──────────────────────────┴─────────────────────────────────┘
-```
+
+Max-width `1280px`. The map is full-bleed inside the mockup page, but the text and preview sit inside the 1280px content rail. On mobile, the campus map remains first, then headline, then product preview.
 
 ## 6. The Signature: Three.js Low-Poly Campus
 
-**Scene:**
-- `OrthographicCamera` at `[0, 12, 8]` looking at `[0, 0, 0]`. 45-degree bird's-eye view.
-- Ground plane: `PlaneGeometry(16, 12)`, `MeshStandardMaterial` `ground.plane`, `receiveShadow: true`.
-- 8 buildings: `BoxGeometry` at varying heights (1.2–3.5 units). Each has a unique footprint. Positions hardcoded to form a recognizable quad layout — two rows of 4, with a central path gap.
-- Building materials: `MeshStandardMaterial` `building.base`, `roughness: 0.95`, `metalness: 0`, `castShadow: true`, `receiveShadow: true`.
-- Shadows: `<Canvas shadows>`, `DirectionalLight` at `[6, 10, 5]` with `castShadow: true`, `shadow-mapSize: [1024, 1024]`.
+**Scene setup:**
+- `OrthographicCamera` at `[0, 12, 8]`, looking at `[0, 0, 0]`.
+- Ground: `PlaneGeometry(16, 12)`, `MeshStandardMaterial` `bg.map`, `receiveShadow`.
+- Walkways: thin `BoxGeometry` strips in `path.walkway`, arranged as a cross through the quad.
+- Buildings: eight `BoxGeometry` volumes with different footprints and heights, arranged in two loose rows around the central paths.
 
-**Active buildings (2–3):**
-- Music buildings get `building.active` (`#A8C456`) material color.
-- A `PointLight` inside each active building at intensity `2`, color `#A8C456`, `decay: 2` — light bleeds through the top and sides slightly.
-- A `CircleGeometry` halo at ground level below each active building, `building.glow` material, `transparent: true` — the soft pool of green light.
-- Pulse: `haloMesh.material.opacity = 0.1 + 0.15 * sin(t * 1.8 + phaseOffset)` — the glow breathes.
-
-**Auto-rotate:**
-- Camera orbits the campus center: `camera.position.x = sin(t * 0.06) * 10, camera.position.z = cos(t * 0.06) * 8 + 8` — a slow 110-second orbit. The campus turns like a model on a turntable.
-
-**Mouse interaction:**
-- `onPointerMove` on the canvas → `raycaster` over buildings → hovered building temporarily lifts 0.3 units in Y (`position.y += (target - current) * 0.08`) and brightens slightly.
-- Tooltip via `<Html>`: hovered building shows `"Music Building · 14 musicians"` in `font-mono` 10px.
-
-`prefers-reduced-motion`: orbit paused, pulse frozen, no hover lift.
-
-## 7. Product Preview Card — Framer Motion
-
-The search preview card uses hard-border flat design. On page load, search results stream in via Framer stagger:
-
-```tsx
-const rowVariants = {
-  hidden: { opacity: 0, x: -12 },
-  visible: { opacity: 1, x: 0 },
-};
-// staggerChildren: 0.08
-// transition: { type: "spring", stiffness: 200, damping: 22 }
+**Building data:**
+```ts
+const BUILDINGS = [
+  { name: "Music Hall", x: -4.8, z: -2.8, w: 1.8, d: 2.4, h: 2.8, active: true, count: 14 },
+  { name: "Film Lab", x: -1.7, z: -3.0, w: 2.4, d: 1.8, h: 1.8, active: false, count: 4 },
+  { name: "Studio Annex", x: 2.0, z: -2.5, w: 1.8, d: 2.0, h: 2.2, active: true, count: 9 },
+  { name: "Theater", x: 5.0, z: -2.7, w: 2.0, d: 2.4, h: 2.5, active: false, count: 3 },
+  { name: "Media Center", x: -4.4, z: 2.6, w: 2.6, d: 1.8, h: 2.0, active: false, count: 6 },
+  { name: "Practice Rooms", x: -1.0, z: 2.7, w: 1.7, d: 1.7, h: 1.5, active: true, count: 18 },
+  { name: "Arts Library", x: 2.3, z: 2.6, w: 2.2, d: 1.8, h: 1.6, active: false, count: 2 },
+  { name: "Event Hall", x: 5.0, z: 2.4, w: 1.9, d: 2.2, h: 2.1, active: false, count: 5 },
+];
 ```
 
-Each result row has a `motion.div` with:
-```tsx
-whileHover={{ backgroundColor: "#F5F1E6", x: 3 }}
-transition={{ type: "spring", stiffness: 400, damping: 30 }}
+**Active state:**
+- Active buildings use `building.active`.
+- Add a low-opacity `CircleGeometry` halo below each active building.
+- Add a small `PointLight` with color `#B7D85A`, intensity `1.8`, distance `4`.
+- Pulse halo opacity with `0.12 + Math.sin(t * 1.8 + phase) * 0.08`.
+
+**Interaction:**
+- Pointer hover raises a building by `0.25` units and shows a small `<Html>` tooltip: `Music Hall / 14 musicians`.
+- Camera drifts in a very slow orbit: 80-100 seconds per loop.
+- `prefers-reduced-motion`: no orbit, no pulse, no lift.
+
+## 7. Product Preview Card
+
+The preview card should look usable, not decorative.
+
+```text
+Search: composer, cello, jazz keys
+Maya R. / Guitar + production / Chicago       Email
+Theo L. / Film score / Remote                 Email
+Nina P. / Violin / Weekend shoots             Email
 ```
 
-The `Email` button on each row:
-```tsx
-whileHover={{ scale: 1.06, backgroundColor: "#5D8C1E", color: "#FFFFFF" }}
-```
+Card styling:
+- `bg.card`, `2px solid border.ink`
+- `box-shadow: 10px 10px 0 #1A1510`
+- Result rows: `1px solid #E2D8C5`, hover shifts `x: 3`
+- Email action turns green on hover
+
+Framer row entrance: opacity 0, `x: -12`, stagger `0.08`.
 
 ## 8. Role Cards
 
-Two flat cards below the preview:
+Two cards beneath the preview:
 
-```
-┌─────────────────┐    ┌─────────────────┐
-│  I need music   │    │  I make music   │
-│  ─────────────  │    │  ─────────────  │
-│  Browse →       │    │  List yourself  │
-└─────────────────┘    └─────────────────┘
-```
+```text
+I need music
+Post a project brief and invite direct replies.
 
-Left card: `bg.card` with `border: 2px solid border.card`. Right card: `bg.tag.bg` with same border.
-
-Framer hover:
-```tsx
-whileHover={{ y: -4, boxShadow: "4px 4px 0px #1A1510" }}
-transition={{ type: "spring", stiffness: 300, damping: 20 }}
+I make music
+List instruments, links, campus, and availability.
 ```
 
-The hard shadow extends on hover — the card "lifts" off the page.
+Left card white. Right card pale green `#EEF5DA`. Both have `2px` ink borders. On hover: move `y: -4`, add `4px 4px 0 #1A1510`.
 
 ## 9. CTAs
 
-**Primary** — `Browse musicians →`:
-```
-bg: #1A1510
-text: #FAF6EE
-height: 52px, px: 28px
-radius: 0px (flat — campus-map aesthetic)
-font: Inter 700, 15px
-hover: bg #5D8C1E (black to green — the campus signal activating)
-shadow: 3px 3px 0px #5D8C1E (yellow-green offset — graphic, not blurred)
-transition: 180ms
+**Primary - `Browse musicians ->`:**
+```text
+bg #1A1510
+text #FAF6EE
+height 52px
+padding x 28px
+radius 0
+hover bg #5D8C1E
+shadow 3px 3px 0 #B7D85A
 ```
 
-**Secondary** — `Post a gig +`:
-```
-bg: #E8C44A
-text: #1A1510
-border: 2px solid #1A1510
-radius: 0px
-hover: bg #D4B03A, shadow 3px 3px 0px #1A1510
+**Secondary - `Post a gig +`:**
+```text
+bg #E8C44A
+text #1A1510
+border 2px #1A1510
+radius 0
+hover shadow 3px 3px 0 #1A1510
 ```
 
 ## 10. Stats
 
-```
+```text
 142 musicians      24 open gigs      12 campuses
 ```
 
-Numbers in Inter 900 64px `ink.primary`. Framer count-up on `useInView`, 1.2s. Between each: a 2px vertical `border.card` rule. Below each number: a small `accent.green` arrow `→` link.
+Numbers: Inter 900, 64px, `ink.primary`. Labels: `font-mono` 11px uppercase. Count up on `useInView`, 1.2s. Separate with 2px vertical ink rules.
 
 ## 11. How It Works
 
-```
-01  Browse the directory       No account required.
-02  Find who you need          Filter by instrument, campus.
-03  Email them directly        That's the whole thing.
-```
-
-Step numbers in `font-mono` `accent.green`. Headlines Inter 700. Body Inter 400. Framer stagger on scroll.
-
-## 12. Required Libraries
-
-```bash
-npm install framer-motion three @react-three/fiber @react-three/drei
+```text
+01 Browse the directory     No account required.
+02 Find who you need        Filter by instrument, genre, campus.
+03 Email them directly      That is the whole product promise.
 ```
 
-## 13. Implementation Notes
+Step numbers use `accent.green`. Entries stagger upward on scroll.
 
-- `CampusScene.tsx` — Three.js, `dynamic(..., { ssr: false })`. Canvas height: `35vh` min `280px`.
-- Building positions: define as a constant array `BUILDINGS = [{ x, z, w, d, h, active }]`. `active: true` applies the green material + point light.
-- The `DirectionalLight` shadow frustum: set `shadow.camera.near = 0.5, shadow.camera.far = 30, shadow.camera.left/right/top/bottom = ±10` — default frustum is too large and produces blurry shadows.
-- Orbit: update camera position in `useFrame`. Look-at target stays `[0, 0, 0]` always. Use `camera.updateProjectionMatrix()` after any position change with OrthographicCamera.
-- Preview card: server-rendered with first 3 musician results. The Framer entrance only runs once (row streaming on mount).
-- `prefers-reduced-motion`: skip streaming stagger, show rows statically; skip orbit, freeze glow pulse.
+## 12. Implementation Notes
 
-## 14. The Test
+- `CampusScene.tsx` is client-only via `dynamic(..., { ssr: false })`.
+- Keep the scene light: simple boxes, circles, planes, no textures.
+- Use `<Html>` only for hover tooltip, not for every building.
+- Product preview can be regular DOM and server-rendered.
+- Respect `prefers-reduced-motion` in both Three.js and Framer.
 
-Show the campus scene to a college student. Cover the headline. Ask: "What are you looking at?" If they say "a campus" or "a map," the low-poly buildings are reading correctly. Then ask: "What do the green ones mean?" If they say "something active" or "something happening there," the glow pulse is legible. Both reads should happen in under 5 seconds without prompting. If either fails, increase building contrast and pulse amplitude by 30%.
+## 13. The Test
+
+Cover the headline and show only the map. A viewer should say "campus" or "map" in under 5 seconds. Then ask what the green buildings mean. They should say "active," "available," or "something is happening there." If not, increase glow opacity and reduce the number of nonessential map details. Campus Signal succeeds when locality reads before copy.

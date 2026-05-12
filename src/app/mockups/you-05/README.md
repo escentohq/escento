@@ -1,49 +1,47 @@
-# Landing Design 05 — **Clean Directory**
+# Landing Design 05 - **Clean Directory**
 
-> I'm a product designer who's shipped search-first interfaces at two marketplaces and a research tool. The best search interfaces don't explain themselves — they invite you in. Clean Directory makes the landing page the product. The Three.js piece is subtle but devastating: musician profile cards float in 3D space at different Z-depths behind the search panel, a real depth-of-field blur making the far cards soft and the near ones sharp — like looking through a lens at a deep stack of profiles. Framer Motion handles the search results streaming in. You feel the directory before you read a word.
+> I have designed marketplace search pages where the best landing page is barely a landing page at all. It is the product, opened to the right state. Clean Directory is the least theatrical concept and maybe the most useful: a luminous search interface where musician cards are already streaming in. The signature is subtle Three.js depth behind the search panel, so the directory feels larger than the first six results without becoming noisy.
 
 ---
 
 ## 1. The Concept
 
-Pure white page. The hero is split: left column is the value prop and CTAs, right column is a fully interactive search interface that works right on the landing page — type anything, filter chips respond, musician cards stream in. Behind the search panel, three additional cards float in 3D Z-space via Three.js, depth-of-field blur making the background rows soft. The search is the hero. The directory is already open.
+Pure white page with a cool gray product panel. The hero splits into copy on the left and a functional search preview on the right. Behind the preview, a Three.js depth stack renders soft, out-of-focus result cards receding in Z-space. The front layer is real DOM: search input, filters, musician cards, and direct contact affordances.
+
+This design says: do not read about GigForge. Use it.
 
 ## 2. Why This Direction
 
-Most landing pages tell you what the product does. Clean Directory shows you the product operating. The visitor can search "guitar" or "film composer" and see real results — without signing in, without friction. This is the most conversion-optimized concept in the series: people who search are people who are already in purchase mode. The 3D depth-of-field effect behind the panel communicates "there is more here — a lot more." The depth IS the value proposition.
+The product's strongest promise is speed from need to contact. Clean Directory removes marketing friction by making the directory visible immediately. The 3D depth stack communicates scale without fake social proof: there are more people behind the first card, but the interface stays calm.
 
 ## 3. Color System
 
 | Token | Hex | Use |
 |---|---|---|
-| `bg.page` | `#FFFFFF` | Clean white |
-| `bg.panel` | `#F7F8FA` | Search panel background |
-| `bg.card` | `#FFFFFF` | Result cards |
-| `bg.card.hover` | `#F0F7FF` | Card hover |
-| `bg.chip` | `#F0F0F0` | Filter chip default |
-| `bg.chip.active` | `#E0EDFF` | Active filter chip |
-| `depth.far` | `rgba(180,190,210,0.6)` | Far depth cards in Three.js (blurred) |
-| `depth.mid` | `rgba(210,220,235,0.8)` | Mid depth cards |
-| `ink.primary` | `#0D1117` | All primary text |
-| `ink.secondary` | `#4B5563` | Body, metadata |
-| `ink.muted` | `#9CA3AF` | Labels, placeholders |
-| `accent.teal` | `#0D9488` | Active chip, OPEN badge, CTA fill |
-| `accent.teal.light` | `#CCFBF1` | Teal light — chip active bg, badge bg |
-| `accent.teal.dark` | `#0F766E` | CTA hover |
-| `border.panel` | `rgba(0,0,0,0.06)` | Panel border |
-| `border.card` | `rgba(0,0,0,0.08)` | Card border |
-| `status.available` | `#10B981` | Available dot |
+| `bg.page` | `#FFFFFF` | Clean landing surface |
+| `bg.panel` | `#F6F9FC` | Search preview area |
+| `bg.card` | `#FFFFFF` | Musician cards |
+| `bg.depth` | `#EAF1F7` | Far 3D cards |
+| `ink.primary` | `#17202A` | Headlines |
+| `ink.secondary` | `#5C6670` | Body |
+| `ink.muted` | `#7B8794` | Labels |
+| `accent.teal` | `#0F766E` | Active filters, primary action |
+| `accent.sky` | `#D7F2FF` | Selected chip background |
+| `accent.lime` | `#E7F7C9` | Availability marker |
+| `border.light` | `#D5DDE5` | Card borders |
+| `border.focus` | `#0F766E` | Search focus |
+| `shadow.soft` | `rgba(23,32,42,0.08)` | Preview depth |
 
-White + teal. Every pixel defers to the search interface.
+Use mostly white. Teal appears only where the user can act.
 
 ## 4. Typography
 
-- **Display:** Inter 700, `clamp(36px, 5vw, 64px)`, tracking `-0.025em`, leading `1.06`.
-- **Kicker:** Inter 500 11px uppercase tracking `+0.18em`, `accent.teal`: `SEARCH-FIRST · BROWSE WITHOUT SIGNING IN`.
-- **Body:** Inter 400, 16/27, `ink.secondary`.
-- **Search input:** Inter 400 16px `ink.primary`, placeholder `ink.muted`.
-- **Card name:** Inter 600 16px `ink.primary`.
-- **Card meta:** Inter 400 13px `ink.secondary`.
+- **Display:** Inter 800, `clamp(42px, 5.8vw, 78px)`, tracking `-0.035em`, leading `1.0`.
+- **Kicker:** Inter 800 12px uppercase tracking `+0.18em`, `accent.teal`.
+- **Body:** Inter 400, 17/1.65, `ink.secondary`.
+- **Search input:** Inter 500, 15px.
+- **Card titles:** Inter 750, 17px.
+- **Metadata:** `font-mono` 11px uppercase.
 
 ```bash
 npm install framer-motion three @react-three/fiber @react-three/drei
@@ -51,156 +49,132 @@ npm install framer-motion three @react-three/fiber @react-three/drei
 
 ## 5. Layout
 
-```
-┌────────────────────────────────────────────────────────────┐
-│  GigForge                                      Sign in →    │
-│  ──────────────────────────────────────────────────────    │
-├───────────────────────┬────────────────────────────────────┤
-│                       │                                      │
-│  SEARCH-FIRST ·       │  ┌──────────────────────────────┐  │
-│  BROWSE WITHOUT       │  │ 🔍  Search musicians...        │  │  ← live search
-│  SIGNING IN.          │  │ ─────────────────────────────  │  │
-│                       │  │ [+ Instrument][+ Genre][+ City]│  │  ← filter chips
-│  Start with who       │  │ ─────────────────────────────  │  │
-│  you need.            │  │ ● Maya C.  Guitar · UT Austin  │  │  ← result stream
-│                       │  │ ● Theo L.  Film score · Remote │  │
-│  GigForge is          │  │ ● Nina P.  Violin · NYC        │  │
-│  the directory        │  │ ● Sam K.   Cello · Berklee     │  │
-│  open right now.      │  │   + 138 more musicians         │  │
-│                       │  └──────────────────────────────┘  │
-│  [ Explore directory ]│                                      │
-│  [ View open gigs ]   │  [[[[ depth cards behind — 3D ]]]]] │
-│                       │                                      │
-└───────────────────────┴────────────────────────────────────┘
+```text
+LEFT
+SEARCH-FIRST LANDING
+Start with who you need.
+Filter student musicians and open gigs before signing in.
+[ Explore directory ] [ View gigs ]
+
+RIGHT
+Search input
+Filter chips: Instrument / Genre / Remote / Deadline
+Six musician cards
+Subtle 3D card depth behind the panel
 ```
 
-## 6. The Signature: Three.js Depth-of-Field Card Stack
+Desktop: left column `430px`, right column flexible. Mobile: copy first, search preview second, cards in one column.
 
-Behind the search panel, a Three.js scene renders 6 additional profile cards at varying Z depths. The canvas is positioned `absolute, z-index: 0` behind the `position: relative, z-index: 1` search panel.
+## 6. The Signature: Three.js Depth Stack
 
-**Cards in 3D:**
-- Each card: `PlaneGeometry(2.8, 1.6)` with `MeshBasicMaterial` and a canvas-drawn texture showing a musician profile mockup (name, instrument, school — drawn via `CanvasTexture` or `<Html>` overlay with `occlude`).
-- Depths: `z = [0, -1.8, -3.5, -5.2, -6.8, -8.4]` — a stack receding into the screen.
-- Positions: slight horizontal and vertical offsets per card so they don't perfectly overlap.
-- Subtle rotation: each card tilts `±4deg` on Y, `±2deg` on X — a random but seeded orientation.
+**Purpose:** suggest a larger directory behind the visible interface without adding visual clutter.
 
-**Depth of field:**
-- Post-processing via `@react-three/postprocessing` (or manual): `DepthOfField` effect. `focusDistance: 0, focalLength: 0.02, bokehScale: 3` — the nearest card is sharp, the farthest cards are visibly blurred.
-- The blur gradient is what makes this feel like a lens, not a flat graphic.
-
-```bash
-npm install @react-three/postprocessing
+**Scene:**
+- Canvas absolutely positioned behind the DOM search panel.
+- Three or four large card planes in Z-space.
+- Planes use `MeshBasicMaterial` in `bg.depth`, transparent opacity `0.35` to `0.12`.
+- Positions:
+```text
+near:  [0.4, 0.1, -0.8], scale 1.0
+mid:   [-0.5, -0.2, -2.0], scale 0.86
+far:   [0.9, 0.35, -3.4], scale 0.72
+deep:  [-1.0, 0.45, -4.8], scale 0.62
 ```
 
-**Animation:**
-- Cards drift slowly upward: `position.y += 0.0008` per frame. When a card exits the top of the frame, it repositions at the bottom — the stack scrolls infinitely upward, like browsing through results.
-- Camera: fixed orthographic. No cursor interaction — the camera is a peephole into the directory.
+**Motion:**
+- Slow vertical drift: `sin(t * 0.18 + phase) * 0.08`.
+- Cursor parallax shifts cards by `pointer.x * depthFactor`.
+- Reduced motion: static cards.
 
-`prefers-reduced-motion`: cards frozen, no upward drift.
+If `@react-three/postprocessing` is available, add `DepthOfField`. If not, simulate softness with low opacity and CSS blur on the canvas container.
 
-## 7. Live Search — Framer Motion
+## 7. Search Preview
 
-The search input is functional (client-side filter on a hardcoded dataset of 20 musicians). Results update immediately as the user types.
-
-**Filter chip animation:**
-```tsx
-// Chip becomes active:
-animate={{ backgroundColor: "#E0EDFF", scale: 1.04 }}
-transition={{ type: "spring", stiffness: 380, damping: 28 }}
+Search input:
+```text
+Search instruments, genres, or project types
 ```
 
-**Result stream — on search change:**
-```tsx
-const rowVariants = {
-  hidden: { opacity: 0, x: -8, height: 0 },
-  visible: { opacity: 1, x: 0, height: "auto" },
-  exit: { opacity: 0, x: 8, height: 0 },
-};
-// AnimatePresence mode="sync"
-// staggerChildren: 0.05
+Filter chips:
+```text
++ Instrument
++ Genre
++ Remote
++ Deadline
 ```
 
-Each result entering/exiting is individually animated — feels like a real search autocomplete, not a page reload.
+Chip behavior:
+- Hover: background `accent.sky`, border `accent.teal`.
+- Active chip: teal text, sky background.
+- Framer: chips enter with stagger `0.05`.
 
-**Card hover:**
-```tsx
-whileHover={{ backgroundColor: "#F0F7FF", x: 4 }}
-transition={{ type: "spring", stiffness: 400, damping: 30 }}
+## 8. Musician Cards
+
+Six cards:
+```text
+Film composer
+Jazz vocalist
+Session drummer
+Cellist
+Beat producer
+Piano accompanist
 ```
 
-The email button on each card:
-```tsx
-whileHover={{ scale: 1.08, backgroundColor: "#0D9488", color: "#FFFFFF" }}
-```
+Each card includes:
+- Title
+- Small teal availability marker
+- Metadata line: `Portfolio links / Availability / Contact email`
+- `Email` mini-action on hover
 
-## 8. Filter Chips
-
-Chips: `[+ Instrument]  [+ Genre]  [+ Campus]  [+ Remote]  [+ Available]`
-
-On click, each expands into a dropdown via Framer `AnimatePresence`:
-```tsx
-initial={{ height: 0, opacity: 0 }}
-animate={{ height: "auto", opacity: 1 }}
-exit={{ height: 0, opacity: 0 }}
-transition={{ type: "spring", stiffness: 300, damping: 28 }}
-```
-
-Active chip color shifts to `bg.chip.active` with a `accent.teal` text color and a small `×` to clear.
+Card hover: `y: -3`, border teal, shadow `0 10px 24px rgba(23,32,42,0.08)`.
 
 ## 9. CTAs
 
-**Primary** — `Explore directory`:
-```
-bg: #0D9488
-text: #FFFFFF
-height: 50px, px: 28px
-radius: 8px
-font: Inter 600, 15px
-hover: bg #0F766E, shadow 0 4px 20px rgba(13,148,136,0.3)
-transition: spring stiffness 280 damping 22
+**Primary - `Explore directory`:**
+```text
+bg #17202A
+text #FFFFFF
+height 50px
+radius 4px
+padding x 24px
+hover bg #0F766E
 ```
 
-**Secondary** — `View open gigs`:
-```
-bg: transparent
-border: 1.5px #0D9488
-text: #0D9488
-radius: 8px
-hover: bg #CCFBF1
+**Secondary - `View gigs`:**
+```text
+bg #FFFFFF
+text #17202A
+border 1px #17202A
+radius 4px
+hover bg #F6F9FC, border #0F766E
 ```
 
 ## 10. Stats
 
-```
+```text
 142 musicians      24 open gigs      12 universities
 ```
 
-Numbers in Inter 700 56px `ink.primary`. Below each: a teal `● LIVE` badge. Framer count-up on `useInView`, 1.2s.
+Stats are compact, not heroic. Place them beneath the search panel or below the fold. Numbers: Inter 800, 44px. Labels: `font-mono` 11px uppercase.
 
 ## 11. How It Works
 
-```
-01  Search the directory     No account. Filter by anything.
-02  Find who you need        Their profile is the pitch.
-03  Email them directly      One click. Their inbox, directly.
-```
-
-Teal `01/02/03` `font-mono` labels. Inter 600 headlines. Framer stagger on scroll.
-
-## 12. Required Libraries
-
-```bash
-npm install framer-motion three @react-three/fiber @react-three/drei @react-three/postprocessing
+```text
+01 Search first      Anonymous browsing, no sign-in wall.
+02 Compare quickly   Instruments, genres, links, availability.
+03 Email directly    No platform inbox to monitor.
 ```
 
-## 13. Implementation Notes
+Use light rows with left teal number blocks.
 
-- `DepthStack.tsx` — Three.js scene, `dynamic(..., { ssr: false })`. Canvas absolutely positioned behind the search panel.
-- `CanvasTexture` for card face: use `document.createElement('canvas')`, draw name/instrument/school with `ctx.fillText`, then `new THREE.CanvasTexture(canvas)`. Update when musician data changes.
-- `@react-three/postprocessing` `DepthOfField`: wrap scene in `<EffectComposer><DepthOfField focusDistance={0} focalLength={0.015} bokehScale={2.5} /></EffectComposer>`. Adjust `bokehScale` until far cards look pleasantly blurred (not pixelated).
-- Live search: `useDeferredValue(query)` to prevent input lag during Framer animation.
-- Result `AnimatePresence`: use `key={musician.id}` on each `motion.div` — not index — so Framer correctly identifies entering vs. exiting items during search filter changes.
+## 12. Implementation Notes
 
-## 14. The Test
+- `DepthStack.tsx` is client-only and optional-enhancement: the DOM search panel must stand alone.
+- Keep the search panel real HTML for accessibility.
+- Do not add fake AI matching language.
+- Mobile: hide or simplify the depth canvas if it creates clutter.
+- Reduced motion must stop card drift and show chips statically.
 
-Type "guitar" into the search field. Results should filter in under 100ms, with each card streaming in over 400ms total stagger. If the filter feels sluggish, move the filter logic from a `useEffect` with `setState` to a `useMemo` on the query value. Then look at the depth stack behind the panel — the far cards should be visibly softer than the near ones. If they look identical, increase `bokehScale` from 2.5 to 4.0.
+## 13. The Test
+
+Give a viewer a project need: "I need a cellist for a short film." If their eyes go to the search panel before the headline, the design works. Clean Directory succeeds when the landing page feels like the first step of the product, not a brochure for it.

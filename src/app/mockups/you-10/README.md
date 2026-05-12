@@ -1,53 +1,47 @@
-# Landing Design 10 — **Portfolio Grid**
+# Landing Design 10 - **Portfolio Grid**
 
-> I've art-directed portfolio sites for twelve working musicians and three film composers. The consistent failure mode: portfolios hide the work behind navigation. Portfolio Grid inverts this. The Three.js piece is a 3D gallery space — profile tiles floating in a deep room at varying Z-depths and heights, the camera slowly drifting forward as if you're walking into an exhibition. Each tile is a musician's portfolio preview. Framer Motion handles the tile hover flip: front shows the preview thumbnail, back shows the contact info. The page is the portfolio. You walk into it.
+> I have art-directed portfolios for composers, instrumentalists, and film students, and the biggest failure is hiding the work. Portfolio Grid starts with the work as the interface. The signature is a light museum-gallery room in Three.js, with portfolio tiles floating at different depths like a student exhibition. Hovering a tile flips it to reveal contact details. The page is a gallery that knows how to become a directory.
 
 ---
 
 ## 1. The Concept
 
-Pale cool gray page. The entire right column (and below the fold, the full width) is a Three.js gallery space: a deep room perspective with musician portfolio tiles floating at different depths, the camera gliding slowly toward them. Each tile has a genre label, a color-coded background, and a portfolio link. Hover any tile — Framer Motion flips it on the Y-axis to reveal contact info and an email button on the back. Left column: the value prop and CTAs. The gallery IS the product. You browse it here, on the landing page.
+Pale gallery-gray page. The hero pairs a strong headline with a 3D white gallery room containing six floating portfolio tiles. Each tile is a pastel rectangle with a profile category on the front and direct contact detail on the back. Camera drift gives the feeling of stepping into an exhibition. Below, a simpler grid repeats the same portfolio categories for accessibility and mobile.
+
+The vibe is creative, visual, and polished without becoming luxury-dark.
 
 ## 2. Why This Direction
 
-Musicians are visual people who judge a platform by how well it presents work. Portfolio Grid takes that seriously: the tiles are not mockups or illustrations, they're real musician entries with real color identity and real portfolio links. The 3D gallery perspective communicates depth — "there are many musicians here, arranged in space for you to discover." The flip reveal on hover is the perfect interaction for a first-impression page: it rewards curiosity without requiring a click-through.
+Musicians are easier to trust when you can inspect their work. Portfolio Grid makes portfolio links the center of the landing experience. It says GigForge is not a resume database. It is a curated wall of student work, with email one flip away.
 
 ## 3. Color System
 
 | Token | Hex | Use |
 |---|---|---|
-| `bg.page` | `#F2F3F6` | Pale cool gray |
-| `room.floor` | `#E4E6EC` | Gallery floor plane |
-| `room.back` | `#D8DAE2` | Gallery back wall (far) |
-| `room.ceiling` | `#ECF0F6` | Gallery ceiling |
-| `tile.green` | `#D4EDD0` | Composer reel tile |
-| `tile.peach` | `#FAE0D4` | Jazz trio tile |
-| `tile.sky` | `#D0E8F5` | Game audio tile |
-| `tile.lavender` | `#E8E0F5` | Choir vocals tile |
-| `tile.butter` | `#FAF0D4` | Synth score tile |
-| `tile.mint` | `#D4F0E8` | Live keys tile |
-| `tile.back` | `#1A1A2C` | Card back (dark) — contact info |
-| `back.text` | `#FFFFFF` | Text on dark card back |
-| `plus.mark` | `rgba(0,0,0,0.25)` | Plus marker on each tile |
-| `ink.primary` | `#111827` | Headlines, body |
-| `ink.secondary` | `#4B5563` | Subheads, metadata |
-| `ink.muted` | `#9CA3AF` | Labels, captions |
-| `accent.violet` | `#7C3AED` | Primary CTA, active tile mark |
-| `accent.violet.light` | `#EDE9FE` | CTA hover bg, chip active |
-| `accent.violet.dark` | `#5B21B6` | CTA hover fill |
-| `border.tile` | `rgba(0,0,0,0.06)` | Tile edges |
+| `bg.page` | `#F2F5F8` | Pale gallery gray |
+| `room.floor` | `#E7ECF1` | 3D gallery floor |
+| `room.wall` | `#FAFBFC` | Gallery walls |
+| `tile.green` | `#C4F1BE` | Composer/music tiles |
+| `tile.peach` | `#FFD6A5` | Voice/session tiles |
+| `tile.sky` | `#BDE7FF` | Game/audio tiles |
+| `tile.lavender` | `#DCD2FF` | Experimental tiles |
+| `tile.back` | `#FFFFFF` | Contact side |
+| `ink.primary` | `#111111` | Headlines |
+| `ink.secondary` | `#5C6470` | Body |
+| `ink.muted` | `#8A94A1` | Labels |
+| `accent.violet` | `#7C3AED` | CTA, active marker |
+| `border.tile` | `#CBD5DF` | Tile borders |
+| `shadow.gallery` | `rgba(17,17,17,0.10)` | Floating tile shadow |
 
-Cool gray + six pastel tile colors + one violet accent. The gallery's variety IS the design.
+This should feel like a white gallery with colorful student work on the walls.
 
 ## 4. Typography
 
-- **Display:** Inter 700, `clamp(36px, 5vw, 64px)`, tracking `-0.025em`, leading `1.06`.
-- **Kicker:** Inter 500 11px uppercase tracking `+0.18em` `accent.violet`: `PORTFOLIO-LED DISCOVERY`.
-- **Body:** Inter 400, 16/27, `ink.secondary`.
-- **Tile label:** Inter 700 14px `ink.primary`.
-- **Tile sub:** `font-mono` 11px `ink.secondary`.
-- **Back-of-card name:** Inter 700 18px `back.text`.
-- **Back-of-card meta:** Inter 400 13px `rgba(255,255,255,0.7)`.
+- **Display:** Inter 800, `clamp(44px, 6vw, 84px)`, leading `1.0`, tracking `-0.035em`.
+- **Kicker:** Inter 800 12px uppercase tracking `+0.18em`, `accent.violet`.
+- **Body:** Inter 400, 17/1.65, `ink.secondary`.
+- **Tile titles:** Inter 800, 20px.
+- **Tile metadata:** `font-mono` 11px uppercase.
 
 ```bash
 npm install framer-motion three @react-three/fiber @react-three/drei
@@ -55,148 +49,134 @@ npm install framer-motion three @react-three/fiber @react-three/drei
 
 ## 5. Layout
 
-```
-┌────────────────────────────────────────────────────────────┐
-│  GigForge                                      Sign in →    │
-│  ──────────────────────────────────────────────────────    │
-├──────────────────────────┬─────────────────────────────────┤
-│                          │                                   │
-│  PORTFOLIO-LED           │  [Three.js 3D gallery room]      │
-│  DISCOVERY               │  — tiles floating at Z depths    │
-│                          │  — camera drifts forward          │
-│  Hear enough             │  — floor + ceiling + back wall    │
-│  to make the             │                                   │
-│  next move.              │                                   │
-│                          │                                   │
-│  Browse musicians.       │                                   │
-│  Each profile links      │                                   │
-│  to real work.           │                                   │
-│                          │                                   │
-│  [ Browse work ]         │                                   │
-│  [ Add profile ]         │                                   │
-│                          │                                   │
-└──────────────────────────┴─────────────────────────────────┘
+```text
+LEFT
+PORTFOLIO-LED DISCOVERY
+Hear enough to make the next move.
+Profile links as the star.
+[ Browse work ] [ Add profile ]
 
-[Full-width 3D gallery below the fold — more tiles at greater depth]
+RIGHT
+3D gallery room with six portfolio tiles
+
+BELOW
+Accessible 2D portfolio grid
+How it works: Browse / Listen / Email
 ```
 
-## 6. The Signature: Three.js 3D Gallery Walk
+Desktop: split hero. Mobile: headline, 2D grid first, optional simplified room after.
 
-**Room geometry:**
-- Floor: `PlaneGeometry(20, 24)` rotated `-π/2` on X. Material `room.floor`, `roughness: 1.0`.
-- Back wall: `PlaneGeometry(20, 10)` positioned at `z = -12`. Material `room.back`.
-- Ceiling: `PlaneGeometry(20, 24)` at `y = 4.5` rotated `π/2`. Material `room.ceiling`.
-- Side walls: two `PlaneGeometry(24, 10)` planes.
-- Lighting: `ambientLight` 0.6, `DirectionalLight` from `[0, 8, 6]` intensity 0.5 — gallery top-light. A second `DirectionalLight` from `[0, 8, -4]` at 0.3 — back-lit fill.
+## 6. The Signature: Three.js Gallery Room
 
-**Tile placement (6 tiles):**
-- Positions distributed in 3D space: two columns, three rows, Z values: `[0, -2.5, -5]`.
-- Example: `{x: -1.8, y: 0.4, z: 0}`, `{x: 1.8, y: 0.8, z: 0}`, `{x: -2.2, y: 0.1, z: -2.5}`, etc.
-- Each tile: `BoxGeometry(2.4, 3.2, 0.04)` — portrait aspect, slight extrusion.
-- Front material: `MeshStandardMaterial` with one of six pastel tile colors, `roughness: 0.9`, `metalness: 0`.
-- `<Html>` overlay (front face): genre label, sub-label, `+` marker.
-- Back material: `MeshStandardMaterial` `tile.back`, same geometry.
-- `<Html>` overlay (back face): musician name, contact info, email button.
+**Room:**
+- Floor: `PlaneGeometry(20, 24)`, rotated `-Math.PI / 2`, material `room.floor`.
+- Back wall: `PlaneGeometry(20, 10)`, material `room.wall`, positioned `z = -9`.
+- Side walls: two planes, subtle gray.
+- Ambient light `0.65`; soft directional light from `[0, 7, 5]`.
 
-**Camera auto-drift:**
-- `camera.position.z` starts at `4`, drifts toward `1.5` over 8 seconds on mount via `useFrame`. This gives the effect of "walking into" the gallery.
-- After arriving at `z = 1.5`, slow ambient drift: `camera.position.z = 1.5 + sin(t * 0.15) * 0.3` — breathing depth.
-- Camera Y: `camera.position.y = 0.8 + pointer.y * 0.4` — cursor controls look-up/down slightly.
-- Camera X: `camera.position.x = pointer.x * 0.8` — cursor controls left/right gaze.
+**Tiles:**
+- Six tile planes or shallow boxes, aspect `4:3`.
+- Positions:
+```text
+[-2.2, 1.0, -1.0]
+[ 1.6, 1.3, -1.7]
+[-1.5, -0.5, -3.2]
+[ 2.4, -0.2, -3.8]
+[-2.8, 0.2, -5.4]
+[ 0.8, -0.8, -6.0]
+```
+- Front labels:
+  - Composer reel
+  - Jazz trio
+  - Game audio
+  - Choir vocals
+  - Synth score
+  - Live keys
 
-`prefers-reduced-motion`: camera fixed at `z = 2.5`, no drift, no cursor response.
+**Motion:**
+- Camera starts at `z = 5`, eases to `z = 2.2` over 8 seconds.
+- Pointer shifts camera X by `0.6`, Y by `0.3`.
+- Tiles float subtly: `sin(t * 0.3 + phase) * 0.06`.
+- Reduced motion: fixed camera, no tile float.
 
-## 7. Tile Flip — Framer Motion
+## 7. Tile Flip
 
-The hover flip happens in the DOM (not Three.js) via a `motion.div` wrapper with 3D perspective. Each tile in Three.js has `pointerEvents` enabled; `onPointerOver` sets a `hoveredId` state in React, which triggers Framer on the `<Html>` overlay.
+Use DOM `motion.div` tiles over the gallery for interaction, or `<Html transform>` if matching 3D positions exactly.
 
-Actually: the tiles themselves are implemented as DOM elements positioned via CSS 3D transforms to match the Three.js camera projection. This is the cleaner approach for interaction:
-
-**Alternative implementation (simpler, better interaction):**
-- Three.js renders only the room geometry (floor, walls, ceiling, lighting). No tiles in Three.js.
-- Tiles are absolutely-positioned DOM `motion.div` elements whose 3D positions are derived from the camera's projection matrix — updated each frame via `useFrame` + a shared ref.
-- This gives full Framer Motion interactivity without `<Html>` complexity.
-
-**Flip animation:**
-```tsx
-const [flipped, setFlipped] = useState(false);
-
-<motion.div style={{ perspective: 1200 }}>
-  <motion.div
-    animate={{ rotateY: flipped ? 180 : 0 }}
-    transition={{ type: "spring", stiffness: 200, damping: 22 }}
-    style={{ transformStyle: "preserve-3d", position: "relative" }}
-  >
-    {/* Front face */}
-    <div style={{ backfaceVisibility: "hidden" }}>
-      {/* tile label, plus marker */}
-    </div>
-    {/* Back face */}
-    <div style={{ backfaceVisibility: "hidden", rotateY: 180 }}>
-      {/* name, contact info, email button */}
-    </div>
-  </motion.div>
-</motion.div>
+Flip behavior:
+```text
+front: category + short label + plus marker
+back: musician name + instrument + email link
 ```
 
-The tile's back reveals contact info — no click-through needed for first discovery.
+Framer:
+- `rotateY: 180` on hover/tap
+- spring stiffness `220`, damping `24`
+- `backfaceVisibility: hidden`
 
-## 8. CTAs
+Mobile: tap to flip in a normal CSS grid.
 
-**Primary** — `Browse work`:
-```
-bg: #7C3AED
-text: #FFFFFF
-height: 50px, px: 28px
-radius: 8px
-font: Inter 600, 15px
-hover: bg #5B21B6, shadow 0 4px 24px rgba(124,58,237,0.35)
-transition: spring stiffness 280 damping 22
-```
+## 8. Accessible 2D Grid
 
-**Secondary** — `Add profile`:
-```
-bg: transparent
-border: 1.5px #7C3AED
-text: #7C3AED
-radius: 8px
-hover: bg #EDE9FE
-```
+Below the hero, repeat six tiles in a responsive CSS grid. This ensures the design remains useful if the 3D scene is unavailable.
 
-## 9. Stats
+Each tile:
+- fixed `aspect-ratio: 4 / 3`
+- pastel fill
+- 1px border
+- plus marker top-left
+- title bottom-left
+- hover lifts `y: -4`
 
-```
-142 musicians      24 open gigs      12 universities
-```
+## 9. CTAs
 
-Numbers in Inter 700 56px `ink.primary`. Below each: a small swatch of one of the tile colors (green, peach, sky) — the gallery palette carries through. Framer count-up on `useInView`, 1.4s.
-
-## 10. How It Works
-
-```
-01  Browse the gallery       Filter by instrument, genre.
-02  Find a profile           Link goes to their real portfolio.
-03  Email them               One step. Direct.
+**Primary - `Browse work`:**
+```text
+bg #7C3AED
+text #FFFFFF
+height 52px
+radius 8px
+padding x 28px
+hover bg #5B21B6, shadow 0 12px 28px rgba(124,58,237,0.24)
 ```
 
-Numbers in `accent.violet` `font-mono`. Framer stagger on scroll.
-
-## 11. Required Libraries
-
-```bash
-npm install framer-motion three @react-three/fiber @react-three/drei
+**Secondary - `Add profile`:**
+```text
+bg #FFFFFF
+text #7C3AED
+border 1.5px #7C3AED
+radius 8px
+hover bg #EDE9FE
 ```
+
+## 10. Stats
+
+```text
+142 musician profiles
+24 active project briefs
+12 campus collections
+```
+
+Numbers: Inter 800, 56px. Each stat gets a small color swatch matching one tile color.
+
+## 11. How It Works
+
+```text
+01 Browse the gallery     Filter by instrument and genre.
+02 Open a profile         Portfolio links show the work.
+03 Email directly         No platform inbox required.
+```
+
+Use a clean gallery-label style: thin rule, mono number, bold title.
 
 ## 12. Implementation Notes
 
-- `GalleryRoom.tsx` — Three.js, `dynamic(..., { ssr: false })`. Renders only the room shell.
-- Tile DOM elements: use `useThree().camera` + a `useFrame` hook to project 3D world coordinates to 2D screen positions. `camera.project(position)` gives NDC; multiply by `0.5 * canvas.width/height` for pixel position.
-- Camera walk-in: `useSpring` from Framer (not react-spring) applied to `camera.position.z` with `stiffness: 30, damping: 15` — very slow spring for the approach feel.
-- Tile flip: `onPointerEnter` on the tile DOM element sets `flipped: true`. `onPointerLeave` sets `false`. No click needed.
-- The "back" face email button: `mailto:` link. `e.stopPropagation()` on the button to prevent flip-out while clicking.
-- 6 tile positions hardcoded. Responsive: on mobile, tiles collapse to a 2-column CSS grid with flip-on-tap.
-- `prefers-reduced-motion`: no camera drift, tiles static in 2D grid layout (CSS), flip still works.
+- `GalleryRoom.tsx` is client-only.
+- Prefer Three.js for room depth and DOM/Framer for tile interaction.
+- Keep all tile labels readable. If projection makes text too small, use the 2D grid as the primary interactive layer.
+- Do not imply file uploads; copy should refer to portfolio links.
+- Reduced motion should disable camera walk-in.
 
 ## 13. The Test
 
-Navigate to the page. Don't read anything. Hover a tile. If the flip reveals contact info clearly in under 200ms, the spring stiffness is correct. If it's sluggish, increase stiffness to `280`. Then walk away and look at the page from 2 meters. The gallery should read as depth — not as a flat grid. If it looks flat, increase the Z spread between the nearest and farthest tiles: bring nearest to `z = 0.5` and farthest to `z = -7`.
+Hover a tile. If contact details appear quickly and clearly, the grid is doing its job. Then step back from the screen. If the right side reads as a spatial gallery rather than a flat set of cards, the depth is working. Portfolio Grid succeeds when discovery feels visual without hiding the email path.
