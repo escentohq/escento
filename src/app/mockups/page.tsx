@@ -28,6 +28,8 @@ const MOCKUPS: Mockup[] = [
   { slug: "partner-05", title: "Profile Stack", author: "partner", blurb: "LinkedIn-style professional card stack", status: "ready" },
   { slug: "partner-06", title: "Open to Collaborate", author: "partner", blurb: "LinkedIn-style trust signal with an open-profile hero", status: "ready" },
   { slug: "partner-08", title: "Signal", author: "partner", blurb: "3D waveform mesh hero, electric orange marquee", status: "ready" },
+  { slug: "partner-09", title: "Blueprint", author: "partner", blurb: "Technical drawing grid with a 3D exploded profile card", status: "ready" },
+  { slug: "partner-10", title: "Stage", author: "partner", blurb: "Concert venue Three.js scene, violet & gold, Cormorant serif", status: "ready" },
 ];
 
 export default function MockupGallery() {
