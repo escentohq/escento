@@ -1,118 +1,106 @@
 import Link from "next/link";
-import { StackCards } from "@/components/mockups/partner-05/StackCards";
-import { Background3D } from "@/components/mockups/partner-05/Background3D";
+import { ProfileStack } from "@/components/mockups/partner-05/ProfileStack";
+import { ArrowRight, Search, PlayCircle, Star, Music } from "lucide-react";
 
-export default function ProfileStack() {
+export default function ProfileStackPage() {
   return (
-    <main className="min-h-screen bg-[#030303] text-white font-sans selection:bg-cyan-500/30 relative overflow-hidden">
-      <Background3D />
+    <main className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans selection:bg-[#FF6B6B] selection:text-white relative overflow-hidden flex flex-col">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-to-br from-[#FF6B6B]/10 to-transparent blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-to-tl from-[#4ECDC4]/10 to-transparent blur-3xl pointer-events-none" />
+      
+      {/* Top Nav */}
+      <nav className="relative z-20 w-full flex items-center justify-between px-6 py-6 md:px-12 bg-transparent">
+        <div className="font-black tracking-tighter text-xl text-[#0F172A]">
+          GIG<span className="text-[#FF6B6B]">FORGE</span>
+        </div>
+        <div className="flex items-center gap-6">
+          <Link href="#" className="hidden sm:block text-[#64748B] font-bold text-sm hover:text-[#0F172A] transition-colors">
+            How it works
+          </Link>
+          <Link href="#" className="flex items-center gap-2 bg-[#0F172A] text-white px-5 py-2.5 rounded-full font-bold text-sm hover:scale-105 transition-transform shadow-lg shadow-[#0F172A]/10">
+            Sign In <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </nav>
 
-      {/* Foreground Content */}
-      <div className="relative z-10 w-full h-full flex flex-col min-h-screen pointer-events-none">
+      {/* Main Content */}
+      <div className="flex-1 w-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col lg:flex-row items-center justify-center gap-16 py-12 relative z-10">
         
-        {/* Top Nav */}
-        <nav className="h-16 w-full flex items-center justify-between px-6 md:px-12 bg-black/20 backdrop-blur-md border-b border-white/5 pointer-events-auto">
-          <div className="font-bold tracking-tight text-lg uppercase bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent">GigForge</div>
-          <div className="flex items-center">
-            <Link href="#" className="text-white/50 font-medium text-sm hover:text-white transition-colors">
-              Sign in &rarr;
-            </Link>
+        {/* Left: Copy & CTAs */}
+        <div className="flex-1 flex flex-col items-center text-center lg:items-start lg:text-left max-w-2xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FFE66D]/30 text-[#D4AF37] font-bold text-xs uppercase tracking-wider mb-8">
+            <Star className="w-3.5 h-3.5" />
+            Join the Network
           </div>
-        </nav>
-
-        {/* Hero */}
-        <section className="px-6 md:px-12 max-w-6xl mx-auto pt-16 pb-20 lg:pt-24 lg:pb-32 flex flex-col items-center text-center pointer-events-auto w-full">
-          <h1 className="font-bold tracking-[-0.02em] text-white mb-6 max-w-2xl drop-shadow-lg" style={{ fontSize: "clamp(36px, 5vw, 64px)", lineHeight: "1.1" }}>
-            The professional network<br />for student musicians.
+          
+          <h1 className="font-black tracking-tight text-[#0F172A] mb-6 leading-[1.05]" style={{ fontSize: "clamp(48px, 6vw, 80px)" }}>
+            Find the right <span className="relative inline-block">
+              <span className="relative z-10">sound.</span>
+              <span className="absolute bottom-2 left-0 w-full h-4 bg-[#4ECDC4]/30 -rotate-2 z-0"></span>
+            </span>
           </h1>
-          <p className="text-white/70 text-[16px] md:text-[18px] mb-10 max-w-xl leading-relaxed">
-            Browse free. No account needed to find someone.
+          
+          <p className="text-[#64748B] text-lg md:text-xl mb-10 font-medium leading-relaxed max-w-xl">
+            A social-first directory for student creators. Flip through profiles, hear their work, and book them for your next project.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 mb-20">
-            <Link href="#" className="flex items-center justify-center h-12 px-8 rounded-full bg-cyan-500 text-black font-semibold text-[15px] hover:bg-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] transition-all">
-              Browse musicians
+          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <Link href="#" className="flex items-center justify-center gap-2 h-14 px-8 rounded-full bg-[#FF6B6B] text-white font-bold text-[15px] hover:bg-[#FF5252] hover:shadow-[0_10px_30px_rgba(255,107,107,0.3)] transition-all hover:-translate-y-1">
+              <Search className="w-5 h-5" />
+              Browse Network
             </Link>
-            <Link href="#" className="flex items-center justify-center h-12 px-8 rounded-full border border-white/20 text-white font-semibold text-[15px] hover:bg-white/5 transition-all bg-black/20 backdrop-blur-sm">
-              Post a gig
+            <Link href="#" className="flex items-center justify-center gap-2 h-14 px-8 rounded-full bg-white border-2 border-[#E2E8F0] text-[#0F172A] font-bold text-[15px] hover:border-[#CBD5E1] hover:bg-[#F8FAFC] transition-all">
+              Post a Gig
             </Link>
           </div>
 
-          {/* Stack Cards */}
-          <div className="w-full relative z-20">
-            <StackCards />
-          </div>
-        </section>
-
-        {/* Network Strip */}
-        <section className="w-full bg-black/40 backdrop-blur-lg py-16 border-t border-white/10 pointer-events-auto">
-          <div className="max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 text-center pt-8 pb-8">
-            
-            <Link href="#" className="group flex flex-col md:px-12">
-              <span className="font-bold text-[40px] text-white leading-none mb-2 drop-shadow-md">142</span>
-              <span className="text-white/60 text-[14px] mb-4 uppercase tracking-wider font-medium">musicians</span>
-              <span className="text-cyan-400 text-[14px] font-medium group-hover:text-cyan-300 transition-colors">Browse the network &rarr;</span>
-            </Link>
-
-            <Link href="#" className="group flex flex-col md:px-12">
-              <span className="font-bold text-[40px] text-white leading-none mb-2 drop-shadow-md">24</span>
-              <span className="text-white/60 text-[14px] mb-4 uppercase tracking-wider font-medium">open gigs</span>
-              <span className="text-cyan-400 text-[14px] font-medium group-hover:text-cyan-300 transition-colors">See what's posted &rarr;</span>
-            </Link>
-
-            <Link href="#" className="group flex flex-col md:px-12">
-              <span className="font-bold text-[40px] text-white leading-none mb-2 drop-shadow-md">12</span>
-              <span className="text-white/60 text-[14px] mb-4 uppercase tracking-wider font-medium">universities</span>
-              <span className="text-cyan-400 text-[14px] font-medium group-hover:text-cyan-300 transition-colors">Your campus here &rarr;</span>
-            </Link>
-
-          </div>
-        </section>
-
-        {/* How It Works */}
-        <section className="px-6 md:px-12 max-w-[600px] mx-auto py-24 pointer-events-auto">
-          <div className="flex flex-col gap-12">
-            
-            <div className="flex gap-8 items-start group">
-              <div className="font-mono text-[28px] text-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity">01</div>
-              <div>
-                <h3 className="font-semibold text-[22px] text-white mb-2">Browse the directory</h3>
-                <p className="text-white/60 text-[16px]">No account. Just search.</p>
+          {/* Social Proof */}
+          <div className="mt-16 flex items-center gap-4">
+            <div className="flex -space-x-3">
+              <img src="https://i.pravatar.cc/100?u=1" className="w-10 h-10 rounded-full border-2 border-[#F8FAFC]" alt="" />
+              <img src="https://i.pravatar.cc/100?u=2" className="w-10 h-10 rounded-full border-2 border-[#F8FAFC]" alt="" />
+              <img src="https://i.pravatar.cc/100?u=3" className="w-10 h-10 rounded-full border-2 border-[#F8FAFC]" alt="" />
+              <div className="w-10 h-10 rounded-full border-2 border-[#F8FAFC] bg-[#E2E8F0] flex items-center justify-center text-[#64748B] font-bold text-xs">
+                +2k
               </div>
             </div>
-
-            <div className="flex gap-8 items-start group">
-              <div className="font-mono text-[28px] text-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity">02</div>
-              <div>
-                <h3 className="font-semibold text-[22px] text-white mb-2">Find someone you like</h3>
-                <p className="text-white/60 text-[16px]">Their email is right there.</p>
-              </div>
-            </div>
-
-            <div className="flex gap-8 items-start group">
-              <div className="font-mono text-[28px] text-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity">03</div>
-              <div>
-                <h3 className="font-semibold text-[22px] text-white mb-2">Reach out directly</h3>
-                <p className="text-white/60 text-[16px]">No DMs. No platform middleman.</p>
-              </div>
-            </div>
-
-          </div>
-        </section>
-
-        {/* Footer */}
-        <footer className="w-full bg-black/60 backdrop-blur-md border-t border-white/5 py-8 px-6 md:px-12 pointer-events-auto mt-auto">
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="font-bold uppercase text-[14px] text-white/30 tracking-widest">GigForge</div>
-            <div className="flex items-center gap-6 text-[14px] text-white/50">
-              <Link href="#" className="hover:text-white transition-colors">About</Link>
-              <Link href="#" className="hover:text-white transition-colors">Privacy</Link>
-              <Link href="#" className="hover:text-white transition-colors">Post a gig</Link>
+            <div className="text-sm font-semibold text-[#64748B]">
+              <span className="text-[#0F172A] font-bold">2,400+</span> students already joined
             </div>
           </div>
-        </footer>
+        </div>
+
+        {/* Right: The Stack */}
+        <div className="flex-1 w-full max-w-md relative">
+          <div className="absolute -inset-4 bg-gradient-to-r from-[#FF6B6B] to-[#4ECDC4] opacity-[0.08] blur-2xl rounded-[3rem] pointer-events-none" />
+          <ProfileStack />
+        </div>
 
       </div>
+
+      {/* Footer / Info Strip */}
+      <footer className="relative z-20 mt-auto border-t border-[#E2E8F0] bg-white">
+        <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-2 text-[#64748B] font-semibold text-sm">
+              <Music className="w-4 h-4 text-[#4ECDC4]" />
+              Audio Portfolios
+            </div>
+            <div className="flex items-center gap-2 text-[#64748B] font-semibold text-sm">
+              <Star className="w-4 h-4 text-[#FFE66D]" />
+              Curated Talent
+            </div>
+            <div className="flex items-center gap-2 text-[#64748B] font-semibold text-sm">
+              <PlayCircle className="w-4 h-4 text-[#FF6B6B]" />
+              Direct Booking
+            </div>
+          </div>
+          <div className="text-sm font-semibold text-[#94A3B8]">
+            Built by students, for students.
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
