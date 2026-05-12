@@ -24,6 +24,9 @@ const MOCKUPS: Mockup[] = [
   { slug: "partner-02", title: "Studio Console", author: "partner", blurb: "Pitch-dark studio console, single warm accent", status: "ready" },
   { slug: "partner-03", title: "Paper & Ink", author: "partner", blurb: "Warm editorial broadsheet with a rotating headline", status: "ready" },
   { slug: "partner-04", title: "Stagelight", author: "partner", blurb: "Single CSS spotlight, theater metaphor", status: "ready" },
+  { slug: "partner-07", title: "Campus Network", author: "partner", blurb: "LinkedIn-grade professional, 2-col mini-directory hero", status: "ready" },
+  { slug: "partner-05", title: "Profile Stack", author: "partner", blurb: "LinkedIn-style professional card stack", status: "ready" },
+  { slug: "partner-06", title: "Open to Collaborate", author: "partner", blurb: "LinkedIn-style trust signal with an open-profile hero", status: "ready" },
 ];
 
 export default function MockupGallery() {
