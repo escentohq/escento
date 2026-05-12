@@ -39,16 +39,26 @@ Load the sub-agent **in addition to** this file — sub-agents scope your task, 
 | Language | TypeScript | `^5.9.2` |
 | UI | React | `^19.1.1` |
 | Styling | Tailwind CSS v4 (`@tailwindcss/postcss`) | `^4.1.13` |
-| Motion | framer-motion | (landing uses; pin to current) |
-| 3D | `@react-three/fiber`, `@react-three/drei`, `three` | (landing-only) |
-| Icons | `lucide-react` | (landing uses; pin to current) |
+| Motion | framer-motion | app-wide |
+| 3D | `@react-three/fiber`, `@react-three/drei`, `three` | any page hero/accent |
+| Smooth scroll | `lenis` + `@studio-freight/react-lenis` | app-wide |
+| Scroll animation | `gsap` + `@gsap/react` (ScrollTrigger) | scroll-driven sections |
+| Accessible primitives | `@radix-ui/react-*` (dialog, tooltip, dropdown) | interactive components |
+| Component variants | `class-variance-authority` + `clsx` | variant props on UI primitives |
+| Icons | `lucide-react` | app-wide |
 | ORM | Prisma | `^6.16.1` |
-| DB | PostgreSQL | 16 (Docker) |
+| DB | PostgreSQL | (Supabase or any provider) |
 | Auth | NextAuth v4 + Prisma Adapter + JWT | `^4.24.11` |
 | OAuth | GitHub, Google | — |
 | Lint | ESLint + `eslint-config-next` | `^9.35.0` |
 
-If a library you want to add is not on this list, **stop** and ask. Do not add date pickers, form libraries, UI kits, state managers, or fetch libraries without approval.
+**Approved animation stack priority:**
+1. **Framer Motion** — default for entrances, hover, page transitions, stagger
+2. **GSAP ScrollTrigger** — scroll-pinned sequences, timeline scrubbing, parallax beyond framer's capability
+3. **R3F + Drei** — 3D hero moments, floating objects, environment lighting on any page
+4. **Lenis** — smooth scroll inertia on all pages (wrap root layout)
+
+Do not add: date pickers, form libraries (react-hook-form, formik), state managers (zustand, redux), fetch libraries (react-query, swr), or UI kits (shadcn bulk install, MUI, Chakra).
 
 ---
 
@@ -84,11 +94,16 @@ if (session?.user?.role !== "CREATOR") redirect("/");
 **Do.** `className="bg-white text-[#0F172A] border border-[#F1F5F9]"`.
 **Don't.** `className="bg-zinc-950 text-zinc-100"`.
 
-### 6. Motion: framer-motion app-wide, R3F landing-only
-**Rule.** `framer-motion` enter/scroll/hover animations are welcome on any page. `@react-three/fiber`, `@react-three/drei`, and `three` may **only** be imported from `src/components/home/`.
-**Why.** R3F has a real bundle + perf cost. The stage scene is a deliberate brand moment, not a general decoration primitive.
-**Do.** Reuse motion tokens from [`DESIGN.md`](./DESIGN.md) §Motion.
-**Don't.** Add a `<Canvas>` to a directory page header.
+### 6. Motion: layered animation stack
+**Rule.** Use the right tool for the job — but always in this priority order:
+1. **Framer Motion** for entrances, hover lifts, stagger reveals, page transitions.
+2. **GSAP ScrollTrigger** for scroll-pinned timelines, scrubbed sequences, or parallax that framer can't do cleanly.
+3. **R3F + Drei** for 3D hero accents on any page — floating geometry, environment glow, particle fields. Every R3F `<Canvas>` must be `pointer-events-none`, `aria-hidden="true"`, and wrapped in a `Suspense` with a fallback.
+4. **Lenis** wraps the root layout for smooth scroll inertia. Import via `@studio-freight/react-lenis`.
+
+**Why.** Layering these tools correctly = cinematic feel without jank. Wrong tool = animation fighting itself.
+**Do.** GSAP + framer can coexist when GSAP owns scroll-driven transforms and framer owns entrance/exit.
+**Don't.** Use GSAP and framer on the same element. Don't add R3F to a card grid — 3D is for heroes and focal moments only.
 
 ### 7. Icons: `lucide-react` only
 **Rule.** `import { ArrowRight, Sparkles, PlayCircle } from "lucide-react"`. No emoji as UI, no inline SVG paths copied from Figma/Heroicons, no other icon packs.

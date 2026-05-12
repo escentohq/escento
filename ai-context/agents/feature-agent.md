@@ -30,9 +30,21 @@ Implement a complete route: page + loading + error + empty state + server action
 8. Run DoD checklist from `AGENTS.md`
 9. `npm run lint` + `npm run build`
 
+## Animation expectations
+
+Every new page must use the full animation stack from `ai-context/agents/ui-agent.md`:
+- **Framer Motion** — all entrances, hover, stagger. Default choice.
+- **GSAP ScrollTrigger** — scroll-pinned sections, scrubbed timelines.
+- **R3F + Drei** — 3D hero accent if the page has a focal hero moment.
+- **Lenis** — smooth scroll (already on root, no per-page work needed).
+
+A page with only Tailwind transitions is not done. Every section gets a scroll-reveal minimum.
+
+---
+
 ## Stop and confirm before
 
-- Adding a dependency
+- Adding a dependency not in `AGENTS.md` stack snapshot
 - Touching Prisma schema destructively
 - Building anything in `PRODUCT.md §Hard scope boundary`
 - Refactoring `layout.tsx`, `globals.css`, `src/auth.ts`
