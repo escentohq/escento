@@ -7,10 +7,10 @@ export function SecondaryCta({ href, children, icon: Icon = Plus, className = ""
   return (
     <Link
       href={href}
-      className={`flex h-14 items-center justify-center gap-2 rounded-full border-2 border-[#E2E8F0] bg-white px-8 text-sm font-bold tracking-wide text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 ${className}`}
+      className={`flex min-h-14 min-w-0 items-center justify-center gap-2 rounded-full border-2 border-[#E2E8F0] bg-white px-6 py-3 text-center text-sm font-bold leading-tight tracking-wide text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 sm:px-8 ${className}`}
     >
-      <Icon className="h-4 w-4" aria-hidden />
-      {children}
+      <Icon className="h-4 w-4 shrink-0" aria-hidden />
+      <span className="min-w-0">{children}</span>
     </Link>
   );
 }

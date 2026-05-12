@@ -138,7 +138,7 @@ export function GigForm({
             <Field id="location" label="Location" error={errors.location}>
               <input id="location" name="location" defaultValue={values.location} className="input-base" placeholder="Austin, TX" />
             </Field>
-            <label htmlFor="isRemote" className="mt-7 flex min-h-14 items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-white px-4 text-sm font-bold text-[#0F172A]">
+            <label htmlFor="isRemote" className="flex min-h-14 items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-white px-4 text-sm font-bold text-[#0F172A] md:mt-7">
               <input id="isRemote" type="checkbox" name="isRemote" defaultChecked={values.isRemote} className="h-4 w-4 accent-[#0055FF]" />
               Remote option
             </label>
@@ -181,4 +181,3 @@ export function GigForm({
     </div>
   );
 }
-

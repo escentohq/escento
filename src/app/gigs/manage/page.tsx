@@ -53,11 +53,11 @@ export default async function ManageGigsPage() {
 
             return (
               <Reveal key={gig.id} delay={Math.min(index, 6) * 0.04}>
-                <article className="rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm">
+                <article className="rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm sm:p-6">
                   <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <h2 className="text-xl font-black tracking-tight text-[#0F172A]">{gig.title}</h2>
+                      <div className="flex min-w-0 flex-wrap items-center gap-3">
+                        <h2 className="break-words text-xl font-black tracking-tight text-[#0F172A]">{gig.title}</h2>
                         <StatusBadge status={gig.status} />
                       </div>
                       <p className="mt-2 font-mono text-xs text-[#64748B]">
@@ -76,15 +76,15 @@ export default async function ManageGigsPage() {
                       </p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 md:justify-end">
-                      <Link href={`/gigs/${gig.id}/edit`} className="btn-ghost">Edit</Link>
+                    <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:justify-end">
+                      <Link href={`/gigs/${gig.id}/edit`} className="btn-ghost flex-1 sm:flex-none">Edit</Link>
                       {!isClosed ? (
-                        <form action={closeGig.bind(null, gig.id)} className="inline">
-                          <button type="submit" className="btn-ghost">Mark Filled</button>
+                        <form action={closeGig.bind(null, gig.id)} className="flex-1 sm:flex-none">
+                          <button type="submit" className="btn-ghost w-full">Mark Filled</button>
                         </form>
                       ) : null}
-                      <DeleteGigButton gigId={gig.id} />
-                      <Link href={`/gigs/${gig.id}`} className="btn-ghost">View</Link>
+                      <DeleteGigButton gigId={gig.id} className="flex-1 sm:flex-none" />
+                      <Link href={`/gigs/${gig.id}`} className="btn-ghost flex-1 sm:flex-none">View</Link>
                     </div>
                   </div>
                 </article>
@@ -96,4 +96,3 @@ export default async function ManageGigsPage() {
     </PageShell>
   );
 }
-

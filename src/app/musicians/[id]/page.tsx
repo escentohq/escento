@@ -39,7 +39,7 @@ export default async function MusicianPublicProfilePage({
   ];
 
   return (
-    <div className="bg-[#FAFAFA] px-6 py-16 md:py-24">
+    <div className="bg-[#FAFAFA] px-4 py-12 sm:px-6 md:py-18 lg:py-24">
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-8">
           <BackLink href="/musicians">Back to musicians</BackLink>
@@ -48,7 +48,7 @@ export default async function MusicianPublicProfilePage({
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="space-y-8 lg:col-span-2">
             <SectionCard eyebrow="On stage" title={profile.displayName}>
-              <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-[#475569]">
+              <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm font-medium text-[#475569]">
                 <span>{profile.location || "Location not specified"}</span>
                 <span className="text-[#CBD5E1]">/</span>
                 <span>{profile.isRemote ? "Remote-friendly" : "In-person only"}</span>
@@ -71,13 +71,13 @@ export default async function MusicianPublicProfilePage({
                 <div className="grid gap-6 md:grid-cols-2">
                   <div>
                     <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Instruments</h3>
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="mt-3 flex min-w-0 flex-wrap gap-2">
                       {instruments.length ? instruments.map((name) => <Chip key={name} tone="blue">{name}</Chip>) : <Chip>No instruments</Chip>}
                     </div>
                   </div>
                   <div>
                     <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Genres</h3>
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="mt-3 flex min-w-0 flex-wrap gap-2">
                       {genres.length ? genres.map((name) => <Chip key={name} tone="pink">{name}</Chip>) : <Chip>No genres</Chip>}
                     </div>
                   </div>
@@ -157,4 +157,3 @@ export default async function MusicianPublicProfilePage({
     </div>
   );
 }
-

@@ -19,17 +19,17 @@ export function PageShell({
     size === "narrow" ? "max-w-xl" : size === "medium" ? "max-w-4xl" : "max-w-6xl";
 
   return (
-    <div className="bg-[#FAFAFA] px-6 py-16 md:py-24">
+    <div className="bg-[#FAFAFA] px-4 py-12 sm:px-6 md:py-18 lg:py-24">
       <div className={`mx-auto w-full ${maxWidth}`}>
         <Reveal>
-          <header className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-            <div>
+          <header className="mb-8 flex flex-col gap-6 md:mb-10 md:flex-row md:items-end md:justify-between">
+            <div className="min-w-0">
               {eyebrow ? (
                 <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
                   {eyebrow}
                 </span>
               ) : null}
-              <h1 className="mt-3 text-4xl font-black tracking-tight text-[#0F172A] md:text-5xl">
+              <h1 className="mt-3 text-3xl font-black tracking-tight text-[#0F172A] sm:text-4xl md:text-5xl">
                 {title}
               </h1>
               {body ? (
@@ -38,7 +38,7 @@ export function PageShell({
                 </p>
               ) : null}
             </div>
-            {action ? <div className="shrink-0">{action}</div> : null}
+            {action ? <div className="w-full shrink-0 md:w-auto [&>a]:w-full md:[&>a]:w-auto">{action}</div> : null}
           </header>
         </Reveal>
         {children}
@@ -46,4 +46,3 @@ export function PageShell({
     </div>
   );
 }
-

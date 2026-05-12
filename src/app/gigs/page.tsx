@@ -55,7 +55,7 @@ export default async function GigsPage({
     >
       <Reveal>
         <div className="rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm md:p-6">
-          <form method="GET" className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto]" action="/gigs">
+          <form method="GET" className="grid gap-4 md:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]" action="/gigs">
             <label htmlFor="projectType" className="text-sm font-bold text-[#0F172A]">
               Project type
               <select id="projectType" name="projectType" defaultValue={safeProjectType ?? ""} className="select-base">
@@ -84,12 +84,12 @@ export default async function GigsPage({
               </select>
             </label>
 
-            <div className="flex items-end gap-3">
-              <button type="submit" className="btn-primary w-full lg:w-auto">
+            <div className="flex flex-col gap-3 md:col-span-2 md:flex-row md:items-end lg:col-span-1">
+              <button type="submit" className="btn-primary w-full md:w-auto">
                 Apply
               </button>
               {hasFilters ? (
-                <Link href="/gigs" className="pb-4 text-sm font-bold text-[#475569] transition-colors hover:text-[#0055FF]">
+                <Link href="/gigs" className="inline-flex min-h-11 items-center justify-center text-sm font-bold text-[#475569] transition-colors hover:text-[#0055FF] md:justify-start md:pb-1">
                   Clear
                 </Link>
               ) : null}
@@ -120,10 +120,10 @@ export default async function GigsPage({
 
               return (
                 <Reveal key={gig.id} delay={Math.min(index, 6) * 0.04}>
-                  <Link href={`/gigs/${gig.id}`} className="card-hover group flex h-full flex-col p-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h2 className="text-xl font-black tracking-tight text-[#0F172A] group-hover:text-[#0055FF]">
+                  <Link href={`/gigs/${gig.id}`} className="card-hover group flex h-full min-w-0 flex-col p-5 sm:p-6">
+                    <div className="flex min-w-0 items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <h2 className="break-words text-xl font-black tracking-tight text-[#0F172A] group-hover:text-[#0055FF]">
                           {gig.title}
                         </h2>
                         <p className="mt-1 font-mono text-xs text-[#64748B]">

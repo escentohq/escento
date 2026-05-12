@@ -29,11 +29,11 @@ body {
 }
 
 .btn-primary {
-  @apply inline-flex h-14 items-center justify-center gap-2 rounded-full bg-[#0F172A] px-8 text-sm font-bold tracking-wide text-white shadow-sm transition-all hover:scale-105 hover:shadow-[0_0_40px_-10px_#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60;
+  @apply inline-flex min-h-14 min-w-0 items-center justify-center gap-2 rounded-full bg-[#0F172A] px-6 py-3 text-center text-sm font-bold leading-tight tracking-wide text-white shadow-sm transition-all hover:scale-105 hover:shadow-[0_0_40px_-10px_#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60 sm:px-8;
 }
 
 .btn-secondary {
-  @apply inline-flex h-14 items-center justify-center gap-2 rounded-full border-2 border-[#E2E8F0] bg-white px-8 text-sm font-bold tracking-wide text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60;
+  @apply inline-flex min-h-14 min-w-0 items-center justify-center gap-2 rounded-full border-2 border-[#E2E8F0] bg-white px-6 py-3 text-center text-sm font-bold leading-tight tracking-wide text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60 sm:px-8;
 }
 
 .card {
@@ -60,5 +60,5 @@ body {
 
 /* Small secondary action (e.g. Edit, Mark filled) */
 .btn-ghost {
-  @apply inline-flex h-10 items-center justify-center rounded-full border border-[#E2E8F0] bg-white px-4 text-xs font-bold tracking-wide text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2;
+  @apply inline-flex min-h-11 items-center justify-center rounded-full border border-[#E2E8F0] bg-white px-4 py-2 text-xs font-bold tracking-wide text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2;
 }
