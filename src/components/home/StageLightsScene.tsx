@@ -34,12 +34,14 @@ function LightBeam({
 
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.rotation.z = rotation[2] + Math.sin(state.clock.elapsedTime * speed) * 0.2;
-      meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * speed * 0.5) * 0.5;
+      meshRef.current.rotation.z =
+        rotation[2] + Math.sin(state.clock.elapsedTime * speed) * 0.2;
+      meshRef.current.position.y =
+        position[1] + Math.sin(state.clock.elapsedTime * speed * 0.5) * 0.5;
     }
-
     if (materialRef.current) {
-      materialRef.current.opacity = intensity + Math.sin(state.clock.elapsedTime * speed * 2) * 0.1;
+      materialRef.current.opacity =
+        intensity + Math.sin(state.clock.elapsedTime * speed * 2) * 0.1;
     }
   });
 
@@ -59,65 +61,128 @@ function LightBeam({
   );
 }
 
-function FloatingParticles({ count = 50 }: { count?: number }) {
+function FloatingParticles({ count = 80 }: { count?: number }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   const particles = useMemo(() => {
     const temp: Particle[] = [];
     for (let i = 0; i < count; i += 1) {
-      const t = Math.random() * 100;
-      const factor = 20 + Math.random() * 100;
-      const speed = 0.01 + Math.random() / 200;
-      const xFactor = -20 + Math.random() * 40;
-      const yFactor = -20 + Math.random() * 40;
-      const zFactor = -20 + Math.random() * 40;
-      temp.push({ t, factor, speed, xFactor, yFactor, zFactor, mx: 0, my: 0 });
+      temp.push({
+        t: Math.random() * 100,
+        factor: 20 + Math.random() * 100,
+        speed: 0.01 + Math.random() / 200,
+        xFactor: -20 + Math.random() * 40,
+        yFactor: -20 + Math.random() * 40,
+        zFactor: -20 + Math.random() * 40,
+        mx: 0,
+        my: 0,
+      });
     }
     return temp;
   }, [count]);
 
   useFrame(() => {
     particles.forEach((particle, i) => {
-      let { t, factor, speed, xFactor, yFactor, zFactor } = particle;
-      t = particle.t += speed / 2;
+      const { factor, speed, xFactor, yFactor, zFactor } = particle;
+      particle.t += speed / 2;
+      const t = particle.t;
       const a = Math.cos(t) + Math.sin(t) / 10;
       const b = Math.sin(t) + Math.cos(t * 2) / 10;
       const s = Math.max(0.1, Math.cos(t));
 
       dummy.position.set(
-        (particle.mx / 10) * a +
-          xFactor +
-          Math.cos((t / 10) * factor) +
-          (Math.sin(t) * factor) / 10,
-        (particle.my / 10) * b +
-          yFactor +
-          Math.sin((t / 10) * factor) +
-          (Math.cos(t * 2) * factor) / 10,
-        (particle.my / 10) * b +
-          zFactor +
-          Math.cos((t / 10) * factor) +
-          (Math.sin(t * 3) * factor) / 10,
+        xFactor + Math.cos((t / 10) * factor) + (Math.sin(t) * factor) / 10,
+        yFactor + Math.sin((t / 10) * factor) + (Math.cos(t * 2) * factor) / 10,
+        zFactor + Math.cos((t / 10) * factor) + (Math.sin(t * 3) * factor) / 10,
       );
       dummy.scale.set(s, s, s);
       dummy.updateMatrix();
       meshRef.current?.setMatrixAt(i, dummy.matrix);
+      void a;
+      void b;
     });
-
-    if (meshRef.current) {
-      meshRef.current.instanceMatrix.needsUpdate = true;
-    }
+    if (meshRef.current) meshRef.current.instanceMatrix.needsUpdate = true;
   });
 
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
       <sphereGeometry args={[0.05, 8, 8]} />
-      <meshBasicMaterial color="#ffffff" transparent opacity={0.4} />
+      <meshBasicMaterial color="#ffffff" transparent opacity={0.35} />
     </instancedMesh>
   );
 }
 
-function Scene() {
+function FloatingShapes() {
+  const icoRef = useRef<THREE.Mesh>(null);
+  const torusRef = useRef<THREE.Mesh>(null);
+  const octaRef = useRef<THREE.Mesh>(null);
+
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+    if (icoRef.current) {
+      icoRef.current.rotation.x = t * 0.15;
+      icoRef.current.rotation.y = t * 0.2;
+    }
+    if (torusRef.current) {
+      torusRef.current.rotation.x = t * 0.1;
+      torusRef.current.rotation.z = t * 0.25;
+    }
+    if (octaRef.current) {
+      octaRef.current.rotation.y = t * 0.18;
+      octaRef.current.rotation.x = t * 0.12;
+    }
+  });
+
+  return (
+    <>
+      {/* Blue icosahedron — top left */}
+      <Float speed={1.8} rotationIntensity={0.3} floatIntensity={1.2}>
+        <mesh ref={icoRef} position={[-6, 3, -8]}>
+          <icosahedronGeometry args={[1.2, 1]} />
+          <meshStandardMaterial
+            color="#0055FF"
+            roughness={0.05}
+            metalness={0.9}
+            transparent
+            opacity={0.55}
+            wireframe={false}
+          />
+        </mesh>
+      </Float>
+
+      {/* Pink torus — right side */}
+      <Float speed={2.2} rotationIntensity={0.5} floatIntensity={1.8}>
+        <mesh ref={torusRef} position={[7, -2, -10]}>
+          <torusGeometry args={[1.4, 0.35, 16, 48]} />
+          <meshStandardMaterial
+            color="#FF3366"
+            roughness={0.1}
+            metalness={0.85}
+            transparent
+            opacity={0.5}
+          />
+        </mesh>
+      </Float>
+
+      {/* Gold octahedron — bottom center */}
+      <Float speed={1.5} rotationIntensity={0.4} floatIntensity={1.0}>
+        <mesh ref={octaRef} position={[2, -5, -12]}>
+          <octahedronGeometry args={[1.6, 0]} />
+          <meshStandardMaterial
+            color="#FFB000"
+            roughness={0.08}
+            metalness={0.88}
+            transparent
+            opacity={0.45}
+          />
+        </mesh>
+      </Float>
+    </>
+  );
+}
+
+function Scene({ scrollProgress }: { scrollProgress: number }) {
   const { viewport, mouse } = useThree();
   const groupRef = useRef<THREE.Group>(null);
 
@@ -133,18 +198,25 @@ function Scene() {
         -(mouse.y * Math.PI) / 10,
         0.05,
       );
+      // scroll: drift scene upward and fade as user scrolls down
+      groupRef.current.position.y = THREE.MathUtils.lerp(
+        groupRef.current.position.y,
+        scrollProgress * -8,
+        0.08,
+      );
     }
   });
 
   return (
     <group ref={groupRef}>
+      {/* Ambient glow spheres */}
       <Float speed={2} rotationIntensity={0} floatIntensity={2}>
         <mesh position={[-viewport.width / 4, viewport.height / 4, -10]}>
           <sphereGeometry args={[5, 32, 32]} />
           <meshBasicMaterial
             color="#0055FF"
             transparent
-            opacity={0.15}
+            opacity={0.12}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
           />
@@ -156,7 +228,7 @@ function Scene() {
           <meshBasicMaterial
             color="#FF3366"
             transparent
-            opacity={0.12}
+            opacity={0.1}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
           />
@@ -168,49 +240,60 @@ function Scene() {
           <meshBasicMaterial
             color="#FFB000"
             transparent
-            opacity={0.1}
+            opacity={0.08}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
           />
         </mesh>
       </Float>
 
+      {/* Stage light beams */}
       <LightBeam
         color="#0055FF"
         position={[-viewport.width / 2.5, 5, -5]}
         rotation={[0, 0, -Math.PI / 6]}
-        intensity={0.2}
+        intensity={0.18}
         speed={0.8}
       />
       <LightBeam
         color="#FF3366"
         position={[viewport.width / 2.5, 5, -8]}
         rotation={[0, 0, Math.PI / 6]}
-        intensity={0.15}
+        intensity={0.14}
         speed={1.2}
       />
       <LightBeam
         color="#FFB000"
         position={[0, 8, -12]}
         rotation={[0, 0, 0]}
-        intensity={0.2}
+        intensity={0.18}
         speed={1.0}
       />
 
-      <FloatingParticles count={100} />
+      <FloatingShapes />
+      <FloatingParticles count={80} />
+
+      {/* Accent lighting */}
+      <pointLight position={[-8, 4, -4]} color="#0055FF" intensity={6} distance={20} />
+      <pointLight position={[8, -2, -6]} color="#FF3366" intensity={5} distance={18} />
+      <pointLight position={[0, 6, -8]} color="#FFB000" intensity={4} distance={16} />
     </group>
   );
 }
 
-export function StageLightsScene() {
+export function StageLightsScene({ scrollProgress = 0 }: { scrollProgress?: number }) {
   return (
-    <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-[#FAFAFA]">
+    <div
+      className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-[#FAFAFA]"
+      aria-hidden="true"
+    >
       <Canvas camera={{ position: [0, 0, 15], fov: 45 }} dpr={[1, 2]}>
         <color attach="background" args={["#FAFAFA"]} />
-        <Scene />
+        <Scene scrollProgress={scrollProgress} />
         <Environment preset="city" />
         <Preload all />
       </Canvas>
+      {/* Grain overlay */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.03]"
         style={{
