@@ -1,169 +1,192 @@
-# Landing Design 09 — **Soft Brutalism**
+# Landing Design 09 — **Professional Grid**
 
-> I'm a senior product designer with a track record on opinionated indie tools — niche newsletters, developer products, designer-run agencies. Brutalist design done badly is just ugly. Done well, it signals *we made strong choices, on purpose*. This version uses heavy borders, chunky type, and a single bold accent — restrained enough for a campus product, opinionated enough to be memorable.
+> I'm a senior product designer with roots in opinionated B2B tools and two professional networks. Structure and confidence are more persuasive than polish. This version applies professional-network grid discipline to a light page — heavy borders, deliberate whitespace, real content. The result reads like a professional directory that takes itself seriously.
 
 ---
 
 ## 1. The Concept
 
-A page built on a strict 2-color grid with thick 2px black borders, oversized geometric type, and content blocks that look hand-laid like a Risograph poster. One accent color. No gradients. No shadows. Information density is welcomed. The page looks confident enough that it never has to *try*.
+A crisp white and light gray page built on a strict 2px border grid system. Professional, decisive, unambiguous. Large bold Inter display type. Real profile cards and gig listings in bordered cells. A primary blue CTA that owns the page. The design communicates "this is a real professional tool" without saying it.
 
 ## 2. Why This Direction
 
-GigForge is a tool, not a social platform. Tool-oriented users (creators with deadlines, musicians looking for gigs) respond to confidence and clarity. Soft Brutalism delivers both. It also visually distances GigForge from the dozen "purple gradient SaaS" landing pages students see every day — a real differentiator in a crowded campus app market.
+GigForge is a professional network, not a social app. Professional-network users — creators with deadlines, musicians looking for paid work — respond to clarity and structure. This version's visual confidence makes it immediately legible as a tool for serious collaborators. It also stands out from the sea of "rounded corners SaaS" pages students see daily.
 
 ## 3. Color System
 
 | Token | Hex | Use |
 |---|---|---|
-| `bg.page` | `#F2EFE6` | Warm cream (the "paper" — not white, never white) |
-| `bg.alt` | `#E8E4D7` | Alternating section background |
-| `bg.invert` | `#101012` | Inverted blocks (CTAs, the wordmark plate) |
-| `border.heavy` | `#101012` | 2px black borders, the workhorse |
-| `ink.primary` | `#101012` | All text |
-| `ink.muted` | `#5A5750` | Captions |
-| `accent.electric` | `#3344EE` | The one accent: an electric royal blue used on hover states, the primary CTA, and a single decorative element |
+| `bg.page` | `#FFFFFF` | White page base |
+| `bg.section` | `#F3F2EF` | Alternating section background |
+| `bg.nav` | `#FFFFFF` | Nav background |
+| `bg.pill` | `#EEF3FB` | Skill tag background |
+| `border.heavy` | `#191919` | 2px grid borders |
+| `border.card` | `rgba(0,0,0,0.10)` | Card edges |
+| `ink.primary` | `#191919` | All text |
+| `ink.secondary` | `#555555` | Subheads, card meta |
+| `ink.muted` | `#888888` | Timestamps, metadata |
+| `accent.blue` | `#0A66C2` | Primary CTA, hover states, links, stat blocks |
+| `accent.green` | `#057642` | Availability dot only |
 
-A 7-token palette. The black-on-cream + one blue does *everything*.
+A focused palette: white, structured black, professional blue. Nothing else.
 
 ## 4. Typography
 
-- **Display:** Söhne Breit 700 or **Editorial New Heavy**, `clamp(56px, 9vw, 144px)`, leading `0.88`, tracking `-0.03em`. Stretched, dense, confident.
-- **Body:** Söhne 500, 16/24. Heavier than usual — the page reads with weight.
-- **Mono:** GT America Mono 12px uppercase, `+0.14em` tracking.
+- **Display:** Inter 800, `clamp(56px, 8vw, 120px)`, leading `0.92`, tracking `-0.03em`. Dense, confident.
+- **Body:** Inter 500, 16/24.
+- **Mono:** `font-mono` 12px uppercase tracking `+0.12em`.
+- **Card name:** Inter 700, 20px.
 
-The display type is **larger than convention** because brutalism is about confident size. Don't shrink it.
+The display type is oversized by convention because structure needs confident type. Don't shrink it.
 
 ## 5. Layout
 
 ```
-┌══════════════════════════════════════════════════════════════════════┐
-║  GIGFORGE                              ║  SIGN IN                     ║   ← 2px borders everywhere
-║  ──────────────────────────────────────╫──────────────────────────────║
-║                                                                        ║
-║   STUDENT MUSICIANS.                                                  ║
-║   STUDENT CREATORS.                                                   ║   ← 144px display
-║   ONE DIRECTORY.                                                      ║
-║                                                                        ║
-║  ─────────────────────────────────────────────────────────────────  ║   ← 2px rule
-║                                                                        ║
-║   ┌──────────────┐  ┌──────────────┐  ┌──────────────┐               ║
-║   │ 142          │  │ 24           │  │ 12           │               ║   ← stat blocks
-║   │ MUSICIANS    │  │ OPEN GIGS    │  │ CAMPUSES     │               ║
-║   └──────────────┘  └──────────────┘  └──────────────┘               ║
-║                                                                        ║
-║   ┌─────────────────────────────────────┐  ┌─────────────────────┐  ║
-║   │                                       │  │ BROWSE              │  ║
-║   │   A directory.                        │  │ MUSICIANS           │  ║
-║   │   Not a social network.               │  │            →        │  ║
-║   │                                       │  │                     │  ║   ← CTAs are big plates
-║   │   No DMs. No feeds. No algorithms.    │  │ ───────────────── │  ║
-║   │   You search, you find, you email.    │  │                     │  ║
-║   │                                       │  │ POST A GIG          │  ║
-║   │                                       │  │            →        │  ║
-║   └─────────────────────────────────────┘  └─────────────────────┘  ║
-║                                                                        ║
-║  ─────────────────────────────────────────────────────────────────  ║
-║                                                                        ║
-║   HOW IT WORKS                                                        ║
-║                                                                        ║
-║   01. Browse the directory          02. Find someone you like        ║
-║       no account needed                  their email is right there  ║
-║                                                                        ║
-║   03. Email them yourself                                             ║
-║       that's the entire product                                      ║
-║                                                                        ║
-╚══════════════════════════════════════════════════════════════════════╝
+┌══════════════════════════════════════════════════════════════╗
+║  GIGFORGE                              ║  SIGN IN →           ║  ← 2px border everywhere
+║  ══════════════════════════════════════╬══════════════════════║
+║                                                               ║
+║   STUDENT MUSICIANS.                                         ║
+║   STUDENT CREATORS.                                          ║  ← 120px display
+║   ONE DIRECTORY.                                             ║
+║                                                               ║
+║  ─────────────────────────────────────────────────────────   ║  ← 2px rule
+║                                                               ║
+║  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────┐ ║
+║  │  142             │  │  24              │  │  12          │ ║  ← stat blocks
+║  │  MUSICIANS       │  │  OPEN GIGS       │  │  CAMPUSES    │ ║
+║  └──────────────────┘  └──────────────────┘  └──────────────┘ ║
+║                                                               ║
+║  ┌──────────────────────────────────────┐  ┌───────────────┐ ║
+║  │                                       │  │ BROWSE        │ ║
+║  │  A professional directory.            │  │ MUSICIANS     │ ║
+║  │  Not a social network.                │  │         →     │ ║  ← CTA as plate
+║  │                                       │  │               │ ║
+║  │  No feeds. No DMs. No algorithm.      │  │ ──────────── │ ║
+║  │  Search, find, email.                 │  │               │ ║
+║  │                                       │  │ POST A GIG    │ ║
+║  └──────────────────────────────────────┘  │         →     │ ║
+║                                             └───────────────┘ ║
+╚══════════════════════════════════════════════════════════════╝
 ```
 
-The whole page is gridded. 2px borders form the structure. Nothing is rounded.
+2px borders form the structural skeleton. Border-radius: 0 everywhere.
 
 ## 6. The Border System
 
 - All structural borders: 2px `border.heavy`. Solid. Never dashed.
-- All borders are crisp — no shadows, no blur. The page must look like it was *drawn*, not rendered.
-- Borders meet flush at corners — no rounded joins, no overlap artifacts. Snap them precisely to the grid.
+- Borders meet at flush right-angle corners — no rounded joins.
+- Page uses `box-sizing: border-box` globally and `display: grid` with `gap: 0` — borders collapse cleanly.
+- The nav uses a bottom border to ground it, matching the grid language.
 
 ## 7. The Stat Blocks
 
-Three large blocks at the top of the body, each rendering a real DB count:
+Three equal-width bordered blocks:
 
 ```
-┌──────────────┐
-│ 142          │   ← number at 80px display
-│ MUSICIANS    │   ← mono label at 12px
-└──────────────┘
+┌──────────────────┐
+│  142             │  ← Inter 800 72px ink.primary
+│  MUSICIANS       │  ← mono label 12px ink.muted
+└──────────────────┘
 ```
 
-On hover (desktop), the block's background flips to `accent.electric` and the text becomes `bg.page`. Instant snap, no transition. The brutalism allows itself this one decisive flip — it feels like flipping a Risograph layer.
+On hover: block background flips to `accent.blue`, text goes white. Instant snap (`transition: none`). The one decisive interaction on the page — like flipping a switch.
 
-## 8. CTAs
+## 8. CTAs as Plates
 
-The primary CTA is a **full-height plate**, not a button. It lives in the hero grid as its own block.
+The primary CTA is a full-height bordered plate, not a button.
 
 **Primary plate** — `Browse musicians`:
 ```
-bg: #101012
-text: #F2EFE6
-border: 2px #101012
-height: matches the adjacent body block
-padding: 32px
-display label: BROWSE MUSICIANS in 28px Söhne Breit 600, uppercase
-arrow: 32px → at bottom right, animates +6px on hover
-hover: bg #3344EE, text #F2EFE6 (the blue takeover is the moment)
-transition: none (snap)
+bg: #0A66C2
+text: #FFFFFF
+border: 2px #0A66C2
+height: matches adjacent body block
+padding: 28px
+display label: BROWSE MUSICIANS in Inter 700 22px uppercase
+arrow: 24px → at bottom-right, +6px on hover
+transition: none (instant swap)
+hover: bg #004182
 ```
 
 **Secondary plate** — `Post a gig`:
-- Same plate dimensions as primary, but `bg: bg.page`, `border: 2px ink.primary`.
-- On hover: `bg: #3344EE`, `text: bg.page`.
-
-Both plates stack inside one outer 2px-bordered container, separated by a 2px horizontal rule.
-
-## 9. The Live Listing Strip
-
-Below the hero, a horizontal 2px-bordered band shows 4 real directory entries in a row, each in its own 2px-bordered cell:
-
 ```
-┌──────────┬──────────┬──────────┬──────────┐
-│ Maya     │ Jordan   │ Sam      │ ...      │
-│ Guitar   │ Cello    │ Producer │          │
-│ UT Aus.  │ USC      │ Berklee  │          │
-│          │          │          │          │
-│       →  │       →  │       →  │       →  │
-└──────────┴──────────┴──────────┴──────────┘
+bg: #FFFFFF
+border: 2px #191919
+text: #191919
+hover: bg accent.blue (10,102,194), text white — instant
 ```
 
-Hover on a cell: cell flips to `accent.electric` background, text inverts. Click: deep-link to the listing.
+Both plates sit in one outer 2px-bordered container, separated by a 2px horizontal rule.
 
-## 10. The Wordmark
+## 9. Live Listing Strip
 
-`GIGFORGE` is set in 28px Söhne Breit on a 2px-bordered `bg.invert` plate, white-on-black, in the nav. The wordmark *plate* is the brand mark — wherever the brand needs to appear, it's the plate, not just the text.
+Below the hero: a full-bleed 2px-bordered band with 4 real profile cells, equal width:
+
+```
+┌──────────────┬──────────────┬──────────────┬──────────────┐
+│  ● Maya C.   │  ● Jordan L. │  ● Sam P.    │  see all 142 │
+│  Guitar      │  Cello       │  Piano       │  musicians   │
+│  UT Austin   │  USC         │  Berklee     │  →           │
+│              │              │              │              │
+│  →           │  →           │  →           │              │
+└──────────────┴──────────────┴──────────────┴──────────────┘
+```
+
+Cell hover: background flips to `accent.blue`, text goes white. Instant. Professional.
+
+## 10. How It Works
+
+Three bordered rows below the listing strip, on `bg.section`:
+
+```
+┌───┬────────────────────────────────────────────────────────┐
+│01 │  Browse the directory — no account needed to look.     │
+├───┼────────────────────────────────────────────────────────┤
+│02 │  Find someone you like — their email is right there.   │
+├───┼────────────────────────────────────────────────────────┤
+│03 │  Email them — that's the entire product.               │
+└───┴────────────────────────────────────────────────────────┘
+```
+
+Number cells: `accent.blue` background, white text, 2px border. Text cells: `bg.page`, `ink.primary`. All borders 2px `border.heavy`.
 
 ## 11. Motion
 
-Brutalism resists motion. Two exceptions:
-- **Hover flips** (instant, no transition).
-- **The arrow on CTA plates** (translates +6px on hover, 120ms ease).
+Professional restraint. Two exceptions only:
+- **Hover flips** (instant, `transition: none`). Decisive.
+- **CTA plate arrow** (+6px on hover, 100ms ease). The only eased motion on the page.
 
-No scroll-triggered animations. No fade-ins. The page is *immediate*. That is the design.
+No scroll animations. No fade-ins. The page loads complete — that is the brand.
 
 ## 12. What This Version Refuses to Do
 
-- No rounded corners anywhere (border-radius is `0`, globally)
-- No shadows
+- No rounded corners (`border-radius: 0` everywhere)
+- No shadows (borders do the structural work)
 - No gradients
-- No more than one accent color
-- No animated background
+- No dark page background
+- No more than one accent color (plus availability green)
 - No emoji
-- No serif fonts (the display is grotesque-only)
+- No decorative illustrations
 
-## 13. Implementation Notes
+## 13. Required Libraries
 
-- Render fully server-side. Zero JS needed for the brand experience.
-- Use a CSS reset that explicitly sets `border-radius: 0` on every element.
-- The 2px borders need pixel-perfect alignment — use `box-sizing: border-box` and a strict grid (`display: grid` with `gap: 0` and explicit border collapsing on adjacent cells).
+```bash
+npm install framer-motion
+```
+
+No Three.js — the design's visual language explicitly rejects shadows and 3D effects.
+
+## 14. Implementation Notes
+
+- CSS reset sets `border-radius: 0` globally.
+- Grid: `display: grid`, `gap: 0`, borders use `border-right: 2px` + `border-bottom: 2px` to avoid doubling.
+- **Stat block hover flip:** Use `motion.div` with `whileHover={{ backgroundColor: "#0A66C2", color: "#FFFFFF" }}` + `transition={{ duration: 0 }}` — the instant snap is intentional and must use `duration: 0`, not a CSS transition.
+- **CTA plate arrow:** `motion.span` with `whileHover={{ x: 6 }}` + `transition={{ type: "spring", stiffness: 400, damping: 20 }}` — the one eased motion on the page.
+- **Listing strip cell hover:** Same instant-flip pattern as stat blocks: `motion.div` + `transition={{ duration: 0 }}`.
+- **Page entrance:** The entire grid assembles on load with a staggered `motion.div` `initial={{ opacity: 0 }}` + `animate={{ opacity: 1 }}` cascade at `0.05s` intervals — the grid appears to be drawn in, cell by cell.
+- `prefers-reduced-motion`: `useReducedMotion()` — all `initial` states jump to `animate` immediately, no cascade.
 
 ## 14. The Test
 
-Print the page on a black-and-white printer. It should still look great with only the blue removed. If the design relies on the blue, you over-leaned on it — pull it back to one or two uses.
+Print the page on a black-and-white printer. It should look great without the blue. The grid structure and type hierarchy must carry the design alone. If removing the blue breaks the layout's logic, you've over-relied on color — pull the blue back to CTAs only and fix the structural borders.

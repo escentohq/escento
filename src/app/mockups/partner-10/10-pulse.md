@@ -1,159 +1,195 @@
-# Landing Design 10 — **Pulse**
+# Landing Design 10 — **Spotlight Profile**
 
-> I'm a senior product designer who's shipped landing pages for two community marketplaces. The pattern I keep coming back to: stop showing what the product *is*, show what the product *produces*. This version makes a single, real directory card the entire hero. The card is real. It updates. It breathes. The page is a stage for one beautifully-rendered listing at a time.
+> I'm a senior product designer who's shipped landing pages for two professional networks and a talent marketplace. The best landing pages for directory products stop describing what they are and start showing who's in them. This version makes one real musician profile the entire hero — the way LinkedIn "spotlights" someone in a job posting. Light, professional, immediately credible.
 
 ---
 
 ## 1. The Concept
 
-Instead of a headline with a screenshot beside it, the page leads with **one giant, real directory card**, breathing gently with a subtle scale + shadow pulse. Below the card sit two CTAs and a one-line subhead. A small arrow lets you cycle through other live listings — each card animating in. The headline is the listing itself.
+A clean white page leading with a single featured musician profile card at center — large, beautifully typeset, real data. Below it: a subhead, two CTAs, and a small "next profile" navigator. The card is alive: a subtle green availability pulse on the `OPEN` dot. This is LinkedIn's "featured profile" format applied to a musician directory.
 
 ## 2. Why This Direction
 
-GigForge's value is the listings. Any landing that doesn't lead with them is burying the lede. By making a real listing the centerpiece and tuning a single piece of micro-motion to it, the page conveys: this directory is alive, the people on it are real, and there's nothing more you need to understand.
+GigForge's value is the musicians. Every landing that buries them behind marketing copy is making a mistake. Put one real profile front and center: the visitor immediately understands what the product is, what it contains, and whether it's useful to them — without reading a single word of sales copy.
 
 ## 3. Color System
 
-A soft, slightly off-white palette that lets the listing card carry the visual weight.
-
 | Token | Hex | Use |
 |---|---|---|
-| `bg.page` | `#F7F6F2` | Page background — warm, slightly off-white |
-| `bg.card` | `#FFFFFF` | The hero card |
-| `bg.surface.alt` | `#EDEBE4` | Lower-section backdrop |
-| `border.faint` | `rgba(20,20,24,0.08)` | Card edge |
-| `ink.primary` | `#141418` | Headlines, body |
-| `ink.secondary` | `#5C5C66` | Subheads |
-| `ink.muted` | `#8A8A94` | Metadata |
-| `accent.peach` | `#F5A88B` | One color, used on the OPEN dot, the active filter pill, and the CTA hover state |
-| `accent.deep` | `#2D2D33` | Primary CTA |
+| `bg.page` | `#F3F2EF` | LinkedIn's warm off-white page background |
+| `bg.card` | `#FFFFFF` | The hero profile card |
+| `bg.surface.alt` | `#FFFFFF` | Lower-section card backgrounds |
+| `bg.section` | `#EEF3FB` | Alternating section background (blue tint) |
+| `bg.pill` | `#EEF3FB` | Skill tag backgrounds |
+| `border.card` | `rgba(0,0,0,0.08)` | Card edges |
+| `border.divider` | `rgba(0,0,0,0.10)` | Section separators |
+| `ink.primary` | `#191919` | Headlines, names |
+| `ink.secondary` | `#555555` | Subheads, body |
+| `ink.muted` | `#888888` | Metadata, timestamps |
+| `accent.blue` | `#0A66C2` | CTA, links, skill tag text |
+| `accent.green` | `#057642` | Availability dot — the only green on the page |
 
-A 9-token palette built around warm paper and one peach accent.
+A 12-token palette built around warm paper and professional blue. Clean, trustworthy.
 
 ## 4. Typography
 
-- **Display headline (subhead under the card):** Söhne 600, `clamp(32px, 4vw, 56px)`, leading `1.05`, tracking `-0.01em`.
-- **Card musician name (the visual headline):** Söhne 700, `clamp(40px, 5vw, 64px)`, tracking `-0.02em`.
-- **Body:** Söhne 400, 16/26.
-- **Mono:** GT America Mono 11px uppercase tracking `+0.16em`.
+- **Card name (visual headline):** Inter 700, `clamp(36px, 4.5vw, 56px)`, tracking `-0.02em`.
+- **Subhead under the card:** Inter 600, `clamp(24px, 3vw, 40px)`, leading `1.1`.
+- **Body:** Inter 400, 16/26.
+- **Mono label:** `font-mono` 11px uppercase tracking `+0.12em`, `ink.muted`.
+- **Skill tags:** Inter 500, 13px, `accent.blue`.
 
-The largest type on the page is the **musician's name on the card**. The page is named after a real person every time it loads. That's the point.
+The musician's name is the largest type on the page. The page introduces a real person.
 
 ## 5. Layout
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│   GIGFORGE                                       Sign in    │
+│  GIGFORGE                                      Sign in →    │
+│  ──────────────────────────────────────────────────────    │
 ├────────────────────────────────────────────────────────────┤
 │                                                              │
+│         ┌──────────────────────────────────────────┐        │
+│         │  MUSICIAN · UT AUSTIN      ● OPEN        │        │
+│         │                                            │        │  ← hero profile card
+│         │  Maya Chen                                │        │
+│         │                                            │        │
+│         │  Guitar, vocals. Indie, folk, film.       │        │
+│         │  Available evenings + weekends.           │        │
+│         │                                            │        │
+│         │  [guitar] [vocals] [indie] [folk]         │        │
+│         │                                            │        │
+│         │  ──────────────────────────────────────  │        │
+│         │  hello@mayachen.example    Contact →     │        │
+│         └──────────────────────────────────────────┘        │
 │                                                              │
-│        ┌──────────────────────────────────────────┐         │
-│        │  MUSICIAN · UT AUSTIN          ● OPEN    │         │ ← the hero card
-│        │                                            │         │
-│        │  Maya Chen                                │         │
-│        │                                            │         │
-│        │  Guitar, vocals. Indie, folk.             │         │
-│        │  Available evenings + weekends.           │         │
-│        │                                            │         │
-│        │  [guitar] [vocals] [indie] [folk]         │         │
-│        │                                            │         │
-│        │  hello@mayachen.example     mailto →     │         │
-│        └──────────────────────────────────────────┘         │
+│              ←  1 / 12  →    (cycle listings)               │
 │                                                              │
-│            ←   1 / 12   →    (cycle through listings)       │
+│         Browse the network. Or post a gig.                  │
 │                                                              │
+│         [ Browse musicians ]   [ Post a gig ]               │
 │                                                              │
-│        A directory of student musicians.                    │
-│        Browse the rest. Or post a gig.                      │
-│                                                              │
-│        [ Browse all musicians ]    [ Post a gig ]           │
-│                                                              │
-├────────────────────────────────────────────────────────────┤
-│   How it works · sample gigs · footer                       │
 └────────────────────────────────────────────────────────────┘
 ```
 
-The hero card is centered, ~640×420px on desktop, 92% width on mobile. The page reads top-down with the card as the gravitational center.
+Card: centered, max-width 580px on desktop, 92% on mobile. Card height: content-driven, never forced.
 
-## 6. The Signature: The Breathing Card
+## 6. The Signature: The Breathing Profile Card
 
-The card subtly breathes:
+The card is a precise render of the production `/musicians/[id]` component. One component, two contexts — implementation efficiency + visual consistency between landing and detail pages.
 
-- **Scale:** oscillates between `1.0` and `1.005` over 5s. Almost imperceptible. Sells "alive."
-- **Shadow:** synced to scale, depth oscillates between `0 30px 60px -20px rgba(20,20,24,0.18)` and `0 36px 72px -24px rgba(20,20,24,0.22)`.
-- **The `OPEN` dot:** pulses with a `box-shadow` ring expanding from `0 0 0 0 rgba(245,168,139,0.6)` to `0 0 0 12px rgba(245,168,139,0)` over 2s. Like a heartbeat.
+Subtle life:
 
-The animation runs *only* on the visible hero card. When you cycle to the next listing, the new card takes the breathing role; the old card slides away static.
+- **The `OPEN` dot:** pulses with a `box-shadow` ring in `accent.green` expanding from 0 to 10px and fading — `2s ease infinite`. LinkedIn's "actively looking" dot, adapted.
+- **The card itself:** no scale animation. The availability pulse is enough. The card feels alive without feeling restless.
+
+The dot pulse stops on `prefers-reduced-motion: reduce` — the dot stays solid green.
 
 ## 7. The Cycling Mechanism
 
-Below the card, an arrow-pair control: `← 1 / 12 →`.
+Below the card: `← 1 / 12 →` in Inter 400 14px `ink.muted`. Arrow glyphs in `accent.blue`.
 
-- Clicking right: current card slides out left + fades; next card slides in from right + fades. Spring eased. 480ms total.
-- Optionally auto-advance every 8 seconds (toggleable client-side, off by default — autorotating heroes are universally disliked).
+- Click right: card content crossfades out + in (300ms ease). No slide. Professional, not flashy.
 - Keyboard arrows work.
 - Touch swipe works on mobile.
+- Cards are server-rendered, hidden, ready to swap without a network request. Cap at 12.
 
-Each card is rendered server-side as part of the initial HTML, hidden offscreen, ready to slide in without a network round-trip.
+No auto-advance. Autorotating heroes are universally disliked. The user controls the pace.
 
-## 8. CTAs
+## 8. Skill Tags
 
-**Primary** — `Browse all musicians`:
+Each chip in the skill row is styled as LinkedIn's skill endorsement tag:
+- `bg.pill`, `accent.blue` text, `border-radius: 16px`, Inter 500 13px, `px-3 py-1`.
+- Clickable: deep-links to `/musicians?instrument=guitar` etc.
+- On hover: `bg` deepens slightly, underline on text.
+
+Tags are the landing page's secondary navigation — the visitor starts filtering without leaving.
+
+## 9. CTAs
+
+**Primary** — `Browse musicians`:
 ```
-bg: #2D2D33
-text: #F7F6F2
+bg: #0A66C2
+text: #FFFFFF
 height: 52px, px: 28px
-radius: 12px
-font: Söhne 600, 15px
-hover: bg #F5A88B, text #141418 (the dark-to-peach swap is the brand moment)
-transition: 200ms cubic-bezier(0.32, 0.72, 0, 1)
+radius: 24px
+font: Inter 600, 15px
+hover: bg #004182
+transition: 160ms ease
 ```
 
 **Secondary** — `Post a gig`:
 ```
 bg: transparent
-border: 1px rgba(20,20,24,0.12)
-text: #141418
-hover: border #2D2D33
+border: 1.5px #0A66C2
+text: #0A66C2
+radius: 24px
+hover: bg rgba(10,102,194,0.08)
 ```
-
-## 9. The Card's Inner Anatomy
-
-The card is rendered with the exact same components as `/musicians/[id]` so that the landing card is *literally* the production card pulled into a centered frame. Implementation efficiency: one component, two contexts.
-
-Pieces:
-- Top mono row: `MUSICIAN · UT AUSTIN` + OPEN status dot
-- Big serif-grotesque name
-- 2-line bio
-- Chip row (instruments + genres)
-- A subtle `mailto →` link styled like the contact CTA on the detail page
 
 ## 10. The Lower Section
 
-Below the hero card and CTAs, a single horizontal row of **three real gigs** in compact rectangles, no cards around them — just rows separated by 1px `border.faint` lines. Each row links to `/gigs/[id]`. The visual contrast: one big detailed listing above, three sparse listings below. Variety in density tells the user the directory has both.
+A full-width `bg.section` band with three real open gigs in a single row:
 
-## 11. What This Version Refuses to Do
+```
+┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
+│ GIG              │  │ GIG              │  │ GIG              │
+│ Composer         │  │ Guitarist        │  │ Vocalist         │
+│ Thesis Short     │  │ Indie EP         │  │ Podcast Theme    │
+│ UT Austin · PAID │  │ Remote · UNPAID  │  │ Remote · NEGOT.  │
+│ ──────────────── │  │ ──────────────── │  │ ──────────────── │
+│ Apply via email→ │  │ Apply via email→ │  │ Apply via email→ │
+└──────────────────┘  └──────────────────┘  └──────────────────┘
+```
 
-- No background graphics
-- No multiple accent colors
-- No 3D effects beyond the soft shadow
-- No icon system (mono labels do the work)
-- No carousel with 5+ items visible at once
-- No autoplay sound (obviously)
+White cards, `border-radius: 8px`, `border.card` shadow, on `bg.section`. Real data.
 
-## 12. Implementation Notes
+## 11. How It Works
 
-- Total motion JS: ~3KB for the cycling logic + reduced-motion gating.
-- Listings cycle through the same `MusicianProfile[]` returned by `/musicians` ordered by `updatedAt DESC`. Cap to 12.
-- The card uses `will-change: transform` only during animation. Cleaned up between cycles.
-- The breathing animation is pure CSS keyframes.
+Below the gig cards, on white, three left-aligned rows:
 
-## 13. Accessibility
+```
+01  Browse the directory.       No account to create. Just look.
+02  Find someone you need.      Filter by instrument, genre, school.
+03  Email them directly.        No platform in between. Just email.
+```
 
-- `prefers-reduced-motion: reduce` → breathing stops, OPEN dot stops pulsing, cycle becomes an instant swap with no slide.
-- Cycle controls have explicit `aria-label`s.
-- Card is tab-focusable as a single link to that musician's page.
+`accent.blue` mono numbers. Inter 400 body. 1px `border.divider` between rows.
 
-## 14. The Test
+## 12. What This Version Refuses to Do
 
-Watch the hero for 30 seconds without scrolling. The card should feel like a *being* — present, calm, alive. Not aggressive. Not boring. If it feels still, increase the scale amplitude by 0.002. If it feels jittery, decrease the pulse frequency to 6s. Tune to *almost imperceptible*.
+- No dark backgrounds
+- No music-themed illustrations
+- No hero scale animations (pulse on the availability dot is sufficient)
+- No multiple accent colors beyond blue + availability green
+- No auto-advancing carousel
+- No icon system
+
+## 13. Required Libraries
+
+```bash
+npm install framer-motion three @react-three/fiber @react-three/drei
+```
+
+Three.js is used for an optional ambient background. Framer Motion handles all card animations.
+
+## 14. Implementation Notes
+
+- Hero card: same `MusicianCard` component as `/musicians/[id]`. No landing-specific code.
+- **Card cycling with Framer Motion:** Use `AnimatePresence` + `motion.div` with `initial={{ opacity: 0, scale: 0.98 }}` → `animate={{ opacity: 1, scale: 1 }}` → `exit={{ opacity: 0, scale: 0.98 }}`. `transition={{ duration: 0.3, ease: "easeInOut" }}`. This replaces a custom JS crossfade.
+- **Keyboard + swipe nav:** Framer Motion's `drag` prop on the card `motion.div` — `drag="x"` with `dragConstraints={{ left: 0, right: 0 }}` and `onDragEnd` comparing `offset.x` to a threshold to trigger cycle.
+- **Availability dot pulse:** Pure CSS `@keyframes box-shadow` ring — Framer not needed here; CSS handles it lighter.
+- **Ambient Three.js background (optional):** A `@react-three/fiber` `Canvas` behind the page at `z-index: -1`. A single `<mesh>` with a `MeshStandardMaterial` in `bg.pill` blue, very low roughness, barely rotating — gives the page a subtle depth without competing with the card. Toggle off if performance is a concern.
+- All 12 listing cards server-rendered, promoted into `AnimatePresence` on cycle.
+- `prefers-reduced-motion`: `useReducedMotion()` — card swap is instant, Three.js canvas skipped entirely.
+
+## 14. Accessibility
+
+- `prefers-reduced-motion: reduce` → dot stays solid, crossfade becomes instant swap.
+- Cycle controls have `aria-label="Previous musician"` / `aria-label="Next musician"`.
+- Card is one tab stop; links within are focusable in natural order.
+- All contrast ratios meet WCAG AA.
+
+## 15. The Test
+
+Watch the hero card for 20 seconds without scrolling. It should feel like a *person* is present — calm, professional, available. Not aggressive. Not idle. If it feels cold, the availability pulse needs tuning. If it feels jittery, slow the pulse from 2s to 3s. The card is a professional spotlight on a real person — treat it with that gravity.

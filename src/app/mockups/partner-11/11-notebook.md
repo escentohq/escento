@@ -1,173 +1,198 @@
-# Landing Design 11 — **Notebook**
+# Landing Design 11 — **Profile Portfolio**
 
-> I'm a senior product designer who's worked on indie community products — small forums, local-school tools, niche directories. The polished SaaS aesthetic is bad fit for student-to-student tools. Students trust things that look hand-made, considered, and a little personal. This version takes that seriously: GigForge's landing page is rendered like a music student's notebook spread, with hand-drawn ink lines, taped-on cards, and one accent highlighter color.
+> I'm a senior product designer who's built onboarding experiences for professional networks and two creator-economy tools. Students trust things that feel personal and considered — but "personal" doesn't mean scrappy. This version treats GigForge's landing like a well-designed professional portfolio: clean white pages, structured layout, real people front and center. LinkedIn's clarity meets a music student's sensibility.
 
 ---
 
 ## 1. The Concept
 
-The landing page looks like a sketchbook spread laid open: cream paper, light pencil ruling, hand-drawn black ink frames around real listings, one yellow highlighter accent. The composition feels found, not designed. The product reads as *for students, by students*.
+A clean white page that feels like a curated professional portfolio. The hero introduces GigForge with a confident two-column layout: left is the pitch, right is a real musician's profile card elevated as a featured showcase. Below: a grid of profile cards in light blue-tinted panels — the kind you'd see in a LinkedIn "recommended connections" section. The page is professional, welcoming, and immediately legible as a network for creative collaboration.
 
 ## 2. Why This Direction
 
-Student products usually go one of two directions: corporate-clean (try to look professional and grown-up) or aggressively-young (try to look like TikTok). Notebook does neither. It looks like something a junior at art school would design as a labor of love for their friends. That energy is GigForge's actual brand.
+Students respond to products that reflect how they see themselves: serious about their craft, professional in their ambitions, but not corporate. Profile Portfolio threads the needle — it has the structural confidence of LinkedIn with the warmth of something built for creators, not executives. It makes a music student feel seen without talking down to them.
 
 ## 3. Color System
 
 | Token | Hex | Use |
 |---|---|---|
-| `bg.page` | `#F4EFE3` | Notebook paper cream |
-| `bg.page.alt` | `#EDE7D6` | Slightly darker for the opposite "page" of the spread |
-| `ink.line` | `#1A1A1A` | All ink strokes (hand-drawn lines) |
-| `ink.primary` | `#1A1A1A` | All body text |
-| `ink.secondary` | `#5A5650` | Subheads |
-| `ink.pencil` | `rgba(26,26,26,0.18)` | Pencil rule lines |
-| `accent.highlighter` | `#F8E66B` | One yellow highlighter color, used behind handwritten notes and on the primary CTA |
-| `accent.tape` | `#E8D9A8` | Washi-tape color on the affixed cards |
+| `bg.page` | `#FFFFFF` | Clean white base |
+| `bg.section` | `#F3F2EF` | Alternating section background |
+| `bg.card` | `#FFFFFF` | Profile cards |
+| `bg.featured` | `#EEF3FB` | Featured card background — subtle blue tint |
+| `bg.pill` | `#EEF3FB` | Skill tag background |
+| `border.card` | `rgba(0,0,0,0.08)` | Card edges |
+| `border.divider` | `rgba(0,0,0,0.12)` | Section separators |
+| `border.featured` | `rgba(10,102,194,0.20)` | Featured card border accent |
+| `ink.primary` | `#191919` | All primary text |
+| `ink.secondary` | `#555555` | Subheads, card metadata |
+| `ink.muted` | `#888888` | Timestamps, labels |
+| `accent.blue` | `#0A66C2` | CTA, links, tags, featured badge |
+| `accent.green` | `#057642` | Availability dot only |
 
-A 9-token palette built around paper and ink + two warm accents.
+A 13-token palette anchored in white and professional blue.
 
 ## 4. Typography
 
-Two voices: typed and handwritten.
+- **Display headline:** Inter 700, `clamp(40px, 5.5vw, 72px)`, tracking `-0.025em`, leading `1.05`.
+- **Body:** Inter 400, 16/26.
+- **Label:** Inter 500, 12px uppercase tracking `+0.1em`, `ink.muted`.
+- **Featured card name:** Inter 700, 26px.
+- **Grid card name:** Inter 600, 18px.
 
-- **Typed headline:** Söhne 700, `clamp(40px, 5.5vw, 72px)`, leading `1.0`, tracking `-0.02em`. This is the "official" voice — for the parts that have to be legible.
-- **Handwritten:** A hand-drawn variable font like **Sketchnote Square** or **Caveat 600** (the latter is free on Google Fonts and excellent). Used for marginal notes, the eyebrow ("hello!"), and one piece of crossed-out alternate text.
-- **Body:** Söhne 400, 16/26.
-- **Captions:** Caveat 500, 18px — informal annotation throughout.
-
-Mixing typeset and handwritten is the entire design language. Don't overdo the handwritten part — restrict it to 4-5 spots on the page.
+Clean Inter throughout. Professional, readable, no decorative mixing.
 
 ## 5. Layout
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│   GIGFORGE                                  Sign in →        │
-│  ╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌      │  ← pencil ruled line
-├─────────────────────────────────────────────────────────────┤
-│                                                                │
-│      hi! ↙ (handwritten arrow pointing down)                  │  ← Caveat eyebrow
-│                                                                │
-│      Find the right                                            │
-│      student musician                                          │  ← Söhne 72px display
-│      for your next project.                                    │
-│                                                                │
-│      (no algorithms. no DMs. no feed.)   ← Caveat caption     │
-│                                                                │
-│      [ Browse musicians ]   Post a gig ↗                      │
-│                                                                │
-│                                          ┌──────────────┐    │
-│                                          │  ╱╱  TAPE  ╲╲ │    │  ← washi tape strip
-│                                          │              │    │  ← affixed listing card,
-│                                          │   Maya Chen  │    │     rotated -2deg
-│                                          │   guitar +   │    │
-│                                          │   vocals     │    │
-│                                          │              │    │
-│                                          │  → mailto    │    │
-│                                          └──────────────┘    │
-│                                                                │
-│      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━   │  ← hand-drawn divider
-│                                                                │
-│      how it works                                              │  ← lowercase + Caveat eyebrow
-│                                                                │
-│      1. browse the directory                                   │
-│      2. email someone you like                                 │
-│      3. that's the whole product                              │
-│                                                                │
-│      ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │
-│      │   sample     │  │   sample     │  │   sample     │   │  ← three real listings,
-│      │   gig 1      │  │   gig 2      │  │   gig 3      │   │     each rotated 1-2deg
-│      └──────────────┘  └──────────────┘  └──────────────┘   │
-│                                                                │
-└─────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────┐
+│  GIGFORGE                                      Sign in →    │
+│  ──────────────────────────────────────────────────────    │  ← 1px border.divider
+├──────────────────────────┬─────────────────────────────────┤
+│                          │  ┌──────────────────────────┐   │
+│  The professional        │  │ FEATURED MUSICIAN        │   │  ← accent.blue label
+│  network for             │  │                            │   │
+│  student musicians.      │  │  Maya Chen               │   │
+│                          │  │  Guitar · Vocals           │   │
+│  Browse profiles.        │  │  UT Austin · Music '25    │   │
+│  Post a gig.             │  │  ● Open to collaborate    │   │
+│  Email directly.         │  │                            │   │
+│  No middleman.           │  │  "Indie, folk, film.      │   │
+│                          │  │   Evenings free."         │   │
+│  [ Browse musicians ]    │  │                            │   │
+│  [ Post a gig ]          │  │  [guitar] [vocals] [indie]│   │
+│                          │  │  hello@maya.example →     │   │
+│  142 musicians           │  └──────────────────────────┘   │
+│  24 open gigs            │                                   │
+└──────────────────────────┴─────────────────────────────────┘
 ```
 
-Max width 1120px. The page is intentionally *uneven* — cards rotated by ±2deg, hand-drawn lines never perfectly horizontal.
+Left/right split, 45/55. Featured card on `bg.featured` with `border.featured`.
 
-## 6. The Hand-Drawn Lines
+## 6. The Featured Card
 
-All structural lines are SVG paths with a *roughened* effect — implemented either via:
+The right-side featured card is the production `MusicianCard` component in a slightly elevated context:
 
-- **`rough.js`**, the canonical library for this look (~15KB gzip). Worth the bundle cost; the alternative is hand-tuning paths.
-- Or **prebaked SVGs** of each line (header rule, section dividers, card borders), drawn once in Figma with a wobble plugin, then exported. Smaller, but inflexible. Default to rough.js.
+- Background `bg.featured`, border `border.featured`, `border-radius: 12px`.
+- `FEATURED MUSICIAN` label in `accent.blue` Inter 600 11px uppercase at top.
+- Availability dot in `accent.green` with a CSS pulse animation (2s ease infinite, `box-shadow` ring expanding + fading). Stops on `prefers-reduced-motion`.
+- Skill chips in `bg.pill` / `accent.blue` text — identical to the detail page.
+- `mailto:` link styled as a secondary CTA: `border 1.5px accent.blue`, `border-radius: 24px`, `padding: 8px 20px`.
 
-Lines use `roughness: 1.4`, `strokeWidth: 1.5`, `seed: 42` (constant so the page renders the same every time).
+The card updates on each page load to the most recently active available musician.
 
-## 7. The Affixed Listing Card
+## 7. The Profile Grid
 
-The hero "card" isn't a flat rectangle — it's drawn as if **taped to the page**:
-
-- The card body is `bg.card: #FFFFFF` with a 1.5px rough-drawn `ink.line` border, rotated `-2deg`.
-- A small washi-tape strip (`accent.tape`, semi-transparent) crosses the top-left corner at `+12deg`, rotated independently.
-- A second strip on the bottom-right corner, rotated `-15deg`.
-- Subtle shadow under the card: `0 12px 24px -8px rgba(20,20,20,0.15)`.
-
-The card content is real — a server-rendered musician listing. Click → `/musicians/[id]`.
-
-## 8. The Highlighter Accent
-
-The primary CTA is **not a button**. It's a phrase with a hand-drawn highlighter swipe behind it:
+Below the hero on `bg.section`, a grid of 6 profile cards (3 columns × 2 rows on desktop, 1 column on mobile):
 
 ```
-[ Browse musicians ]
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│  ● Jordan L. │  │  ● Sam P.    │  │  ● Priya K.  │
+│  Cello · USC │  │  Piano · Berk│  │  Violin · UCLA│
+│  Classical   │  │  Jazz, Prod. │  │  Orchestral  │
+│  →           │  │  →           │  │  →           │
+└──────────────┘  └──────────────┘  └──────────────┘
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│  + 136 more musicians in the directory     →       │
+└──────────────────────────────────────────────────┘
 ```
 
-The highlighter is an SVG `<rect>` with a slight skew (`transform: skewX(-3deg)`) in `accent.highlighter`, sitting *behind* the text with a `mix-blend-mode: multiply`. The text itself is `ink.primary`.
+Cards: white, `border-radius: 8px`, `border.card` shadow. On hover: `border-left: 3px solid accent.blue`, card lifts slightly (`translateY(-2px)`), shadow deepens. 200ms ease.
 
-On hover: the highlighter widens by 4px and intensifies; text shifts 2px right; the link becomes the strongest visual element on the page for a moment.
+Last cell spans full width: "Join 142 musicians on GigForge →" in Inter 500 `accent.blue`.
 
-The same highlighter accent is also used on one handwritten marginal note ("`← start here!`") to tie the brand color to a personal moment.
+## 8. Open Gigs Strip
 
-## 9. The Crossed-Out Joke
-
-Tucked in the hero subhead, one piece of text is *crossed out* with a hand-drawn line:
+Below the grid, a full-width `bg.page` section:
 
 ```
-(no algorithms. no DMs. no ~~feed~~ feed.)
+OPEN GIGS  ←  mono label + 1px border.divider
+
+┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
+│  COMPOSER            │  │  GUITARIST            │  │  VOCALIST            │
+│  Thesis Short Film   │  │  Indie EP Recording   │  │  Podcast Intro Theme │
+│  UT Austin · PAID    │  │  Remote · UNPAID      │  │  Remote · NEGOTIABLE │
+│  Deadline: Jun 1     │  │  Flexible             │  │  ASAP                │
+│  Apply via email →   │  │  Apply via email →    │  │  Apply via email →   │
+└──────────────────────┘  └──────────────────────┘  └──────────────────────┘
 ```
 
-The strikethrough is a rough SVG line. The crossed-out word is a tiny gag — visual proof that a human edited this page. Used **once** on the whole page. More than once and it becomes a tic.
+White cards, `border-radius: 8px`, `border.card` shadow. Role type in Inter 600 `accent.blue`. Real data.
 
-## 10. CTAs
+## 9. CTAs
 
 **Primary** — `Browse musicians`:
-- Highlighter-backed text link as described above.
-- No box, no border, no padding-as-button.
+```
+bg: #0A66C2
+text: #FFFFFF
+height: 48px, px: 20px
+radius: 24px
+font: Inter 600, 15px
+hover: bg #004182
+```
 
 **Secondary** — `Post a gig`:
-- Plain text link in `ink.primary` with a small `↗` arrow. On hover, an underline drawn with the same rough-style pen.
+```
+bg: transparent
+border: 1.5px #0A66C2
+text: #0A66C2
+radius: 24px
+hover: bg rgba(10,102,194,0.08)
+```
 
-There are **only two buttons-as-text** on the entire hero. The simplicity is the design.
+## 10. How It Works
 
-## 11. The Three Listings at the Bottom
+Three rows on `bg.section`:
 
-Three real gigs from the directory, each rendered as a slightly-rotated card (rotations: `-1deg`, `+1.5deg`, `-0.5deg`), each with its own pair of washi tape strips. Hovering one: card unrotates to `0deg` with a soft bounce, lifts slightly, and the tape strips de-fade. Like picking the card up off the page.
+```
+01  Browse the directory.         No account. Fully open to anyone.
+02  Find who you need.            Filter by instrument, genre, or school.
+03  Email them directly.          No DMs. No platform. Their email is right there.
+```
 
-Click → relevant `/gigs/[id]`.
+`accent.blue` numbers. Inter 400 body. 1px `border.divider` rows.
 
-## 12. Motion Constraints
+## 11. Footer
 
-- No moving handwriting (never animate handwritten strokes drawing themselves — it's the most worn-out cliché in this aesthetic).
-- The only motion: card hover unrotate + lift. ~280ms cubic-bezier spring.
-- Highlighter swipe on hover: 180ms ease.
-- `prefers-reduced-motion`: all motion off; the page remains beautiful at rest.
+Minimal: wordmark left, `About · Privacy · Post a gig` right. 1px `border.divider` top. `ink.muted` text.
 
-## 13. What This Version Refuses to Do
+## 12. What This Version Refuses to Do
 
-- No actual paper texture (no faux paper noise overlay — it always looks cheap; the cream color does the work)
-- No animated stroke-drawing
-- No multiple handwritten fonts
-- No "ripped page" graphics
-- No Comic Sans (obviously)
-- No more than one highlighter color
+- No dark backgrounds
+- No hand-drawn or decorative elements
+- No animated gradients
+- No multiple accent colors
+- No hero illustrations
+- No emoji
+- No motion beyond availability dot pulse and card hover lift
+
+## 13. Required Libraries
+
+```bash
+npm install framer-motion
+```
+
+No Three.js — the design's warmth comes from layout and color, not 3D effects.
 
 ## 14. Implementation Notes
 
-- rough.js loaded only on the landing page, not site-wide.
-- Caveat font (Google Fonts) preloaded as woff2.
-- All rough-drawn elements use a fixed seed for SSR consistency.
-- The rotation transforms are CSS, not SVG — keeps text crisp.
+- Featured card: same `MusicianCard` component as `/musicians/[id]`. No landing-specific markup.
+- Grid cards: same lighter `MusicianCardCompact` component used in search results.
+- **Grid entrance stagger:** Wrap the 6-card grid in a Framer Motion `motion.div` container with `variants={{ visible: { transition: { staggerChildren: 0.07 } } }}`. Each card is a `motion.div` with `variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}`. Triggered by `useInView` when the grid enters the viewport.
+- **Card hover lift:** `motion.div` with `whileHover={{ y: -4, boxShadow: "0 8px 24px rgba(0,0,0,0.12)" }}` + `transition={{ type: "spring", stiffness: 300, damping: 20 }}`. The spring physics give the card a professional, weighty lift.
+- **Featured card left border reveal:** `motion.div` with `initial={{ scaleX: 0 }}` → `animate={{ scaleX: 1 }}` on `useInView`, `transformOrigin: "left"` — the blue accent border draws in as the card enters view.
+- **Hero headline entrance:** `motion.h1` with `initial={{ opacity: 0, y: 12 }}` → `animate={{ opacity: 1, y: 0 }}` + `transition={{ delay: 0.1, duration: 0.5 }}`.
+- **Availability pulse:** Pure CSS `@keyframes` box-shadow ring — Framer not needed; CSS handles it lighter.
+- Profile grid: server-side rendered from `musicians ORDER BY updatedAt DESC LIMIT 5`.
+- `prefers-reduced-motion`: `useReducedMotion()` from framer-motion — all `initial` states jump to final state, stagger collapsed to 0.
+
+## 14. Accessibility
+
+- All profile cards are tab-focusable links with `aria-label="View Maya Chen's profile"`.
+- Availability pulse stops on `prefers-reduced-motion: reduce`.
+- All contrast ratios WCAG AA or better.
+- Featured card email link has `aria-label="Email Maya Chen"`.
 
 ## 15. The Test
 
-Show the page to a music student. Ask them what they think the product is. If they say *"it looks like something my friend made,"* you nailed the register. If they say *"it looks like a tech startup,"* you over-polished — rotate the cards more and let the rough lines breathe.
+Show this page to a music student and a film student simultaneously. The music student should immediately want to check if their profile looks this good. The film student should immediately want to contact someone. If both reactions happen within the first 10 seconds, the design is working. If either has to read to understand what the page is — the featured card isn't prominent enough.
