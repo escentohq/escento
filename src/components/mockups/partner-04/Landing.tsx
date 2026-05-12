@@ -1,246 +1,234 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { StageLightsScene } from "./StageLightsScene";
+import { ArrowRight, Sparkles, PlayCircle, Plus } from "lucide-react";
 
 export function Landing() {
-  const spotlightRef = useRef<HTMLDivElement>(null);
-  const targetX = useRef<number | null>(null);
-  const targetY = useRef<number | null>(null);
-  const currentX = useRef(50);
-  const currentY = useRef(45);
-  const rafId = useRef<number>(0);
-  const isTouchDevice = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"],
+  });
 
-  useEffect(() => {
-    const spotlight = spotlightRef.current;
-    if (!spotlight) return;
-
-    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    if (prefersReducedMotion) {
-      spotlight.style.setProperty("--mx", "50vw");
-      spotlight.style.setProperty("--my", "45vh");
-      return;
-    }
-
-    let startTime = Date.now();
-
-    const tick = () => {
-      if (isTouchDevice.current) {
-        const t = (Date.now() - startTime) / 1000;
-        const x = 50 + 15 * Math.sin((t * 2 * Math.PI) / 6);
-        spotlight.style.setProperty("--mx", `${x}vw`);
-        spotlight.style.setProperty("--my", "45vh");
-      } else if (targetX.current !== null && targetY.current !== null) {
-        currentX.current += (targetX.current - currentX.current) * 0.08;
-        currentY.current += (targetY.current - currentY.current) * 0.08;
-        spotlight.style.setProperty("--mx", `${currentX.current}px`);
-        spotlight.style.setProperty("--my", `${currentY.current}px`);
-      } else {
-        spotlight.style.setProperty("--mx", `${currentX.current}vw`);
-        spotlight.style.setProperty("--my", `${currentY.current}vh`);
-      }
-      rafId.current = requestAnimationFrame(tick);
-    };
-
-    const onMouseMove = (e: MouseEvent) => {
-      isTouchDevice.current = false;
-      targetX.current = e.clientX;
-      targetY.current = e.clientY;
-    };
-
-    const onTouchStart = () => {
-      isTouchDevice.current = true;
-      startTime = Date.now();
-    };
-
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    rafId.current = requestAnimationFrame(tick);
-
-    return () => {
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("touchstart", onTouchStart);
-      cancelAnimationFrame(rafId.current);
-    };
-  }, []);
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 300]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   return (
-    <div className="bg-[#0A0A0C] text-[#FFF8EE] min-h-screen font-sans">
+    <div ref={containerRef} className="bg-[#FAFAFA] text-[#0F172A] min-h-screen font-sans selection:bg-[#0055FF] selection:text-white">
+      {/* ── 3D SCENE ── */}
+      <StageLightsScene />
+
+      {/* ── NAV ── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 mix-blend-difference text-white">
+        <span className="font-mono text-sm font-bold tracking-widest uppercase">
+          GigForge
+        </span>
+        <button className="text-sm font-semibold hover:text-[#0055FF] transition-colors uppercase tracking-wide">
+          Sign in →
+        </button>
+      </nav>
+
       {/* ── HERO ── */}
-      <section className="relative min-h-screen overflow-hidden flex flex-col border-b border-[#1A1A1F]">
-        {/* Spotlight layer */}
-        <div
-          ref={spotlightRef}
-          className="absolute inset-0 pointer-events-none z-10"
-          style={{
-            ["--mx" as string]: "50vw",
-            ["--my" as string]: "45vh",
-            background:
-              "radial-gradient(ellipse 600px 800px at var(--mx) var(--my), #FFC880 0%, rgba(232,164,92,0.4) 22%, rgba(232,164,92,0.08) 50%, transparent 70%)",
-            mixBlendMode: "screen",
-          }}
-        />
-
-        {/* Nav */}
-        <nav className="relative z-20 flex items-center justify-between px-8 py-6">
-          <span className="font-mono text-sm font-semibold tracking-widest text-[#FFF8EE]">
-            GIGFORGE
-          </span>
-          <a
-            href="#"
-            className="text-sm text-[#52525B] hover:text-[#FFF8EE] transition-colors"
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-20 overflow-hidden">
+        <motion.div 
+          className="relative z-10 flex flex-col items-center text-center max-w-4xl w-full"
+          style={{ y: heroY, opacity: heroOpacity }}
+        >
+          {/* Stage Directions */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="flex items-center gap-3 mb-8"
           >
-            Sign in →
-          </a>
-        </nav>
-
-        {/* Stage content */}
-        <div className="relative z-20 flex flex-1 flex-col items-center justify-center text-center px-6 pb-24">
-          {/* Rigging */}
-          <div className="flex flex-col items-center mb-10">
-            <div className="flex items-center gap-8">
-              <div className="w-1 h-1 rounded-full bg-[#52525B]" />
-              <div className="w-1 h-1 rounded-full bg-[#52525B]" />
-              <div className="w-1 h-1 rounded-full bg-[#52525B]" />
+            <div className="flex gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse" />
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FF3366] animate-pulse delay-75" />
+              <div className="w-1.5 h-1.5 rounded-full bg-[#FFB000] animate-pulse delay-150" />
             </div>
-            <div className="w-px h-6 bg-[#52525B] opacity-24 mt-0" style={{ opacity: 0.24 }} />
-          </div>
+            <span className="font-mono text-xs font-semibold tracking-[0.2em] text-[#64748B] uppercase">
+              Live & Loud
+            </span>
+          </motion.div>
 
-          {/* Mono stage label */}
-          <p className="font-mono text-xs tracking-[0.2em] text-[#52525B] mb-6">
-            THE STAGE · ROW B · SEAT 14
-          </p>
-
-          {/* Headline */}
-          <h1
-            className="font-bold tracking-[-0.025em] text-[#FFF8EE] max-w-3xl"
-            style={{ fontSize: "clamp(48px, 7vw, 96px)", lineHeight: 1.05 }}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="text-6xl md:text-8xl font-black tracking-tighter leading-[0.95] mb-6"
           >
-            Find the musician your project needs.
-          </h1>
+            Take the <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0055FF] via-[#FF3366] to-[#FFB000]">Stage.</span>
+          </motion.h1>
 
-          {/* Subtitle */}
-          <p className="mt-6 text-base leading-relaxed text-[#FFF8EE] max-w-md opacity-80">
-            A directory for student creators.
-          </p>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="text-lg md:text-xl text-[#475569] font-medium max-w-2xl leading-relaxed mb-10"
+          >
+            The social network for student musicians and creators. Find your next collaborator, book a gig, or just see who's making noise on campus.
+          </motion.p>
 
-          {/* CTAs */}
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <a
-              href="#"
-              className="inline-flex items-center justify-center h-[50px] px-6 rounded-full bg-[#5E8FFF] text-[#0A0A0C] text-sm font-semibold transition-all hover:bg-[#7BA3FF] hover:scale-[1.02] hover:shadow-[0_12px_32px_rgba(94,143,255,0.3)]"
-            >
-              Browse musicians
-            </a>
-            <a
-              href="#"
-              className="inline-flex items-center justify-center h-[50px] px-6 rounded-full border border-[rgba(255,200,128,0.4)] text-[#FFF8EE] text-sm font-semibold transition-all hover:border-[rgba(255,200,128,0.8)]"
-            >
-              Post a gig
-            </a>
-          </div>
-        </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
+          >
+            <button className="group relative w-full sm:w-auto flex items-center justify-center gap-2 h-14 px-8 rounded-full bg-[#0F172A] text-white font-bold text-sm tracking-wide overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_-10px_#0055FF]">
+              <span className="relative z-10">Browse Musicians</span>
+              <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0055FF] to-[#FF3366] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </button>
+            <button className="w-full sm:w-auto flex items-center justify-center gap-2 h-14 px-8 rounded-full bg-white text-[#0F172A] font-bold text-sm tracking-wide border-2 border-[#E2E8F0] hover:border-[#0F172A] transition-colors">
+              <Plus className="w-4 h-4" />
+              Post a Gig
+            </button>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* ── HOW IT WORKS ── */}
-      <section className="bg-[#0A0A0C] px-8 py-20 max-w-2xl mx-auto">
-        <div className="flex flex-col gap-8">
-          {[
-            { n: "01", title: "Browse the directory", body: "A no-account page. Just look." },
-            { n: "02", title: "Find a student you like", body: "Email is right there." },
-            { n: "03", title: "Hire them, or not", body: "That's it. That's the product." },
-          ].map(({ n, title, body }) => (
-            <div key={n} className="flex items-start gap-6">
-              <span className="font-mono text-sm font-semibold text-[#E8A45C] w-8 shrink-0 pt-0.5">
-                [{n}]
-              </span>
-              <div>
-                <p className="text-[#FFF8EE] font-semibold">{title}</p>
-                <p className="mt-1 text-sm text-[#52525B]">{body}</p>
-              </div>
-            </div>
-          ))}
+      <section className="relative z-20 bg-white py-32 px-6 border-t border-[#F1F5F9]">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {[
+              { num: "01", title: "Spotlight", desc: "Browse a curated feed of student talent. No account needed to just look around.", icon: PlayCircle, color: "text-[#0055FF]" },
+              { num: "02", title: "Connect", desc: "Found the perfect sound? Emails and socials are front and center.", icon: Sparkles, color: "text-[#FF3366]" },
+              { num: "03", title: "Create", desc: "Book them for your film, band, or event. It's that simple.", icon: ArrowRight, color: "text-[#FFB000]" }
+            ].map((step, i) => (
+              <motion.div
+                key={step.num}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                className="group relative p-8 rounded-3xl bg-[#F8FAFC] border border-[#F1F5F9] hover:bg-white hover:shadow-2xl hover:shadow-[#0055FF]/5 transition-all duration-300"
+              >
+                <div className="flex items-center justify-between mb-8">
+                  <span className={`font-mono text-4xl font-black opacity-20 group-hover:opacity-100 transition-opacity ${step.color}`}>
+                    {step.num}
+                  </span>
+                  <step.icon className={`w-8 h-8 opacity-40 group-hover:opacity-100 transition-opacity ${step.color}`} />
+                </div>
+                <h3 className="text-2xl font-bold mb-3">{step.title}</h3>
+                <p className="text-[#64748B] font-medium leading-relaxed">
+                  {step.desc}
+                </p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── SAMPLE CARDS ── */}
-      <section className="bg-[#0E0E11] border-t border-[#1A1A1F] px-8 py-16">
-        <p className="font-mono text-xs tracking-[0.2em] text-[#52525B] mb-8 text-center">
-          SAMPLE LISTINGS
-        </p>
-        <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Musician card */}
-          <div className="rounded-xl border border-[#1A1A1F] bg-[#0A0A0C] p-6">
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-mono text-xs text-[#52525B]">MUSICIAN</span>
-              <span className="text-xs bg-[#1A1A1F] text-[#E8A45C] px-2 py-0.5 rounded-full font-mono">
-                Available
-              </span>
-            </div>
-            <h3 className="text-[#FFF8EE] font-semibold text-lg">Maya Chen</h3>
-            <p className="text-sm text-[#52525B] mt-1">Piano · Jazz · Film Scoring</p>
-            <p className="text-sm text-[#52525B] mt-3 leading-relaxed">
-              UT Austin junior. Film scoring focus. Has tracked on 4 student shorts this semester.
-            </p>
-            <a
-              href="#"
-              className="mt-5 inline-flex items-center text-sm text-[#5E8FFF] hover:text-[#7BA3FF] transition-colors"
-            >
-              View profile →
-            </a>
-          </div>
+      {/* ── SAMPLE LISTINGS ── */}
+      <section className="relative z-20 bg-[#F8FAFC] py-32 px-6 border-t border-[#F1F5F9]">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col items-center text-center mb-16"
+          >
+            <span className="font-mono text-xs font-bold tracking-[0.2em] text-[#0055FF] uppercase mb-4">
+              Now Playing
+            </span>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight">
+              Featured Talent
+            </h2>
+          </motion.div>
 
-          {/* Gig card */}
-          <div className="rounded-xl border border-[#1A1A1F] bg-[#0A0A0C] p-6">
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-mono text-xs text-[#52525B]">GIG</span>
-              <span className="text-xs bg-[#1A1A1F] text-[#FFC880] px-2 py-0.5 rounded-full font-mono">
-                Open
-              </span>
-            </div>
-            <h3 className="text-[#FFF8EE] font-semibold text-lg">Score for Short Film</h3>
-            <p className="text-sm text-[#52525B] mt-1">Film · 12 min · Unpaid + credit</p>
-            <p className="text-sm text-[#52525B] mt-3 leading-relaxed">
-              Need someone who can write sparse orchestral cues. Rough cut ready. 3-week turnaround.
-            </p>
-            <a
-              href="#"
-              className="mt-5 inline-flex items-center text-sm text-[#5E8FFF] hover:text-[#7BA3FF] transition-colors"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Musician Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              whileHover={{ y: -8 }}
+              className="group relative bg-white rounded-3xl p-8 shadow-sm hover:shadow-xl hover:shadow-[#0055FF]/10 border border-[#F1F5F9] transition-all duration-300 overflow-hidden"
             >
-              See details →
-            </a>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#0055FF]/10 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity" />
+              
+              <div className="flex items-center justify-between mb-6 relative z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center font-bold text-[#0F172A] overflow-hidden">
+                    <img src="https://i.pravatar.cc/150?u=maya" alt="Maya" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg leading-tight">Maya Chen</h3>
+                    <p className="text-sm font-mono text-[#64748B]">Piano • Film Scoring</p>
+                  </div>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-[#0055FF]/10 text-[#0055FF] text-xs font-bold uppercase tracking-wider">
+                  Available
+                </span>
+              </div>
+              
+              <p className="text-[#475569] font-medium leading-relaxed mb-8 relative z-10">
+                UT Austin junior. Film scoring focus. Has tracked on 4 student shorts this semester. Specializes in jazz and orchestral cues.
+              </p>
+              
+              <button className="w-full flex items-center justify-between p-4 rounded-2xl bg-[#F8FAFC] group-hover:bg-[#0055FF] group-hover:text-white transition-colors relative z-10">
+                <span className="font-bold text-sm">View Profile</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+
+            {/* Gig Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              whileHover={{ y: -8 }}
+              className="group relative bg-[#0F172A] text-white rounded-3xl p-8 shadow-sm hover:shadow-2xl hover:shadow-[#FF3366]/20 transition-all duration-300 overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#FF3366]/20 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity" />
+              
+              <div className="flex items-center justify-between mb-6 relative z-10">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-2xl bg-[#1E293B] flex items-center justify-center">
+                    <PlayCircle className="w-6 h-6 text-[#FF3366]" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg leading-tight">Short Film Score</h3>
+                    <p className="text-sm font-mono text-[#94A3B8]">Film • Unpaid + Credit</p>
+                  </div>
+                </div>
+                <span className="px-3 py-1 rounded-full bg-[#FF3366]/20 text-[#FF3366] text-xs font-bold uppercase tracking-wider">
+                  Open
+                </span>
+              </div>
+              
+              <p className="text-[#CBD5E1] font-medium leading-relaxed mb-8 relative z-10">
+                Need someone who can write sparse orchestral cues. Rough cut ready. 3-week turnaround. Good for portfolio building.
+              </p>
+              
+              <button className="w-full flex items-center justify-between p-4 rounded-2xl bg-[#1E293B] group-hover:bg-[#FF3366] transition-colors relative z-10">
+                <span className="font-bold text-sm">See Details</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="bg-[#0A0A0C] border-t border-[#1A1A1F] px-8 py-12">
-        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div>
-            <p className="font-mono text-xs tracking-[0.2em] text-[#52525B]">PROGRAMME</p>
-            <p className="mt-2 text-sm text-[#52525B]">
-              GigForge connects student musicians with student creators.
-            </p>
+      <footer className="relative z-20 bg-white py-12 px-6 border-t border-[#F1F5F9]">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-sm font-bold tracking-widest uppercase">
+              GigForge
+            </span>
+            <span className="text-[#94A3B8] text-sm">© {new Date().getFullYear()}</span>
           </div>
-          <div className="flex flex-col gap-2 text-right">
-            <a
-              href="#"
-              className="font-mono text-xs tracking-[0.15em] text-[#52525B] hover:text-[#FFF8EE] transition-colors"
-            >
-              EXIT · STAGE LEFT ↑
-            </a>
-            <div>
-              <p className="font-mono text-xs tracking-[0.15em] text-[#52525B] mb-1">
-                INTERMISSION
-              </p>
-              <a
-                href="#"
-                className="font-mono text-xs tracking-[0.15em] text-[#52525B] hover:text-[#FFF8EE] transition-colors"
-              >
-                Privacy Policy
-              </a>
-            </div>
+          
+          <div className="flex items-center gap-8">
+            <a href="#" className="text-sm font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors">Twitter</a>
+            <a href="#" className="text-sm font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors">Instagram</a>
+            <a href="#" className="text-sm font-semibold text-[#64748B] hover:text-[#0F172A] transition-colors">Privacy</a>
           </div>
         </div>
       </footer>
