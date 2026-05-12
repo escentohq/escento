@@ -1,131 +1,309 @@
 import Link from "next/link";
+
 import { Waveform } from "@/components/mockups/partner-02/Waveform";
+
+const STATS = [
+  { value: "142", label: "AVAILABLE MUSICIANS" },
+  { value: "24", label: "OPEN PROJECTS" },
+  { value: "12", label: "ACTIVE CAMPUSES" },
+];
+
+const CHANNELS = [
+  {
+    id: "CH-01",
+    title: "Maya Chen",
+    subtitle: "Guitar / Vocals / UT Austin",
+    note: "Warm indie tone, fast turnaround, nights open for sessions.",
+    status: "LIVE",
+  },
+  {
+    id: "CH-02",
+    title: "Scoring lead needed",
+    subtitle: "Film / Paid / Deadline Jun 12",
+    note: "Looking for a moody, synth-forward composer for a short thriller.",
+    status: "OPEN",
+  },
+  {
+    id: "CH-03",
+    title: "Jordan Lee",
+    subtitle: "Cello / USC / Remote okay",
+    note: "Classical technique, modern production instincts, clean communication.",
+    status: "READY",
+  },
+  {
+    id: "CH-04",
+    title: "Podcast intro package",
+    subtitle: "Brand audio / Negotiable",
+    note: "Need someone who can shape a tight sonic identity in one week.",
+    status: "OPEN",
+  },
+];
+
+const SIGNAL_PATH = [
+  "Browse the active directory.",
+  "Lock onto the right sound.",
+  "Reach out before the moment passes.",
+];
 
 export default function StudioConsole() {
   return (
-    <main className="min-h-screen bg-[#08080B] text-[#F4F4F7] font-sans selection:bg-[#7C5CFF]/30">
-      {/* Nav */}
-      <nav className="h-16 w-full flex items-center justify-between px-6 md:px-12 max-w-6xl mx-auto border-b border-[#1F1F27]">
-        <div className="font-semibold tracking-tight text-lg">GigForge</div>
-        <div className="flex items-center gap-6 text-sm font-medium">
-          <Link href="#" className="text-[#A1A1AA] hover:text-[#F4F4F7] transition-colors">Sign in</Link>
-          <Link href="#" className="flex items-center justify-center w-8 h-8 rounded-full border border-[#1F1F27] hover:border-[#7C5CFF] hover:bg-[#7C5CFF]/5 transition-all text-[#A1A1AA] hover:text-[#7C5CFF]">
-            &rarr;
-          </Link>
-        </div>
-      </nav>
+    <main className="min-h-screen overflow-hidden bg-[#06070B] font-sans text-[#F5F7FB] selection:bg-[#8B6FFF]/30">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-60"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(139,111,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(139,111,255,0.06) 1px, transparent 1px)",
+          backgroundSize: "72px 72px",
+        }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-[520px]"
+        style={{
+          background:
+            "radial-gradient(circle at 18% 18%, rgba(139,111,255,0.14), transparent 34%), radial-gradient(circle at 82% 14%, rgba(232,194,117,0.1), transparent 28%)",
+        }}
+      />
 
-      {/* Hero Section */}
-      <section className="relative px-6 md:px-12 max-w-6xl mx-auto pt-20 pb-12 lg:pt-28 lg:pb-20">
-        <div className="flex flex-col lg:flex-row gap-16 items-center">
-          
-          {/* Left: Copy */}
-          <div className="flex-1 w-full z-10">
-            <div className="flex items-center gap-3 mb-8">
-              <span className="font-mono text-[13px] text-[#A1A1AA] tracking-wider uppercase">
-                OPEN &middot; 24 GIGS &middot; UPDATED 2 MIN AGO
-              </span>
+      <div className="relative mx-auto max-w-7xl px-5 pb-20 pt-5 sm:px-8">
+        <nav className="flex items-center justify-between border-b border-[#1B1D27] pb-4">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.24em] text-[#71717F]">
+              Studio Console / Build 02
+            </p>
+            <p className="mt-2 text-lg font-semibold tracking-[-0.02em] text-[#F5F7FB]">GigForge</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="hidden rounded-full border border-[#2A2C3A] bg-[#10121A] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.18em] text-[#D9C18A] sm:inline-flex">
+              Signal stable
+            </span>
+            <Link
+              href="/signin"
+              className="text-sm font-medium text-[#A4A7B5] transition-colors hover:text-white"
+            >
+              Sign in
+            </Link>
+          </div>
+        </nav>
+
+        <section className="grid gap-8 py-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(380px,0.95fr)] lg:items-start">
+          <div className="space-y-6">
+            <div className="rounded-[28px] border border-[#1B1D27] bg-[rgba(10,11,16,0.9)] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.35)] sm:p-8">
+              <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#8D90A0]">
+                Dark / Technical / Signal-driven
+              </p>
+              <h1
+                className="mt-5 max-w-[10ch] text-[clamp(52px,8vw,112px)] font-semibold leading-[0.92] tracking-[-0.05em] text-[#F7F8FC]"
+              >
+                Serious tools for serious collaborators.
+              </h1>
+              <p className="mt-5 max-w-136 text-[16px] leading-8 text-[#A7AAB8] sm:text-[17px]">
+                A darker, more disciplined landing page for finding musicians fast. Less feed,
+                less noise, more signal. Built to feel closer to studio equipment than startup
+                marketing.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/musicians"
+                  className="inline-flex h-12 items-center justify-center rounded-xl bg-[#8B6FFF] px-5 text-sm font-semibold tracking-[0.01em] text-[#05060A] transition-all hover:-translate-y-px hover:bg-[#9F89FF]"
+                  style={{ boxShadow: "0 12px 28px rgba(139,111,255,0.28)" }}
+                >
+                  Browse musicians -&gt;
+                </Link>
+                <Link
+                  href="/gigs/create"
+                  className="inline-flex h-12 items-center justify-center rounded-xl border border-[#2A2D39] bg-[#0E1016] px-5 text-sm font-medium text-[#F5F7FB] transition-all hover:border-[#8B6FFF]/60 hover:bg-[#131621]"
+                >
+                  Post a gig
+                </Link>
+              </div>
             </div>
 
-            <h1 className="text-[#F4F4F7] font-semibold tracking-[-0.02em] mb-6" style={{ fontSize: "clamp(44px, 6vw, 88px)", lineHeight: "1.02" }}>
-              Find the right student musician.<br />
-              Email them directly.
-            </h1>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {STATS.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="rounded-2xl border border-[#1B1D27] bg-[#0B0D13] px-5 py-5"
+                >
+                  <p className="text-[32px] font-semibold leading-none tracking-[-0.04em] text-[#8B6FFF]">
+                    {stat.value}
+                  </p>
+                  <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.18em] text-[#7C7F8E]">
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
 
-            <p className="text-[#A1A1AA] text-base md:text-lg max-w-xl mb-10" style={{ lineHeight: "1.55" }}>
-              A directory, not a feed. Built for student creators who need a composer, a guitarist, a vocalist — now.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="#" className="flex items-center justify-center h-12 px-5 rounded-xl bg-[#8B6FFF] text-[#08080B] font-semibold text-[15px] tracking-[-0.005em] hover:bg-[#9D85FF] hover:-translate-y-[1px] transition-all duration-150" style={{ boxShadow: "0 8px 24px rgba(139,111,255,0.25)" }}>
-                Browse musicians &rarr;
-              </Link>
-              <Link href="#" className="flex items-center justify-center h-12 px-5 rounded-xl border border-[#2C2C36] text-[#F4F4F7] bg-transparent hover:border-[#7C5CFF] hover:bg-[rgba(124,92,255,0.05)] font-medium text-[15px] transition-all duration-150">
-                Post a gig
-              </Link>
+            <div className="rounded-[24px] border border-[#1B1D27] bg-[#0B0D13] p-6">
+              <div className="flex items-center justify-between gap-4 border-b border-[#1B1D27] pb-4">
+                <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#7C7F8E]">
+                  Signal path
+                </p>
+                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#D9C18A]">
+                  low latency
+                </p>
+              </div>
+              <div className="mt-5 space-y-4">
+                {SIGNAL_PATH.map((step, index) => (
+                  <div
+                    key={step}
+                    className="flex items-start gap-4 rounded-2xl border border-[#171922] bg-[#0E1016] px-4 py-4"
+                  >
+                    <span className="font-mono text-[12px] uppercase tracking-[0.18em] text-[#8B6FFF]">
+                      0{index + 1}
+                    </span>
+                    <p className="text-sm leading-7 text-[#B2B5C2]">{step}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Right: Cards */}
-          <div className="w-full lg:w-[440px] flex flex-col gap-5 z-10">
-            {/* Musician Card */}
-            <div className="group bg-[#101015] border border-[#1F1F27] rounded-xl p-5 hover:-translate-y-[2px] hover:border-[#2C2C36] hover:bg-[#16161D] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
-                 style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-10 h-10 rounded-full bg-[#1F1F27] flex items-center justify-center text-[#F4F4F7] text-sm font-medium">
-                  MC
-                </div>
+          <div className="space-y-4">
+            <div className="rounded-[30px] border border-[#1D2030] bg-[#090A10] p-4 shadow-[0_32px_80px_rgba(0,0,0,0.45)] sm:p-5">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-[#F4F4F7] font-medium text-base">Maya Chen</h3>
-                  <p className="text-[#A1A1AA] text-sm">Guitar &middot; Vocals &middot; UT Austin</p>
+                  <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-[#7C7F8E]">
+                    Oscilloscope / Channel Focus
+                  </p>
+                  <p className="mt-2 text-sm text-[#A7AAB8]">
+                    Cursor-reactive signal display with studio-style readouts.
+                  </p>
                 </div>
+                <span className="rounded-full border border-[#2A2D39] bg-[#11131B] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.18em] text-[#5EE2A0]">
+                  input armed
+                </span>
               </div>
-              <div className="flex gap-2 mb-4">
-                <span className="px-2 py-1 rounded bg-[#1F1F27] text-[#A1A1AA] text-xs font-medium border border-[#2C2C36]/50">Indie Rock</span>
-                <span className="px-2 py-1 rounded bg-[#1F1F27] text-[#A1A1AA] text-xs font-medium border border-[#2C2C36]/50">Acoustic</span>
+
+              <Waveform variant="hero" />
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <Readout label="FREQ" value="448 Hz" />
+                <Readout label="AMP" value="0.74" />
+                <Readout label="LOCK" value="Channel 02" />
               </div>
-              <p className="text-[#A1A1AA] text-sm line-clamp-2">
-                Classically trained but mostly writing bedroom pop right now. Looking to collaborate with producers or singers.
-              </p>
             </div>
 
-            {/* Gig Card */}
-            <div className="group bg-[#101015] border border-[#1F1F27] rounded-xl p-5 hover:-translate-y-[2px] hover:border-[#2C2C36] hover:bg-[#16161D] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ml-0 lg:ml-8"
-                 style={{ boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)" }}>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-[#D1A05B] text-xs font-mono border border-[#D1A05B]/20 bg-[#D1A05B]/10 px-2 py-0.5 rounded">FILM</span>
-                <span className="text-[#52525B] text-xs font-mono">2 DAYS LEFT</span>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <ConsoleCard
+                eyebrow="Channel monitor"
+                title="Open projects are visible at a glance."
+                copy="Make the whole page feel like a working desk inside a studio, not a polished app store tile."
+              />
+              <ConsoleCard
+                eyebrow="Design note"
+                title="Restraint matters as much as energy."
+                copy="One or two accent signals, dense blacks, crisp borders, and typography that feels engineered."
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+          <div className="rounded-[28px] border border-[#1B1D27] bg-[rgba(10,11,16,0.92)] p-5 sm:p-6">
+            <div className="flex items-center justify-between gap-4 border-b border-[#1B1D27] pb-4">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#7C7F8E]">
+                  Live directory
+                </p>
+                <p className="mt-2 text-sm text-[#A7AAB8]">Profiles and gigs rendered like active console channels.</p>
               </div>
-              <h3 className="text-[#F4F4F7] font-medium text-base mb-2">Composer for 10-min thesis short</h3>
-              <p className="text-[#A1A1AA] text-sm line-clamp-2 mb-4">
-                Sci-fi thriller looking for a synth-heavy, brooding score. Need someone who understands tension.
-              </p>
-              <div className="text-[#5EE2A0] text-xs font-mono flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#5EE2A0]"></span>
-                PAID &middot; $500
-              </div>
+              <Link
+                href="/musicians"
+                className="text-sm font-medium text-[#D9C18A] transition-colors hover:text-[#F5F7FB]"
+              >
+                View all -&gt;
+              </Link>
+            </div>
+
+            <div className="mt-5 grid gap-3">
+              {CHANNELS.map((channel) => (
+                <div
+                  key={channel.id}
+                  className="group rounded-[22px] border border-[#191C27] bg-[#0D0F16] px-4 py-4 transition-all hover:border-[#2A2E3C] hover:bg-[#121522]"
+                >
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#8B6FFF]">
+                          {channel.id}
+                        </span>
+                        <span className="rounded-full border border-[#263122] bg-[#0E1711] px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.16em] text-[#5EE2A0]">
+                          {channel.status}
+                        </span>
+                      </div>
+                      <h2 className="mt-3 text-lg font-semibold tracking-[-0.02em] text-[#F5F7FB]">
+                        {channel.title}
+                      </h2>
+                      <p className="mt-1 text-sm text-[#A7AAB8]">{channel.subtitle}</p>
+                    </div>
+                    <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#6D7080]">
+                      direct line
+                    </span>
+                  </div>
+                  <p className="mt-4 max-w-[58ch] text-sm leading-7 text-[#9A9EAE]">{channel.note}</p>
+                </div>
+              ))}
             </div>
           </div>
 
-        </div>
-      </section>
+          <div className="space-y-4">
+            <div className="rounded-[24px] border border-[#1B1D27] bg-[#0B0D13] p-5">
+              <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#7C7F8E]">
+                Ambient bus
+              </p>
+              <p className="mt-3 text-sm leading-7 text-[#A7AAB8]">
+                The page should feel alive even at rest: subtle motion, clean signal language, and
+                enough structure that every panel feels deliberately routed.
+              </p>
+              <div className="mt-5 overflow-hidden rounded-2xl border border-[#1A1D28] bg-[#090A10]">
+                <Waveform variant="strip" />
+              </div>
+            </div>
 
-      {/* Waveform full bleed */}
-      <div className="w-full border-t border-[#1F1F27] bg-[#08080B] relative">
-        <Waveform />
+            <div className="rounded-[24px] border border-[#1B1D27] bg-[#0B0D13] p-5">
+              <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#7C7F8E]">
+                Routing notes
+              </p>
+              <ul className="mt-4 space-y-3 text-sm leading-7 text-[#A7AAB8]">
+                <li>Keep the signal strong and the chrome minimal.</li>
+                <li>Let the page feel built for creators who know their tools.</li>
+                <li>Favor clarity, contrast, and intentional motion over decoration.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
       </div>
-
-      {/* How it works */}
-      <section className="px-6 md:px-12 max-w-6xl mx-auto py-24">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
-          
-          <div className="flex flex-col gap-4 border-t border-[#1F1F27] pt-6">
-            <div className="text-[#52525B] font-mono text-[32px] mb-2 leading-none">01</div>
-            <h3 className="text-[#F4F4F7] font-medium text-lg">Search the directory</h3>
-            <p className="text-[#A1A1AA] text-[15px] leading-relaxed">
-              Filter by instrument, genre, and location to find exactly who you need for your project.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-4 border-t border-[#1F1F27] pt-6">
-            <div className="text-[#52525B] font-mono text-[32px] mb-2 leading-none">02</div>
-            <h3 className="text-[#F4F4F7] font-medium text-lg">Review their work</h3>
-            <p className="text-[#A1A1AA] text-[15px] leading-relaxed">
-              Listen to their portfolio tracks, see past gigs, and verify they fit your sound.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-4 border-t border-[#1F1F27] pt-6">
-            <div className="text-[#52525B] font-mono text-[32px] mb-2 leading-none">03</div>
-            <h3 className="text-[#F4F4F7] font-medium text-lg">Reach out directly</h3>
-            <p className="text-[#A1A1AA] text-[15px] leading-relaxed">
-              No middleman, no booking fees. Get their email and start collaborating immediately.
-            </p>
-          </div>
-
-        </div>
-      </section>
-
     </main>
+  );
+}
+
+function Readout({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-[#1B1D27] bg-[#0D0F16] px-4 py-3">
+      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#7C7F8E]">{label}</p>
+      <p className="mt-2 text-sm font-medium text-[#F5F7FB]">{value}</p>
+    </div>
+  );
+}
+
+function ConsoleCard({
+  eyebrow,
+  title,
+  copy,
+}: {
+  eyebrow: string;
+  title: string;
+  copy: string;
+}) {
+  return (
+    <div className="rounded-[24px] border border-[#1B1D27] bg-[#0D0F16] p-5">
+      <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#7C7F8E]">{eyebrow}</p>
+      <h2 className="mt-3 text-lg font-semibold tracking-[-0.02em] text-[#F5F7FB]">{title}</h2>
+      <p className="mt-3 text-sm leading-7 text-[#A7AAB8]">{copy}</p>
+    </div>
   );
 }
