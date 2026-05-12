@@ -1,305 +1,119 @@
-import Link from "next/link";
-import type { CSSProperties } from "react";
+"use client";
 
-import { HoverRow, Reveal } from "./Reveal";
-
-const PROFILE = {
-  name: "Maya Chen",
-  role: "Guitar · Vocals",
-  school: "UT Austin · Music '25",
-  bio: "Indie, folk, and film scoring. Evenings free for recording sessions and short-form collaborations.",
-  email: "hello@maya.example",
-  tags: ["guitar", "vocals", "folk"],
-  count: 142,
-};
-
-const RECENTLY_ACTIVE = [
-  {
-    name: "Jordan L.",
-    summary: "Cello · Classical",
-    activity: "joined 2 days ago",
-    href: "/musicians",
-  },
-  {
-    name: "Sam P.",
-    summary: "Piano · Producer",
-    activity: "updated profile",
-    href: "/musicians",
-  },
-  {
-    name: "Priya K.",
-    summary: "Violin · Orchestral",
-    activity: "posted availability",
-    href: "/musicians",
-  },
-];
-
-const STEPS = [
-  {
-    number: "01",
-    title: "Browse the directory",
-    body: "No account required. It's open.",
-  },
-  {
-    number: "02",
-    title: "Email directly",
-    body: "No DMs. No platform. Just email.",
-  },
-  {
-    number: "03",
-    title: "That's the product.",
-    body: "Simple by design, not by accident.",
-  },
-];
-
-const OPEN_GIGS = [
-  {
-    badge: "COMPOSER",
-    title: "Thesis Short",
-    meta: "UT Austin · Paid",
-    timing: "Deadline: Jun 1",
-    href: "/gigs",
-  },
-  {
-    badge: "GUITARIST",
-    title: "Indie EP",
-    meta: "Remote · Unpaid",
-    timing: "Flexible",
-    href: "/gigs",
-  },
-  {
-    badge: "VOCALIST",
-    title: "Podcast Intro",
-    meta: "Remote · Negotiable",
-    timing: "ASAP",
-    href: "/gigs",
-  },
-];
-
-const theme = {
-  "--page-bg": "#FFFFFF",
-  "--section-bg": "#F3F2EF",
-  "--card-bg": "#FFFFFF",
-  "--otw-bg": "#057642",
-  "--pill-bg": "#EEF3FB",
-  "--card-border": "rgba(0,0,0,0.08)",
-  "--divider": "rgba(0,0,0,0.12)",
-  "--ink-primary": "#191919",
-  "--ink-secondary": "#555555",
-  "--ink-muted": "#888888",
-  "--accent-blue": "#0A66C2",
-} as CSSProperties;
+import { motion } from "framer-motion";
+import { MomentumScene } from "./MomentumScene";
+import { TapeReel } from "./TapeReel";
+import { ArrowRight, Zap, Radio, Users } from "lucide-react";
 
 export function Landing() {
   return (
-    <main style={theme} className="min-h-screen bg-(--page-bg) font-sans text-(--ink-primary)">
-      <div className="mx-auto max-w-[1180px] px-5 sm:px-8">
-        <nav className="flex items-center justify-between border-b border-(--divider) py-4">
-          <Link href="/mockups" className="text-lg font-bold tracking-[-0.02em] text-(--ink-primary)">
-            GIGFORGE
-          </Link>
-          <Link href="/signin" className="text-sm font-medium text-(--ink-secondary) transition-colors hover:text-(--ink-primary)">
-            Sign in -&gt;
-          </Link>
-        </nav>
+    <div className="bg-white text-[#0F172A] min-h-screen font-sans selection:bg-[#CCFF00] selection:text-[#0F172A] relative overflow-hidden">
+      {/* Background 3D */}
+      <MomentumScene />
 
-        <section className="grid grid-cols-1 gap-10 py-10 sm:py-14 lg:grid-cols-2 lg:gap-12 lg:py-18">
-          <Reveal className="order-2 lg:order-1" y={18}>
-            <p className="text-xs font-medium uppercase tracking-[0.08em] text-(--ink-muted)">
-              Open network / Student musicians
-            </p>
-            <h1
-              className="mt-4 max-w-[560px] text-[clamp(40px,5.5vw,72px)] font-bold leading-[1.05] tracking-[-0.025em] text-(--ink-primary)"
+      {/* Nav */}
+      <nav className="relative z-10 px-8 py-6 flex items-center justify-between">
+        <span className="font-black text-2xl tracking-tighter uppercase">
+          GigForge<span className="text-[#CCFF00]">.</span>
+        </span>
+        <button className="font-bold text-sm bg-[#0F172A] text-white px-6 py-2.5 rounded-full hover:bg-[#CCFF00] hover:text-[#0F172A] transition-colors">
+          Log In
+        </button>
+      </nav>
+
+      {/* Hero */}
+      <section className="relative z-10 flex flex-col items-center justify-center pt-24 pb-12 px-6 text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, type: "spring", bounce: 0.4 }}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F1F5F9] border border-[#E2E8F0] mb-8"
+        >
+          <div className="w-2 h-2 rounded-full bg-[#CCFF00] animate-pulse" />
+          <span className="font-bold text-xs uppercase tracking-widest text-[#64748B]">
+            Network is Live
+          </span>
+        </motion.div>
+
+        <motion.h1
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="font-black tracking-tighter leading-[0.9] max-w-4xl mx-auto"
+          style={{ fontSize: "clamp(64px, 10vw, 120px)" }}
+        >
+          Open to<br />
+          <span className="relative inline-block">
+            <span className="relative z-10 text-[#0F172A]">Collaborate.</span>
+            <span className="absolute bottom-2 left-0 w-full h-8 bg-[#CCFF00] -rotate-2 z-0"></span>
+          </span>
+        </motion.h1>
+
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mt-8 text-xl md:text-2xl font-medium text-[#64748B] max-w-2xl"
+        >
+          Stop posting into the void. A directory built entirely around momentum, visibility, and making music together.
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mt-12 flex flex-col sm:flex-row gap-4"
+        >
+          <button className="flex items-center justify-center gap-2 bg-[#CCFF00] text-[#0F172A] px-8 h-16 rounded-full font-black text-lg hover:scale-105 transition-transform shadow-[0_0_40px_rgba(204,255,0,0.4)]">
+            <Zap className="w-6 h-6" />
+            Find a Musician
+          </button>
+          <button className="flex items-center justify-center gap-2 bg-white border-4 border-[#0F172A] text-[#0F172A] px-8 h-16 rounded-full font-black text-lg hover:bg-[#F8FAFC] transition-colors">
+            Post a Gig
+          </button>
+        </motion.div>
+      </section>
+
+      {/* Tape Reel Carousel */}
+      <TapeReel />
+
+      {/* Value Props */}
+      <section className="relative z-10 py-32 px-6 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          {[
+            { title: "High Visibility", desc: "If you're looking for work, you're front and center. No algorithm burying your profile.", icon: Radio },
+            { title: "Direct Contact", desc: "Find the right sound, then email them directly. No middleman messaging platforms.", icon: ArrowRight },
+            { title: "Student Focused", desc: "Built for campus scenes. Find peers who want to track, film, and perform right now.", icon: Users },
+          ].map((item, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+              className="flex flex-col gap-4 p-8 rounded-[2rem] bg-[#F8FAFC] border-2 border-[#F1F5F9] hover:border-[#CCFF00] transition-colors group"
             >
-              The professional network for student musicians.
-            </h1>
-            <p className="mt-5 max-w-[520px] text-base leading-relaxed text-(--ink-secondary)">
-              Find a guitarist for your film. Post a gig for a film composer. Direct email
-              contact, structured profiles, and a signal that says the people here are ready to
-              collaborate.
-            </p>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/musicians"
-                className="inline-flex h-12 items-center justify-center rounded-full bg-(--accent-blue) px-6 text-[15px] font-semibold text-white transition-colors hover:bg-[#004182]"
-              >
-                Browse musicians
-              </Link>
-              <Link
-                href="/gigs/create"
-                className="inline-flex h-12 items-center justify-center rounded-full border-[1.5px] border-(--accent-blue) px-6 text-[15px] font-semibold text-(--accent-blue) transition-colors hover:bg-[rgba(10,102,194,0.08)]"
-              >
-                Post a gig
-              </Link>
-            </div>
-          </Reveal>
-
-          <Reveal className="order-1 lg:order-2" delay={0.08} y={22}>
-            <div className="rounded-[10px] border border-(--card-border) bg-(--card-bg) shadow-[0_18px_40px_rgba(0,0,0,0.06)]">
-              <div className="rounded-t-[10px] bg-(--otw-bg) px-5 py-3 text-[13px] font-bold uppercase tracking-[0.06em] text-white">
-                OPEN TO COLLABORATE
+              <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center border-2 border-[#F1F5F9] group-hover:bg-[#CCFF00] transition-colors">
+                <item.icon className="w-8 h-8 text-[#0F172A]" />
               </div>
-              <div className="px-5 py-6 sm:px-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-2xl font-bold text-(--ink-primary)">{PROFILE.name}</h2>
-                    <p className="mt-1 text-base text-(--ink-secondary)">{PROFILE.role}</p>
-                    <p className="mt-1 text-sm text-(--ink-muted)">{PROFILE.school}</p>
-                  </div>
-                  <span className="rounded-full bg-(--pill-bg) px-3 py-1 text-xs font-medium text-(--accent-blue)">
-                    Available now
-                  </span>
-                </div>
-
-                <p className="mt-5 max-w-[44ch] text-[15px] leading-7 text-(--ink-secondary)">
-                  "{PROFILE.bio}"
-                </p>
-
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {PROFILE.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full bg-(--pill-bg) px-3 py-1 text-sm font-medium text-(--accent-blue)"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-
-                <div className="mt-6 border-t border-(--divider) pt-4">
-                  <Link
-                    href="/musicians"
-                    className="group flex items-center justify-between text-sm font-medium text-(--ink-primary)"
-                  >
-                    <span>{PROFILE.email}</span>
-                    <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
-                      -&gt;
-                    </span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-            <p className="mt-4 text-sm text-(--ink-secondary)">
-              <span className="font-semibold text-(--ink-primary)">{PROFILE.count}</span> musicians
-              currently open
-            </p>
-          </Reveal>
-        </section>
-      </div>
-
-      <section className="border-y border-(--divider) bg-(--section-bg)">
-        <div className="mx-auto max-w-[1180px] px-5 py-10 sm:px-8 sm:py-12">
-          <Reveal y={16}>
-            <p className="text-xs font-medium uppercase tracking-[0.08em] text-(--ink-muted)">
-              Recently active
-            </p>
-            <div className="mt-4 overflow-hidden rounded-[10px] border border-(--divider) bg-white">
-              {RECENTLY_ACTIVE.map((row, index) => (
-                <HoverRow
-                  key={row.name}
-                  className={index === 0 ? "" : "border-t border-(--divider)"}
-                >
-                  <Link
-                    href={row.href}
-                    className="group flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-[15px] font-semibold text-(--ink-primary)">
-                        {row.name}
-                        <span className="ml-2 font-normal text-(--ink-secondary)">{row.summary}</span>
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between gap-4 text-sm text-(--ink-muted) sm:justify-end">
-                      <span>{row.activity}</span>
-                      <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
-                        -&gt;
-                      </span>
-                    </div>
-                  </Link>
-                </HoverRow>
-              ))}
-            </div>
-          </Reveal>
+              <h3 className="text-2xl font-black">{item.title}</h3>
+              <p className="text-[#64748B] font-medium leading-relaxed">{item.desc}</p>
+            </motion.div>
+          ))}
         </div>
       </section>
 
-      <section className="bg-(--section-bg)">
-        <div className="mx-auto max-w-[1180px] px-5 py-12 sm:px-8 sm:py-16">
-          <Reveal y={18}>
-            <div className="grid gap-6 md:grid-cols-3">
-              {STEPS.map((step) => (
-                <div key={step.number} className="rounded-[10px] bg-white p-6 shadow-[0_1px_0_rgba(0,0,0,0.04)]">
-                  <p className="text-lg font-semibold text-(--accent-blue)">{step.number}</p>
-                  <h3 className="mt-3 text-xl font-semibold text-(--ink-primary)">{step.title}</h3>
-                  <p className="mt-2 text-[15px] leading-7 text-(--ink-secondary)">{step.body}</p>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="bg-(--page-bg)">
-        <div className="mx-auto max-w-[1180px] px-5 py-12 sm:px-8 sm:py-16">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.08em] text-(--ink-muted)">
-                Open gigs
-              </p>
-              <h2 className="mt-3 text-[30px] font-bold tracking-[-0.02em] text-(--ink-primary)">
-                Three current openings, framed like the rest of the network.
-              </h2>
-            </div>
-            <Link href="/gigs" className="text-sm font-medium text-(--accent-blue) transition-colors hover:text-[#004182]">
-              Browse all gigs -&gt;
-            </Link>
-          </div>
-
-          <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3">
-            {OPEN_GIGS.map((gig, index) => (
-              <Reveal key={gig.badge} delay={index * 0.06} y={18}>
-                <Link
-                  href={gig.href}
-                  className="group block rounded-[8px] border border-(--card-border) bg-(--card-bg) p-5 shadow-[0_10px_24px_rgba(0,0,0,0.05)] transition-transform duration-200 hover:-translate-y-0.5"
-                >
-                  <span className="inline-flex rounded-full bg-(--pill-bg) px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em] text-(--accent-blue)">
-                    {gig.badge}
-                  </span>
-                  <h3 className="mt-4 text-2xl font-semibold tracking-[-0.02em] text-(--ink-primary)">
-                    {gig.title}
-                  </h3>
-                  <p className="mt-2 text-sm text-(--ink-secondary)">{gig.meta}</p>
-                  <p className="mt-1 text-sm text-(--ink-muted)">{gig.timing}</p>
-                  <div className="mt-6 flex items-center justify-between text-sm font-medium text-(--accent-blue)">
-                    <span>Apply via email</span>
-                    <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">
-                      -&gt;
-                    </span>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <footer className="border-t border-(--divider) bg-(--page-bg)">
-        <div className="mx-auto flex max-w-[1180px] flex-col gap-3 px-5 py-6 text-xs uppercase tracking-[0.08em] text-(--ink-muted) sm:flex-row sm:items-center sm:justify-between sm:px-8">
-          <p>Open to Work / internal landing study</p>
-          <div className="flex flex-wrap items-center gap-4">
-            <Link className="transition-colors hover:text-(--ink-primary)" href="/musicians">
-              Directory
-            </Link>
-            <Link className="transition-colors hover:text-(--ink-primary)" href="/gigs">
-              Gigs
-            </Link>
-            <Link className="transition-colors hover:text-(--ink-primary)" href="/mockups">
-              All mockups
-            </Link>
-          </div>
+      {/* Call to Action Footer */}
+      <footer className="relative z-10 bg-[#0F172A] text-white py-24 px-6 border-t-[16px] border-[#CCFF00]">
+        <div className="max-w-4xl mx-auto text-center flex flex-col items-center">
+          <h2 className="font-black text-5xl md:text-7xl tracking-tighter mb-8">
+            Ready to record?
+          </h2>
+          <button className="bg-[#CCFF00] text-[#0F172A] px-12 py-5 rounded-full font-black text-xl hover:scale-105 transition-transform flex items-center gap-3">
+            Join the Roster <ArrowRight className="w-6 h-6" />
+          </button>
         </div>
       </footer>
-    </main>
+    </div>
   );
 }
