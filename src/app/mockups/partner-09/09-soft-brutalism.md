@@ -1,192 +1,230 @@
-# Landing Design 09 — **Professional Grid**
+# Landing Design 09 — **Blueprint**
 
-> I'm a senior product designer with roots in opinionated B2B tools and two professional networks. Structure and confidence are more persuasive than polish. This version applies professional-network grid discipline to a light page — heavy borders, deliberate whitespace, real content. The result reads like a professional directory that takes itself seriously.
+> I'm a senior product designer trained in technical illustration and information architecture. The most underused aesthetic in product design is the engineering blueprint — precise, confident, structured, and paradoxically beautiful. Blueprint takes GigForge's directory logic and renders it like a technical drawing: pale azure paper, indigo ink, real grid lines, a 3D wireframe perspective view in the hero. This looks like a site built by people who ship things.
 
 ---
 
 ## 1. The Concept
 
-A crisp white and light gray page built on a strict 2px border grid system. Professional, decisive, unambiguous. Large bold Inter display type. Real profile cards and gig listings in bordered cells. A primary blue CTA that owns the page. The design communicates "this is a real professional tool" without saying it.
+A pale blueprint-blue page with indigo structural lines forming the grid. The hero contains a Three.js wireframe of the GigForge UI — a 3D "exploded view" of a musician profile card, like a technical product diagram — slowly rotating above the fold. Type is set in a wide geometric sans. Real data populates the directory cells below. The aesthetic says: *we designed this exactly right, and we can prove it.*
 
 ## 2. Why This Direction
 
-GigForge is a professional network, not a social app. Professional-network users — creators with deadlines, musicians looking for paid work — respond to clarity and structure. This version's visual confidence makes it immediately legible as a tool for serious collaborators. It also stands out from the sea of "rounded corners SaaS" pages students see daily.
+Architecture firms, engineering consultancies, and design studios all use the blueprint aesthetic to communicate precision and craft. GigForge is a precision tool — it does one thing, deliberately, without noise. Blueprint's visual language matches the product's actual philosophy. It also looks completely unlike anything else in the student-app ecosystem, which is entirely the point.
 
 ## 3. Color System
 
 | Token | Hex | Use |
 |---|---|---|
-| `bg.page` | `#FFFFFF` | White page base |
-| `bg.section` | `#F3F2EF` | Alternating section background |
-| `bg.nav` | `#FFFFFF` | Nav background |
-| `bg.pill` | `#EEF3FB` | Skill tag background |
-| `border.heavy` | `#191919` | 2px grid borders |
-| `border.card` | `rgba(0,0,0,0.10)` | Card edges |
-| `ink.primary` | `#191919` | All text |
-| `ink.secondary` | `#555555` | Subheads, card meta |
-| `ink.muted` | `#888888` | Timestamps, metadata |
-| `accent.blue` | `#0A66C2` | Primary CTA, hover states, links, stat blocks |
-| `accent.green` | `#057642` | Availability dot only |
+| `bg.page` | `#EEF4FF` | Blueprint paper — pale azure, not white |
+| `bg.card` | `#FFFFFF` | Profile and gig cards |
+| `bg.cell` | `rgba(255,255,255,0.6)` | Directory cells |
+| `bg.cta` | `#2D3FDB` | Primary CTA — rich indigo |
+| `grid.line` | `rgba(45,63,219,0.12)` | Blueprint grid lines |
+| `grid.line.heavy` | `rgba(45,63,219,0.30)` | Heavy structural rules |
+| `mesh.wire` | `rgba(45,63,219,0.45)` | Three.js wireframe |
+| `mesh.fill` | `rgba(238,244,255,0.9)` | Three.js face fill — barely visible |
+| `ink.primary` | `#0F172A` | Deep navy-black — the ink color |
+| `ink.secondary` | `#334155` | Subheads, body |
+| `ink.muted` | `#64748B` | Labels, metadata |
+| `accent.indigo` | `#2D3FDB` | All active UI — CTAs, numbers, links |
+| `accent.indigo.hover` | `#1E2BA6` | Hover state |
+| `accent.cyan` | `#06B6D4` | The one warm accent — used ONLY on the availability dot and "OPEN" labels |
 
-A focused palette: white, structured black, professional blue. Nothing else.
+A palette that looks like a Letraset technical drawing from 1982 rendered in a modern browser.
 
 ## 4. Typography
 
-- **Display:** Inter 800, `clamp(56px, 8vw, 120px)`, leading `0.92`, tracking `-0.03em`. Dense, confident.
-- **Body:** Inter 500, 16/24.
-- **Mono:** `font-mono` 12px uppercase tracking `+0.12em`.
-- **Card name:** Inter 700, 20px.
+- **Display:** DM Sans 800 or **Space Grotesk 700**, `clamp(60px, 9vw, 128px)`, tracking `-0.04em`, leading `0.88`. Wide, geometric, confident. Not rounded.
+- **Body:** Space Grotesk 400, 16/26.
+- **Technical labels:** `font-mono` 11px uppercase tracking `+0.2em`, `ink.muted` — for the blueprint annotation style.
+- **Card name:** Space Grotesk 600, 19px.
+- **Grid coordinates:** `font-mono` 9px, `grid.line.heavy` color, positioned as blueprint coordinate markers at major grid intersections.
 
-The display type is oversized by convention because structure needs confident type. Don't shrink it.
+```bash
+npm install @fontsource/space-grotesk
+```
 
 ## 5. Layout
 
 ```
-┌══════════════════════════════════════════════════════════════╗
-║  GIGFORGE                              ║  SIGN IN →           ║  ← 2px border everywhere
-║  ══════════════════════════════════════╬══════════════════════║
-║                                                               ║
-║   STUDENT MUSICIANS.                                         ║
-║   STUDENT CREATORS.                                          ║  ← 120px display
-║   ONE DIRECTORY.                                             ║
-║                                                               ║
-║  ─────────────────────────────────────────────────────────   ║  ← 2px rule
-║                                                               ║
-║  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────┐ ║
-║  │  142             │  │  24              │  │  12          │ ║  ← stat blocks
-║  │  MUSICIANS       │  │  OPEN GIGS       │  │  CAMPUSES    │ ║
-║  └──────────────────┘  └──────────────────┘  └──────────────┘ ║
-║                                                               ║
-║  ┌──────────────────────────────────────┐  ┌───────────────┐ ║
-║  │                                       │  │ BROWSE        │ ║
-║  │  A professional directory.            │  │ MUSICIANS     │ ║
-║  │  Not a social network.                │  │         →     │ ║  ← CTA as plate
-║  │                                       │  │               │ ║
-║  │  No feeds. No DMs. No algorithm.      │  │ ──────────── │ ║
-║  │  Search, find, email.                 │  │               │ ║
-║  │                                       │  │ POST A GIG    │ ║
-║  └──────────────────────────────────────┘  │         →     │ ║
-║                                             └───────────────┘ ║
-╚══════════════════════════════════════════════════════════════╝
+┌─────────────────────────────────────────────────────────────┐
+│  [grid lines visible across full page at 80px intervals]    │
+│                                                              │
+│  GIGFORGE                                      SIGN IN →    │
+│  ─── · ─── · ─── · ─── · ─── · ─── · ─── · ──            │  ← dashed blueprint rule
+├──────────────────────────────────────────────────────────── │
+│                                                              │
+│  [3D WIREFRAME EXPLODED CARD — Three.js — slow rotation]   │  ← hero visual
+│                                                              │
+│  FIG. 01 — MUSICIAN PROFILE COMPONENT                       │  ← blueprint annotation
+│                                                              │
+│  STUDENT MUSICIANS.                                         │
+│  STUDENT CREATORS.                                          │  ← display headline
+│  ONE DIRECTORY.                                             │
+│                                                              │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌────────────┐│
+│  │  142             │  │  24              │  │  12        ││  ← stat cells
+│  │  MUSICIANS       │  │  OPEN GIGS       │  │  CAMPUSES  ││
+│  └──────────────────┘  └──────────────────┘  └────────────┘│
+│                                                              │
+│  ┌──────────────────────────────────┐  ┌────────────────┐  │
+│  │  A professional directory.        │  │ BROWSE MUSICIANS│  │  ← CTA plate
+│  │  Not a social network.            │  │              → │  │
+│  └──────────────────────────────────┘  └────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-2px borders form the structural skeleton. Border-radius: 0 everywhere.
+The background grid lines are CSS `background-image: linear-gradient(rgba(45,63,219,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(45,63,219,0.12) 1px, transparent 1px)` at 80px intervals. They persist across all sections.
 
-## 6. The Border System
+## 6. The Signature: Three.js Wireframe Exploded View
 
-- All structural borders: 2px `border.heavy`. Solid. Never dashed.
-- Borders meet at flush right-angle corners — no rounded joins.
-- Page uses `box-sizing: border-box` globally and `display: grid` with `gap: 0` — borders collapse cleanly.
-- The nav uses a bottom border to ground it, matching the grid language.
+```bash
+npm install three @react-three/fiber @react-three/drei leva
+```
 
-## 7. The Stat Blocks
+**What it is:** A 3D "exploded diagram" of a GigForge musician profile card — a box geometry deconstructed into floating planes, each labeled like a CAD drawing. It looks like the card is being assembled in real-time.
 
-Three equal-width bordered blocks:
+**Implementation:**
+
+A `@react-three/fiber` `<Canvas>` at `position: relative`, height `40vh`, centered above the headline.
+
+Components:
+- **Background plane** (card body): `BoxGeometry(4, 2.4, 0.04)`, `MeshBasicMaterial({ color: 0xEEF4FF, wireframe: false })` — barely visible fill.
+- **Wireframe overlay**: Same geometry, `MeshBasicMaterial({ color: 0x2D3FDB, wireframe: true, opacity: 0.45, transparent: true })`.
+- **Floating label planes** (name row, bio row, tag row): Three smaller `PlaneGeometry` cards offset along the Z-axis by `0`, `-0.5`, `-1.0` — exploded apart. Each has its own wireframe.
+- **Annotation lines**: `<Line>` from `@react-three/drei` — thin lines from each plane's corner to a `<Html>` text label: `NAME · INTER 700`, `INSTRUMENTS · TAGS`, `CONTACT LINK`.
+- **Rotation**: The entire group has `useFrame((state) => { groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.15) * 0.3; groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.08) * 0.1; })` — slow, rocking rotation.
+- **Mouse influence**: `useFrame` also adds `groupRef.current.rotation.y += (targetRotY - groupRef.current.rotation.y) * 0.05` where `targetRotY` comes from normalized `pointermove` — the card tilts toward your cursor.
+
+```tsx
+// Minimal scaffold:
+<Canvas camera={{ position: [0, 0, 6], fov: 45 }}>
+  <ambientLight intensity={0.4} />
+  <directionalLight position={[4, 6, 4]} intensity={0.8} color="#2D3FDB" />
+  <directionalLight position={[-4, -2, 2]} intensity={0.3} color="#06B6D4" />
+  <ExplodedCard />
+  <OrbitControls enableZoom={false} enablePan={false} autoRotate={false} />
+</Canvas>
+```
+
+The indigo directional light + cyan fill light gives depth without shadows — feels like a technical illustration.
+
+`prefers-reduced-motion`: group rotation locked at `[0, -0.15, 0]`, no animation.
+
+## 7. The Grid System
+
+Every layout decision is grid-aligned. The page uses `display: grid` with `gap: 2px` everywhere — borders emerge from the gap, not from `border` properties. This creates flush, aligned grid joints that look machined.
+
+Stat blocks, directory cells, CTA plates: all `border-radius: 0`. Blueprint precision — nothing rounds.
+
+**Blueprint coordinate markers**: At major grid intersections, tiny `font-mono` 9px labels in `grid.line.heavy` — `A1`, `B3`, `C2` etc. These are decorative (`aria-hidden`), purely architectural.
+
+## 8. The Stat Blocks
 
 ```
 ┌──────────────────┐
-│  142             │  ← Inter 800 72px ink.primary
-│  MUSICIANS       │  ← mono label 12px ink.muted
+│  142             │  ← Space Grotesk 800, 80px, accent.indigo
+│  MUSICIANS       │  ← mono 11px, ink.muted
 └──────────────────┘
 ```
 
-On hover: block background flips to `accent.blue`, text goes white. Instant snap (`transition: none`). The one decisive interaction on the page — like flipping a switch.
+**Framer Motion count-up** via `useInView` + `animate()`:
+```tsx
+animate(0, 142, {
+  duration: 1.6,
+  ease: [0.16, 1, 0.3, 1],  // easeOutExpo
+  onUpdate: v => setCount(Math.floor(v)),
+});
+```
 
-## 8. CTAs as Plates
+On hover: Framer `whileHover={{ backgroundColor: "#2D3FDB", color: "#FFFFFF" }}` + `transition={{ duration: 0.08 }}`. Near-instant — blueprint snap, not consumer softness.
 
-The primary CTA is a full-height bordered plate, not a button.
+## 9. CTAs as Plates
 
 **Primary plate** — `Browse musicians`:
 ```
-bg: #0A66C2
-text: #FFFFFF
-border: 2px #0A66C2
-height: matches adjacent body block
-padding: 28px
-display label: BROWSE MUSICIANS in Inter 700 22px uppercase
-arrow: 24px → at bottom-right, +6px on hover
-transition: none (instant swap)
-hover: bg #004182
+bg: #2D3FDB
+text: #EEF4FF
+border: 2px grid.line.heavy
+height: fills adjacent block
+font: Space Grotesk 700, 20px uppercase
+arrow: → at bottom-right
+hover: bg #1E2BA6
+Framer: whileHover={{ scale: 1.01, boxShadow: "0 8px 32px rgba(45,63,219,0.35)" }}
 ```
 
 **Secondary plate** — `Post a gig`:
 ```
-bg: #FFFFFF
-border: 2px #191919
-text: #191919
-hover: bg accent.blue (10,102,194), text white — instant
+bg: #EEF4FF
+border: 2px grid.line.heavy
+text: ink.primary
+hover: Framer whileHover={{ backgroundColor: "#2D3FDB", color: "#EEF4FF" }}
+transition: { duration: 0.08 }
 ```
 
-Both plates sit in one outer 2px-bordered container, separated by a 2px horizontal rule.
+## 10. Directory Cells Strip
 
-## 9. Live Listing Strip
-
-Below the hero: a full-bleed 2px-bordered band with 4 real profile cells, equal width:
+Four live profile cells in a full-bleed grid row, each separated by `2px gap`:
 
 ```
 ┌──────────────┬──────────────┬──────────────┬──────────────┐
-│  ● Maya C.   │  ● Jordan L. │  ● Sam P.    │  see all 142 │
-│  Guitar      │  Cello       │  Piano       │  musicians   │
-│  UT Austin   │  USC         │  Berklee     │  →           │
-│              │              │              │              │
-│  →           │  →           │  →           │              │
+│  ◉ Maya C.   │  ◉ Jordan L. │  ◉ Sam P.    │  → 142 total │
+│  Guitar      │  Cello       │  Piano       │              │
+│  UT Austin   │  USC         │  Berklee     │  browse all  │
 └──────────────┴──────────────┴──────────────┴──────────────┘
 ```
 
-Cell hover: background flips to `accent.blue`, text goes white. Instant. Professional.
+The `◉` is `accent.cyan` — the only cyan on the page. It makes availability status unmissable.
 
-## 10. How It Works
+Cell hover: Framer `whileHover={{ backgroundColor: "#2D3FDB" }}` + text color flip. `transition={{ duration: 0.06 }}`.
 
-Three bordered rows below the listing strip, on `bg.section`:
+## 11. Framer Entrance: The Page Assembles
+
+On load, the page doesn't appear — it **assembles**. Each section is a `motion.div`:
+
+```tsx
+// Row by row, column by column
+variants={{
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+}}
+// Container: staggerChildren: 0.06
+// Each element: transition: { type: "spring", stiffness: 280, damping: 24 }
+```
+
+The effect: grid cells appear in reading order, like a blueprint being plotted by a CNC machine. The Three.js canvas fades in simultaneously with `initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}`.
+
+## 12. How It Works
+
+Three labeled rows in a bordered grid:
 
 ```
-┌───┬────────────────────────────────────────────────────────┐
-│01 │  Browse the directory — no account needed to look.     │
-├───┼────────────────────────────────────────────────────────┤
-│02 │  Find someone you like — their email is right there.   │
-├───┼────────────────────────────────────────────────────────┤
-│03 │  Email them — that's the entire product.               │
-└───┴────────────────────────────────────────────────────────┘
+┌──────┬──────────────────────────────────────────────────────┐
+│ 01   │  Browse the directory — no account needed.           │
+├──────┼──────────────────────────────────────────────────────┤
+│ 02   │  Find someone you like — email is right there.       │
+├──────┼──────────────────────────────────────────────────────┤
+│ 03   │  Contact them — that is the whole product.           │
+└──────┴──────────────────────────────────────────────────────┘
 ```
 
-Number cells: `accent.blue` background, white text, 2px border. Text cells: `bg.page`, `ink.primary`. All borders 2px `border.heavy`.
-
-## 11. Motion
-
-Professional restraint. Two exceptions only:
-- **Hover flips** (instant, `transition: none`). Decisive.
-- **CTA plate arrow** (+6px on hover, 100ms ease). The only eased motion on the page.
-
-No scroll animations. No fade-ins. The page loads complete — that is the brand.
-
-## 12. What This Version Refuses to Do
-
-- No rounded corners (`border-radius: 0` everywhere)
-- No shadows (borders do the structural work)
-- No gradients
-- No dark page background
-- No more than one accent color (plus availability green)
-- No emoji
-- No decorative illustrations
+Number cells: `accent.indigo` background, `bg.card` text. Text cells: `bg.page`. All borders: `2px gap` from CSS grid.
 
 ## 13. Required Libraries
 
 ```bash
-npm install framer-motion
+npm install framer-motion three @react-three/fiber @react-three/drei @fontsource/space-grotesk
 ```
-
-No Three.js — the design's visual language explicitly rejects shadows and 3D effects.
 
 ## 14. Implementation Notes
 
-- CSS reset sets `border-radius: 0` globally.
-- Grid: `display: grid`, `gap: 0`, borders use `border-right: 2px` + `border-bottom: 2px` to avoid doubling.
-- **Stat block hover flip:** Use `motion.div` with `whileHover={{ backgroundColor: "#0A66C2", color: "#FFFFFF" }}` + `transition={{ duration: 0 }}` — the instant snap is intentional and must use `duration: 0`, not a CSS transition.
-- **CTA plate arrow:** `motion.span` with `whileHover={{ x: 6 }}` + `transition={{ type: "spring", stiffness: 400, damping: 20 }}` — the one eased motion on the page.
-- **Listing strip cell hover:** Same instant-flip pattern as stat blocks: `motion.div` + `transition={{ duration: 0 }}`.
-- **Page entrance:** The entire grid assembles on load with a staggered `motion.div` `initial={{ opacity: 0 }}` + `animate={{ opacity: 1 }}` cascade at `0.05s` intervals — the grid appears to be drawn in, cell by cell.
-- `prefers-reduced-motion`: `useReducedMotion()` — all `initial` states jump to `animate` immediately, no cascade.
+- Blueprint grid: CSS `background-image` grid on `body` element. No SVG, no canvas.
+- Three.js canvas: `alpha: true`, `transparent` background so the blueprint paper shows.
+- `<Html>` from `@react-three/drei` for the annotation labels — renders as real DOM text positioned in 3D space.
+- Coordinate markers: `aria-hidden="true"` divs absolutely positioned at grid intersections.
+- `prefers-reduced-motion`: Three.js frozen, Framer entrance instant, hover flips still work (they're direct, not animated).
 
-## 14. The Test
+## 15. The Test
 
-Print the page on a black-and-white printer. It should look great without the blue. The grid structure and type hierarchy must carry the design alone. If removing the blue breaks the layout's logic, you've over-relied on color — pull the blue back to CTAs only and fix the structural borders.
+Screenshot the hero. Remove all the text. If the Three.js diagram still reads as "a professional tool" and not "a 3D screensaver," the lighting and camera angle are right. The wireframe must be legible as a *card* — not abstract geometry. If a non-technical person can't identify it as a UI component within 5 seconds, your explosion offset is too large — bring the planes closer together.

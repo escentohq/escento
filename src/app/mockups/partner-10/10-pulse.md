@@ -1,195 +1,221 @@
-# Landing Design 10 — **Spotlight Profile**
+# Landing Design 10 — **Stage**
 
-> I'm a senior product designer who's shipped landing pages for two professional networks and a talent marketplace. The best landing pages for directory products stop describing what they are and start showing who's in them. This version makes one real musician profile the entire hero — the way LinkedIn "spotlights" someone in a job posting. Light, professional, immediately credible.
+> I'm a senior product designer with a background in event branding and talent platforms. Every gig-economy product defaults to blue. Stage doesn't. It takes the physical experience of a venue — velvet curtain, warm spotlight, the moment before a performer walks out — and builds a landing page around that feeling. The palette is violet and gold. The hero is a lit stage. The musician IS the content.
 
 ---
 
 ## 1. The Concept
 
-A clean white page leading with a single featured musician profile card at center — large, beautifully typeset, real data. Below it: a subhead, two CTAs, and a small "next profile" navigator. The card is alive: a subtle green availability pulse on the `OPEN` dot. This is LinkedIn's "featured profile" format applied to a musician directory.
+A soft lavender-white page with a concert venue feeling — warm, anticipatory, alive. The hero is a Three.js "stage scene": a deep violet curtain backdrop with a single point-light source (the spotlight) casting real-time soft shadows on a 3D profile card floating center stage. The card breathes. The light moves gently. The musician's name is the headline. Below: scroll away from the stage into the "lobby" — a lighter section with gig listings and how-it-works.
+
+The entire experience is designed around one question: *what does it feel like to be discovered?*
 
 ## 2. Why This Direction
 
-GigForge's value is the musicians. Every landing that buries them behind marketing copy is making a mistake. Put one real profile front and center: the visitor immediately understands what the product is, what it contains, and whether it's useful to them — without reading a single word of sales copy.
+Musicians go to GigForge to be found. Creators go to hire. Stage makes the central act of discovery visceral — you are the audience, the musician is on stage, the spotlight reveals them. It's the most emotionally honest version of what this product does. And it's unmistakable. No other student-app landing page looks like this.
 
 ## 3. Color System
 
 | Token | Hex | Use |
 |---|---|---|
-| `bg.page` | `#F3F2EF` | LinkedIn's warm off-white page background |
+| `bg.stage` | `#F5F0FF` | Hero section — soft lavender white |
+| `bg.lobby` | `#FFFBF0` | Below-fold sections — warm ivory |
 | `bg.card` | `#FFFFFF` | The hero profile card |
-| `bg.surface.alt` | `#FFFFFF` | Lower-section card backgrounds |
-| `bg.section` | `#EEF3FB` | Alternating section background (blue tint) |
-| `bg.pill` | `#EEF3FB` | Skill tag backgrounds |
-| `border.card` | `rgba(0,0,0,0.08)` | Card edges |
-| `border.divider` | `rgba(0,0,0,0.10)` | Section separators |
-| `ink.primary` | `#191919` | Headlines, names |
-| `ink.secondary` | `#555555` | Subheads, body |
-| `ink.muted` | `#888888` | Metadata, timestamps |
-| `accent.blue` | `#0A66C2` | CTA, links, skill tag text |
-| `accent.green` | `#057642` | Availability dot — the only green on the page |
+| `bg.pill` | `#EDE9FF` | Skill tag backgrounds |
+| `curtain.deep` | `#2E1065` | Three.js curtain color — deep violet |
+| `curtain.mid` | `#4C1D95` | Curtain fold mid-tone |
+| `spotlight.warm` | `#FDE68A` | Three.js point light color — warm amber |
+| `gold` | `#D97706` | Headlines, CTA primary, star separators |
+| `gold.hover` | `#B45309` | Hover on gold elements |
+| `violet` | `#7C3AED` | Secondary CTAs, links, tags |
+| `violet.light` | `#8B5CF6` | Hover on violet elements |
+| `ink.primary` | `#1C0A3C` | Deep violet-black — warm, not cold |
+| `ink.secondary` | `#4B3B6B` | Subheads, body |
+| `ink.muted` | `#9D8CB0` | Metadata, timestamps |
+| `accent.green` | `#15803D` | Availability dot only |
 
-A 12-token palette built around warm paper and professional blue. Clean, trustworthy.
+A palette that belongs on a theater program: violet, gold, warm white. Nothing sterile.
 
 ## 4. Typography
 
-- **Card name (visual headline):** Inter 700, `clamp(36px, 4.5vw, 56px)`, tracking `-0.02em`.
-- **Subhead under the card:** Inter 600, `clamp(24px, 3vw, 40px)`, leading `1.1`.
-- **Body:** Inter 400, 16/26.
-- **Mono label:** `font-mono` 11px uppercase tracking `+0.12em`, `ink.muted`.
-- **Skill tags:** Inter 500, 13px, `accent.blue`.
+- **Musician name (the visual headline):** Cormorant Garamond 700 Italic, `clamp(48px, 6.5vw, 88px)`, tracking `-0.01em`. A serif that belongs on a venue marquee.
+- **Display subhead:** Outfit 600, `clamp(20px, 2.5vw, 32px)`, tracking `-0.01em`. Clean contrast to the serif.
+- **Body:** Outfit 400, 16/27.
+- **Mono label:** `font-mono` 11px uppercase tracking `+0.16em`, `ink.muted`.
+- **Stage labels:** Cormorant Garamond 400 Italic 14px, `ink.muted` — for contextual annotations.
 
-The musician's name is the largest type on the page. The page introduces a real person.
+```bash
+npm install @fontsource/cormorant-garamond @fontsource/outfit
+```
+
+The serif/sans mix is intentional: Cormorant is the stage, Outfit is the lobby.
 
 ## 5. Layout
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│  GIGFORGE                                      Sign in →    │
-│  ──────────────────────────────────────────────────────    │
-├────────────────────────────────────────────────────────────┤
+│  GIGFORGE                                      Sign in →    │  ← bg.stage
 │                                                              │
-│         ┌──────────────────────────────────────────┐        │
-│         │  MUSICIAN · UT AUSTIN      ● OPEN        │        │
-│         │                                            │        │  ← hero profile card
-│         │  Maya Chen                                │        │
-│         │                                            │        │
-│         │  Guitar, vocals. Indie, folk, film.       │        │
-│         │  Available evenings + weekends.           │        │
-│         │                                            │        │
-│         │  [guitar] [vocals] [indie] [folk]         │        │
-│         │                                            │        │
-│         │  ──────────────────────────────────────  │        │
-│         │  hello@mayachen.example    Contact →     │        │
-│         └──────────────────────────────────────────┘        │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │                                                        │  │  ← Three.js stage scene
+│  │    [CURTAIN]    [SPOTLIGHT]    [CURTAIN]              │  │     (40vh canvas)
+│  │                                                        │  │
+│  │           ┌──────────────────────────┐                │  │
+│  │           │  ● OPEN TO WORK          │                │  │  ← profile card floating
+│  │           │  *Maya Chen*             │                │  │     in the spotlight
+│  │           │  Guitar · Vocals         │                │  │
+│  │           │  UT Austin · Music '25   │                │  │
+│  │           └──────────────────────────┘                │  │
+│  └──────────────────────────────────────────────────────┘  │
 │                                                              │
-│              ←  1 / 12  →    (cycle listings)               │
+│  *Find the musician*                                        │  ← italic serif subhead
+│  *your project needs.*                                      │
 │                                                              │
-│         Browse the network. Or post a gig.                  │
+│  A directory for student creators. Browse free.            │
 │                                                              │
-│         [ Browse musicians ]   [ Post a gig ]               │
+│  [ Browse musicians ]   [ Post a gig ]                     │
 │                                                              │
+│  ← 1 / 12 →                                               │
+├────────────────────────────────────────────────────────────┤  ← bg.lobby begins
+│  Three real gigs  ·  How it works  ·  Footer               │
 └────────────────────────────────────────────────────────────┘
 ```
 
-Card: centered, max-width 580px on desktop, 92% on mobile. Card height: content-driven, never forced.
+## 6. The Signature: Three.js Stage Scene
 
-## 6. The Signature: The Breathing Profile Card
+```bash
+npm install three @react-three/fiber @react-three/drei
+```
 
-The card is a precise render of the production `/musicians/[id]` component. One component, two contexts — implementation efficiency + visual consistency between landing and detail pages.
+This is the centerpiece. A concert stage rendered in WebGL.
 
-Subtle life:
+**Scene components:**
 
-- **The `OPEN` dot:** pulses with a `box-shadow` ring in `accent.green` expanding from 0 to 10px and fading — `2s ease infinite`. LinkedIn's "actively looking" dot, adapted.
-- **The card itself:** no scale animation. The availability pulse is enough. The card feels alive without feeling restless.
+**1. The Curtain:**
+Two `PlaneGeometry(3, 4, 1, 32)` panels — left and right. Material: `MeshStandardMaterial({ color: 0x2E1065 })`. The planes have simple vertex displacement (via `useFrame`) that creates a slow wave: `vertex.y += sin(vertex.x * 3 + time * 0.4) * 0.05` — the curtain breathes like fabric.
 
-The dot pulse stops on `prefers-reduced-motion: reduce` — the dot stays solid green.
+**2. The Spotlight:**
+A `PointLight` at position `[0, 3, 2]`, color `#FDE68A`, intensity `3.0`, decay `1.5`. This is a *real Three.js light* that casts on the card mesh. Gentle oscillation via `useFrame`: `light.position.x = Math.sin(time * 0.2) * 0.5` — the beam drifts, exactly like a follow-spot in a real venue.
 
-## 7. The Cycling Mechanism
+A `SpotLight` helper (rendered as a `<mesh>` cone in `spotlight.warm` at 5% opacity) visualizes the beam.
 
-Below the card: `← 1 / 12 →` in Inter 400 14px `ink.muted`. Arrow glyphs in `accent.blue`.
+**3. The Profile Card in 3D:**
+A `BoxGeometry(2.4, 1.4, 0.04)` with `MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.3, metalness: 0.05 })`. The spotlight's point light creates real soft shadows on it. The card *glows* where the light hits — this is physical rendering, not CSS tricks.
 
-- Click right: card content crossfades out + in (300ms ease). No slide. Professional, not flashy.
-- Keyboard arrows work.
-- Touch swipe works on mobile.
-- Cards are server-rendered, hidden, ready to swap without a network request. Cap at 12.
+`<Html center>` from `@react-three/drei` renders the real card content (name, instrument, school) overlaid on the 3D box — the DOM card IS the 3D card.
 
-No auto-advance. Autorotating heroes are universally disliked. The user controls the pace.
+**4. Camera:**
+`PerspectiveCamera` at `[0, 0.5, 5]`, looking at `[0, 0.2, 0]`. `fov: 50`. Subtle parallax: `useFrame(() => { camera.position.x += (mouseX * 0.3 - camera.position.x) * 0.04; })`.
 
-## 8. Skill Tags
+**5. Environment:**
+`ambientLight` intensity `0.15` — very dark ambient, so the spotlight does all the work. The result: the card is warmly lit center-frame, the curtains recede into violet shadow. Exactly a stage.
 
-Each chip in the skill row is styled as LinkedIn's skill endorsement tag:
-- `bg.pill`, `accent.blue` text, `border-radius: 16px`, Inter 500 13px, `px-3 py-1`.
-- Clickable: deep-links to `/musicians?instrument=guitar` etc.
-- On hover: `bg` deepens slightly, underline on text.
+`prefers-reduced-motion`: curtain wave frozen, spotlight locked center, card static.
 
-Tags are the landing page's secondary navigation — the visitor starts filtering without leaving.
+## 7. Card Cycling with Framer Motion
 
-## 9. CTAs
+```tsx
+<AnimatePresence mode="wait">
+  <motion.div
+    key={currentCard.id}
+    initial={{ opacity: 0, y: 30, scale: 0.95 }}
+    animate={{ opacity: 1, y: 0, scale: 1 }}
+    exit={{ opacity: 0, y: -20, scale: 0.97 }}
+    transition={{ type: "spring", stiffness: 200, damping: 22 }}
+  >
+    <MusicianCard musician={currentCard} />
+  </motion.div>
+</AnimatePresence>
+```
+
+The card enters from below — like a performer walking onto a stage — and exits upward. The spring physics give it weight. When cycling, the HTML card and the Three.js `<Html>` content swap simultaneously via a shared state.
+
+Navigation: `← 1 / 12 →` in Cormorant Garamond Italic 18px `gold`. Click arrows or swipe (Framer `drag="x"`).
+
+## 8. Framer Scroll Transition: Stage → Lobby
+
+As the user scrolls past the Three.js canvas, the background transitions from `bg.stage` (lavender) to `bg.lobby` (ivory) using Framer `useScroll` + `useTransform`:
+
+```tsx
+const { scrollYProgress } = useScroll();
+const bgColor = useTransform(
+  scrollYProgress,
+  [0, 0.3],
+  ["#F5F0FF", "#FFFBF0"]
+);
+// Applied to the page wrapper as motion.div style={{ backgroundColor: bgColor }}
+```
+
+The transition is silky — no hard cut between sections.
+
+## 9. Gig Cards in the Lobby
+
+Three gig cards on `bg.lobby`, each with a subtle golden top-border accent:
+
+```
+┌──────────────────────┐
+│ ▔▔ COMPOSER          │  ← 3px gold top border
+│ Thesis Short Film    │
+│ UT Austin · PAID     │
+│ Deadline: Jun 1      │
+│ Apply via email →    │
+└──────────────────────┘
+```
+
+Framer entrance: `staggerChildren: 0.1`, `initial={{ opacity: 0, x: -20 }}` → `animate={{ opacity: 1, x: 0 }}` on `useInView`. The cards slide in from the left like theater programs being handed out.
+
+## 10. CTAs
 
 **Primary** — `Browse musicians`:
 ```
-bg: #0A66C2
+bg: #D97706
 text: #FFFFFF
 height: 52px, px: 28px
-radius: 24px
-font: Inter 600, 15px
-hover: bg #004182
-transition: 160ms ease
+radius: 8px
+font: Outfit 700, 15px
+hover: bg #B45309, scale 1.02
+shadow: 0 8px 24px rgba(217,119,6,0.3)
+Framer: whileHover spring stiffness 300 damping 20
 ```
 
 **Secondary** — `Post a gig`:
 ```
 bg: transparent
-border: 1.5px #0A66C2
-text: #0A66C2
-radius: 24px
-hover: bg rgba(10,102,194,0.08)
+border: 1.5px #7C3AED
+text: #7C3AED
+radius: 8px
+hover: bg rgba(124,58,237,0.08), border #8B5CF6
 ```
 
-## 10. The Lower Section
-
-A full-width `bg.section` band with three real open gigs in a single row:
-
-```
-┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
-│ GIG              │  │ GIG              │  │ GIG              │
-│ Composer         │  │ Guitarist        │  │ Vocalist         │
-│ Thesis Short     │  │ Indie EP         │  │ Podcast Theme    │
-│ UT Austin · PAID │  │ Remote · UNPAID  │  │ Remote · NEGOT.  │
-│ ──────────────── │  │ ──────────────── │  │ ──────────────── │
-│ Apply via email→ │  │ Apply via email→ │  │ Apply via email→ │
-└──────────────────┘  └──────────────────┘  └──────────────────┘
-```
-
-White cards, `border-radius: 8px`, `border.card` shadow, on `bg.section`. Real data.
+The gold/violet split echoes the stage palette — gold is the spotlight, violet is the curtain.
 
 ## 11. How It Works
 
-Below the gig cards, on white, three left-aligned rows:
+Three rows on `bg.lobby`, each introduced by a small italic serif Roman numeral (Cormorant Garamond Italic 20px in `gold`):
 
 ```
-01  Browse the directory.       No account to create. Just look.
-02  Find someone you need.      Filter by instrument, genre, school.
-03  Email them directly.        No platform in between. Just email.
+  i.   Browse the directory.     No account. Any device.
+ ii.   Find who you need.        Filter by instrument, genre, school.
+iii.   Email them directly.      No DMs. No platform. Just email.
 ```
 
-`accent.blue` mono numbers. Inter 400 body. 1px `border.divider` between rows.
+Separated by 1px `rgba(217,119,6,0.2)` golden rules — faint, warm.
 
-## 12. What This Version Refuses to Do
-
-- No dark backgrounds
-- No music-themed illustrations
-- No hero scale animations (pulse on the availability dot is sufficient)
-- No multiple accent colors beyond blue + availability green
-- No auto-advancing carousel
-- No icon system
-
-## 13. Required Libraries
+## 12. Required Libraries
 
 ```bash
-npm install framer-motion three @react-three/fiber @react-three/drei
+npm install framer-motion three @react-three/fiber @react-three/drei @fontsource/cormorant-garamond @fontsource/outfit
 ```
 
-Three.js is used for an optional ambient background. Framer Motion handles all card animations.
+## 13. Implementation Notes
 
-## 14. Implementation Notes
+- Three.js canvas: `height: 40vh`, full-width. `gl={{ antialias: true, alpha: false }}` — opaque background, `bg.stage` as `scene.background = new THREE.Color(0xF5F0FF)`.
+- `<Html>` from `@react-three/drei` for card content — `transform` prop off, `occlude` prop off (card always visible).
+- Framer `useScroll` scroll-linked background: apply to a `motion.div` wrapping the entire page, not the body.
+- Card cycling: shared `currentIndex` state between the Framer card and the Three.js `<Html>` — one source of truth.
+- Spotlight drift: keep within `x: [-0.6, 0.6]` range or the card exits the beam and looks broken.
+- `prefers-reduced-motion`: `useReducedMotion()` from Framer — freeze Three.js, skip card entrance animation, scroll background transitions become instant `background-color` switch.
 
-- Hero card: same `MusicianCard` component as `/musicians/[id]`. No landing-specific code.
-- **Card cycling with Framer Motion:** Use `AnimatePresence` + `motion.div` with `initial={{ opacity: 0, scale: 0.98 }}` → `animate={{ opacity: 1, scale: 1 }}` → `exit={{ opacity: 0, scale: 0.98 }}`. `transition={{ duration: 0.3, ease: "easeInOut" }}`. This replaces a custom JS crossfade.
-- **Keyboard + swipe nav:** Framer Motion's `drag` prop on the card `motion.div` — `drag="x"` with `dragConstraints={{ left: 0, right: 0 }}` and `onDragEnd` comparing `offset.x` to a threshold to trigger cycle.
-- **Availability dot pulse:** Pure CSS `@keyframes box-shadow` ring — Framer not needed here; CSS handles it lighter.
-- **Ambient Three.js background (optional):** A `@react-three/fiber` `Canvas` behind the page at `z-index: -1`. A single `<mesh>` with a `MeshStandardMaterial` in `bg.pill` blue, very low roughness, barely rotating — gives the page a subtle depth without competing with the card. Toggle off if performance is a concern.
-- All 12 listing cards server-rendered, promoted into `AnimatePresence` on cycle.
-- `prefers-reduced-motion`: `useReducedMotion()` — card swap is instant, Three.js canvas skipped entirely.
+## 14. The Test
 
-## 14. Accessibility
-
-- `prefers-reduced-motion: reduce` → dot stays solid, crossfade becomes instant swap.
-- Cycle controls have `aria-label="Previous musician"` / `aria-label="Next musician"`.
-- Card is one tab stop; links within are focusable in natural order.
-- All contrast ratios meet WCAG AA.
-
-## 15. The Test
-
-Watch the hero card for 20 seconds without scrolling. It should feel like a *person* is present — calm, professional, available. Not aggressive. Not idle. If it feels cold, the availability pulse needs tuning. If it feels jittery, slow the pulse from 2s to 3s. The card is a professional spotlight on a real person — treat it with that gravity.
+Load the page. Don't scroll. Watch for 15 seconds. The page should feel like waiting in the audience for a show to start — anticipatory, warm, slightly cinematic. If it feels like a dark club site, your ambient light is too low — raise it. If the card disappears into the curtains, raise `PointLight.intensity` by 0.5. If the spotlight drift feels annoying rather than alive, slow the oscillation frequency from `0.2` to `0.12`.

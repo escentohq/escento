@@ -1,198 +1,285 @@
-# Landing Design 11 — **Profile Portfolio**
+# Landing Design 11 — **Mosaic**
 
-> I'm a senior product designer who's built onboarding experiences for professional networks and two creator-economy tools. Students trust things that feel personal and considered — but "personal" doesn't mean scrappy. This version treats GigForge's landing like a well-designed professional portfolio: clean white pages, structured layout, real people front and center. LinkedIn's clarity meets a music student's sensibility.
+> I'm a senior product designer who's worked on gallery platforms, creator portfolios, and two community marketplaces. The most interesting landing pages I've built share one property: they look different every time you load them. Mosaic is a living collage — profile cards with bold individual color identities float in a 3D space above the fold, and the grid below reassembles with staggered spring physics on every visit. The page isn't designed once. It's designed to be alive.
 
 ---
 
 ## 1. The Concept
 
-A clean white page that feels like a curated professional portfolio. The hero introduces GigForge with a confident two-column layout: left is the pitch, right is a real musician's profile card elevated as a featured showcase. Below: a grid of profile cards in light blue-tinted panels — the kind you'd see in a LinkedIn "recommended connections" section. The page is professional, welcoming, and immediately legible as a network for creative collaboration.
+Off-white page. In the hero: a Three.js scene of a 3D bulletin board — musician profile cards floating at different depths, each with its own bold pastel background color, gently drifting in 3D space. Below: a ground-level grid of the same cards rendered flat, with staggered spring entrance animations. Each card's color is deterministic from the musician's ID — Maya is always coral, Jordan is always sage. The page is a mosaic. Every musician has an identity, not just a slot.
 
 ## 2. Why This Direction
 
-Students respond to products that reflect how they see themselves: serious about their craft, professional in their ambitions, but not corporate. Profile Portfolio threads the needle — it has the structural confidence of LinkedIn with the warmth of something built for creators, not executives. It makes a music student feel seen without talking down to them.
+Student musicians are visual people. Designers, filmmakers, and musicians all respond to color as identity. Every other musician directory looks like a spreadsheet. Mosaic treats each musician like they have a color — because they do. The floating 3D board in the hero communicates: *there are real, different people here*. The spring-physics entrance animations communicate: *this is crafted with care*. Together they make the directory feel like a gallery, not a database.
 
 ## 3. Color System
 
+**Page base:**
+
 | Token | Hex | Use |
 |---|---|---|
-| `bg.page` | `#FFFFFF` | Clean white base |
-| `bg.section` | `#F3F2EF` | Alternating section background |
-| `bg.card` | `#FFFFFF` | Profile cards |
-| `bg.featured` | `#EEF3FB` | Featured card background — subtle blue tint |
-| `bg.pill` | `#EEF3FB` | Skill tag background |
-| `border.card` | `rgba(0,0,0,0.08)` | Card edges |
-| `border.divider` | `rgba(0,0,0,0.12)` | Section separators |
-| `border.featured` | `rgba(10,102,194,0.20)` | Featured card border accent |
-| `ink.primary` | `#191919` | All primary text |
-| `ink.secondary` | `#555555` | Subheads, card metadata |
-| `ink.muted` | `#888888` | Timestamps, labels |
-| `accent.blue` | `#0A66C2` | CTA, links, tags, featured badge |
-| `accent.green` | `#057642` | Availability dot only |
+| `bg.page` | `#FAFAF8` | Off-white base — warm, not stark |
+| `bg.section` | `#F2F1EE` | Alternating section background |
+| `ink.primary` | `#1A1A18` | All primary text |
+| `ink.secondary` | `#5C5C55` | Subheads, body |
+| `ink.muted` | `#9B9B8E` | Metadata, timestamps |
+| `accent.blue` | `#2563EB` | CTAs, links |
+| `accent.blue.hover` | `#1D4ED8` | Hover |
+| `accent.green` | `#16A34A` | Availability dot only |
 
-A 13-token palette anchored in white and professional blue.
+**Card identity palette (assigned by musician ID mod 6):**
+
+| Slot | Name | Hex | Paired ink |
+|---|---|---|---|
+| 0 | Coral | `#FEE2E2` | `#991B1B` |
+| 1 | Sage | `#DCFCE7` | `#166534` |
+| 2 | Sky | `#DBEAFE` | `#1E40AF` |
+| 3 | Butter | `#FEF9C3` | `#854D0E` |
+| 4 | Lavender | `#EDE9FE` | `#5B21B6` |
+| 5 | Peach | `#FFEDD5` | `#9A3412` |
+
+The color system is the identity system. No two musicians look the same. The page is the proof.
 
 ## 4. Typography
 
-- **Display headline:** Inter 700, `clamp(40px, 5.5vw, 72px)`, tracking `-0.025em`, leading `1.05`.
-- **Body:** Inter 400, 16/26.
-- **Label:** Inter 500, 12px uppercase tracking `+0.1em`, `ink.muted`.
-- **Featured card name:** Inter 700, 26px.
-- **Grid card name:** Inter 600, 18px.
+- **Display headline:** Fraunces 700 (optical size variable), `clamp(52px, 7vw, 96px)`, tracking `-0.02em`, leading `1.0`. A warm serif with personality — not cold editorial, not precious. It looks like it was chosen by a person.
+- **Body:** DM Sans 400, 16/27.
+- **Label:** `font-mono` 11px uppercase tracking `+0.16em`, `ink.muted`.
+- **Card name:** DM Sans 700, 18px.
+- **Card color label:** DM Sans 600, 12px, in the card's paired ink color.
 
-Clean Inter throughout. Professional, readable, no decorative mixing.
+```bash
+npm install @fontsource-variable/fraunces @fontsource/dm-sans
+```
+
+The Fraunces variable axis lets the headline weight shift on scroll — heavier at the top, lighter as you scroll. Set `wght` via `useScroll` → `useTransform`.
 
 ## 5. Layout
 
 ```
 ┌────────────────────────────────────────────────────────────┐
 │  GIGFORGE                                      Sign in →    │
-│  ──────────────────────────────────────────────────────    │  ← 1px border.divider
-├──────────────────────────┬─────────────────────────────────┤
-│                          │  ┌──────────────────────────┐   │
-│  The professional        │  │ FEATURED MUSICIAN        │   │  ← accent.blue label
-│  network for             │  │                            │   │
-│  student musicians.      │  │  Maya Chen               │   │
-│                          │  │  Guitar · Vocals           │   │
-│  Browse profiles.        │  │  UT Austin · Music '25    │   │
-│  Post a gig.             │  │  ● Open to collaborate    │   │
-│  Email directly.         │  │                            │   │
-│  No middleman.           │  │  "Indie, folk, film.      │   │
-│                          │  │   Evenings free."         │   │
-│  [ Browse musicians ]    │  │                            │   │
-│  [ Post a gig ]          │  │  [guitar] [vocals] [indie]│   │
-│                          │  │  hello@maya.example →     │   │
-│  142 musicians           │  └──────────────────────────┘   │
-│  24 open gigs            │                                   │
-└──────────────────────────┴─────────────────────────────────┘
+│                                                              │
+│  ┌──────────────────────────────────────────────────────┐  │
+│  │  [FLOATING PROFILE CARDS — Three.js — 50vh]          │  │
+│  │                                                        │  │
+│  │  [coral]        [sage]      [sky]                     │  │
+│  │      [butter]       [lavender]    [peach]             │  │
+│  │                                                        │  │
+│  └──────────────────────────────────────────────────────┘  │
+│                                                              │
+│  A directory where every                                    │
+│  student musician has a voice.                              │  ← Fraunces display
+│                                                              │
+│  Browse free. Email directly. No middleman.                 │
+│                                                              │
+│  [ Browse musicians ]   [ Post a gig ]                     │
+│                                                              │
+├────────────────────────────────────────────────────────────┤
+│                                                              │
+│  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  ┌──────┐  ┌──┐ │  ← card grid
+│  │coral │  │sage  │  │sky   │  │butter│  │laven.│  │peach│ │     (Framer stagger)
+│  └──────┘  └──────┘  └──────┘  └──────┘  └──────┘  └──┘ │
+│                                                              │
+└────────────────────────────────────────────────────────────┘
 ```
 
-Left/right split, 45/55. Featured card on `bg.featured` with `border.featured`.
+## 6. The Signature: Three.js Floating Card Board
 
-## 6. The Featured Card
-
-The right-side featured card is the production `MusicianCard` component in a slightly elevated context:
-
-- Background `bg.featured`, border `border.featured`, `border-radius: 12px`.
-- `FEATURED MUSICIAN` label in `accent.blue` Inter 600 11px uppercase at top.
-- Availability dot in `accent.green` with a CSS pulse animation (2s ease infinite, `box-shadow` ring expanding + fading). Stops on `prefers-reduced-motion`.
-- Skill chips in `bg.pill` / `accent.blue` text — identical to the detail page.
-- `mailto:` link styled as a secondary CTA: `border 1.5px accent.blue`, `border-radius: 24px`, `padding: 8px 20px`.
-
-The card updates on each page load to the most recently active available musician.
-
-## 7. The Profile Grid
-
-Below the hero on `bg.section`, a grid of 6 profile cards (3 columns × 2 rows on desktop, 1 column on mobile):
-
-```
-┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-│  ● Jordan L. │  │  ● Sam P.    │  │  ● Priya K.  │
-│  Cello · USC │  │  Piano · Berk│  │  Violin · UCLA│
-│  Classical   │  │  Jazz, Prod. │  │  Orchestral  │
-│  →           │  │  →           │  │  →           │
-└──────────────┘  └──────────────┘  └──────────────┘
-┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-│  + 136 more musicians in the directory     →       │
-└──────────────────────────────────────────────────┘
+```bash
+npm install three @react-three/fiber @react-three/drei
 ```
 
-Cards: white, `border-radius: 8px`, `border.card` shadow. On hover: `border-left: 3px solid accent.blue`, card lifts slightly (`translateY(-2px)`), shadow deepens. 200ms ease.
+**What it is:** A 3D bulletin board — 8 musician cards floating at different depths, each a `<mesh>` with the card's identity color, gently drifting.
 
-Last cell spans full width: "Join 142 musicians on GigForge →" in Inter 500 `accent.blue`.
+**Implementation:**
 
-## 8. Open Gigs Strip
-
-Below the grid, a full-width `bg.page` section:
-
-```
-OPEN GIGS  ←  mono label + 1px border.divider
-
-┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────┐
-│  COMPOSER            │  │  GUITARIST            │  │  VOCALIST            │
-│  Thesis Short Film   │  │  Indie EP Recording   │  │  Podcast Intro Theme │
-│  UT Austin · PAID    │  │  Remote · UNPAID      │  │  Remote · NEGOTIABLE │
-│  Deadline: Jun 1     │  │  Flexible             │  │  ASAP                │
-│  Apply via email →   │  │  Apply via email →    │  │  Apply via email →   │
-└──────────────────────┘  └──────────────────────┘  └──────────────────────┘
+```tsx
+// Each card is a BoxGeometry(2.2, 1.3, 0.06)
+// Material: MeshStandardMaterial({ color: cardColor, roughness: 0.7, metalness: 0.02 })
+// Position: randomized seed (deterministic from card ID) within bounds [-6, 6] x [-2.5, 2.5]
+// Z-depth: -1.0 to +0.5 — back cards recede, front cards protrude
 ```
 
-White cards, `border-radius: 8px`, `border.card` shadow. Role type in Inter 600 `accent.blue`. Real data.
+**Motion:**
+Each card has an independent drift orbit via `useFrame`:
+```glsl
+// Per-card offset from unique seed:
+mesh.position.x = baseX + Math.sin(time * speed + phaseX) * 0.4;
+mesh.position.y = baseY + Math.cos(time * speed + phaseY) * 0.25;
+mesh.rotation.z = Math.sin(time * 0.3 + phaseZ) * 0.06;
+```
+
+Cards drift slowly and independently — like notes pinned to a board by imperfect pins, gently swaying.
+
+**Mouse parallax:**
+```tsx
+// Mouse moves the camera slightly:
+useFrame(({ camera, pointer }) => {
+  camera.position.x += (pointer.x * 1.5 - camera.position.x) * 0.04;
+  camera.position.y += (pointer.y * 0.8 - camera.position.y) * 0.04;
+  camera.lookAt(0, 0, 0);
+});
+```
+
+The whole board shifts with your cursor — parallax depth becomes apparent as the Z-positions separate.
+
+**`<Html>` overlays:**
+Each card mesh has a `@react-three/drei` `<Html transform>` child rendering the card name and instrument. The text is real DOM, color-coordinated to the card's paired ink.
+
+**Click:** Clicking a floating card triggers a Framer `AnimatePresence` overlay that expands the clicked card's content into a full-screen profile preview with a spring expand animation. `layoutId` on the card ensures a shared-element transition between the 3D card and the overlay.
+
+**Camera:** `PerspectiveCamera` at `[0, 0, 7]`, `fov: 60`. `ambientLight` 0.7, `directionalLight` soft from top-right.
+
+`prefers-reduced-motion`: all cards static, camera fixed, no drift, no mouse parallax.
+
+## 7. The Card Grid — Spring Stagger
+
+Below the Three.js hero, 6 profile cards in a 3-column grid (2-column tablet, 1-column mobile).
+
+Each card uses its identity color as background. Framer entrance:
+
+```tsx
+const container = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+  },
+};
+const card = {
+  hidden: { opacity: 0, y: 32, scale: 0.94, rotate: -1 },
+  visible: {
+    opacity: 1, y: 0, scale: 1, rotate: 0,
+    transition: { type: "spring", stiffness: 240, damping: 22 },
+  },
+};
+```
+
+Cards enter with a slight rotation snap — like photos being tossed onto a table.
+
+**Hover:**
+```tsx
+whileHover={{
+  y: -8,
+  scale: 1.02,
+  rotate: 1,
+  boxShadow: "0 16px 40px rgba(0,0,0,0.12)",
+}}
+transition={{ type: "spring", stiffness: 280, damping: 18 }}
+```
+
+The hover lifts and leans — like picking up a photo. Every card's shadow is slightly warm-tinted to match its identity color.
+
+**The card anatomy:**
+```
+┌──────────────────────────────┐
+│  bg: coral (#FEE2E2)          │
+│                               │
+│  MUSICIAN · UT AUSTIN        │  ← mono 11px, ink.muted
+│  Maya Chen                   │  ← DM Sans 700 18px, #991B1B
+│  Guitar · Vocals · Indie     │  ← DM Sans 400 14px, ink.secondary
+│  ● Open to collaborate       │  ← green dot + Outfit 500 13px
+│                               │
+│  [guitar] [vocals] [indie]   │  ← bg: white/40%, text: #991B1B
+│  ─────────────────────────   │
+│  Contact →                   │  ← link in card's ink color
+└──────────────────────────────┘
+```
+
+The skill tags use `rgba(255,255,255,0.45)` background on the card color — they're legible but not harsh.
+
+## 8. Variable Font Scroll Effect
+
+The Fraunces headline uses its variable `wght` axis to get heavier as you scroll down (inverse of typical scroll fade):
+
+```tsx
+const { scrollY } = useScroll();
+const fontWeight = useTransform(scrollY, [0, 400], [600, 900]);
+// Applied as: style={{ fontVariationSettings: `"wght" ${fontWeight}` }}
+```
+
+It's subtle — the headline gets more confident as you commit to reading. A detail only designers notice.
 
 ## 9. CTAs
 
 **Primary** — `Browse musicians`:
 ```
-bg: #0A66C2
+bg: #2563EB
 text: #FFFFFF
-height: 48px, px: 20px
-radius: 24px
-font: Inter 600, 15px
-hover: bg #004182
+height: 52px, px: 28px
+radius: 10px
+font: DM Sans 700, 15px
+hover: bg #1D4ED8, scale 1.02
+shadow: 0 6px 20px rgba(37,99,235,0.3)
+Framer: whileHover spring stiffness 280 damping 20
 ```
 
 **Secondary** — `Post a gig`:
 ```
 bg: transparent
-border: 1.5px #0A66C2
-text: #0A66C2
-radius: 24px
-hover: bg rgba(10,102,194,0.08)
+border: 1.5px #2563EB
+text: #2563EB
+radius: 10px
+hover: bg rgba(37,99,235,0.06)
 ```
 
-## 10. How It Works
+## 10. Open Gigs Strip
 
-Three rows on `bg.section`:
+Three gig cards below the musician grid, each also with an identity color (drawn from the posting organization's ID):
 
 ```
-01  Browse the directory.         No account. Fully open to anyone.
-02  Find who you need.            Filter by instrument, genre, or school.
-03  Email them directly.          No DMs. No platform. Their email is right there.
+┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐
+│ bg: sky (#DBEAFE)    │  │ bg: butter (#FEF9C3) │  │ bg: sage (#DCFCE7)  │
+│                      │  │                      │  │                      │
+│ GIG · COMPOSER       │  │ GIG · GUITARIST      │  │ GIG · VOCALIST      │
+│ Thesis Short Film    │  │ Indie EP Recording   │  │ Podcast Intro       │
+│ UT Austin · PAID     │  │ Remote · UNPAID      │  │ Remote · NEGOTIABLE │
+│ Apply via email →    │  │ Apply via email →    │  │ Apply via email →   │
+└─────────────────────┘  └─────────────────────┘  └─────────────────────┘
 ```
 
-`accent.blue` numbers. Inter 400 body. 1px `border.divider` rows.
+Same hover lift animation as musician cards.
 
-## 11. Footer
+## 11. How It Works
 
-Minimal: wordmark left, `About · Privacy · Post a gig` right. 1px `border.divider` top. `ink.muted` text.
+Three rows, each with a small colored square (the identity palette at 24px) as a visual bullet:
 
-## 12. What This Version Refuses to Do
+```
+█ coral   Browse the directory.      No account. Fully open.
+█ sage    Find who you need.         Filter, browse, explore.
+█ sky     Email them directly.       No DMs. No platform fee.
+```
 
-- No dark backgrounds
-- No hand-drawn or decorative elements
-- No animated gradients
-- No multiple accent colors
-- No hero illustrations
-- No emoji
-- No motion beyond availability dot pulse and card hover lift
+The colored squares cycle through the card palette — a subtle callback to the mosaic theme.
+
+## 12. Stats
+
+Three centered stats above the card grid, on `bg.page`:
+
+```
+  142           24           12
+musicians    open gigs    universities
+```
+
+Numbers in Fraunces 800 64px `ink.primary`. On `useInView`, Framer `animate()` counts up with `ease: [0.16, 1, 0.3, 1]` over 1.4s.
 
 ## 13. Required Libraries
 
 ```bash
-npm install framer-motion
+npm install framer-motion three @react-three/fiber @react-three/drei @fontsource-variable/fraunces @fontsource/dm-sans
 ```
-
-No Three.js — the design's warmth comes from layout and color, not 3D effects.
 
 ## 14. Implementation Notes
 
-- Featured card: same `MusicianCard` component as `/musicians/[id]`. No landing-specific markup.
-- Grid cards: same lighter `MusicianCardCompact` component used in search results.
-- **Grid entrance stagger:** Wrap the 6-card grid in a Framer Motion `motion.div` container with `variants={{ visible: { transition: { staggerChildren: 0.07 } } }}`. Each card is a `motion.div` with `variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}`. Triggered by `useInView` when the grid enters the viewport.
-- **Card hover lift:** `motion.div` with `whileHover={{ y: -4, boxShadow: "0 8px 24px rgba(0,0,0,0.12)" }}` + `transition={{ type: "spring", stiffness: 300, damping: 20 }}`. The spring physics give the card a professional, weighty lift.
-- **Featured card left border reveal:** `motion.div` with `initial={{ scaleX: 0 }}` → `animate={{ scaleX: 1 }}` on `useInView`, `transformOrigin: "left"` — the blue accent border draws in as the card enters view.
-- **Hero headline entrance:** `motion.h1` with `initial={{ opacity: 0, y: 12 }}` → `animate={{ opacity: 1, y: 0 }}` + `transition={{ delay: 0.1, duration: 0.5 }}`.
-- **Availability pulse:** Pure CSS `@keyframes` box-shadow ring — Framer not needed; CSS handles it lighter.
-- Profile grid: server-side rendered from `musicians ORDER BY updatedAt DESC LIMIT 5`.
-- `prefers-reduced-motion`: `useReducedMotion()` from framer-motion — all `initial` states jump to final state, stagger collapsed to 0.
-
-## 14. Accessibility
-
-- All profile cards are tab-focusable links with `aria-label="View Maya Chen's profile"`.
-- Availability pulse stops on `prefers-reduced-motion: reduce`.
-- All contrast ratios WCAG AA or better.
-- Featured card email link has `aria-label="Email Maya Chen"`.
+- Card color assignment: a deterministic `colorFromId(id: string): CardColor` function — `id.charCodeAt(0) % 6`. Same color every page load, every session.
+- Three.js drift: each card has a `phase` object seeded from its ID using a simple LCG. Fully deterministic — the board looks the same on every load, not random each render.
+- `<Html transform>` in Three.js: set `occlude` to the other card meshes so front cards occlude back ones — adds depth.
+- Framer `layoutId` for click-expand: the card's `layoutId` must match between the Three.js overlay and the grid card below. Use the musician's ID string.
+- Variable font: only `wght` axis used. Include only the `wght` 400–900 range in the woff2 subset to keep font size under 40KB.
+- `prefers-reduced-motion`: Three.js static, all card enters instant, scroll weight effect disabled, hover lifts still work at `duration: 0.15`.
 
 ## 15. The Test
 
-Show this page to a music student and a film student simultaneously. The music student should immediately want to check if their profile looks this good. The film student should immediately want to contact someone. If both reactions happen within the first 10 seconds, the design is working. If either has to read to understand what the page is — the featured card isn't prominent enough.
+Load the page. Scroll the Three.js hero slowly. If the cards clearly separate in Z-depth (you can see which is in front) the parallax is working. If they look flat, increase the camera parallax multiplier from `1.5` to `2.2`.
+
+Then look at the card grid. Every card should feel like a different person — not a slot in a list. If you can cover the names and still distinguish the cards by color and feel, the identity system is working. If they all feel the same despite the colors, the typography within each card is too uniform — vary the bio length or instrument count.
