@@ -1,32 +1,93 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
 
-import { authOptions } from "@/auth";
+import { requireRole } from "@/lib/auth-guards";
 import { db } from "@/lib/db";
+import {
+  type ActionState,
+  fieldError,
+  isValidEmail,
+  isValidUrlOrEmpty,
+  nonEmptyOrNull,
+  parseCsv,
+  parseOptionalInteger,
+  strOrEmpty,
+} from "@/lib/form-utils";
+import { ensureGenres, ensureInstruments } from "@/lib/tag-utils";
 
-function parseCsv(input: string) {
-  return input
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .map((s) => s.replace(/\s+/g, " "));
+function validateProfile(fd: FormData) {
+  const fieldErrors: Record<string, string> = {};
+  const displayName = strOrEmpty(fd.get("displayName"));
+  const bio = nonEmptyOrNull(fd.get("bio"));
+  const school = nonEmptyOrNull(fd.get("school"));
+  const location = nonEmptyOrNull(fd.get("location"));
+  const isRemote = fd.get("isRemote") === "on";
+  const seekingPaid = fd.get("seekingPaid") === "on";
+  const seekingUnpaid = fd.get("seekingUnpaid") === "on";
+  const yearsExperienceRaw = strOrEmpty(fd.get("yearsExperience"));
+  const yearsExperience = parseOptionalInteger(yearsExperienceRaw);
+  const availabilityText = nonEmptyOrNull(fd.get("availabilityText"));
+  const contactEmail = strOrEmpty(fd.get("contactEmail"));
+  const instruments = parseCsv(fd.get("instrumentsCsv"));
+  const genres = parseCsv(fd.get("genresCsv"));
+  const instagramUrl = nonEmptyOrNull(fd.get("instagramUrl"));
+  const youtubeUrl = nonEmptyOrNull(fd.get("youtubeUrl"));
+  const spotifyUrl = nonEmptyOrNull(fd.get("spotifyUrl"));
+  const soundcloudUrl = nonEmptyOrNull(fd.get("soundcloudUrl"));
+  const websiteUrl = nonEmptyOrNull(fd.get("websiteUrl"));
+
+  if (!displayName) fieldError(fieldErrors, "displayName", "Add the name creators should see.");
+  if (displayName.length > 80) fieldError(fieldErrors, "displayName", "Keep the display name under 80 characters.");
+  if (bio && bio.length > 1200) fieldError(fieldErrors, "bio", "Keep the bio under 1,200 characters.");
+  if (!contactEmail) fieldError(fieldErrors, "contactEmail", "Add a contact email.");
+  if (contactEmail && !isValidEmail(contactEmail)) fieldError(fieldErrors, "contactEmail", "Use a valid email address.");
+  if (!instruments.length) fieldError(fieldErrors, "instrumentsCsv", "Add at least one instrument.");
+  if (!genres.length) fieldError(fieldErrors, "genresCsv", "Add at least one genre.");
+  if (yearsExperienceRaw && yearsExperience === null) fieldError(fieldErrors, "yearsExperience", "Use a whole number.");
+  if (yearsExperience !== null && yearsExperience < 0) fieldError(fieldErrors, "yearsExperience", "Experience cannot be negative.");
+  if (!seekingPaid && !seekingUnpaid) fieldError(fieldErrors, "seekingPaid", "Choose at least one compensation preference.");
+
+  for (const [field, value] of Object.entries({
+    instagramUrl,
+    youtubeUrl,
+    spotifyUrl,
+    soundcloudUrl,
+    websiteUrl,
+  })) {
+    if (!isValidUrlOrEmpty(value)) fieldError(fieldErrors, field, "Use a full http:// or https:// URL.");
+  }
+
+  return {
+    fieldErrors,
+    data: {
+      displayName,
+      bio,
+      school,
+      location,
+      isRemote,
+      seekingPaid,
+      seekingUnpaid,
+      yearsExperience,
+      availabilityText,
+      contactEmail,
+      instruments,
+      genres,
+      instagramUrl,
+      youtubeUrl,
+      spotifyUrl,
+      soundcloudUrl,
+      websiteUrl,
+    },
+  };
 }
 
-function nonEmptyOrNull(value: FormDataEntryValue | null) {
-  const v = typeof value === "string" ? value.trim() : "";
-  return v.length ? v : null;
-}
-
-function strOrEmpty(value: FormDataEntryValue | null) {
-  return typeof value === "string" ? value : "";
-}
-
-export async function updateMusicianProfile(fd: FormData) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/api/auth/signin");
-  if (session.user.role !== "MUSICIAN") redirect("/");
+export async function updateMusicianProfile(
+  _state: ActionState,
+  fd: FormData,
+): Promise<ActionState> {
+  const session = await requireRole("MUSICIAN", "/profile/edit");
 
   const profile = await db.musicianProfile.findUnique({
     where: { userId: session.user.id },
@@ -34,93 +95,58 @@ export async function updateMusicianProfile(fd: FormData) {
   });
   if (!profile) redirect("/profile/create");
 
-  const displayName = strOrEmpty(fd.get("displayName")).trim();
-  const bio = nonEmptyOrNull(fd.get("bio"));
-  const school = nonEmptyOrNull(fd.get("school"));
-  const location = nonEmptyOrNull(fd.get("location"));
-
-  const isRemote = fd.get("isRemote") === "on";
-  const seekingPaid = fd.get("seekingPaid") === "on";
-  const seekingUnpaid = fd.get("seekingUnpaid") === "on";
-
-  const yearsExperienceRaw = strOrEmpty(fd.get("yearsExperience")).trim();
-  const yearsExperience = yearsExperienceRaw.length
-    ? Number.parseInt(yearsExperienceRaw, 10)
-    : null;
-
-  const availabilityText = nonEmptyOrNull(fd.get("availabilityText"));
-  const contactEmail = strOrEmpty(fd.get("contactEmail")).trim();
-
-  const instruments = parseCsv(strOrEmpty(fd.get("instrumentsCsv")));
-  const genres = parseCsv(strOrEmpty(fd.get("genresCsv")));
-
-  const instagramUrl = nonEmptyOrNull(fd.get("instagramUrl"));
-  const youtubeUrl = nonEmptyOrNull(fd.get("youtubeUrl"));
-  const spotifyUrl = nonEmptyOrNull(fd.get("spotifyUrl"));
-  const soundcloudUrl = nonEmptyOrNull(fd.get("soundcloudUrl"));
-  const websiteUrl = nonEmptyOrNull(fd.get("websiteUrl"));
-
-  if (!displayName) throw new Error("Display name is required.");
-  if (!contactEmail) throw new Error("Contact email is required.");
-  if (!instruments.length) throw new Error("At least one instrument required.");
-  if (!genres.length) throw new Error("At least one genre required.");
-  if (yearsExperienceRaw.length && Number.isNaN(yearsExperience)) {
-    throw new Error("Years of experience must be a number.");
+  const parsed = validateProfile(fd);
+  if (Object.keys(parsed.fieldErrors).length) {
+    return {
+      ok: false,
+      message: "Tighten the set before saving.",
+      fieldErrors: parsed.fieldErrors,
+    };
   }
 
+  const data = parsed.data;
   await db.$transaction(async (tx) => {
-    const ensuredInstruments = await Promise.all(
-      instruments.map(async (name) => {
-        const existing = await tx.instrument.findFirst({ where: { name } });
-        return existing ?? tx.instrument.create({ data: { name } });
-      }),
-    );
-    const ensuredGenres = await Promise.all(
-      genres.map(async (name) => {
-        const existing = await tx.genre.findFirst({ where: { name } });
-        return existing ?? tx.genre.create({ data: { name } });
-      }),
-    );
+    const [ensuredInstruments, ensuredGenres] = await Promise.all([
+      ensureInstruments(tx, data.instruments),
+      ensureGenres(tx, data.genres),
+    ]);
 
-    await tx.musicianInstrument.deleteMany({
-      where: { musicianProfileId: profile.id },
-    });
-    await tx.musicianGenre.deleteMany({
-      where: { musicianProfileId: profile.id },
-    });
+    await Promise.all([
+      tx.musicianInstrument.deleteMany({ where: { musicianProfileId: profile.id } }),
+      tx.musicianGenre.deleteMany({ where: { musicianProfileId: profile.id } }),
+    ]);
 
     await tx.musicianProfile.update({
       where: { id: profile.id },
       data: {
-        displayName,
-        bio,
-        school,
-        location,
-        isRemote,
-        seekingPaid,
-        seekingUnpaid,
-        yearsExperience,
-        availabilityText,
-        contactEmail,
-        instagramUrl,
-        youtubeUrl,
-        spotifyUrl,
-        soundcloudUrl,
-        websiteUrl,
+        displayName: data.displayName,
+        bio: data.bio,
+        school: data.school,
+        location: data.location,
+        isRemote: data.isRemote,
+        seekingPaid: data.seekingPaid,
+        seekingUnpaid: data.seekingUnpaid,
+        yearsExperience: data.yearsExperience,
+        availabilityText: data.availabilityText,
+        contactEmail: data.contactEmail,
+        instagramUrl: data.instagramUrl,
+        youtubeUrl: data.youtubeUrl,
+        spotifyUrl: data.spotifyUrl,
+        soundcloudUrl: data.soundcloudUrl,
+        websiteUrl: data.websiteUrl,
         instruments: {
-          create: ensuredInstruments.map((inst) => ({
-            instrumentId: inst.id,
-          })),
+          create: ensuredInstruments.map((inst) => ({ instrumentId: inst.id })),
         },
         genres: {
-          create: ensuredGenres.map((g) => ({
-            genreId: g.id,
-          })),
+          create: ensuredGenres.map((genre) => ({ genreId: genre.id })),
         },
       },
     });
   });
 
+  revalidatePath("/");
+  revalidatePath("/musicians");
+  revalidatePath(`/musicians/${profile.id}`);
   redirect("/profile/edit");
 }
 

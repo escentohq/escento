@@ -16,6 +16,11 @@ type Particle = {
   my: number;
 };
 
+function seededRandom(seed: number) {
+  const value = Math.sin(seed * 12.9898) * 43758.5453;
+  return value - Math.floor(value);
+}
+
 function LightBeam({
   color,
   position,
@@ -68,13 +73,14 @@ function FloatingParticles({ count = 80 }: { count?: number }) {
   const particles = useMemo(() => {
     const temp: Particle[] = [];
     for (let i = 0; i < count; i += 1) {
+      const base = i + 1;
       temp.push({
-        t: Math.random() * 100,
-        factor: 20 + Math.random() * 100,
-        speed: 0.01 + Math.random() / 200,
-        xFactor: -20 + Math.random() * 40,
-        yFactor: -20 + Math.random() * 40,
-        zFactor: -20 + Math.random() * 40,
+        t: seededRandom(base) * 100,
+        factor: 20 + seededRandom(base + 101) * 100,
+        speed: 0.01 + seededRandom(base + 202) / 200,
+        xFactor: -20 + seededRandom(base + 303) * 40,
+        yFactor: -20 + seededRandom(base + 404) * 40,
+        zFactor: -20 + seededRandom(base + 505) * 40,
         mx: 0,
         my: 0,
       });

@@ -15,9 +15,9 @@ export function DeleteGigButton({ gigId }: { gigId: string }) {
         startTransition(() => deleteGig(gigId));
       }}
       disabled={isPending}
-      className="rounded-xl border border-red-900/60 bg-red-950/30 px-3 py-1.5 text-xs font-semibold text-red-300 transition-colors hover:border-red-800 hover:bg-red-950/50 disabled:opacity-50"
+      className="inline-flex h-10 items-center justify-center rounded-full border border-[#FF3366] bg-white px-4 text-xs font-bold tracking-wide text-[#FF3366] transition-colors hover:bg-[#FF3366]/10 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:opacity-50"
     >
-      {isPending ? "Deleting…" : "Delete"}
+      {isPending ? "Deleting..." : "Delete"}
     </button>
   );
 }

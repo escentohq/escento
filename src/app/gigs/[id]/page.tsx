@@ -1,8 +1,16 @@
-import Link from "next/link";
+import { Mail } from "lucide-react";
 import { notFound } from "next/navigation";
 
+import { BackLink } from "@/components/ui/back-link";
+import { Chip } from "@/components/ui/chip";
+import { SectionCard } from "@/components/ui/section-card";
+import { StatusBadge } from "@/components/ui/status-badge";
+import {
+  compensationLabel,
+  formatDate,
+  projectTypeLabel,
+} from "@/lib/display";
 import { db } from "@/lib/db";
-import { Chip, SectionCard } from "../_ui";
 
 function isValidId(id: string) {
   return id.length > 0 && id.length < 64;
@@ -31,125 +39,91 @@ export default async function GigDetailPage({
   const genres = gig.genres.map((x) => x.genre.name);
 
   return (
-    <div className="py-6">
+    <div className="bg-[#FAFAFA] px-6 py-16 md:py-24">
       <div className="mx-auto w-full max-w-6xl">
-        <div className="mb-6">
-          <Link href="/gigs" className="link-back">
-            ← Back to gigs
-          </Link>
+        <div className="mb-8">
+          <BackLink href="/gigs">Back to gigs</BackLink>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
-            <SectionCard title="Gig details">
-              <div className="flex flex-col gap-2">
-                <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
-                  {gig.title}
-                </h1>
-                <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-400">
-                  <span className={gig.status === "CLOSED" ? "badge-status-closed" : "badge-status-open"}>
-                    {gig.status}
-                  </span>
-                  <span>{gig.projectType.replace("_", " ")}</span>
-                  <span className="text-zinc-700">•</span>
-                  <span>
-                    {gig.isRemote ? "Remote option" : gig.location ? gig.location : "Location TBD"}
-                  </span>
-                  <span className="text-zinc-700">•</span>
-                  <span>{gig.compensationType}</span>
-                </div>
+        <div className="grid gap-8 lg:grid-cols-3">
+          <div className="space-y-8 lg:col-span-2">
+            <SectionCard eyebrow="Open call" title={gig.title}>
+              <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-[#475569]">
+                <StatusBadge status={gig.status} />
+                <span>{projectTypeLabel(gig.projectType)}</span>
+                <span className="text-[#CBD5E1]">/</span>
+                <span>{gig.isRemote ? "Remote option" : gig.location || "Location TBD"}</span>
+                <span className="text-[#CBD5E1]">/</span>
+                <span>{compensationLabel(gig.compensationType)}</span>
               </div>
 
-              <div className="mt-5 space-y-4">
+              <div className="mt-8 space-y-8">
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-200">Description</h3>
-                  <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-300">
+                  <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Description</h3>
+                  <p className="mt-3 whitespace-pre-wrap text-base font-medium leading-relaxed text-[#475569]">
                     {gig.description}
                   </p>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-6 md:grid-cols-2">
                   <div>
-                    <h3 className="text-sm font-semibold text-zinc-200">
-                      Instruments needed
-                    </h3>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {instruments.length ? (
-                        instruments.map((name) => (
-                          <Chip key={`inst-${gig.id}-${name}`}>{name}</Chip>
-                        ))
-                      ) : (
-                        <p className="text-sm text-zinc-400">Not specified</p>
-                      )}
+                    <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Instruments needed</h3>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {instruments.length ? instruments.map((name) => <Chip key={name} tone="blue">{name}</Chip>) : <Chip>Not specified</Chip>}
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-zinc-200">
-                      Genres preferred
-                    </h3>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {genres.length ? (
-                        genres.map((name) => (
-                          <Chip key={`gen-${gig.id}-${name}`}>{name}</Chip>
-                        ))
-                      ) : (
-                        <p className="text-sm text-zinc-400">Not specified</p>
-                      )}
+                    <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Genres preferred</h3>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {genres.length ? genres.map((name) => <Chip key={name} tone="pink">{name}</Chip>) : <Chip>Not specified</Chip>}
                     </div>
                   </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <h3 className="text-sm font-semibold text-zinc-200">Compensation</h3>
-                    <p className="mt-2 text-sm text-zinc-300">
-                      {gig.compensationType}
-                      {gig.compensationDetails ? ` — ${gig.compensationDetails}` : ""}
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="rounded-2xl bg-[#F8FAFC] p-5">
+                    <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Compensation</h3>
+                    <p className="mt-2 text-sm font-medium text-[#475569]">
+                      {compensationLabel(gig.compensationType)}
+                      {gig.compensationDetails ? ` / ${gig.compensationDetails}` : ""}
                     </p>
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-zinc-200">Deadline</h3>
-                    <p className="mt-2 text-sm text-zinc-300">
-                      {gig.deadline ? gig.deadline.toLocaleDateString() : "Not specified"}
-                    </p>
+                  <div className="rounded-2xl bg-[#F8FAFC] p-5">
+                    <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Deadline</h3>
+                    <p className="mt-2 text-sm font-medium text-[#475569]">{formatDate(gig.deadline)}</p>
                   </div>
                 </div>
               </div>
             </SectionCard>
           </div>
 
-          <aside className="space-y-6">
-            <SectionCard title="Contact creator">
-              <p className="text-sm text-zinc-300">
-                Interested? Reach out directly (MVP has no in-app messaging).
+          <aside className="space-y-8 lg:sticky lg:top-24 lg:self-start">
+            <SectionCard eyebrow="Connect" title="Contact creator">
+              <p className="text-sm font-medium leading-relaxed text-[#475569]">
+                Interested? Reach out directly. No inbox, no feed, just the next email.
               </p>
 
-              <div className="mt-4 space-y-3">
-                <div className="rounded-xl border border-zinc-800 bg-zinc-950/30 px-3 py-2">
-                  <div className="text-xs text-zinc-500">Creator</div>
-                  <div className="mt-1 text-sm font-semibold text-zinc-100">
+              <div className="mt-5 space-y-3">
+                <div className="rounded-2xl bg-[#F8FAFC] p-4">
+                  <div className="font-mono text-xs uppercase tracking-[0.2em] text-[#64748B]">Creator</div>
+                  <div className="mt-2 text-sm font-black text-[#0F172A]">
                     {gig.creator?.name ?? "Student creator"}
                   </div>
                 </div>
-
-                <div className="rounded-xl border border-zinc-800 bg-zinc-950/30 px-3 py-2">
-                  <div className="text-xs text-zinc-500">Email</div>
-                  <div className="mt-1 text-sm font-semibold text-zinc-100 break-all">
+                <div className="rounded-2xl bg-[#F8FAFC] p-4">
+                  <div className="font-mono text-xs uppercase tracking-[0.2em] text-[#64748B]">Email</div>
+                  <div className="mt-2 break-all text-sm font-black text-[#0F172A]">
                     {gig.creator?.email ?? "Not provided"}
                   </div>
                 </div>
-
-                {gig.creator?.email ? (
-                  <a
-                    href={`mailto:${gig.creator.email}?subject=${encodeURIComponent(
-                      `GigForge: ${gig.title}`,
-                    )}`}
-                    className="inline-flex w-full items-center justify-center rounded-xl bg-violet-500 px-4 py-2 text-sm font-semibold text-zinc-950 shadow-sm hover:bg-violet-400"
-                  >
-                    Contact Creator
-                  </a>
-                ) : null}
               </div>
+
+              {gig.creator?.email ? (
+                <a href={`mailto:${gig.creator.email}?subject=${encodeURIComponent(`GigForge: ${gig.title}`)}`} className="btn-primary mt-5 w-full">
+                  <Mail className="h-4 w-4" aria-hidden />
+                  Contact Creator
+                </a>
+              ) : null}
             </SectionCard>
           </aside>
         </div>

@@ -1,99 +1,80 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
 
-import { authOptions } from "@/auth";
+import { requireRole } from "@/lib/auth-guards";
 import { db } from "@/lib/db";
+import { COMPENSATION_TYPES, PROJECT_TYPES } from "@/lib/display";
+import {
+  type ActionState,
+  fieldError,
+  nonEmptyOrNull,
+  parseCsv,
+  parseOptionalDate,
+  pickEnum,
+  strOrEmpty,
+} from "@/lib/form-utils";
+import { ensureGenres, ensureInstruments } from "@/lib/tag-utils";
 
-function parseCsv(input: string) {
-  return input
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .map((s) => s.replace(/\s+/g, " "));
-}
+export async function createGig(_state: ActionState, fd: FormData): Promise<ActionState> {
+  const session = await requireRole("CREATOR", "/gigs/create");
+  const fieldErrors: Record<string, string> = {};
 
-function nonEmptyOrNull(value: FormDataEntryValue | null) {
-  const v = typeof value === "string" ? value.trim() : "";
-  return v.length ? v : null;
-}
-
-function strOrEmpty(value: FormDataEntryValue | null) {
-  return typeof value === "string" ? value : "";
-}
-
-export async function createGig(fd: FormData) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/api/auth/signin");
-  if (session.user.role !== "CREATOR") redirect("/");
-
-  const title = strOrEmpty(fd.get("title")).trim();
-  const description = strOrEmpty(fd.get("description")).trim();
-  const projectType = strOrEmpty(fd.get("projectType")).trim();
-
+  const title = strOrEmpty(fd.get("title"));
+  const description = strOrEmpty(fd.get("description"));
+  const projectType = pickEnum(fd.get("projectType"), PROJECT_TYPES);
   const location = nonEmptyOrNull(fd.get("location"));
   const isRemote = fd.get("isRemote") === "on";
-
-  const compensationType = strOrEmpty(fd.get("compensationType")).trim();
+  const compensationType = pickEnum(fd.get("compensationType"), COMPENSATION_TYPES);
   const compensationDetails = nonEmptyOrNull(fd.get("compensationDetails"));
+  const deadlineRaw = strOrEmpty(fd.get("deadline"));
+  const deadline = parseOptionalDate(deadlineRaw);
+  const instruments = parseCsv(fd.get("instrumentsCsv"));
+  const genres = parseCsv(fd.get("genresCsv"));
 
-  const deadlineRaw = strOrEmpty(fd.get("deadline")).trim();
-  const deadline = deadlineRaw.length ? new Date(deadlineRaw) : null;
+  if (!title) fieldError(fieldErrors, "title", "Add a title.");
+  if (title.length > 120) fieldError(fieldErrors, "title", "Keep the title under 120 characters.");
+  if (!description) fieldError(fieldErrors, "description", "Add the project details.");
+  if (description.length > 2400) fieldError(fieldErrors, "description", "Keep the description under 2,400 characters.");
+  if (!projectType) fieldError(fieldErrors, "projectType", "Choose a project type.");
+  if (!compensationType) fieldError(fieldErrors, "compensationType", "Choose a compensation type.");
+  if (deadlineRaw && !deadline) fieldError(fieldErrors, "deadline", "Use a valid date.");
 
-  const instruments = parseCsv(strOrEmpty(fd.get("instrumentsCsv")));
-  const genres = parseCsv(strOrEmpty(fd.get("genresCsv")));
-
-  if (!title) throw new Error("Title is required.");
-  if (!description) throw new Error("Description is required.");
-  if (!projectType) throw new Error("Project type is required.");
-  if (!compensationType) throw new Error("Compensation type is required.");
-
-  if (deadlineRaw.length && Number.isNaN(deadline?.getTime())) {
-    throw new Error("Deadline must be a valid date.");
+  if (Object.keys(fieldErrors).length) {
+    return { ok: false, message: "Tighten the set before publishing.", fieldErrors };
   }
 
   const gig = await db.$transaction(async (tx) => {
-    const ensuredInstruments = await Promise.all(
-      instruments.map(async (name) => {
-        const existing = await tx.instrument.findFirst({ where: { name } });
-        return existing ?? tx.instrument.create({ data: { name } });
-      }),
-    );
-  
-    const ensuredGenres = await Promise.all(
-      genres.map(async (name) => {
-        const existing = await tx.genre.findFirst({ where: { name } });
-        return existing ?? tx.genre.create({ data: { name } });
-      }),
-    );
-  
+    const [ensuredInstruments, ensuredGenres] = await Promise.all([
+      ensureInstruments(tx, instruments),
+      ensureGenres(tx, genres),
+    ]);
+
     return tx.gig.create({
       data: {
         creatorId: session.user.id,
         title,
         description,
-        projectType: projectType as never,
+        projectType: projectType!,
         location,
         isRemote,
-        compensationType: compensationType as never,
+        compensationType: compensationType!,
         compensationDetails,
         deadline,
         instruments: {
-          create: ensuredInstruments.map((inst) => ({
-            instrumentId: inst.id,
-          })),
+          create: ensuredInstruments.map((inst) => ({ instrumentId: inst.id })),
         },
         genres: {
-          create: ensuredGenres.map((g) => ({
-            genreId: g.id,
-          })),
+          create: ensuredGenres.map((genre) => ({ genreId: genre.id })),
         },
       },
       select: { id: true },
     });
   });
-  
+
+  revalidatePath("/gigs");
+  revalidatePath("/gigs/manage");
   redirect(`/gigs/${gig.id}`);
 }
 

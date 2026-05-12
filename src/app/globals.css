@@ -10,51 +10,55 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid rgb(139 92 246);
+  outline: 2px solid #0055ff;
   outline-offset: 2px;
 }
 
-/* Shared form and card tokens for consistency */
+::selection {
+  background: #0055ff;
+  color: white;
+}
+
+/* Shared bright stage-light tokens for forms, cards, and route CTAs */
 .input-base {
-  @apply mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5 text-zinc-100 placeholder:text-zinc-500 shadow-sm transition-colors focus:border-violet-500/70 focus:outline-0;
+  @apply mt-2 w-full rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3 text-[#0F172A] placeholder:text-[#94A3B8] shadow-sm transition-colors focus:border-[#0055FF] focus:outline-none focus:ring-2 focus:ring-[#0055FF]/20;
 }
 
 .select-base {
-  @apply mt-2 w-full rounded-xl border border-zinc-800 bg-zinc-950/50 px-3 py-2.5 text-zinc-100 shadow-sm transition-colors focus:border-violet-500/70 focus:outline-0;
+  @apply mt-2 w-full rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3 text-[#0F172A] shadow-sm transition-colors focus:border-[#0055FF] focus:outline-none focus:ring-2 focus:ring-[#0055FF]/20;
 }
 
 .btn-primary {
-  @apply inline-flex items-center justify-center rounded-xl bg-violet-500 px-4 py-2.5 text-sm font-semibold text-zinc-950 shadow-sm transition-colors hover:bg-violet-400 disabled:pointer-events-none disabled:opacity-60;
+  @apply inline-flex h-14 items-center justify-center gap-2 rounded-full bg-[#0F172A] px-8 text-sm font-bold tracking-wide text-white shadow-sm transition-all hover:scale-105 hover:shadow-[0_0_40px_-10px_#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60;
 }
 
 .btn-secondary {
-  @apply inline-flex items-center justify-center rounded-xl border border-zinc-700 px-4 py-2.5 text-sm font-semibold text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-900/50;
+  @apply inline-flex h-14 items-center justify-center gap-2 rounded-full border-2 border-[#E2E8F0] bg-white px-8 text-sm font-bold tracking-wide text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60;
 }
 
 .card {
-  @apply rounded-2xl border border-zinc-800 bg-zinc-950/50 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_4px_24px_rgba(0,0,0,0.4)];
+  @apply rounded-3xl border border-[#F1F5F9] bg-white shadow-sm;
 }
 
 .card-hover {
-  @apply rounded-2xl border border-zinc-800 bg-zinc-950/50 shadow-[0_0_0_1px_rgba(255,255,255,0.02),0_4px_24px_rgba(0,0,0,0.4)] transition-colors hover:border-zinc-700 hover:bg-zinc-950/70;
+  @apply rounded-3xl border border-[#F1F5F9] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-[#0055FF]/10;
 }
 
 /* Status badges for gigs */
 .badge-status-open {
-  @apply rounded-full border border-emerald-900/50 bg-emerald-950/40 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-emerald-200;
+  @apply rounded-full bg-[#0055FF]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0055FF];
 }
 
 .badge-status-closed {
-  @apply rounded-full border border-amber-900/50 bg-amber-950/40 px-2.5 py-1 text-xs font-medium uppercase tracking-wide text-amber-200;
+  @apply rounded-full bg-[#FF3366]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#FF3366];
 }
 
 /* Back / secondary navigation links */
 .link-back {
-  @apply text-sm text-zinc-400 transition-colors hover:text-zinc-200;
+  @apply text-sm font-bold text-[#475569] transition-colors hover:text-[#0055FF];
 }
 
 /* Small secondary action (e.g. Edit, Mark filled) */
 .btn-ghost {
-  @apply rounded-xl border border-zinc-700 px-3 py-1.5 text-xs font-medium text-zinc-200 transition-colors hover:border-zinc-500 hover:bg-zinc-800/50;
+  @apply inline-flex h-10 items-center justify-center rounded-full border border-[#E2E8F0] bg-white px-4 text-xs font-bold tracking-wide text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2;
 }
-

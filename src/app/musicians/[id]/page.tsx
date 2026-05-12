@@ -1,8 +1,10 @@
-import Link from "next/link";
+import { Mail, ExternalLink } from "lucide-react";
 import { notFound } from "next/navigation";
 
+import { BackLink } from "@/components/ui/back-link";
+import { Chip } from "@/components/ui/chip";
+import { SectionCard } from "@/components/ui/section-card";
 import { db } from "@/lib/db";
-import { Chip, SectionCard } from "../_ui";
 
 function isValidId(id: string) {
   return id.length > 0 && id.length < 64;
@@ -28,116 +30,92 @@ export default async function MusicianPublicProfilePage({
 
   const instruments = profile.instruments.map((x) => x.instrument.name);
   const genres = profile.genres.map((x) => x.genre.name);
-
   const links: Array<{ label: string; url: string }> = [
     ...(profile.websiteUrl ? [{ label: "Website", url: profile.websiteUrl }] : []),
     ...(profile.youtubeUrl ? [{ label: "YouTube", url: profile.youtubeUrl }] : []),
-    ...(profile.soundcloudUrl
-      ? [{ label: "SoundCloud", url: profile.soundcloudUrl }]
-      : []),
+    ...(profile.soundcloudUrl ? [{ label: "SoundCloud", url: profile.soundcloudUrl }] : []),
     ...(profile.spotifyUrl ? [{ label: "Spotify", url: profile.spotifyUrl }] : []),
-    ...(profile.instagramUrl
-      ? [{ label: "Instagram", url: profile.instagramUrl }]
-      : []),
+    ...(profile.instagramUrl ? [{ label: "Instagram", url: profile.instagramUrl }] : []),
   ];
 
   return (
-    <div className="py-6">
+    <div className="bg-[#FAFAFA] px-6 py-16 md:py-24">
       <div className="mx-auto w-full max-w-6xl">
-        <div className="mb-6">
-          <Link href="/musicians" className="link-back">
-            ← Back to musicians
-          </Link>
+        <div className="mb-8">
+          <BackLink href="/musicians">Back to musicians</BackLink>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
-            <SectionCard title="Profile">
-              <div className="flex flex-col gap-2">
-                <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
-                  {profile.displayName}
-                </h1>
-                <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-400">
-                  <span>{profile.location ? profile.location : "Location not specified"}</span>
-                  <span className="text-zinc-700">•</span>
-                  <span>{profile.isRemote ? "Remote-friendly" : "In-person only"}</span>
-                </div>
+        <div className="grid gap-8 lg:grid-cols-3">
+          <div className="space-y-8 lg:col-span-2">
+            <SectionCard eyebrow="On stage" title={profile.displayName}>
+              <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-[#475569]">
+                <span>{profile.location || "Location not specified"}</span>
+                <span className="text-[#CBD5E1]">/</span>
+                <span>{profile.isRemote ? "Remote-friendly" : "In-person only"}</span>
+                {profile.school ? (
+                  <>
+                    <span className="text-[#CBD5E1]">/</span>
+                    <span>{profile.school}</span>
+                  </>
+                ) : null}
               </div>
 
-              <div className="mt-5 space-y-4">
+              <div className="mt-8 space-y-8">
                 <div>
-                  <h3 className="text-sm font-semibold text-zinc-200">Bio</h3>
-                  <p className="mt-2 text-sm leading-6 text-zinc-300">
-                    {profile.bio ? profile.bio : "No bio yet."}
+                  <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Bio</h3>
+                  <p className="mt-3 whitespace-pre-wrap text-base font-medium leading-relaxed text-[#475569]">
+                    {profile.bio || "No bio yet."}
                   </p>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-6 md:grid-cols-2">
                   <div>
-                    <h3 className="text-sm font-semibold text-zinc-200">
-                      Instruments
-                    </h3>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {instruments.map((name) => (
-                        <Chip key={`inst-${profile.id}-${name}`}>{name}</Chip>
-                      ))}
+                    <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Instruments</h3>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {instruments.length ? instruments.map((name) => <Chip key={name} tone="blue">{name}</Chip>) : <Chip>No instruments</Chip>}
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-zinc-200">Genres</h3>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {genres.map((name) => (
-                        <Chip key={`gen-${profile.id}-${name}`}>{name}</Chip>
-                      ))}
+                    <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Genres</h3>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {genres.length ? genres.map((name) => <Chip key={name} tone="pink">{name}</Chip>) : <Chip>No genres</Chip>}
                     </div>
                   </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <h3 className="text-sm font-semibold text-zinc-200">
-                      Experience
-                    </h3>
-                    <p className="mt-2 text-sm text-zinc-300">
-                      {profile.yearsExperience !== null &&
-                      profile.yearsExperience !== undefined
-                        ? `${profile.yearsExperience} years`
-                        : "Not specified"}
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="rounded-2xl bg-[#F8FAFC] p-5">
+                    <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Experience</h3>
+                    <p className="mt-2 text-sm font-medium text-[#475569]">
+                      {profile.yearsExperience !== null && profile.yearsExperience !== undefined ? `${profile.yearsExperience} years` : "Not specified"}
                     </p>
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-zinc-200">
-                      Availability
-                    </h3>
-                    <p className="mt-2 text-sm text-zinc-300">
-                      {profile.availabilityText
-                        ? profile.availabilityText
-                        : "Not specified"}
+                  <div className="rounded-2xl bg-[#F8FAFC] p-5">
+                    <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Availability</h3>
+                    <p className="mt-2 text-sm font-medium text-[#475569]">
+                      {profile.availabilityText || "Not specified"}
                     </p>
                   </div>
                 </div>
               </div>
             </SectionCard>
 
-            <SectionCard title="Portfolio links">
+            <SectionCard eyebrow="Links" title="Portfolio">
               {links.length === 0 ? (
-                <p className="text-sm text-zinc-400">No links added yet.</p>
+                <p className="text-sm font-medium text-[#475569]">No links added yet.</p>
               ) : (
-                <ul className="space-y-2">
-                  {links.map((l) => (
-                    <li key={l.label}>
+                <ul className="grid gap-3 md:grid-cols-2">
+                  {links.map((link) => (
+                    <li key={link.label}>
                       <a
-                        href={l.url}
+                        href={link.url}
                         target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 text-sm font-semibold text-violet-300 hover:text-violet-200"
+                        rel="noopener noreferrer"
+                        className="flex min-h-16 items-center justify-between gap-4 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] px-4 text-sm font-bold text-[#0F172A] transition-colors hover:border-[#0055FF] hover:text-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
                       >
-                        {l.label}
-                        <span className="text-zinc-500">↗</span>
+                        <span>{link.label}</span>
+                        <ExternalLink className="h-4 w-4" aria-hidden />
                       </a>
-                      <div className="mt-1 text-xs text-zinc-500 break-all">
-                        {l.url}
-                      </div>
                     </li>
                   ))}
                 </ul>
@@ -145,36 +123,32 @@ export default async function MusicianPublicProfilePage({
             </SectionCard>
           </div>
 
-          <aside className="space-y-6">
-            <SectionCard title="Contact">
-              <p className="text-sm text-zinc-300">
-                Interested in working together?
+          <aside className="space-y-8 lg:sticky lg:top-24 lg:self-start">
+            <SectionCard eyebrow="Connect" title="Contact">
+              <p className="text-sm font-medium leading-relaxed text-[#475569]">
+                Interested in working together? Reach out directly.
               </p>
 
-              <div className="mt-4 space-y-3">
-                <div className="rounded-xl border border-zinc-800 bg-zinc-950/30 px-3 py-2">
-                  <div className="text-xs text-zinc-500">Email</div>
-                  <div className="mt-1 text-sm font-semibold text-zinc-100 break-all">
-                    {profile.contactEmail ?? "Not provided"}
-                  </div>
+              <div className="mt-5 rounded-2xl bg-[#F8FAFC] p-4">
+                <div className="font-mono text-xs uppercase tracking-[0.2em] text-[#64748B]">Email</div>
+                <div className="mt-2 break-all text-sm font-black text-[#0F172A]">
+                  {profile.contactEmail ?? "Not provided"}
                 </div>
-
-                {profile.contactEmail ? (
-                  <a
-                    href={`mailto:${profile.contactEmail}`}
-                    className="inline-flex w-full items-center justify-center rounded-xl bg-violet-500 px-4 py-2 text-sm font-semibold text-zinc-950 shadow-sm hover:bg-violet-400"
-                  >
-                    Contact Musician
-                  </a>
-                ) : null}
               </div>
+
+              {profile.contactEmail ? (
+                <a href={`mailto:${profile.contactEmail}`} className="btn-primary mt-5 w-full">
+                  <Mail className="h-4 w-4" aria-hidden />
+                  Contact Musician
+                </a>
+              ) : null}
             </SectionCard>
 
-            <SectionCard title="Work preferences">
+            <SectionCard eyebrow="Soundcheck" title="Work preferences">
               <div className="flex flex-wrap gap-2">
-                <Chip>{profile.isRemote ? "Remote-friendly" : "In-person"}</Chip>
-                {profile.seekingPaid ? <Chip>Paid</Chip> : null}
-                {profile.seekingUnpaid ? <Chip>Unpaid</Chip> : null}
+                <Chip tone={profile.isRemote ? "blue" : "neutral"}>{profile.isRemote ? "Remote-friendly" : "In person"}</Chip>
+                {profile.seekingPaid ? <Chip tone="gold">Paid</Chip> : null}
+                {profile.seekingUnpaid ? <Chip tone="pink">Unpaid + Credit</Chip> : null}
               </div>
             </SectionCard>
           </aside>

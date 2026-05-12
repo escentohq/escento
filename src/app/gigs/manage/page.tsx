@@ -1,23 +1,24 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
 
-import { authOptions } from "@/auth";
+import { requireRole } from "@/lib/auth-guards";
+import {
+  clampText,
+  compensationLabel,
+  projectTypeLabel,
+  visibleTags,
+} from "@/lib/display";
 import { db } from "@/lib/db";
-import { Chip } from "../_ui";
+import { Chip } from "@/components/ui/chip";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageShell } from "@/components/ui/page-shell";
+import { PrimaryCta } from "@/components/ui/primary-cta";
+import { Reveal } from "@/components/ui/reveal";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { closeGig } from "./actions";
 import { DeleteGigButton } from "./DeleteGigButton";
 
-function clampText(text: string, max = 120) {
-  const t = text.trim();
-  if (t.length <= max) return t;
-  return `${t.slice(0, max - 1).trimEnd()}…`;
-}
-
 export default async function ManageGigsPage() {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/api/auth/signin");
-  if (session.user.role !== "CREATOR") redirect("/");
+  const session = await requireRole("CREATOR", "/gigs/manage");
 
   const gigs = await db.gig.findMany({
     where: { creatorId: session.user.id },
@@ -29,95 +30,70 @@ export default async function ManageGigsPage() {
   });
 
   return (
-    <div className="py-6">
-      <div className="mx-auto w-full max-w-4xl">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
-              Manage your gigs
-            </h1>
-            <p className="mt-2 text-sm text-zinc-400">
-              Edit, close, or delete your posted gigs.
-            </p>
-          </div>
-          <Link href="/gigs/create" className="btn-primary">
-            Post a gig
-          </Link>
-        </header>
+    <PageShell
+      eyebrow="Backstage"
+      title="Manage Gigs"
+      body="Edit listings, mark a role filled, or remove a post when the set is done."
+      action={<PrimaryCta href="/gigs/create">Post a Gig</PrimaryCta>}
+      size="medium"
+    >
+      {gigs.length === 0 ? (
+        <EmptyState
+          eyebrow="Soundcheck"
+          title="You haven't posted anything yet."
+          body="Write the brief, name the sound, and put it in front of musicians."
+          cta={<PrimaryCta href="/gigs/create">Post a Gig</PrimaryCta>}
+        />
+      ) : (
+        <div className="space-y-5">
+          {gigs.map((gig, index) => {
+            const instrumentTags = visibleTags(gig.instruments.map((x) => x.instrument.name));
+            const genreTags = visibleTags(gig.genres.map((x) => x.genre.name));
+            const isClosed = gig.status === "CLOSED";
 
-        <section className="mt-8 space-y-4">
-          {gigs.length === 0 ? (
-            <div className="card flex flex-col items-center justify-center gap-5 p-12 text-center">
-              <p className="max-w-sm text-sm text-zinc-400">You haven’t posted any gigs yet. Post one to find musicians.</p>
-              <Link href="/gigs/create" className="btn-primary">
-                Post a gig
-              </Link>
-            </div>
-          ) : (
-            gigs.map((g) => {
-              const inst = g.instruments.map((x) => x.instrument.name).slice(0, 3);
-              const gen = g.genres.map((x) => x.genre.name).slice(0, 3);
-              const isClosed = g.status === "CLOSED";
+            return (
+              <Reveal key={gig.id} delay={Math.min(index, 6) * 0.04}>
+                <article className="rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm">
+                  <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <h2 className="text-xl font-black tracking-tight text-[#0F172A]">{gig.title}</h2>
+                        <StatusBadge status={gig.status} />
+                      </div>
+                      <p className="mt-2 font-mono text-xs text-[#64748B]">
+                        {projectTypeLabel(gig.projectType)} / {gig.isRemote ? "Remote option" : gig.location || "Location TBD"} / {compensationLabel(gig.compensationType)}
+                      </p>
 
-              return (
-                <div
-                  key={g.id}
-                  className="card flex flex-col gap-4 p-5 sm:flex-row sm:items-start sm:justify-between"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-base font-semibold text-zinc-100">
-                        {g.title}
-                      </h2>
-                      <span className={isClosed ? "badge-status-closed" : "badge-status-open"}>
-                        {g.status}
-                      </span>
+                      <div className="mt-4 flex flex-wrap gap-2">
+                        {instrumentTags.shown.map((name) => <Chip key={`${gig.id}-i-${name}`} tone="blue">{name}</Chip>)}
+                        {instrumentTags.hiddenCount ? <Chip>+{instrumentTags.hiddenCount} more</Chip> : null}
+                        {genreTags.shown.map((name) => <Chip key={`${gig.id}-g-${name}`} tone="pink">{name}</Chip>)}
+                        {genreTags.hiddenCount ? <Chip>+{genreTags.hiddenCount} more</Chip> : null}
+                      </div>
+
+                      <p className="mt-4 text-sm font-medium leading-relaxed text-[#475569]">
+                        {clampText(gig.description, 150)}
+                      </p>
                     </div>
-                    <p className="mt-1 text-xs text-zinc-500">
-                      {g.projectType.replace("_", " ")}
-                      {" · "}
-                      {g.isRemote ? "Remote" : g.location || "Location TBD"}
-                      {" · "}
-                      {g.compensationType}
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {inst.map((n) => (
-                        <Chip key={n}>{n}</Chip>
-                      ))}
-                      {gen.map((n) => (
-                        <Chip key={n}>{n}</Chip>
-                      ))}
-                    </div>
-                    <p className="mt-2 text-sm text-zinc-400">
-                      {clampText(g.description)}
-                    </p>
-                  </div>
 
-                  <div className="flex flex-wrap items-center gap-2 sm:shrink-0">
-                    <Link href={`/gigs/${g.id}/edit`} className="btn-ghost">
-                      Edit
-                    </Link>
-                    {!isClosed && (
-                      <form action={closeGig.bind(null, g.id)} className="inline">
-                        <button type="submit" className="btn-ghost">
-                          Mark filled
-                        </button>
-                      </form>
-                    )}
-                    <DeleteGigButton gigId={g.id} />
-                    <Link
-                      href={`/gigs/${g.id}`}
-                      className="text-sm font-medium text-violet-300 transition-colors hover:text-violet-200"
-                    >
-                      View →
-                    </Link>
+                    <div className="flex flex-wrap items-center gap-2 md:justify-end">
+                      <Link href={`/gigs/${gig.id}/edit`} className="btn-ghost">Edit</Link>
+                      {!isClosed ? (
+                        <form action={closeGig.bind(null, gig.id)} className="inline">
+                          <button type="submit" className="btn-ghost">Mark Filled</button>
+                        </form>
+                      ) : null}
+                      <DeleteGigButton gigId={gig.id} />
+                      <Link href={`/gigs/${gig.id}`} className="btn-ghost">View</Link>
+                    </div>
                   </div>
-                </div>
-              );
-            })
-          )}
-        </section>
-      </div>
-    </div>
+                </article>
+              </Reveal>
+            );
+          })}
+        </div>
+      )}
+    </PageShell>
   );
 }
+

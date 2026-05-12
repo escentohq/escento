@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
 
-import { authOptions } from "@/auth";
+import { PageShell } from "@/components/ui/page-shell";
+import { requireRole } from "@/lib/auth-guards";
 import { db } from "@/lib/db";
 import { GigForm } from "../../_gig-form";
 import { updateGig } from "./actions";
@@ -17,9 +17,7 @@ export default async function EditGigPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/api/auth/signin");
-  if (session.user.role !== "CREATOR") redirect("/");
+  const session = await requireRole("CREATOR", `/gigs/${id}/edit`);
 
   if (!isValidId(id)) redirect("/gigs/manage");
 
@@ -54,30 +52,20 @@ export default async function EditGigPage({
   };
 
   return (
-    <div className="py-6">
-      <div className="mx-auto w-full max-w-3xl">
-        <div className="mb-6">
-          <Link href="/gigs/manage" className="link-back">
-            ← Back to manage gigs
-          </Link>
-        </div>
-        <div className="card p-6">
-          <div className="mb-6">
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
-              Edit gig
-            </h1>
-            <p className="mt-2 text-sm text-zinc-400">
-              Update the details below. Changes are visible immediately.
-            </p>
-          </div>
-          <GigForm
-            initial={initial}
-            action={updateGig.bind(null, id)}
-            submitLabel="Save changes"
-            cancelHref="/gigs/manage"
-          />
-        </div>
-      </div>
-    </div>
+    <PageShell
+      eyebrow="Backstage"
+      title="Edit Gig"
+      body="Update the listing. Changes go live as soon as you save."
+      size="medium"
+      action={<Link href="/gigs/manage" className="btn-secondary">Manage gigs</Link>}
+    >
+      <GigForm
+        initial={initial}
+        action={updateGig.bind(null, id)}
+        submitLabel="Update Gig"
+        pendingLabel="Saving..."
+        cancelHref="/gigs/manage"
+      />
+    </PageShell>
   );
 }

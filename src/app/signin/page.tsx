@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { PageShell } from "@/components/ui/page-shell";
 import { SignInButtons } from "./SignInButtons";
 
 export default async function SignInPage({
@@ -12,23 +13,21 @@ export default async function SignInPage({
     typeof callbackUrl === "string" && callbackUrl.length > 0 ? callbackUrl : "/";
 
   return (
-    <div className="mx-auto max-w-md py-12">
-      <div className="card p-8">
-        <h1 className="text-xl font-semibold tracking-tight text-zinc-50">
-          Sign in to GigForge
-        </h1>
-        <p className="mt-2 text-sm text-zinc-400">
-          Choose a provider to continue. You’ll pick your role (musician or creator) after signing in.
-        </p>
-
+    <PageShell
+      eyebrow="Soundcheck"
+      title="Sign in"
+      body="Choose a provider. You will pick musician or creator after the first sign-in."
+      size="narrow"
+    >
+      <div className="rounded-3xl border border-[#F1F5F9] bg-white p-8 shadow-sm">
         <SignInButtons callbackUrl={base} />
-
-        <p className="mt-6 text-center text-xs text-zinc-500">
-          <Link href="/" className="text-zinc-400 hover:text-zinc-200">
-            ← Back to home
+        <p className="mt-6 text-center text-sm font-bold text-[#475569]">
+          <Link href="/" className="transition-colors hover:text-[#0055FF]">
+            Back to home
           </Link>
         </p>
       </div>
-    </div>
+    </PageShell>
   );
 }
+

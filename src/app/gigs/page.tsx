@@ -1,24 +1,19 @@
 import Link from "next/link";
-import { getServerSession } from "next-auth";
 
-import { authOptions } from "@/auth";
+import { getCurrentSession } from "@/lib/auth-guards";
+import {
+  PROJECT_TYPES,
+  clampText,
+  compensationLabel,
+  projectTypeLabel,
+  visibleTags,
+} from "@/lib/display";
 import { db } from "@/lib/db";
-import { Chip, PrimaryLink } from "./_ui";
-
-function clampText(text: string, max = 160) {
-  const t = text.trim();
-  if (t.length <= max) return t;
-  return `${t.slice(0, max - 1).trimEnd()}…`;
-}
-
-const PROJECT_TYPES = [
-  "FILM",
-  "LIVE_EVENT",
-  "PODCAST",
-  "GAME",
-  "YOUTUBE",
-  "OTHER",
-] as const;
+import { Chip } from "@/components/ui/chip";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageShell } from "@/components/ui/page-shell";
+import { PrimaryCta } from "@/components/ui/primary-cta";
+import { Reveal } from "@/components/ui/reveal";
 
 export default async function GigsPage({
   searchParams,
@@ -26,16 +21,16 @@ export default async function GigsPage({
   searchParams: Promise<{ projectType?: string; instrument?: string; genre?: string }>;
 }) {
   const { projectType, instrument, genre } = await searchParams;
+  const safeProjectType = PROJECT_TYPES.find((type) => type === projectType);
 
-  const [instruments, genres, gigs] = await Promise.all([
+  const [session, instruments, genres, gigs] = await Promise.all([
+    getCurrentSession(),
     db.instrument.findMany({ orderBy: { name: "asc" }, select: { name: true } }),
     db.genre.findMany({ orderBy: { name: "asc" }, select: { name: true } }),
     db.gig.findMany({
       where: {
-        ...(projectType ? { projectType: projectType as never } : {}),
-        ...(instrument
-          ? { instruments: { some: { instrument: { name: instrument } } } }
-          : {}),
+        ...(safeProjectType ? { projectType: safeProjectType } : {}),
+        ...(instrument ? { instruments: { some: { instrument: { name: instrument } } } } : {}),
         ...(genre ? { genres: { some: { genre: { name: genre } } } } : {}),
         status: "OPEN",
       },
@@ -44,173 +39,128 @@ export default async function GigsPage({
         genres: { include: { genre: true } },
       },
       orderBy: { createdAt: "desc" },
+      take: 50,
     }),
   ]);
 
-  const hasFilters = Boolean(projectType || instrument || genre);
-  const session = await getServerSession(authOptions);
+  const hasFilters = Boolean(safeProjectType || instrument || genre);
   const showPostGigCta = !session?.user || session.user.role === "CREATOR";
 
   return (
-    <div className="py-6">
-      <div className="mx-auto w-full max-w-6xl">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
-              Browse Gigs
-            </h1>
-            <p className="mt-2 text-sm text-zinc-400">
-              Discover creative opportunities posted by student creators.
-            </p>
-          </div>
-          {showPostGigCta ? (
-            <PrimaryLink href="/gigs/create">Post a Gig</PrimaryLink>
-          ) : null}
-        </header>
-
-        <div className="card mt-6 p-4">
-          <form method="GET" className="grid gap-3 sm:grid-cols-4" action="/gigs">
-            <label className="text-sm text-zinc-300">
+    <PageShell
+      eyebrow="Open calls"
+      title="Browse Gigs"
+      body="Find student projects looking for sound. Film, podcasts, games, live shows, and everything between."
+      action={showPostGigCta ? <PrimaryCta href="/gigs/create">Post a Gig</PrimaryCta> : null}
+    >
+      <Reveal>
+        <div className="rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm md:p-6">
+          <form method="GET" className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto]" action="/gigs">
+            <label htmlFor="projectType" className="text-sm font-bold text-[#0F172A]">
               Project type
-              <select
-                name="projectType"
-                defaultValue={projectType ?? ""}
-                className="select-base"
-              >
+              <select id="projectType" name="projectType" defaultValue={safeProjectType ?? ""} className="select-base">
                 <option value="">All types</option>
-                {PROJECT_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t.replace("_", " ")}
+                {PROJECT_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {projectTypeLabel(type)}
                   </option>
                 ))}
               </select>
             </label>
 
-            <label className="text-sm text-zinc-300">
+            <label htmlFor="instrument" className="text-sm font-bold text-[#0F172A]">
               Instrument
-              <select
-                name="instrument"
-                defaultValue={instrument ?? ""}
-                className="select-base"
-              >
+              <select id="instrument" name="instrument" defaultValue={instrument ?? ""} className="select-base">
                 <option value="">All instruments</option>
-                {instruments.map((i) => (
-                  <option key={i.name} value={i.name}>
-                    {i.name}
-                  </option>
-                ))}
+                {instruments.map((i) => <option key={i.name} value={i.name}>{i.name}</option>)}
               </select>
             </label>
 
-            <label className="text-sm text-zinc-300">
+            <label htmlFor="genre" className="text-sm font-bold text-[#0F172A]">
               Genre
-              <select
-                name="genre"
-                defaultValue={genre ?? ""}
-                className="select-base"
-              >
+              <select id="genre" name="genre" defaultValue={genre ?? ""} className="select-base">
                 <option value="">All genres</option>
-                {genres.map((g) => (
-                  <option key={g.name} value={g.name}>
-                    {g.name}
-                  </option>
-                ))}
+                {genres.map((g) => <option key={g.name} value={g.name}>{g.name}</option>)}
               </select>
             </label>
 
             <div className="flex items-end gap-3">
-              <button type="submit" className="btn-primary w-full">
+              <button type="submit" className="btn-primary w-full lg:w-auto">
                 Apply
               </button>
               {hasFilters ? (
-                <Link
-                  href="/gigs"
-                  className="whitespace-nowrap text-sm text-zinc-400 transition-colors hover:text-zinc-200"
-                >
+                <Link href="/gigs" className="pb-4 text-sm font-bold text-[#475569] transition-colors hover:text-[#0055FF]">
                   Clear
                 </Link>
               ) : null}
             </div>
           </form>
         </div>
+      </Reveal>
 
-        <section className="mt-8">
-          {gigs.length === 0 ? (
-            <div className="card flex flex-col items-center justify-center gap-5 p-12 text-center">
-              <p className="max-w-sm text-sm text-zinc-400">
-                {hasFilters
-                  ? "No gigs match these filters. Try changing or clearing them."
-                  : "No gigs posted yet. Post one to find musicians."}
-              </p>
-              {hasFilters ? (
-                <Link href="/gigs" className="text-sm font-medium text-violet-300 transition-colors hover:text-violet-200">
-                  Clear filters
-                </Link>
+      <section className="mt-10">
+        {gigs.length === 0 ? (
+          <EmptyState
+            eyebrow={hasFilters ? "No match" : "Soundcheck"}
+            title={hasFilters ? "No gigs match yet." : "No open gigs right now."}
+            body={hasFilters ? "Change the filters and run it back." : "Post one when the project is ready."}
+            cta={
+              hasFilters ? (
+                <Link href="/gigs" className="btn-secondary">Clear filters</Link>
               ) : showPostGigCta ? (
-                <Link href="/gigs/create" className="btn-primary">
-                  Post a gig
-                </Link>
-              ) : null}
-            </div>
-          ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {gigs.map((g) => {
-                const inst = g.instruments.map((x) => x.instrument.name).slice(0, 3);
-                const gen = g.genres.map((x) => x.genre.name).slice(0, 3);
+                <PrimaryCta href="/gigs/create">Post a Gig</PrimaryCta>
+              ) : null
+            }
+          />
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {gigs.map((gig, index) => {
+              const instrumentTags = visibleTags(gig.instruments.map((x) => x.instrument.name));
+              const genreTags = visibleTags(gig.genres.map((x) => x.genre.name));
 
-                return (
-                  <Link
-                    key={g.id}
-                    href={`/gigs/${g.id}`}
-                    className="card-hover group block p-5"
-                  >
-                    <div className="flex items-start justify-between gap-3">
+              return (
+                <Reveal key={gig.id} delay={Math.min(index, 6) * 0.04}>
+                  <Link href={`/gigs/${gig.id}`} className="card-hover group flex h-full flex-col p-6">
+                    <div className="flex items-start justify-between gap-4">
                       <div>
-                        <h3 className="text-base font-semibold text-zinc-100 group-hover:text-white">
-                          {g.title}
-                        </h3>
-                        <p className="mt-1 text-xs text-zinc-500">
-                          {g.projectType.replace("_", " ")}
+                        <h2 className="text-xl font-black tracking-tight text-[#0F172A] group-hover:text-[#0055FF]">
+                          {gig.title}
+                        </h2>
+                        <p className="mt-1 font-mono text-xs text-[#64748B]">
+                          {projectTypeLabel(gig.projectType)}
                         </p>
                       </div>
-                      <span className="rounded-full border border-zinc-800 bg-zinc-950/30 px-2.5 py-1 text-xs text-zinc-200">
-                        {g.compensationType}
-                      </span>
+                      <Chip tone="gold">{compensationLabel(gig.compensationType)}</Chip>
                     </div>
 
-                    <p className="mt-3 text-xs text-zinc-500">
-                      {g.isRemote ? "Remote" : g.location ? g.location : "Location TBD"}
+                    <p className="mt-4 text-sm font-bold text-[#64748B]">
+                      {gig.isRemote ? "Remote option" : gig.location || "Location TBD"}
+                    </p>
+                    <p className="mt-4 text-sm font-medium leading-relaxed text-[#475569]">
+                      {clampText(gig.description, 160)}
                     </p>
 
-                    <div className="mt-4 space-y-3">
+                    <div className="mt-6 space-y-3">
                       <div className="flex flex-wrap gap-2">
-                        {inst.map((name) => (
-                          <Chip key={`i-${g.id}-${name}`}>{name}</Chip>
-                        ))}
+                        {instrumentTags.shown.map((name) => <Chip key={`${gig.id}-i-${name}`} tone="blue">{name}</Chip>)}
+                        {instrumentTags.hiddenCount ? <Chip>+{instrumentTags.hiddenCount} more</Chip> : null}
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {gen.map((name) => (
-                          <Chip key={`g-${g.id}-${name}`}>{name}</Chip>
-                        ))}
+                        {genreTags.shown.map((name) => <Chip key={`${gig.id}-g-${name}`} tone="pink">{name}</Chip>)}
+                        {genreTags.hiddenCount ? <Chip>+{genreTags.hiddenCount} more</Chip> : null}
                       </div>
-                      <p className="text-sm text-zinc-300">
-                        {clampText(g.description, 170)}
-                      </p>
                     </div>
 
-                    <div className="mt-4">
-                      <span className="text-sm font-semibold text-violet-300 group-hover:text-violet-200">
-                        View Gig →
-                      </span>
+                    <div className="mt-auto pt-6 text-sm font-black text-[#0055FF]">
+                      View Gig →
                     </div>
                   </Link>
-                );
-              })}
-            </div>
-          )}
-        </section>
-      </div>
-    </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        )}
+      </section>
+    </PageShell>
   );
 }
-

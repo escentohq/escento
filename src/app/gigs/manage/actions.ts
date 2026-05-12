@@ -1,15 +1,13 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
 
-import { authOptions } from "@/auth";
+import { requireRole } from "@/lib/auth-guards";
 import { db } from "@/lib/db";
 
 async function ensureCreatorOwnsGig(gigId: string) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/api/auth/signin");
-  if (session.user.role !== "CREATOR") redirect("/");
+  const session = await requireRole("CREATOR", "/gigs/manage");
 
   const gig = await db.gig.findUnique({
     where: { id: gigId },
@@ -25,6 +23,9 @@ export async function closeGig(gigId: string) {
     where: { id: gigId },
     data: { status: "CLOSED" },
   });
+  revalidatePath("/gigs");
+  revalidatePath("/gigs/manage");
+  revalidatePath(`/gigs/${gigId}`);
   redirect("/gigs/manage");
 }
 
@@ -35,5 +36,7 @@ export async function deleteGig(gigId: string) {
     await tx.gigGenre.deleteMany({ where: { gigId } });
     await tx.gig.delete({ where: { id: gigId } });
   });
+  revalidatePath("/gigs");
+  revalidatePath("/gigs/manage");
   redirect("/gigs/manage");
 }
