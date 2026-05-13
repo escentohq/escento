@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { SignOutButton } from "@/components/auth/sign-out-button";
+
 type Props = {
   signedIn: boolean;
   email?: string | null;
@@ -44,12 +46,14 @@ export function NavBar({ signedIn, email, role, musicianProfilePath, isCreator }
             <>
               <Link
                 href="/signin"
+                prefetch={false}
                 className="inline-flex min-h-11 items-center rounded-full border-2 border-[#E2E8F0] bg-white px-4 py-2 text-xs font-bold text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
               >
                 Sign in
               </Link>
               <Link
                 href="/signup"
+                prefetch={false}
                 className="hidden min-h-11 items-center rounded-full bg-[#0F172A] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 sm:inline-flex"
               >
                 Sign up
@@ -66,12 +70,7 @@ export function NavBar({ signedIn, email, role, musicianProfilePath, isCreator }
                   </span>
                 )}
               </div>
-              <Link
-                href="/api/auth/signout"
-                className="inline-flex min-h-11 items-center rounded-full border-2 border-[#E2E8F0] px-4 py-2 text-xs font-bold text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
-              >
-                Sign out
-              </Link>
+              <SignOutButton className="inline-flex min-h-11 cursor-pointer items-center rounded-full border-2 border-[#E2E8F0] px-4 py-2 text-xs font-bold text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-70" />
             </>
           )}
         </div>

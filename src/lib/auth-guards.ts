@@ -1,19 +1,57 @@
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
 
-import { authOptions } from "@/auth";
+import { syncAppUserFromAuth } from "@/lib/auth/sync-app-user";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type Role = "MUSICIAN" | "CREATOR";
 
-export async function getCurrentSession() {
-  return getServerSession(authOptions);
+export type AppSession = {
+  user: {
+    id: string;
+    email: string | null;
+    role: string | null;
+  };
+};
+
+export async function getCurrentSession(): Promise<AppSession | null> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user?.email) return null;
+
+  const appUser = await syncAppUserFromAuth(user);
+  return {
+    user: {
+      id: appUser.id,
+      email: appUser.email,
+      role: appUser.role,
+    },
+  };
 }
 
-export async function requireUser(callbackUrl: string) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
+/** Signed in with Supabase; app user synced. Role may still be null (onboarding). */
+export async function requireSignedIn(callbackUrl: string): Promise<AppSession> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user?.email) {
     redirect(`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
   }
+
+  const appUser = await syncAppUserFromAuth(user);
+  return {
+    user: {
+      id: appUser.id,
+      email: appUser.email,
+      role: appUser.role,
+    },
+  };
+}
+
+export async function requireUser(callbackUrl: string): Promise<AppSession> {
+  const session = await requireSignedIn(callbackUrl);
   if (!session.user.role) redirect("/onboarding/role");
   return session;
 }
@@ -23,4 +61,3 @@ export async function requireRole(role: Role, callbackUrl: string) {
   if (session.user.role !== role) redirect("/");
   return session;
 }
-

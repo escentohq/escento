@@ -1,12 +1,11 @@
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
 
-import { authOptions } from "@/auth";
 import { HomeLanding } from "@/components/home/HomeLanding";
+import { getCurrentSession } from "@/lib/auth-guards";
 import { db } from "@/lib/db";
 
 export default async function Home() {
-  const session = await getServerSession(authOptions);
+  const session = await getCurrentSession();
 
   if (session?.user?.id && !session.user.role) {
     redirect("/onboarding/role");
@@ -16,7 +15,7 @@ export default async function Home() {
   const isCreator = session?.user?.role === "CREATOR";
 
   let musicianProfilePath: "/profile/create" | "/profile/edit" | null = null;
-  if (isMusician && session.user?.id) {
+  if (isMusician && session?.user?.id) {
     const existing = await db.musicianProfile.findUnique({
       where: { userId: session.user.id },
       select: { id: true },

@@ -1,46 +1,48 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 
 import { PasswordField } from "@/components/auth/password-field";
-import { checkCredentials } from "./actions";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
-  function submit(formData: FormData) {
+  async function submit(formData: FormData) {
     setMessage(null);
-
-    startTransition(async () => {
-      const email = String(formData.get("email") ?? "");
+    setPending(true);
+    try {
+      const email = String(formData.get("email") ?? "").trim().toLowerCase();
       const password = String(formData.get("password") ?? "");
-      const checked = await checkCredentials(email, password);
-
-      if (!checked.ok) {
-        setMessage(checked.message ?? "Could not sign in.");
+      if (!email || !password) {
+        setMessage("Enter your email and password.");
         return;
       }
 
-      const result = await signIn("credentials", {
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        redirect: false,
-        callbackUrl,
       });
 
-      if (result?.error) {
-        setMessage("Could not sign in. Try again.");
+      if (error) {
+        if (error.message.toLowerCase().includes("invalid login")) {
+          setMessage("That email or password is not right.");
+        } else {
+          setMessage(error.message);
+        }
         return;
       }
 
       router.push(callbackUrl);
       router.refresh();
-    });
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
@@ -72,11 +74,10 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
         autoComplete="current-password"
       />
 
-      <button type="submit" disabled={isPending} className="btn-primary w-full">
-        <span>{isPending ? "Signing in..." : "Sign in"}</span>
+      <button type="submit" disabled={pending} className="btn-primary w-full">
+        <span>{pending ? "Signing in..." : "Sign in"}</span>
         <ArrowRight className="h-4 w-4" aria-hidden />
       </button>
     </form>
   );
 }
-

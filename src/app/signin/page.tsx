@@ -13,11 +13,12 @@ function safeCallbackUrl(callbackUrl?: string) {
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; error?: string }>;
 }) {
-  const { callbackUrl } = await searchParams;
+  const { callbackUrl, error } = await searchParams;
   const base = safeCallbackUrl(callbackUrl);
   const signupHref = `/signup?callbackUrl=${encodeURIComponent(base)}`;
+  const authError = error === "auth";
 
   return (
     <div className="bg-[#FAFAFA] px-4 py-16 sm:px-6 md:py-24">
@@ -40,6 +41,11 @@ export default async function SignInPage({
             aria-hidden
           />
           <div className="relative z-10 space-y-6">
+            {authError ? (
+              <div className="rounded-2xl border border-[#FF3366]/20 bg-[#FF3366]/10 px-4 py-3 text-sm font-bold text-[#B42318]">
+                Something went wrong finishing sign-in. Try again.
+              </div>
+            ) : null}
             <SignInForm callbackUrl={base} />
 
             <div className="flex items-center gap-4">

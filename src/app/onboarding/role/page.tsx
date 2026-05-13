@@ -1,13 +1,12 @@
 import { Music, Video } from "lucide-react";
 import { redirect } from "next/navigation";
 
-import { authOptions } from "@/auth";
-import { PageShell } from "@/components/ui/page-shell";
-import { getServerSession } from "next-auth";
 import { setRole } from "./actions";
+import { PageShell } from "@/components/ui/page-shell";
+import { getCurrentSession } from "@/lib/auth-guards";
 
 export default async function RoleOnboardingPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getCurrentSession();
   if (!session?.user?.id) redirect("/signin?callbackUrl=/onboarding/role");
   if (session.user.role) redirect("/");
 

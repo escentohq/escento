@@ -1,9 +1,8 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
-import { getServerSession } from "next-auth";
 
-import { authOptions } from "@/auth";
+import { getCurrentSession } from "@/lib/auth-guards";
 import { db } from "@/lib/db";
 import { NavBar } from "@/components/ui/nav-bar";
 import { Footer } from "@/components/ui/footer";
@@ -19,10 +18,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions);
+  const session = await getCurrentSession();
 
   let musicianProfilePath: "/profile/create" | "/profile/edit" | null = null;
-  if (session?.user?.role === "MUSICIAN" && session.user.id) {
+  if (session?.user?.role === "MUSICIAN" && session?.user?.id) {
     const existing = await db.musicianProfile.findUnique({
       where: { userId: session.user.id },
       select: { id: true },
