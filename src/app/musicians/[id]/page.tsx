@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { BackLink } from "@/components/ui/back-link";
 import { Chip } from "@/components/ui/chip";
 import { SectionCard } from "@/components/ui/section-card";
-import { db } from "@/lib/db";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { convertSnakeToCamel } from "@/lib/db";
 
 function isValidId(id: string) {
   return id.length > 0 && id.length < 64;
@@ -26,27 +27,27 @@ export default async function MusicianPublicProfilePage({
   const { id } = await params;
   if (!isValidId(id)) notFound();
 
-  const profile = await db.musicianProfile.findUnique({
-    where: { id },
-    include: {
-      instruments: { include: { instrument: true } },
-      genres: { include: { genre: true } },
-    },
-  });
+  const supabase = await createSupabaseServerClient();
+  const { data: profile } = await supabase
+    .from("musician_profile")
+    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .eq("id", id)
+    .single();
 
   if (!profile) notFound();
 
-  const instruments = profile.instruments.map((x) => x.instrument.name);
-  const genres = profile.genres.map((x) => x.genre.name);
+  const profileData = convertSnakeToCamel(profile as Record<string, unknown>) as any;
+  const instruments = (profile.musician_instrument || []).map((x: any) => x.instrument?.name);
+  const genres = (profile.musician_genre || []).map((x: any) => x.genre?.name);
   const links: Array<{ label: string; url: string }> = [
-    ...(profile.websiteUrl ? [{ label: "Website", url: profile.websiteUrl }] : []),
-    ...(profile.youtubeUrl ? [{ label: "YouTube", url: profile.youtubeUrl }] : []),
-    ...(profile.soundcloudUrl ? [{ label: "SoundCloud", url: profile.soundcloudUrl }] : []),
-    ...(profile.spotifyUrl ? [{ label: "Spotify", url: profile.spotifyUrl }] : []),
-    ...(profile.instagramUrl ? [{ label: "Instagram", url: profile.instagramUrl }] : []),
+    ...(profileData.websiteUrl ? [{ label: "Website", url: profileData.websiteUrl }] : []),
+    ...(profileData.youtubeUrl ? [{ label: "YouTube", url: profileData.youtubeUrl }] : []),
+    ...(profileData.soundcloudUrl ? [{ label: "SoundCloud", url: profileData.soundcloudUrl }] : []),
+    ...(profileData.spotifyUrl ? [{ label: "Spotify", url: profileData.spotifyUrl }] : []),
+    ...(profileData.instagramUrl ? [{ label: "Instagram", url: profileData.instagramUrl }] : []),
   ];
 
-  const abbr = initials(profile.displayName);
+  const abbr = initials(profileData.displayName);
 
   return (
     <div className="bg-[#FAFAFA] px-4 py-12 sm:px-6 md:py-16 lg:py-24">
@@ -77,34 +78,34 @@ export default async function MusicianPublicProfilePage({
                   </div>
                   <div className="min-w-0">
                     <h1 className="text-4xl font-black tracking-tight text-[#0F172A] md:text-5xl">
-                      {profile.displayName}
+                      {profileData.displayName}
                     </h1>
                     <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-[#64748B]">
-                      {profile.location && (
+                      {profileData.location && (
                         <span className="inline-flex items-center gap-1.5">
                           <MapPin className="h-3.5 w-3.5" aria-hidden />
-                          {profile.location}
+                          {profileData.location}
                         </span>
                       )}
-                      {profile.school && (
+                      {profileData.school && (
                         <span className="inline-flex items-center gap-1.5">
                           <Music className="h-3.5 w-3.5" aria-hidden />
-                          {profile.school}
+                          {profileData.school}
                         </span>
                       )}
-                      {profile.yearsExperience != null && (
+                      {profileData.yearsExperience != null && (
                         <span className="inline-flex items-center gap-1.5">
                           <Clock className="h-3.5 w-3.5" aria-hidden />
-                          {profile.yearsExperience}y exp
+                          {profileData.yearsExperience}y exp
                         </span>
                       )}
                     </div>
                   </div>
                 </div>
 
-                {profile.bio && (
+                {profileData.bio && (
                   <p className="mt-7 whitespace-pre-wrap text-base font-medium leading-relaxed text-[#475569]">
-                    {profile.bio}
+                    {profileData.bio}
                   </p>
                 )}
 

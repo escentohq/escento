@@ -97,11 +97,11 @@ export const db = {
     findUnique: async (query: { where: Record<string, unknown>; include?: Record<string, boolean>; select?: Record<string, boolean> }) => {
       const supabase = await createSupabaseServerClient();
       const [whereKey, whereValue] = Object.entries(query.where)[0];
-      const column = whereKey === "userId" ? "user_id" : whereKey;
+      const whereKeySnake = whereKey === "userId" ? "user_id" : whereKey.replace(/([A-Z])/g, "_$1").toLowerCase();
 
       let selectStr = "*";
       if (query.select) {
-        selectStr = Object.keys(query.select).join(",");
+        selectStr = Object.keys(query.select).map(k => k.replace(/([A-Z])/g, "_$1").toLowerCase()).join(",");
       } else if (query.include) {
         if (query.include.instruments) selectStr += ", musician_instrument(*)";
         if (query.include.genres) selectStr += ", musician_genre(*)";
@@ -111,11 +111,12 @@ export const db = {
       const { data, error } = await supabase
         .from("musician_profile")
         .select(selectStr)
-        .eq(column, whereValue)
+        .eq(whereKeySnake, whereValue)
         .single();
 
       if (error && error.code !== "PGRST116") throw error;
-      return data || null;
+      if (!data) return null;
+      return toCamelCase(data as unknown as Record<string, unknown>);
     },
 
     findMany: async (query?: { where?: Record<string, unknown>; include?: Record<string, boolean>; orderBy?: Record<string, string> }) => {
@@ -307,7 +308,8 @@ export const db = {
         .single();
 
       if (error && error.code !== "PGRST116") throw error;
-      return data ? toCamelCase(data as Record<string, unknown>) : null;
+      if (!data) return null;
+      return toCamelCase(data as unknown as Record<string, unknown>);
     },
 
     findMany: async (query?: { where?: Record<string, unknown>; include?: Record<string, boolean> }) => {

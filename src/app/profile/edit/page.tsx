@@ -2,27 +2,28 @@ import { redirect } from "next/navigation";
 
 import { PageShell } from "@/components/ui/page-shell";
 import { requireRole } from "@/lib/auth-guards";
-import { db } from "@/lib/db";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { convertSnakeToCamel } from "@/lib/db";
 import { ProfileForm } from "../_profile-form";
 import { updateMusicianProfile } from "./actions";
 
 export default async function EditProfilePage() {
   const session = await requireRole("MUSICIAN", "/profile/edit");
+  const supabase = await createSupabaseServerClient();
 
-  const profile = await db.musicianProfile.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      instruments: { include: { instrument: true } },
-      genres: { include: { genre: true } },
-    },
-  });
+  const { data: profile } = await supabase
+    .from("musician_profile")
+    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .eq("user_id", session.user.id)
+    .single();
 
   if (!profile) redirect("/profile/create");
 
-  const instrumentsCsv = profile.instruments
-    .map((x) => x.instrument.name)
+  const profileData = convertSnakeToCamel(profile as Record<string, unknown>) as any;
+  const instrumentsCsv = (profile.musician_instrument || [])
+    .map((x: any) => x.instrument?.name)
     .join(", ");
-  const genresCsv = profile.genres.map((x) => x.genre.name).join(", ");
+  const genresCsv = (profile.musician_genre || []).map((x: any) => x.genre?.name).join(", ");
 
   return (
     <PageShell
@@ -34,24 +35,24 @@ export default async function EditProfilePage() {
       <ProfileForm
         mode="edit"
         initial={{
-          displayName: profile.displayName,
-          bio: profile.bio ?? "",
-          school: profile.school ?? "",
-          location: profile.location ?? "",
-          isRemote: profile.isRemote,
-          seekingPaid: profile.seekingPaid,
-          seekingUnpaid: profile.seekingUnpaid,
+          displayName: profileData.displayName,
+          bio: profileData.bio ?? "",
+          school: profileData.school ?? "",
+          location: profileData.location ?? "",
+          isRemote: profileData.isRemote,
+          seekingPaid: profileData.seekingPaid,
+          seekingUnpaid: profileData.seekingUnpaid,
           yearsExperience:
-            profile.yearsExperience === null || profile.yearsExperience === undefined
+            profileData.yearsExperience === null || profileData.yearsExperience === undefined
               ? ""
-              : String(profile.yearsExperience),
-          availabilityText: profile.availabilityText ?? "",
-          contactEmail: profile.contactEmail ?? "",
-          instagramUrl: profile.instagramUrl ?? "",
-          youtubeUrl: profile.youtubeUrl ?? "",
-          spotifyUrl: profile.spotifyUrl ?? "",
-          soundcloudUrl: profile.soundcloudUrl ?? "",
-          websiteUrl: profile.websiteUrl ?? "",
+              : String(profileData.yearsExperience),
+          availabilityText: profileData.availabilityText ?? "",
+          contactEmail: profileData.contactEmail ?? "",
+          instagramUrl: profileData.instagramUrl ?? "",
+          youtubeUrl: profileData.youtubeUrl ?? "",
+          spotifyUrl: profileData.spotifyUrl ?? "",
+          soundcloudUrl: profileData.soundcloudUrl ?? "",
+          websiteUrl: profileData.websiteUrl ?? "",
           instrumentsCsv,
           genresCsv,
         }}

@@ -25,11 +25,11 @@ export default async function GigsPage({
   const supabase = await createSupabaseServerClient();
 
   const session = await getCurrentSession();
-  const { data: instruments } = await supabase
+  const { data: instrumentsData } = await supabase
     .from("instrument")
     .select("name")
     .order("name", { ascending: true });
-  const { data: genres } = await supabase
+  const { data: genresData } = await supabase
     .from("genre")
     .select("name")
     .order("name", { ascending: true });
@@ -39,6 +39,9 @@ export default async function GigsPage({
     .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
     .eq("status", "OPEN")
     .order("created_at", { ascending: false });
+
+  const instruments = instrumentsData || [];
+  const genres = genresData || [];
 
   const gigs = (allGigs || [])
     .filter((g: any) => !safeProjectType || g.project_type === safeProjectType)

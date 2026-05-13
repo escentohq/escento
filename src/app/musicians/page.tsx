@@ -18,11 +18,11 @@ export default async function MusiciansPage({
   const supabase = await createSupabaseServerClient();
 
   const session = await getCurrentSession();
-  const { data: instruments } = await supabase
+  const { data: instrumentsData } = await supabase
     .from("instrument")
     .select("name")
     .order("name", { ascending: true });
-  const { data: genres } = await supabase
+  const { data: genresData } = await supabase
     .from("genre")
     .select("name")
     .order("name", { ascending: true });
@@ -31,6 +31,9 @@ export default async function MusiciansPage({
     .from("musician_profile")
     .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
     .order("updated_at", { ascending: false });
+
+  const instruments = instrumentsData || [];
+  const genres = genresData || [];
 
   const profiles = (allProfiles || [])
     .filter((p: any) => !instrument || p.musician_instrument?.some((mi: any) => mi.instrument?.name === instrument))

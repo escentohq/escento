@@ -8,12 +8,15 @@ import { db } from "@/lib/db";
 
 async function ensureCreatorOwnsGig(gigId: string) {
   const session = await requireRole("CREATOR", "/gigs/manage");
+  const supabase = await (await import("@/lib/supabase/server")).createSupabaseServerClient();
 
-  const gig = await db.gig.findUnique({
-    where: { id: gigId },
-    select: { creatorId: true },
-  });
-  if (!gig || gig.creatorId !== session.user.id) redirect("/gigs/manage");
+  const { data: gig } = await supabase
+    .from("gig")
+    .select("creator_id")
+    .eq("id", gigId)
+    .single();
+
+  if (!gig || gig.creator_id !== session.user.id) redirect("/gigs/manage");
   return session;
 }
 
@@ -31,11 +34,16 @@ export async function closeGig(gigId: string) {
 
 export async function deleteGig(gigId: string) {
   await ensureCreatorOwnsGig(gigId);
-  await db.$transaction(async (tx) => {
-    await tx.gigInstrument.deleteMany({ where: { gigId } });
-    await tx.gigGenre.deleteMany({ where: { gigId } });
-    await tx.gig.delete({ where: { id: gigId } });
-  });
+  const supabase = await (await import("@/lib/supabase/server")).createSupabaseServerClient();
+
+  // Delete in order: relationships first, then gig
+  await Promise.all([
+    supabase.from("gig_instrument").delete().eq("gig_id", gigId),
+    supabase.from("gig_genre").delete().eq("gig_id", gigId),
+  ]);
+
+  await supabase.from("gig").delete().eq("id", gigId);
+
   revalidatePath("/gigs");
   revalidatePath("/gigs/manage");
   redirect("/gigs/manage");
