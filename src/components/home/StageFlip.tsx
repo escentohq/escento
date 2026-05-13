@@ -44,7 +44,7 @@ const GIG = {
     { icon: Clock, label: "Deadline", value: "3 weeks" },
   ] as const,
   chips: ["Strings", "Piano"],
-  mailSubject: "GigForge: Composer for 10-minute thesis short.",
+  mailSubject: "Motivo: Composer for 10-minute thesis short.",
 };
 
 // ── Sub-components ─────────────────────────────────────────────────────────────

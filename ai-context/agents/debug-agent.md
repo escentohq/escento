@@ -1,4 +1,4 @@
-# Debug Agent — GigForge
+# Debug Agent — Motivo
 
 > Read-only. Diagnose only. Propose fixes. Do NOT write code unless user explicitly says "fix it".
 > Read these files before starting:

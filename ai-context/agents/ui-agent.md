@@ -1,4 +1,4 @@
-# UI Agent — GigForge
+# UI Agent — Motivo
 
 > You build pages and components. You do NOT touch Prisma schema, auth, or server actions.
 > Read these files before writing a single line:

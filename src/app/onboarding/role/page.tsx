@@ -15,7 +15,7 @@ export default async function RoleOnboardingPage() {
     <PageShell
       eyebrow="Soundcheck"
       title="Choose your role"
-      body="Pick the side you are using today. GigForge keeps the tools focused around that choice."
+      body="Pick the side you are using today. Motivo keeps the tools focused around that choice."
       size="medium"
     >
       <div className="grid gap-5 md:grid-cols-2">

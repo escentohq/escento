@@ -1,4 +1,4 @@
-import { Mail, ExternalLink } from "lucide-react";
+import { ExternalLink, Mail, MapPin, Clock, Music } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { BackLink } from "@/components/ui/back-link";
@@ -8,6 +8,14 @@ import { db } from "@/lib/db";
 
 function isValidId(id: string) {
   return id.length > 0 && id.length < 64;
+}
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((n) => n[0]?.toUpperCase() ?? "")
+    .join("");
 }
 
 export default async function MusicianPublicProfilePage({
@@ -38,72 +46,119 @@ export default async function MusicianPublicProfilePage({
     ...(profile.instagramUrl ? [{ label: "Instagram", url: profile.instagramUrl }] : []),
   ];
 
+  const abbr = initials(profile.displayName);
+
   return (
-    <div className="bg-[#FAFAFA] px-4 py-12 sm:px-6 md:py-18 lg:py-24">
+    <div className="bg-[#FAFAFA] px-4 py-12 sm:px-6 md:py-16 lg:py-24">
       <div className="mx-auto w-full max-w-6xl">
         <div className="mb-8">
           <BackLink href="/musicians">Back to musicians</BackLink>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-3">
+          {/* ── Main column ── */}
           <div className="space-y-8 lg:col-span-2">
-            <SectionCard eyebrow="On stage" title={profile.displayName}>
-              <div className="flex min-w-0 flex-wrap items-center gap-2 text-sm font-medium text-[#475569]">
-                <span>{profile.location || "Location not specified"}</span>
-                <span className="text-[#CBD5E1]">/</span>
-                <span>{profile.isRemote ? "Remote-friendly" : "In-person only"}</span>
-                {profile.school ? (
-                  <>
-                    <span className="text-[#CBD5E1]">/</span>
-                    <span>{profile.school}</span>
-                  </>
-                ) : null}
-              </div>
 
-              <div className="mt-8 space-y-8">
-                <div>
-                  <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Bio</h3>
-                  <p className="mt-3 whitespace-pre-wrap text-base font-medium leading-relaxed text-[#475569]">
-                    {profile.bio || "No bio yet."}
+            {/* Cinematic profile header */}
+            <div className="relative overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white p-8 shadow-sm">
+              <div
+                className="pointer-events-none absolute right-0 top-0 h-56 w-56 rounded-bl-full bg-linear-to-br from-[#0055FF]/6 to-transparent"
+                aria-hidden
+              />
+
+              <div className="relative z-10">
+                <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
+                  On stage
+                </span>
+
+                <div className="mt-5 flex flex-wrap items-center gap-5">
+                  <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-linear-to-br from-[#0055FF]/25 via-[#FF3366]/20 to-[#FFB000]/25 text-xl font-black text-[#0F172A] ring-4 ring-[#F1F5F9]">
+                    {abbr}
+                  </div>
+                  <div className="min-w-0">
+                    <h1 className="text-4xl font-black tracking-tight text-[#0F172A] md:text-5xl">
+                      {profile.displayName}
+                    </h1>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-[#64748B]">
+                      {profile.location && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5" aria-hidden />
+                          {profile.location}
+                        </span>
+                      )}
+                      {profile.school && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Music className="h-3.5 w-3.5" aria-hidden />
+                          {profile.school}
+                        </span>
+                      )}
+                      {profile.yearsExperience != null && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5" aria-hidden />
+                          {profile.yearsExperience}y exp
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {profile.bio && (
+                  <p className="mt-7 whitespace-pre-wrap text-base font-medium leading-relaxed text-[#475569]">
+                    {profile.bio}
                   </p>
-                </div>
+                )}
 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="mt-8 grid gap-6 md:grid-cols-2">
                   <div>
-                    <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Instruments</h3>
-                    <div className="mt-3 flex min-w-0 flex-wrap gap-2">
-                      {instruments.length ? instruments.map((name) => <Chip key={name} tone="blue">{name}</Chip>) : <Chip>No instruments</Chip>}
+                    <h2 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+                      Instruments
+                    </h2>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {instruments.length
+                        ? instruments.map((name) => <Chip key={name} tone="blue">{name}</Chip>)
+                        : <Chip>No instruments listed</Chip>}
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Genres</h3>
-                    <div className="mt-3 flex min-w-0 flex-wrap gap-2">
-                      {genres.length ? genres.map((name) => <Chip key={name} tone="pink">{name}</Chip>) : <Chip>No genres</Chip>}
+                    <h2 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+                      Genres
+                    </h2>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {genres.length
+                        ? genres.map((name) => <Chip key={name} tone="pink">{name}</Chip>)
+                        : <Chip>No genres listed</Chip>}
                     </div>
                   </div>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2">
+                <div className="mt-6 grid gap-4 md:grid-cols-2">
                   <div className="rounded-2xl bg-[#F8FAFC] p-5">
-                    <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Experience</h3>
-                    <p className="mt-2 text-sm font-medium text-[#475569]">
-                      {profile.yearsExperience !== null && profile.yearsExperience !== undefined ? `${profile.yearsExperience} years` : "Not specified"}
+                    <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+                      Availability
                     </p>
-                  </div>
-                  <div className="rounded-2xl bg-[#F8FAFC] p-5">
-                    <h3 className="text-sm font-black uppercase tracking-wider text-[#0F172A]">Availability</h3>
-                    <p className="mt-2 text-sm font-medium text-[#475569]">
+                    <p className="mt-2 text-sm font-bold text-[#0F172A]">
                       {profile.availabilityText || "Not specified"}
                     </p>
                   </div>
+                  <div className="rounded-2xl bg-[#F8FAFC] p-5">
+                    <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+                      Work style
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <Chip tone={profile.isRemote ? "blue" : "neutral"}>
+                        {profile.isRemote ? "Remote-friendly" : "In person"}
+                      </Chip>
+                      {profile.seekingPaid && <Chip tone="gold">Paid</Chip>}
+                      {profile.seekingUnpaid && <Chip tone="pink">Unpaid + Credit</Chip>}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </SectionCard>
+            </div>
 
-            <SectionCard eyebrow="Links" title="Portfolio">
-              {links.length === 0 ? (
-                <p className="text-sm font-medium text-[#475569]">No links added yet.</p>
-              ) : (
+            {/* Portfolio links */}
+            {links.length > 0 && (
+              <SectionCard eyebrow="Links" title="Portfolio">
                 <ul className="grid gap-3 md:grid-cols-2">
                   {links.map((link) => (
                     <li key={link.label}>
@@ -111,44 +166,64 @@ export default async function MusicianPublicProfilePage({
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex min-h-16 items-center justify-between gap-4 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] px-4 text-sm font-bold text-[#0F172A] transition-colors hover:border-[#0055FF] hover:text-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                        className="flex min-h-16 cursor-pointer items-center justify-between gap-4 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] px-4 text-sm font-bold text-[#0F172A] transition-all duration-200 hover:border-[#0055FF] hover:text-[#0055FF] hover:shadow-sm focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
                       >
                         <span>{link.label}</span>
-                        <ExternalLink className="h-4 w-4" aria-hidden />
+                        <ExternalLink className="h-4 w-4 flex-shrink-0" aria-hidden />
                       </a>
                     </li>
                   ))}
                 </ul>
-              )}
-            </SectionCard>
+              </SectionCard>
+            )}
           </div>
 
-          <aside className="space-y-8 lg:sticky lg:top-24 lg:self-start">
-            <SectionCard eyebrow="Connect" title="Contact">
-              <p className="text-sm font-medium leading-relaxed text-[#475569]">
-                Interested in working together? Reach out directly.
-              </p>
+          {/* ── Sidebar ── */}
+          <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
+            {/* Contact card — dark */}
+            <div className="relative overflow-hidden rounded-3xl bg-[#0F172A] p-8 text-white shadow-sm">
+              <div
+                className="pointer-events-none absolute right-0 top-0 h-32 w-32 rounded-bl-full bg-linear-to-br from-[#0055FF]/20 to-transparent"
+                aria-hidden
+              />
+              <div className="relative z-10">
+                <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
+                  Connect
+                </span>
+                <h2 className="mt-3 text-2xl font-black tracking-tight">Contact</h2>
+                <p className="mt-3 text-sm font-medium leading-relaxed text-[#94A3B8]">
+                  Interested in working together? Reach out directly.
+                </p>
 
-              <div className="mt-5 rounded-2xl bg-[#F8FAFC] p-4">
-                <div className="font-mono text-xs uppercase tracking-[0.2em] text-[#64748B]">Email</div>
-                <div className="mt-2 break-all text-sm font-black text-[#0F172A]">
-                  {profile.contactEmail ?? "Not provided"}
+                <div className="mt-6 rounded-2xl bg-[#1E293B] p-4">
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748B]">
+                    Email
+                  </p>
+                  <p className="mt-2 break-all text-sm font-bold text-white">
+                    {profile.contactEmail ?? "Not provided"}
+                  </p>
                 </div>
+
+                {profile.contactEmail && (
+                  <a
+                    href={`mailto:${profile.contactEmail}`}
+                    className="group mt-5 flex w-full cursor-pointer items-center justify-between rounded-2xl bg-[#0055FF] px-5 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#0044DD] focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+                  >
+                    <span>Contact Musician</span>
+                    <Mail className="h-4 w-4" aria-hidden />
+                  </a>
+                )}
               </div>
+            </div>
 
-              {profile.contactEmail ? (
-                <a href={`mailto:${profile.contactEmail}`} className="btn-primary mt-5 w-full">
-                  <Mail className="h-4 w-4" aria-hidden />
-                  Contact Musician
-                </a>
-              ) : null}
-            </SectionCard>
-
+            {/* Work prefs */}
             <SectionCard eyebrow="Soundcheck" title="Work preferences">
               <div className="flex flex-wrap gap-2">
-                <Chip tone={profile.isRemote ? "blue" : "neutral"}>{profile.isRemote ? "Remote-friendly" : "In person"}</Chip>
-                {profile.seekingPaid ? <Chip tone="gold">Paid</Chip> : null}
-                {profile.seekingUnpaid ? <Chip tone="pink">Unpaid + Credit</Chip> : null}
+                <Chip tone={profile.isRemote ? "blue" : "neutral"}>
+                  {profile.isRemote ? "Remote-friendly" : "In person"}
+                </Chip>
+                {profile.seekingPaid && <Chip tone="gold">Paid</Chip>}
+                {profile.seekingUnpaid && <Chip tone="pink">Unpaid + Credit</Chip>}
               </div>
             </SectionCard>
           </aside>

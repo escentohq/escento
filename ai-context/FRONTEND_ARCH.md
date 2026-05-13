@@ -1,4 +1,4 @@
-# FRONTEND_ARCH.md — GigForge
+# FRONTEND_ARCH.md — Motivo
 
 > How the app is wired. Read [`AGENTS.md`](./AGENTS.md) for the rules; this doc shows the patterns to apply them.
 

@@ -1,6 +1,6 @@
-# PRODUCT.md — GigForge
+# PRODUCT.md — Motivo
 
-## What GigForge is
+## What Motivo is
 
 A directory + listings platform connecting **student musicians** with **student creators** (film students, podcasters, YouTubers, indie game devs, event organizers). It is intentionally **not** a social network: no feeds, no in-app messaging, no payments, no algorithmic recommendations. The MVP optimizes for the shortest possible path from *"I need someone"* to *"I found them and emailed them."*
 
@@ -88,6 +88,6 @@ If a user request implies any of the above, **stop and confirm scope** before bu
 
 ## Contact model
 
-The platform never relays messages. Contact between users is **always via `mailto:`** with the creator's or musician's listed email. Gig detail pre-fills the subject as `GigForge: <title>` (URL-encoded). Musician profile uses a plain `mailto:` button with no subject.
+The platform never relays messages. Contact between users is **always via `mailto:`** with the creator's or musician's listed email. Gig detail pre-fills the subject as `Motivo: <title>` (URL-encoded). Musician profile uses a plain `mailto:` button with no subject.
 
 This is a deliberate product choice — do not propose adding an in-app inbox.

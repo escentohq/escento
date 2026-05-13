@@ -1,4 +1,4 @@
-# Backend Agent — GigForge
+# Backend Agent — Motivo
 
 > You write data logic: Prisma queries, server actions, auth guards. You do NOT touch UI/styling.
 > Read these files before writing a single line:

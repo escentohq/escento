@@ -1,4 +1,4 @@
-# UX_RULES.md — GigForge
+# UX_RULES.md — Motivo
 
 > Interaction, state, and accessibility rules. Read [`DESIGN.md`](./DESIGN.md) first for the visual tokens these rules reference.
 

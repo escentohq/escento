@@ -74,11 +74,17 @@ export default async function MusiciansPage({
             </label>
 
             <div className="flex flex-col gap-3 md:col-span-2 md:flex-row md:items-end lg:col-span-1">
-              <button type="submit" className="btn-primary w-full md:w-auto">
+              <button
+                type="submit"
+                className="inline-flex min-h-14 cursor-pointer items-center justify-center rounded-full bg-[#0F172A] px-8 text-sm font-bold tracking-wide text-white transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_-8px_#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+              >
                 Apply
               </button>
               {hasFilters ? (
-                <Link href="/musicians" className="inline-flex min-h-11 items-center justify-center text-sm font-bold text-[#475569] transition-colors hover:text-[#0055FF] md:justify-start md:pb-1">
+                <Link
+                  href="/musicians"
+                  className="inline-flex min-h-11 cursor-pointer items-center justify-center text-sm font-bold text-[#475569] transition-colors hover:text-[#0055FF] md:justify-start md:pb-1"
+                >
                   Clear
                 </Link>
               ) : null}
@@ -111,26 +117,39 @@ export default async function MusiciansPage({
 
               return (
                 <Reveal key={profile.id} delay={Math.min(index, 6) * 0.04}>
-                  <Link href={`/musicians/${profile.id}`} className="card-hover group flex h-full min-w-0 flex-col p-5 sm:p-6">
-                    <div className="flex min-w-0 items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <h2 className="break-words text-xl font-black tracking-tight text-[#0F172A] group-hover:text-[#0055FF]">
-                          {profile.displayName}
-                        </h2>
-                        <p className="mt-1 font-mono text-xs text-[#64748B]">
-                          {profile.location || "Location not specified"}
-                        </p>
+                  <Link
+                    href={`/musicians/${profile.id}`}
+                    className="group relative flex h-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl hover:shadow-[#0055FF]/10 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                  >
+                    <div
+                      className="pointer-events-none absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-linear-to-br from-[#0055FF]/6 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                      aria-hidden
+                    />
+
+                    <div className="relative z-10 flex min-w-0 items-start justify-between gap-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-linear-to-br from-[#0055FF]/15 via-[#FF3366]/10 to-[#FFB000]/15 text-sm font-black text-[#0F172A]">
+                          {profile.displayName.split(" ").slice(0, 2).map((n) => n[0]).join("")}
+                        </div>
+                        <div className="min-w-0">
+                          <h2 className="break-words text-lg font-black tracking-tight text-[#0F172A] transition-colors group-hover:text-[#0055FF]">
+                            {profile.displayName}
+                          </h2>
+                          <p className="mt-0.5 font-mono text-xs text-[#64748B]">
+                            {profile.location || "Location not specified"}
+                          </p>
+                        </div>
                       </div>
                       <Chip tone={profile.isRemote ? "blue" : "neutral"}>
                         {profile.isRemote ? "Remote" : "In person"}
                       </Chip>
                     </div>
 
-                    <p className="mt-5 text-sm font-medium leading-relaxed text-[#475569]">
+                    <p className="relative z-10 mt-5 text-sm font-medium leading-relaxed text-[#475569]">
                       {profile.bio ? clampText(profile.bio, 150) : "No bio yet."}
                     </p>
 
-                    <div className="mt-6 space-y-3">
+                    <div className="relative z-10 mt-5 space-y-2">
                       <div className="flex flex-wrap gap-2">
                         {instrumentTags.shown.map((name) => (
                           <Chip key={`${profile.id}-i-${name}`} tone="blue">{name}</Chip>
@@ -145,7 +164,7 @@ export default async function MusiciansPage({
                       </div>
                     </div>
 
-                    <div className="mt-auto pt-6 text-sm font-black text-[#0055FF]">
+                    <div className="relative z-10 mt-auto pt-6 text-sm font-black text-[#0055FF] transition-colors group-hover:text-[#0044DD]">
                       View Profile →
                     </div>
                   </Link>

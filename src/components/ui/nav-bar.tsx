@@ -32,7 +32,7 @@ export function NavBar({ signedIn, email, role, musicianProfilePath, isCreator }
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:py-4">
         <div className="flex min-w-0 items-center gap-8">
           <Link href="/" className="text-base font-black tracking-tight text-[#0F172A]">
-            GigForge
+            Motivo
           </Link>
           <div className="hidden items-center gap-6 text-sm font-bold text-[#475569] lg:flex">
             {appLinks}

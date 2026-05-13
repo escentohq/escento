@@ -7,7 +7,7 @@ export function Footer() {
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
           <div className="flex flex-wrap items-center justify-center gap-2 text-center md:justify-start">
             <span className="text-lg font-black tracking-tight text-[#0F172A]">
-              GigForge
+              Motivo
             </span>
             <span className="text-sm font-medium text-[#64748B]">
               &copy; {new Date().getFullYear()}

@@ -10,9 +10,9 @@ import { Footer } from "@/components/ui/footer";
 import { SmoothScroll } from "@/components/SmoothScroll";
 
 export const metadata: Metadata = {
-  title: "GigForge",
+  title: "Motivo",
   description:
-    "GigForge is a platform connecting student musicians with student creators who need collaborators for creative projects.",
+    "Motivo is a platform connecting student musicians with student creators who need collaborators for creative projects.",
 };
 
 export default async function RootLayout({

@@ -1,4 +1,4 @@
-# BRAND.md — GigForge
+# BRAND.md — Motivo
 
 ## Voice
 
@@ -26,7 +26,7 @@ Short. High-confidence. Active voice. Names the next action.
 | Do | Don't |
 |---|---|
 | "Find your next collaborator." | "Discover top-tier student talent on our platform." |
-| "Take the Stage." | "Welcome to GigForge — your one-stop solution for music collaboration." |
+| "Take the Stage." | "Welcome to Motivo — your one-stop solution for music collaboration." |
 | "Now playing" | "Featured users" |
 | "Browse Musicians" | "Click here to view available musicians" |
 | "Post a Gig" | "Create a new gig opportunity" |
@@ -106,10 +106,10 @@ Never: "Oops!", "It looks like…", "Sorry, no results found."
 
 ## Email subject for `mailto:` links
 
-- Gig contact: `GigForge: <title>` (URL-encoded).
+- Gig contact: `Motivo: <title>` (URL-encoded).
 - Musician contact: no subject (let the user write their own).
 
 ## Meta / SEO copy (when adding `<Metadata>`)
 
-- Title pattern: `<Page> · GigForge`.
+- Title pattern: `<Page> · Motivo`.
 - Description: ≤ 155 chars, ends with a period, uses the voice above. Example: *"Find student musicians for your next film, podcast, or live show. Post a gig in two minutes."*

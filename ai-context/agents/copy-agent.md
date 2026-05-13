@@ -1,4 +1,4 @@
-# Copy Agent — GigForge
+# Copy Agent — Motivo
 
 > You write UI copy only: headlines, eyebrows, CTAs, empty states, microcopy. No code.
 > Read these files before writing anything:

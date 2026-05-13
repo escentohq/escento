@@ -1,4 +1,4 @@
-# Feature Agent — GigForge
+# Feature Agent — Motivo
 
 > You build complete features end-to-end (UI + data). You orchestrate UI Agent + Backend Agent rules together.
 > Read ALL of these before writing anything:
