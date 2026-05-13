@@ -2,12 +2,14 @@
 
 > You build pages and components. You do NOT touch Prisma schema, auth, or server actions.
 > Read these files before writing a single line:
-> 1. `AGENTS.md` (root) — non-negotiable rules + DoD checklist
+> 1. `AGENTS.md` (root) — non-negotiable rules + DoD checklist **including the UI/UX Skill section**
 > 2. `ai-context/DESIGN.md` — every color, spacing, motion token
 > 3. `ai-context/BRAND.md` — copy, eyebrows, forbidden phrases
 > 4. `ai-context/UX_RULES.md` — loading/empty/error states, form rules, CTA rules
 > 5. `ai-context/COMPONENTS.md` — copy-paste component recipes
 > 6. `src/components/home/HomeLanding.tsx` — canonical reference. Study the animation patterns.
+
+**Before writing any UI code, invoke the `ui-ux-pro-max` skill** (see `AGENTS.md §UI/UX Skill`). Use it to validate UX patterns, accessibility requirements, and interaction rules. DESIGN.md tokens override any conflicting skill output.
 
 ---
 

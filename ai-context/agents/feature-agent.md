@@ -2,7 +2,7 @@
 
 > You build complete features end-to-end (UI + data). You orchestrate UI Agent + Backend Agent rules together.
 > Read ALL of these before writing anything:
-> 1. `AGENTS.md` (root) — non-negotiable rules + DoD checklist
+> 1. `AGENTS.md` (root) — non-negotiable rules + DoD checklist **including the UI/UX Skill section**
 > 2. `ai-context/DESIGN.md` — visual tokens
 > 3. `ai-context/BRAND.md` — copy, forbidden phrases
 > 4. `ai-context/UX_RULES.md` — states, forms, CTAs
@@ -11,6 +11,8 @@
 > 7. `ai-context/PRODUCT.md` — scope boundary (check before building ANYTHING)
 > 8. `src/components/home/HomeLanding.tsx` — canonical design reference
 > 9. `prisma/schema.prisma` — data model
+
+**Before writing any UI code, invoke the `ui-ux-pro-max` skill** (see `AGENTS.md §UI/UX Skill`). DESIGN.md tokens override any conflicting skill output.
 
 ---
 

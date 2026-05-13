@@ -1,4 +1,11 @@
 @import "tailwindcss";
+@source "../";
+@source not "../../docs";
+@source not "../../ai-context";
+@source not "../../AGENTS.md";
+@source not "../../CLAUDE.md";
+@source not "../../GEMINI.md";
+@source not "../../README.md";
 
 html,
 body {

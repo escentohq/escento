@@ -19,6 +19,38 @@ Load the sub-agent **in addition to** this file — sub-agents scope your task, 
 
 ---
 
+## UI/UX Skill (MANDATORY for all UI work)
+
+**Every agent doing UI work must use the `ui-ux-pro-max` skill** before building or reviewing any page, component, or interaction pattern.
+
+### How to invoke (Claude Code)
+
+```
+/ui-ux-pro-max:ui-ux-pro-max
+```
+
+Or use the CLI search script directly:
+
+```bash
+python3 ~/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/.claude/skills/ui-ux-pro-max/scripts/search.py "<query>" --design-system -p "GigForge"
+```
+
+### When to use it
+
+| Situation | Command |
+|-----------|---------|
+| Building new page / section | `--design-system` query |
+| Accessibility / interaction audit | `--domain ux "accessibility touch"` |
+| Form UX questions | `--domain ux "form validation error"` |
+| Chart / data table | `--domain ux "chart table"` |
+| Animation questions | `--domain ux "animation motion"` |
+
+### Conflict resolution
+
+**GigForge's `DESIGN.md` tokens always win** over skill output. The skill supplements with UX patterns and a11y rules — it does not override brand colors, typography, or spacing defined in `DESIGN.md`.
+
+---
+
 ## Read order
 
 1. **AGENTS.md** (this file) — rules, stack, DoD, conventions
