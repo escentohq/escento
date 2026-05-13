@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireRole } from "@/lib/auth-guards";
-import { db } from "@/lib/db";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   type ActionState,
   fieldError,
@@ -88,11 +88,14 @@ export async function updateMusicianProfile(
   fd: FormData,
 ): Promise<ActionState> {
   const session = await requireRole("MUSICIAN", "/profile/edit");
+  const supabase = await createSupabaseServerClient();
 
-  const profile = await db.musicianProfile.findUnique({
-    where: { userId: session.user.id },
-    select: { id: true },
-  });
+  const { data: profile } = await supabase
+    .from("musician_profile")
+    .select("id")
+    .eq("user_id", session.user.id)
+    .single();
+
   if (!profile) redirect("/profile/create");
 
   const parsed = validateProfile(fd);
@@ -110,8 +113,6 @@ export async function updateMusicianProfile(
     ensureGenres(data.genres),
   ]);
 
-  const supabase = await (await import("@/lib/supabase/server")).createSupabaseServerClient();
-
   // Delete existing relationships
   await Promise.all([
     supabase.from("musician_instrument").delete().eq("musician_profile_id", profile.id),
@@ -119,26 +120,26 @@ export async function updateMusicianProfile(
   ]);
 
   // Update profile
-  await db.musicianProfile.update({
-    where: { id: profile.id },
-    data: {
-      displayName: data.displayName,
+  await supabase
+    .from("musician_profile")
+    .update({
+      display_name: data.displayName,
       bio: data.bio,
       school: data.school,
       location: data.location,
-      isRemote: data.isRemote,
-      seekingPaid: data.seekingPaid,
-      seekingUnpaid: data.seekingUnpaid,
-      yearsExperience: data.yearsExperience,
-      availabilityText: data.availabilityText,
-      contactEmail: data.contactEmail,
-      instagramUrl: data.instagramUrl,
-      youtubeUrl: data.youtubeUrl,
-      spotifyUrl: data.spotifyUrl,
-      soundcloudUrl: data.soundcloudUrl,
-      websiteUrl: data.websiteUrl,
-    },
-  });
+      is_remote: data.isRemote,
+      seeking_paid: data.seekingPaid,
+      seeking_unpaid: data.seekingUnpaid,
+      years_experience: data.yearsExperience,
+      availability_text: data.availabilityText,
+      contact_email: data.contactEmail,
+      instagram_url: data.instagramUrl,
+      youtube_url: data.youtubeUrl,
+      spotify_url: data.spotifyUrl,
+      soundcloud_url: data.soundcloudUrl,
+      website_url: data.websiteUrl,
+    })
+    .eq("id", profile.id);
 
   // Create new relationships
   await Promise.all([
@@ -161,4 +162,3 @@ export async function updateMusicianProfile(
   revalidatePath(`/musicians/${profile.id}`);
   redirect("/profile/edit");
 }
-

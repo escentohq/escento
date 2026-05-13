@@ -5,7 +5,7 @@ import { BackLink } from "@/components/ui/back-link";
 import { Chip } from "@/components/ui/chip";
 import { SectionCard } from "@/components/ui/section-card";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { convertSnakeToCamel } from "@/lib/db";
+import { convertSnakeToCamel } from "@/lib/case-conversion";
 
 function isValidId(id: string) {
   return id.length > 0 && id.length < 64;

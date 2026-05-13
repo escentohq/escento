@@ -4,11 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireRole } from "@/lib/auth-guards";
-import { db } from "@/lib/db";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 async function ensureCreatorOwnsGig(gigId: string) {
   const session = await requireRole("CREATOR", "/gigs/manage");
-  const supabase = await (await import("@/lib/supabase/server")).createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   const { data: gig } = await supabase
     .from("gig")
@@ -22,10 +22,11 @@ async function ensureCreatorOwnsGig(gigId: string) {
 
 export async function closeGig(gigId: string) {
   await ensureCreatorOwnsGig(gigId);
-  await db.gig.update({
-    where: { id: gigId },
-    data: { status: "CLOSED" },
-  });
+  const supabase = await createSupabaseServerClient();
+  await supabase
+    .from("gig")
+    .update({ status: "CLOSED" })
+    .eq("id", gigId);
   revalidatePath("/gigs");
   revalidatePath("/gigs/manage");
   revalidatePath(`/gigs/${gigId}`);
@@ -34,7 +35,7 @@ export async function closeGig(gigId: string) {
 
 export async function deleteGig(gigId: string) {
   await ensureCreatorOwnsGig(gigId);
-  const supabase = await (await import("@/lib/supabase/server")).createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
 
   // Delete in order: relationships first, then gig
   await Promise.all([

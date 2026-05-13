@@ -7,7 +7,7 @@ import { SectionCard } from "@/components/ui/section-card";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { compensationLabel, formatDate, projectTypeLabel } from "@/lib/display";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { convertSnakeToCamel } from "@/lib/db";
+import { convertSnakeToCamel } from "@/lib/case-conversion";
 
 function isValidId(id: string) {
   return id.length > 0 && id.length < 64;

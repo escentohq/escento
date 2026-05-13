@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireRole } from "@/lib/auth-guards";
-import { db } from "@/lib/db";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { COMPENSATION_TYPES, PROJECT_TYPES } from "@/lib/display";
 import {
   type ActionState,
@@ -50,22 +50,24 @@ export async function createGig(_state: ActionState, fd: FormData): Promise<Acti
     ensureGenres(genres),
   ]);
 
-  const gig = await db.gig.create({
-    data: {
-      creatorId: session.user.id,
+  const supabase = await createSupabaseServerClient();
+  const { data: gig } = await supabase
+    .from("gig")
+    .insert({
+      creator_id: session.user.id,
       title,
       description,
-      projectType: projectType!,
+      project_type: projectType!,
       location,
-      isRemote,
-      compensationType: compensationType!,
-      compensationDetails,
+      is_remote: isRemote,
+      compensation_type: compensationType!,
+      compensation_details: compensationDetails,
       deadline,
-    },
-  });
+    })
+    .select()
+    .single();
 
   // Link instruments and genres
-  const supabase = await (await import("@/lib/supabase/server")).createSupabaseServerClient();
   await Promise.all([
     ...ensuredInstruments.map((inst) =>
       supabase
@@ -81,4 +83,3 @@ export async function createGig(_state: ActionState, fd: FormData): Promise<Acti
   revalidatePath("/gigs/manage");
   redirect(`/gigs/${gig.id}`);
 }
-

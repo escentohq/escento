@@ -1,5 +1,5 @@
 import { normalizeTagName } from "@/lib/form-utils";
-import { db } from "@/lib/db";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 async function ensureTag(
   model: "instrument" | "genre",
@@ -8,16 +8,24 @@ async function ensureTag(
   const name = normalizeTagName(rawName);
   if (!name) return null;
 
-  const existing =
-    model === "instrument"
-      ? await db.instrument.findFirst({ where: { name } })
-      : await db.genre.findFirst({ where: { name } });
+  const supabase = await createSupabaseServerClient();
+  const tableName = model === "instrument" ? "instrument" : "genre";
+
+  const { data: existing } = await supabase
+    .from(tableName)
+    .select("*")
+    .eq("name", name)
+    .single();
 
   if (existing) return existing;
 
-  return model === "instrument"
-    ? await db.instrument.create({ data: { name } })
-    : await db.genre.create({ data: { name } });
+  const { data: created } = await supabase
+    .from(tableName)
+    .insert({ name })
+    .select()
+    .single();
+
+  return created;
 }
 
 export async function ensureInstruments(names: string[]) {

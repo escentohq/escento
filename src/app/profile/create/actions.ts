@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { db } from "@/lib/db";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   type ActionState,
   fieldError,
@@ -89,11 +89,14 @@ export async function createMusicianProfile(
   fd: FormData,
 ): Promise<ActionState> {
   const session = await requireRole("MUSICIAN", "/profile/create");
+  const supabase = await createSupabaseServerClient();
 
-  const existing = await db.musicianProfile.findUnique({
-    where: { userId: session.user.id },
-    select: { id: true },
-  });
+  const { data: existing } = await supabase
+    .from("musician_profile")
+    .select("id")
+    .eq("user_id", session.user.id)
+    .single();
+
   if (existing) redirect("/profile/edit");
 
   const parsed = validateProfile(fd);
@@ -111,29 +114,30 @@ export async function createMusicianProfile(
     ensureGenres(data.genres),
   ]);
 
-  const profile = await db.musicianProfile.create({
-    data: {
-      userId: session.user.id,
-      displayName: data.displayName,
+  const { data: profile } = await supabase
+    .from("musician_profile")
+    .insert({
+      user_id: session.user.id,
+      display_name: data.displayName,
       bio: data.bio,
       school: data.school,
       location: data.location,
-      isRemote: data.isRemote,
-      seekingPaid: data.seekingPaid,
-      seekingUnpaid: data.seekingUnpaid,
-      yearsExperience: data.yearsExperience,
-      availabilityText: data.availabilityText,
-      contactEmail: data.contactEmail,
-      instagramUrl: data.instagramUrl,
-      youtubeUrl: data.youtubeUrl,
-      spotifyUrl: data.spotifyUrl,
-      soundcloudUrl: data.soundcloudUrl,
-      websiteUrl: data.websiteUrl,
-    },
-  });
+      is_remote: data.isRemote,
+      seeking_paid: data.seekingPaid,
+      seeking_unpaid: data.seekingUnpaid,
+      years_experience: data.yearsExperience,
+      availability_text: data.availabilityText,
+      contact_email: data.contactEmail,
+      instagram_url: data.instagramUrl,
+      youtube_url: data.youtubeUrl,
+      spotify_url: data.spotifyUrl,
+      soundcloud_url: data.soundcloudUrl,
+      website_url: data.websiteUrl,
+    })
+    .select()
+    .single();
 
   // Link instruments and genres
-  const supabase = await (await import("@/lib/supabase/server")).createSupabaseServerClient();
   await Promise.all([
     ...ensuredInstruments.map((inst) =>
       supabase.from("musician_instrument").insert({
@@ -153,4 +157,3 @@ export async function createMusicianProfile(
   revalidatePath("/musicians");
   redirect("/profile/edit");
 }
-

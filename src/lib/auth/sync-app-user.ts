@@ -1,6 +1,6 @@
 import type { User as SupabaseAuthUser } from "@supabase/supabase-js";
 
-import { db } from "@/lib/db";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function displayNameFromAuth(authUser: SupabaseAuthUser): string | null {
   const meta = authUser.user_metadata as Record<string, unknown> | undefined;
@@ -53,39 +53,58 @@ export async function syncAppUserFromAuth(authUser: SupabaseAuthUser) {
 
   const name = displayNameFromAuth(authUser);
   const image = imageFromAuth(authUser);
+  const supabase = await createSupabaseServerClient();
 
-  const bySupabase = await db.user.findFirst({
-    where: { supabaseUserId: authId },
-  });
+  const { data: bySupabase } = await supabase
+    .from("user")
+    .select("*")
+    .eq("supabase_user_id", authId)
+    .single();
+
   if (bySupabase) {
-    return db.user.update({
-      where: { id: bySupabase.id },
-      data: {
+    const { data } = await supabase
+      .from("user")
+      .update({
         email,
         name: name ?? bySupabase.name,
         image: image ?? bySupabase.image,
-      },
-    });
+      })
+      .eq("id", bySupabase.id)
+      .select()
+      .single();
+    return data;
   }
 
-  const byEmail = await db.user.findUnique({ where: { email } });
+  const { data: byEmail } = await supabase
+    .from("user")
+    .select("*")
+    .eq("email", email)
+    .single();
+
   if (byEmail) {
-    return db.user.update({
-      where: { id: byEmail.id },
-      data: {
-        supabaseUserId: authId,
+    const { data } = await supabase
+      .from("user")
+      .update({
+        supabase_user_id: authId,
         name: byEmail.name ?? name,
         image: byEmail.image ?? image,
-      },
-    });
+      })
+      .eq("id", byEmail.id)
+      .select()
+      .single();
+    return data;
   }
 
-  return db.user.create({
-    data: {
+  const { data } = await supabase
+    .from("user")
+    .insert({
       email,
       name,
       image,
-      supabaseUserId: authId,
-    },
-  });
+      supabase_user_id: authId,
+    })
+    .select()
+    .single();
+
+  return data;
 }

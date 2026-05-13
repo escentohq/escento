@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireRole } from "@/lib/auth-guards";
-import { db } from "@/lib/db";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { COMPENSATION_TYPES, PROJECT_TYPES } from "@/lib/display";
 import {
   type ActionState,
@@ -23,12 +23,15 @@ export async function updateGig(
   fd: FormData,
 ): Promise<ActionState> {
   const session = await requireRole("CREATOR", `/gigs/${gigId}/edit`);
+  const supabase = await createSupabaseServerClient();
 
-  const gig = await db.gig.findUnique({
-    where: { id: gigId },
-    select: { creatorId: true },
-  });
-  if (!gig || gig.creatorId !== session.user.id) redirect("/gigs/manage");
+  const { data: gig } = await supabase
+    .from("gig")
+    .select("creator_id")
+    .eq("id", gigId)
+    .single();
+
+  if (!gig || gig.creator_id !== session.user.id) redirect("/gigs/manage");
 
   const fieldErrors: Record<string, string> = {};
   const title = strOrEmpty(fd.get("title"));
@@ -60,8 +63,6 @@ export async function updateGig(
     ensureGenres(genres),
   ]);
 
-  const supabase = await (await import("@/lib/supabase/server")).createSupabaseServerClient();
-
   // Delete existing relationships
   await Promise.all([
     supabase.from("gig_instrument").delete().eq("gig_id", gigId),
@@ -69,19 +70,19 @@ export async function updateGig(
   ]);
 
   // Update gig
-  await db.gig.update({
-    where: { id: gigId },
-    data: {
+  await supabase
+    .from("gig")
+    .update({
       title,
       description,
-      projectType: projectType!,
+      project_type: projectType!,
       location,
-      isRemote,
-      compensationType: compensationType!,
-      compensationDetails,
+      is_remote: isRemote,
+      compensation_type: compensationType!,
+      compensation_details: compensationDetails,
       deadline,
-    },
-  });
+    })
+    .eq("id", gigId);
 
   // Create new relationships
   await Promise.all([

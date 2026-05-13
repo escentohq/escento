@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { PageShell } from "@/components/ui/page-shell";
 import { requireRole } from "@/lib/auth-guards";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { convertSnakeToCamel } from "@/lib/db";
+import { convertSnakeToCamel } from "@/lib/case-conversion";
 import { ProfileForm } from "../_profile-form";
 import { updateMusicianProfile } from "./actions";
 
