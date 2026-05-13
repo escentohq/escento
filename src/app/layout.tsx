@@ -7,7 +7,6 @@ import { authOptions } from "@/auth";
 import { db } from "@/lib/db";
 import { NavBar } from "@/components/ui/nav-bar";
 import { Footer } from "@/components/ui/footer";
-import { SmoothScroll } from "@/components/SmoothScroll";
 
 export const metadata: Metadata = {
   title: "Motivo",
@@ -36,19 +35,17 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col bg-[#FAFAFA] text-[#0F172A] antialiased">
-        <SmoothScroll>
-          <NavBar
-            signedIn={!!session?.user}
-            email={session?.user?.email}
-            role={session?.user?.role}
-            musicianProfilePath={musicianProfilePath}
-            isCreator={isCreator}
-          />
+        <NavBar
+          signedIn={!!session?.user}
+          email={session?.user?.email}
+          role={session?.user?.role}
+          musicianProfilePath={musicianProfilePath}
+          isCreator={isCreator}
+        />
 
-          <main className="flex-1">{children}</main>
+        <main className="flex-1">{children}</main>
 
-          <Footer />
-        </SmoothScroll>
+        <Footer />
       </body>
     </html>
   );
