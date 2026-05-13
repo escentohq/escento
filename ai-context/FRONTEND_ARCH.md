@@ -14,6 +14,13 @@ src/
     globals.css                         # Tailwind v4 entry + LEGACY token classes (.input-base, .btn-primary, .card)
     api/
       auth/[...nextauth]/route.ts       # only API route. do not add more.
+  lib/
+    api/                                # ← SERVICE LAYER (see DATABASE.md)
+      types.ts                          # shared TypeScript interfaces
+      gigs.ts                           # gig CRUD + queries
+      profiles.ts                       # musician profile CRUD + queries
+      users.ts                          # user CRUD + queries
+      tags.ts                           # instrument/genre CRUD (upsert pattern)
     onboarding/
       role/
         page.tsx
@@ -47,9 +54,9 @@ src/
     home/
       HomeLanding.tsx                   # canonical bright-theme reference — READ FIRST
       StageLightsScene.tsx              # only file allowed to import @react-three/* and three
-  lib/
-    db.ts                               # Prisma singleton (import the named export `db`)
   auth.ts                               # NextAuth config + JWT role refresh
+  supabase/
+    server.ts                           # Supabase server client (auth-aware)
   types/                                # ambient types
   middleware.ts                         # protects /onboarding/* only (expand matcher if adding gated routes)
 prisma/
@@ -68,8 +75,8 @@ prisma/
 
 Every `page.tsx` and `layout.tsx` is a Server Component. They:
 
-- await `getServerSession(authOptions)`
-- query Prisma directly via `db`
+- await `getCurrentSession()` from `@/lib/auth-guards`
+- call API functions from `@/lib/api/*` (not Supabase directly)
 - compose data and render JSX
 - redirect with `redirect()` from `next/navigation` when auth/role fails
 
@@ -77,9 +84,9 @@ Add `"use client"` **only** for files that need browser-only APIs: `useState`, `
 
 ```tsx
 // app/gigs/page.tsx — Server Component
-import { db } from "@/lib/db";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
+import { getCurrentSession } from "@/lib/auth-guards";
+import { listOpenGigs, listInstruments, listGenres } from "@/lib/api/gigs";
+import { listInstruments, listGenres } from "@/lib/api/tags";
 
 export default async function GigsPage({
   searchParams,
@@ -87,22 +94,17 @@ export default async function GigsPage({
   searchParams: Promise<{ projectType?: string; instrument?: string; genre?: string }>;
 }) {
   const params = await searchParams;
-  const [session, gigs] = await Promise.all([
-    getServerSession(authOptions),
-    db.gig.findMany({
-      where: {
-        status: "OPEN",
-        ...(params.instrument && { instruments: { some: { instrument: { name: params.instrument } } } }),
-      },
-      include: { instruments: { include: { instrument: true } }, genres: { include: { genre: true } } },
-      orderBy: { updatedAt: "desc" },
-    }),
+  const [session, gigs, instruments, genres] = await Promise.all([
+    getCurrentSession(),
+    listOpenGigs({ projectType: params.projectType, instrument: params.instrument, genre: params.genre }),
+    listInstruments(),
+    listGenres(),
   ]);
-  // ...render
+  // ...render (gigs, instruments, genres are typed and already transformed to camelCase)
 }
 ```
 
-**Rule.** Use `Promise.all` to parallelize independent queries. Never `await` them sequentially.
+**Rule.** Use `Promise.all` to parallelize independent queries. Never `await` them sequentially. See [`DATABASE.md`](./DATABASE.md) for all available API functions.
 
 ---
 
@@ -112,7 +114,7 @@ All writes go through `"use server"` functions co-located in `actions.ts`. They:
 
 1. Re-check session + role.
 2. Validate input.
-3. Mutate via Prisma.
+3. Mutate via API functions (from `@/lib/api/*`).
 4. `redirect()` to a stable read URL.
 
 ### Pattern
@@ -122,26 +124,26 @@ All writes go through `"use server"` functions co-located in `actions.ts`. They:
 "use server";
 
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
-import { db } from "@/lib/db";
+import { getCurrentSession } from "@/lib/auth-guards";
+import { createGig } from "@/lib/api/gigs";
+import { parseCsv } from "@/lib/form-utils";
 
-export async function createGig(formData: FormData) {
-  const session = await getServerSession(authOptions);
+export async function createGigAction(formData: FormData) {
+  const session = await getCurrentSession();
   if (!session?.user?.id) throw new Error("Unauthorized");
   if (session.user.role !== "CREATOR") throw new Error("Forbidden");
 
   const title = String(formData.get("title") ?? "").trim();
   if (!title) throw new Error("Title is required");
   // ...validate + parse other fields
+  const instrumentNames = parseCsv(formData.get("instruments"));
+  const genreNames = parseCsv(formData.get("genres"));
 
-  const gig = await db.gig.create({
-    data: {
-      title,
-      creatorId: session.user.id,
-      // ...
-    },
-  });
+  const gig = await createGig(
+    { title, creatorId: session.user.id, /* ...other fields */ },
+    instrumentNames,
+    genreNames
+  );
 
   redirect(`/gigs/${gig.id}`);
 }
@@ -168,10 +170,11 @@ export async function createGig(formData: FormData) {
 
 ## Data fetching strategy
 
-- **Server Components fetch directly via Prisma.** No SWR, no React Query, no Apollo.
+- **Server Components call API functions** from `@/lib/api/*` (centralized service layer). No direct Supabase queries in page/action files.
+- API functions handle data transformation (snake_case → camelCase) and junction table flattening (instruments/genres as `string[]`).
 - No `revalidate` on routes today — every request hits the DB. Acceptable at MVP scale. Add `export const revalidate = 60;` on directory pages once a CDN is in front.
-- After mutations, prefer `revalidatePath()` over manual cache busting.
 - Search filters are GET query params → bookmarkable, shareable.
+- See [`DATABASE.md`](./DATABASE.md) for all available API functions and their signatures.
 
 ---
 
@@ -245,17 +248,24 @@ if (!parsed.success) {
 
 ## Tag handling (Instrument, Genre)
 
-Today: CSV input field, parsed by a `parseCsv` helper that is **duplicated in 4 files**. The upsert pattern is **race-unsafe** and **case-sensitive**.
+CSV input field parsed by `parseCsv()` helper in `src/lib/form-utils.ts`. Tag creation handled by API layer with atomic upsert (no race condition).
 
-### Required helpers (extract to `src/lib/form-utils.ts` on first new use)
+### Form parsing helpers (`src/lib/form-utils.ts`)
 
 ```ts
-// src/lib/form-utils.ts
 export function parseCsv(input: unknown): string[] {
   return String(input ?? "")
     .split(",")
     .map((s) => s.trim().replace(/\s+/g, " "))
     .filter(Boolean);
+}
+
+export function normalizeTagName(name: string): string {
+  // Title case the first letter of each word for canonical storage
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export function nonEmptyOrNull(v: unknown): string | null {
@@ -266,34 +276,21 @@ export function nonEmptyOrNull(v: unknown): string | null {
 export function strOrEmpty(v: unknown): string {
   return String(v ?? "").trim();
 }
-
-export function normalizeTagName(name: string): string {
-  // Title case the first letter of each word for canonical storage
-  return name
-    .trim()
-    .toLowerCase()
-    .replace(/\b\w/g, (c) => c.toUpperCase());
-}
 ```
 
-### Safe tag upsert pattern
+### Tag creation in actions
 
-Today's code does `findFirst` then `create` — race-unsafe. Use Prisma `upsert` with a unique `name` index (add the index to `schema.prisma` if missing):
+Pass parsed `instrumentNames` / `genreNames` to API functions. Upsert is handled by `ensureInstruments()` / `ensureGenres()` in `src/lib/api/tags.ts`:
 
 ```ts
-const ensured = await Promise.all(
-  names.map((raw) => {
-    const name = normalizeTagName(raw);
-    return tx.instrument.upsert({
-      where: { name },           // requires @unique on Instrument.name
-      create: { name },
-      update: {},
-    });
-  })
-);
+// In action
+const instrumentNames = parseCsv(formData.get("instruments"));
+const genreNames = parseCsv(formData.get("genres"));
+await createGig(gigData, instrumentNames, genreNames);
+// createGig() calls ensureInstruments() + ensureGenres() internally
 ```
 
-**Rule.** Any new code creating tags MUST use this pattern. If `Instrument.name` lacks `@unique`, add it in the same change.
+**Rule.** Never call Supabase tag operations directly. Always use API functions.
 
 ---
 
@@ -382,4 +379,4 @@ From `docs/REBUILD.md` §18:
 
 ---
 
-*Cross-refs:* [`AGENTS.md`](./AGENTS.md) for rules · [`COMPONENTS.md`](./COMPONENTS.md) for UI snippets · [`PRODUCT.md`](./PRODUCT.md) for scope.
+*Cross-refs:* [`DATABASE.md`](./DATABASE.md) for API layer · [`AGENTS.md`](./AGENTS.md) for rules · [`COMPONENTS.md`](./COMPONENTS.md) for UI snippets · [`PRODUCT.md`](./PRODUCT.md) for scope.
