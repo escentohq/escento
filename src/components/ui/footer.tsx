@@ -24,6 +24,9 @@ export function Footer() {
             <Link href="/signin" className="transition-colors hover:text-[#0055FF]">
               Sign in
             </Link>
+            <Link href="/signup" className="transition-colors hover:text-[#0055FF]">
+              Sign up
+            </Link>
           </div>
         </div>
       </div>

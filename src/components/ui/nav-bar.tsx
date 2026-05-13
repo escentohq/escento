@@ -41,12 +41,20 @@ export function NavBar({ signedIn, email, role, musicianProfilePath, isCreator }
 
         <div className="flex min-w-0 items-center gap-2 text-sm sm:gap-3">
           {!signedIn ? (
-            <Link
-              href="/signin"
-              className="inline-flex min-h-11 items-center rounded-full border-2 border-[#E2E8F0] bg-white px-4 py-2 text-xs font-bold text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
-            >
-              Sign in
-            </Link>
+            <>
+              <Link
+                href="/signin"
+                className="inline-flex min-h-11 items-center rounded-full border-2 border-[#E2E8F0] bg-white px-4 py-2 text-xs font-bold text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/signup"
+                className="hidden min-h-11 items-center rounded-full bg-[#0F172A] px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 sm:inline-flex"
+              >
+                Sign up
+              </Link>
+            </>
           ) : (
             <>
               <div className="hidden items-center gap-2 rounded-full border border-[#F1F5F9] bg-white px-3 py-1.5 text-xs text-[#475569] sm:flex">
