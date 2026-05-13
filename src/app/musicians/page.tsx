@@ -1,7 +1,8 @@
 import Link from "next/link";
 
 import { getCurrentSession } from "@/lib/auth-guards";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { listInstruments, listGenres } from "@/lib/api/tags";
+import { listProfiles } from "@/lib/api/profiles";
 import { clampText, visibleTags } from "@/lib/display";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -15,30 +16,13 @@ export default async function MusiciansPage({
   searchParams: Promise<{ instrument?: string; genre?: string }>;
 }) {
   const { instrument, genre } = await searchParams;
-  const supabase = await createSupabaseServerClient();
 
   const session = await getCurrentSession();
-  const { data: instrumentsData } = await supabase
-    .from("instrument")
-    .select("name")
-    .order("name", { ascending: true });
-  const { data: genresData } = await supabase
-    .from("genre")
-    .select("name")
-    .order("name", { ascending: true });
-
-  const { data: allProfiles } = await supabase
-    .from("musician_profile")
-    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
-    .order("updated_at", { ascending: false });
-
-  const instruments = instrumentsData || [];
-  const genres = genresData || [];
-
-  const profiles = (allProfiles || [])
-    .filter((p: any) => !instrument || p.musician_instrument?.some((mi: any) => mi.instrument?.name === instrument))
-    .filter((p: any) => !genre || p.musician_genre?.some((mg: any) => mg.genre?.name === genre))
-    .slice(0, 50);
+  const [instruments, genres, profiles] = await Promise.all([
+    listInstruments(),
+    listGenres(),
+    listProfiles({ instrument, genre }),
+  ]);
 
   const hasFilters = Boolean(instrument || genre);
   const showCreateProfileCta = !session?.user || session.user.role === "MUSICIAN";
@@ -116,8 +100,8 @@ export default async function MusiciansPage({
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {profiles.map((profile, index) => {
-              const instrumentTags = visibleTags(profile.instruments.map((x) => x.instrument.name));
-              const genreTags = visibleTags(profile.genres.map((x) => x.genre.name));
+              const instrumentTags = visibleTags(profile.instruments ?? []);
+              const genreTags = visibleTags(profile.genres ?? []);
 
               return (
                 <Reveal key={profile.id} delay={Math.min(index, 6) * 0.04}>

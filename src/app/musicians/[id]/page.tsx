@@ -4,8 +4,7 @@ import { notFound } from "next/navigation";
 import { BackLink } from "@/components/ui/back-link";
 import { Chip } from "@/components/ui/chip";
 import { SectionCard } from "@/components/ui/section-card";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { convertSnakeToCamel } from "@/lib/case-conversion";
+import { getProfile } from "@/lib/api/profiles";
 
 function isValidId(id: string) {
   return id.length > 0 && id.length < 64;
@@ -27,27 +26,18 @@ export default async function MusicianPublicProfilePage({
   const { id } = await params;
   if (!isValidId(id)) notFound();
 
-  const supabase = await createSupabaseServerClient();
-  const { data: profile } = await supabase
-    .from("musician_profile")
-    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
-    .eq("id", id)
-    .single();
-
+  const profile = await getProfile(id);
   if (!profile) notFound();
 
-  const profileData = convertSnakeToCamel(profile as Record<string, unknown>) as any;
-  const instruments = (profile.musician_instrument || []).map((x: any) => x.instrument?.name);
-  const genres = (profile.musician_genre || []).map((x: any) => x.genre?.name);
   const links: Array<{ label: string; url: string }> = [
-    ...(profileData.websiteUrl ? [{ label: "Website", url: profileData.websiteUrl }] : []),
-    ...(profileData.youtubeUrl ? [{ label: "YouTube", url: profileData.youtubeUrl }] : []),
-    ...(profileData.soundcloudUrl ? [{ label: "SoundCloud", url: profileData.soundcloudUrl }] : []),
-    ...(profileData.spotifyUrl ? [{ label: "Spotify", url: profileData.spotifyUrl }] : []),
-    ...(profileData.instagramUrl ? [{ label: "Instagram", url: profileData.instagramUrl }] : []),
+    ...(profile.websiteUrl ? [{ label: "Website", url: profile.websiteUrl }] : []),
+    ...(profile.youtubeUrl ? [{ label: "YouTube", url: profile.youtubeUrl }] : []),
+    ...(profile.soundcloudUrl ? [{ label: "SoundCloud", url: profile.soundcloudUrl }] : []),
+    ...(profile.spotifyUrl ? [{ label: "Spotify", url: profile.spotifyUrl }] : []),
+    ...(profile.instagramUrl ? [{ label: "Instagram", url: profile.instagramUrl }] : []),
   ];
 
-  const abbr = initials(profileData.displayName);
+  const abbr = initials(profile.displayName);
 
   return (
     <div className="bg-[#FAFAFA] px-4 py-12 sm:px-6 md:py-16 lg:py-24">
@@ -78,34 +68,34 @@ export default async function MusicianPublicProfilePage({
                   </div>
                   <div className="min-w-0">
                     <h1 className="text-4xl font-black tracking-tight text-[#0F172A] md:text-5xl">
-                      {profileData.displayName}
+                      {profile.displayName}
                     </h1>
                     <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-[#64748B]">
-                      {profileData.location && (
+                      {profile.location && (
                         <span className="inline-flex items-center gap-1.5">
                           <MapPin className="h-3.5 w-3.5" aria-hidden />
-                          {profileData.location}
+                          {profile.location}
                         </span>
                       )}
-                      {profileData.school && (
+                      {profile.school && (
                         <span className="inline-flex items-center gap-1.5">
                           <Music className="h-3.5 w-3.5" aria-hidden />
-                          {profileData.school}
+                          {profile.school}
                         </span>
                       )}
-                      {profileData.yearsExperience != null && (
+                      {profile.yearsExperience != null && (
                         <span className="inline-flex items-center gap-1.5">
                           <Clock className="h-3.5 w-3.5" aria-hidden />
-                          {profileData.yearsExperience}y exp
+                          {profile.yearsExperience}y exp
                         </span>
                       )}
                     </div>
                   </div>
                 </div>
 
-                {profileData.bio && (
+                {profile.bio && (
                   <p className="mt-7 whitespace-pre-wrap text-base font-medium leading-relaxed text-[#475569]">
-                    {profileData.bio}
+                    {profile.bio}
                   </p>
                 )}
 
@@ -115,8 +105,8 @@ export default async function MusicianPublicProfilePage({
                       Instruments
                     </h2>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {instruments.length
-                        ? instruments.map((name) => <Chip key={name} tone="blue">{name}</Chip>)
+                      {profile.instruments?.length
+                        ? profile.instruments.map((name) => <Chip key={name} tone="blue">{name}</Chip>)
                         : <Chip>No instruments listed</Chip>}
                     </div>
                   </div>
@@ -125,8 +115,8 @@ export default async function MusicianPublicProfilePage({
                       Genres
                     </h2>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {genres.length
-                        ? genres.map((name) => <Chip key={name} tone="pink">{name}</Chip>)
+                      {profile.genres?.length
+                        ? profile.genres.map((name) => <Chip key={name} tone="pink">{name}</Chip>)
                         : <Chip>No genres listed</Chip>}
                     </div>
                   </div>

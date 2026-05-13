@@ -3,7 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 import { getCurrentSession } from "@/lib/auth-guards";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getProfileByUserId } from "@/lib/api/profiles";
 import { NavBar } from "@/components/ui/nav-bar";
 import { Footer } from "@/components/ui/footer";
 
@@ -22,12 +22,7 @@ export default async function RootLayout({
 
   let musicianProfilePath: "/profile/create" | "/profile/edit" | null = null;
   if (session?.user?.role === "MUSICIAN" && session?.user?.id) {
-    const supabase = await createSupabaseServerClient();
-    const { data: existing } = await supabase
-      .from("musician_profile")
-      .select("id")
-      .eq("user_id", session.user.id)
-      .single();
+    const existing = await getProfileByUserId(session.user.id);
     musicianProfilePath = existing ? "/profile/edit" : "/profile/create";
   }
 

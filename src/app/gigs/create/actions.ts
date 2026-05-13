@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireRole } from "@/lib/auth-guards";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createGig } from "@/lib/api/gigs";
 import { COMPENSATION_TYPES, PROJECT_TYPES } from "@/lib/display";
 import {
   type ActionState,
@@ -15,9 +15,8 @@ import {
   pickEnum,
   strOrEmpty,
 } from "@/lib/form-utils";
-import { ensureGenres, ensureInstruments } from "@/lib/tag-utils";
 
-export async function createGig(_state: ActionState, fd: FormData): Promise<ActionState> {
+export async function createGigAction(_state: ActionState, fd: FormData): Promise<ActionState> {
   const session = await requireRole("CREATOR", "/gigs/create");
   const fieldErrors: Record<string, string> = {};
 
@@ -45,39 +44,21 @@ export async function createGig(_state: ActionState, fd: FormData): Promise<Acti
     return { ok: false, message: "Tighten the set before publishing.", fieldErrors };
   }
 
-  const [ensuredInstruments, ensuredGenres] = await Promise.all([
-    ensureInstruments(instruments),
-    ensureGenres(genres),
-  ]);
-
-  const supabase = await createSupabaseServerClient();
-  const { data: gig } = await supabase
-    .from("gig")
-    .insert({
-      creator_id: session.user.id,
+  const gig = await createGig(
+    {
+      creatorId: session.user.id,
       title,
       description,
-      project_type: projectType!,
+      projectType: projectType!,
       location,
-      is_remote: isRemote,
-      compensation_type: compensationType!,
-      compensation_details: compensationDetails,
+      isRemote,
+      compensationType: compensationType!,
+      compensationDetails,
       deadline,
-    })
-    .select()
-    .single();
-
-  // Link instruments and genres
-  await Promise.all([
-    ...ensuredInstruments.map((inst) =>
-      supabase
-        .from("gig_instrument")
-        .insert({ gig_id: gig.id, instrument_id: inst.id })
-    ),
-    ...ensuredGenres.map((genre) =>
-      supabase.from("gig_genre").insert({ gig_id: gig.id, genre_id: genre.id })
-    ),
-  ]);
+    },
+    instruments,
+    genres,
+  );
 
   revalidatePath("/gigs");
   revalidatePath("/gigs/manage");

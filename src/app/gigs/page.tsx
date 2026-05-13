@@ -1,7 +1,8 @@
 import Link from "next/link";
 
 import { getCurrentSession } from "@/lib/auth-guards";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { listInstruments, listGenres } from "@/lib/api/tags";
+import { listOpenGigs } from "@/lib/api/gigs";
 import {
   PROJECT_TYPES,
   clampText,
@@ -22,32 +23,13 @@ export default async function GigsPage({
 }) {
   const { projectType, instrument, genre } = await searchParams;
   const safeProjectType = PROJECT_TYPES.find((type) => type === projectType);
-  const supabase = await createSupabaseServerClient();
 
   const session = await getCurrentSession();
-  const { data: instrumentsData } = await supabase
-    .from("instrument")
-    .select("name")
-    .order("name", { ascending: true });
-  const { data: genresData } = await supabase
-    .from("genre")
-    .select("name")
-    .order("name", { ascending: true });
-
-  const { data: allGigs } = await supabase
-    .from("gig")
-    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
-    .eq("status", "OPEN")
-    .order("created_at", { ascending: false });
-
-  const instruments = instrumentsData || [];
-  const genres = genresData || [];
-
-  const gigs = (allGigs || [])
-    .filter((g: any) => !safeProjectType || g.project_type === safeProjectType)
-    .filter((g: any) => !instrument || g.gig_instrument?.some((gi: any) => gi.instrument?.name === instrument))
-    .filter((g: any) => !genre || g.gig_genre?.some((gg: any) => gg.genre?.name === genre))
-    .slice(0, 50);
+  const [instruments, genres, gigs] = await Promise.all([
+    listInstruments(),
+    listGenres(),
+    listOpenGigs({ projectType: safeProjectType, instrument, genre }),
+  ]);
 
   const hasFilters = Boolean(safeProjectType || instrument || genre);
   const showPostGigCta = !session?.user || session.user.role === "CREATOR";
@@ -127,8 +109,8 @@ export default async function GigsPage({
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {gigs.map((gig, index) => {
-              const instrumentTags = visibleTags(gig.instruments.map((x) => x.instrument.name));
-              const genreTags = visibleTags(gig.genres.map((x) => x.genre.name));
+              const instrumentTags = visibleTags(gig.instruments ?? []);
+              const genreTags = visibleTags(gig.genres ?? []);
 
               return (
                 <Reveal key={gig.id} delay={Math.min(index, 6) * 0.04}>

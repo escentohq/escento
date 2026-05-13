@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import { HomeLanding } from "@/components/home/HomeLanding";
 import { getCurrentSession } from "@/lib/auth-guards";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getProfileByUserId } from "@/lib/api/profiles";
 
 export default async function Home() {
   const session = await getCurrentSession();
@@ -16,12 +16,7 @@ export default async function Home() {
 
   let musicianProfilePath: "/profile/create" | "/profile/edit" | null = null;
   if (isMusician && session?.user?.id) {
-    const supabase = await createSupabaseServerClient();
-    const { data: existing } = await supabase
-      .from("musician_profile")
-      .select("id")
-      .eq("user_id", session.user.id)
-      .single();
+    const existing = await getProfileByUserId(session.user.id);
     musicianProfilePath = existing ? "/profile/edit" : "/profile/create";
   }
 

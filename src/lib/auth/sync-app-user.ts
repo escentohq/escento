@@ -1,6 +1,6 @@
 import type { User as SupabaseAuthUser } from "@supabase/supabase-js";
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getUserBySupabaseId, getUserByEmail, createUser, updateUser } from "@/lib/api/users";
 
 function displayNameFromAuth(authUser: SupabaseAuthUser): string | null {
   const meta = authUser.user_metadata as Record<string, unknown> | undefined;
@@ -53,58 +53,29 @@ export async function syncAppUserFromAuth(authUser: SupabaseAuthUser) {
 
   const name = displayNameFromAuth(authUser);
   const image = imageFromAuth(authUser);
-  const supabase = await createSupabaseServerClient();
 
-  const { data: bySupabase } = await supabase
-    .from("user")
-    .select("*")
-    .eq("supabase_user_id", authId)
-    .single();
-
+  const bySupabase = await getUserBySupabaseId(authId);
   if (bySupabase) {
-    const { data } = await supabase
-      .from("user")
-      .update({
-        email,
-        name: name ?? bySupabase.name,
-        image: image ?? bySupabase.image,
-      })
-      .eq("id", bySupabase.id)
-      .select()
-      .single();
-    return data;
-  }
-
-  const { data: byEmail } = await supabase
-    .from("user")
-    .select("*")
-    .eq("email", email)
-    .single();
-
-  if (byEmail) {
-    const { data } = await supabase
-      .from("user")
-      .update({
-        supabase_user_id: authId,
-        name: byEmail.name ?? name,
-        image: byEmail.image ?? image,
-      })
-      .eq("id", byEmail.id)
-      .select()
-      .single();
-    return data;
-  }
-
-  const { data } = await supabase
-    .from("user")
-    .insert({
+    return updateUser(bySupabase.id, {
       email,
-      name,
-      image,
-      supabase_user_id: authId,
-    })
-    .select()
-    .single();
+      name: name ?? bySupabase.name,
+      image: image ?? bySupabase.image,
+    });
+  }
 
-  return data;
+  const byEmail = await getUserByEmail(email);
+  if (byEmail) {
+    return updateUser(byEmail.id, {
+      supabaseUserId: authId,
+      name: byEmail.name ?? name,
+      image: byEmail.image ?? image,
+    });
+  }
+
+  return createUser({
+    email,
+    name,
+    image,
+    supabaseUserId: authId,
+  });
 }

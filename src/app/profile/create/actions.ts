@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getProfileByUserId, createProfile } from "@/lib/api/profiles";
 import {
   type ActionState,
   fieldError,
@@ -15,7 +15,6 @@ import {
   strOrEmpty,
 } from "@/lib/form-utils";
 import { requireRole } from "@/lib/auth-guards";
-import { ensureGenres, ensureInstruments } from "@/lib/tag-utils";
 
 function validateProfile(fd: FormData) {
   const fieldErrors: Record<string, string> = {};
@@ -84,19 +83,13 @@ function validateProfile(fd: FormData) {
   };
 }
 
-export async function createMusicianProfile(
+export async function createMusicianProfileAction(
   _state: ActionState,
   fd: FormData,
 ): Promise<ActionState> {
   const session = await requireRole("MUSICIAN", "/profile/create");
-  const supabase = await createSupabaseServerClient();
 
-  const { data: existing } = await supabase
-    .from("musician_profile")
-    .select("id")
-    .eq("user_id", session.user.id)
-    .single();
-
+  const existing = await getProfileByUserId(session.user.id);
   if (existing) redirect("/profile/edit");
 
   const parsed = validateProfile(fd);
@@ -109,49 +102,28 @@ export async function createMusicianProfile(
   }
 
   const data = parsed.data;
-  const [ensuredInstruments, ensuredGenres] = await Promise.all([
-    ensureInstruments(data.instruments),
-    ensureGenres(data.genres),
-  ]);
-
-  const { data: profile } = await supabase
-    .from("musician_profile")
-    .insert({
-      user_id: session.user.id,
-      display_name: data.displayName,
+  await createProfile(
+    session.user.id,
+    {
+      displayName: data.displayName,
       bio: data.bio,
       school: data.school,
       location: data.location,
-      is_remote: data.isRemote,
-      seeking_paid: data.seekingPaid,
-      seeking_unpaid: data.seekingUnpaid,
-      years_experience: data.yearsExperience,
-      availability_text: data.availabilityText,
-      contact_email: data.contactEmail,
-      instagram_url: data.instagramUrl,
-      youtube_url: data.youtubeUrl,
-      spotify_url: data.spotifyUrl,
-      soundcloud_url: data.soundcloudUrl,
-      website_url: data.websiteUrl,
-    })
-    .select()
-    .single();
-
-  // Link instruments and genres
-  await Promise.all([
-    ...ensuredInstruments.map((inst) =>
-      supabase.from("musician_instrument").insert({
-        musician_profile_id: profile.id,
-        instrument_id: inst.id,
-      })
-    ),
-    ...ensuredGenres.map((genre) =>
-      supabase.from("musician_genre").insert({
-        musician_profile_id: profile.id,
-        genre_id: genre.id,
-      })
-    ),
-  ]);
+      isRemote: data.isRemote,
+      seekingPaid: data.seekingPaid,
+      seekingUnpaid: data.seekingUnpaid,
+      yearsExperience: data.yearsExperience,
+      availabilityText: data.availabilityText,
+      contactEmail: data.contactEmail,
+      instagramUrl: data.instagramUrl,
+      youtubeUrl: data.youtubeUrl,
+      spotifyUrl: data.spotifyUrl,
+      soundcloudUrl: data.soundcloudUrl,
+      websiteUrl: data.websiteUrl,
+    },
+    data.instruments,
+    data.genres,
+  );
 
   revalidatePath("/");
   revalidatePath("/musicians");

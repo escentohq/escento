@@ -2,28 +2,18 @@ import { redirect } from "next/navigation";
 
 import { PageShell } from "@/components/ui/page-shell";
 import { requireRole } from "@/lib/auth-guards";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { convertSnakeToCamel } from "@/lib/case-conversion";
+import { getProfileByUserId } from "@/lib/api/profiles";
 import { ProfileForm } from "../_profile-form";
-import { updateMusicianProfile } from "./actions";
+import { updateMusicianProfileAction } from "./actions";
 
 export default async function EditProfilePage() {
   const session = await requireRole("MUSICIAN", "/profile/edit");
-  const supabase = await createSupabaseServerClient();
 
-  const { data: profile } = await supabase
-    .from("musician_profile")
-    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
-    .eq("user_id", session.user.id)
-    .single();
-
+  const profile = await getProfileByUserId(session.user.id);
   if (!profile) redirect("/profile/create");
 
-  const profileData = convertSnakeToCamel(profile as Record<string, unknown>) as any;
-  const instrumentsCsv = (profile.musician_instrument || [])
-    .map((x: any) => x.instrument?.name)
-    .join(", ");
-  const genresCsv = (profile.musician_genre || []).map((x: any) => x.genre?.name).join(", ");
+  const instrumentsCsv = (profile.instruments || []).join(", ");
+  const genresCsv = (profile.genres || []).join(", ");
 
   return (
     <PageShell
@@ -35,28 +25,28 @@ export default async function EditProfilePage() {
       <ProfileForm
         mode="edit"
         initial={{
-          displayName: profileData.displayName,
-          bio: profileData.bio ?? "",
-          school: profileData.school ?? "",
-          location: profileData.location ?? "",
-          isRemote: profileData.isRemote,
-          seekingPaid: profileData.seekingPaid,
-          seekingUnpaid: profileData.seekingUnpaid,
+          displayName: profile.displayName,
+          bio: profile.bio ?? "",
+          school: profile.school ?? "",
+          location: profile.location ?? "",
+          isRemote: profile.isRemote,
+          seekingPaid: profile.seekingPaid,
+          seekingUnpaid: profile.seekingUnpaid,
           yearsExperience:
-            profileData.yearsExperience === null || profileData.yearsExperience === undefined
+            profile.yearsExperience === null || profile.yearsExperience === undefined
               ? ""
-              : String(profileData.yearsExperience),
-          availabilityText: profileData.availabilityText ?? "",
-          contactEmail: profileData.contactEmail ?? "",
-          instagramUrl: profileData.instagramUrl ?? "",
-          youtubeUrl: profileData.youtubeUrl ?? "",
-          spotifyUrl: profileData.spotifyUrl ?? "",
-          soundcloudUrl: profileData.soundcloudUrl ?? "",
-          websiteUrl: profileData.websiteUrl ?? "",
+              : String(profile.yearsExperience),
+          availabilityText: profile.availabilityText ?? "",
+          contactEmail: profile.contactEmail ?? "",
+          instagramUrl: profile.instagramUrl ?? "",
+          youtubeUrl: profile.youtubeUrl ?? "",
+          spotifyUrl: profile.spotifyUrl ?? "",
+          soundcloudUrl: profile.soundcloudUrl ?? "",
+          websiteUrl: profile.websiteUrl ?? "",
           instrumentsCsv,
           genresCsv,
         }}
-        action={updateMusicianProfile}
+        action={updateMusicianProfileAction}
       />
     </PageShell>
   );

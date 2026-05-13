@@ -1,7 +1,7 @@
 import { PageShell } from "@/components/ui/page-shell";
 import { requireRole } from "@/lib/auth-guards";
 import { GigForm } from "../_gig-form";
-import { createGig } from "./actions";
+import { createGigAction } from "./actions";
 
 export default async function CreateGigPage() {
   await requireRole("CREATOR", "/gigs/create");
@@ -14,7 +14,7 @@ export default async function CreateGigPage() {
       size="medium"
     >
       <GigForm
-        action={createGig}
+        action={createGigAction}
         submitLabel="Publish Gig"
         pendingLabel="Publishing..."
         cancelHref="/gigs"
