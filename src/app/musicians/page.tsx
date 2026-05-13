@@ -1,8 +1,8 @@
 import Link from "next/link";
 
 import { getCurrentSession } from "@/lib/auth-guards";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { clampText, visibleTags } from "@/lib/display";
-import { db } from "@/lib/db";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
@@ -15,26 +15,27 @@ export default async function MusiciansPage({
   searchParams: Promise<{ instrument?: string; genre?: string }>;
 }) {
   const { instrument, genre } = await searchParams;
+  const supabase = await createSupabaseServerClient();
 
-  const [session, instruments, genres, profiles] = await Promise.all([
-    getCurrentSession(),
-    db.instrument.findMany({ orderBy: { name: "asc" }, select: { name: true } }),
-    db.genre.findMany({ orderBy: { name: "asc" }, select: { name: true } }),
-    db.musicianProfile.findMany({
-      where: {
-        ...(instrument
-          ? { instruments: { some: { instrument: { name: instrument } } } }
-          : {}),
-        ...(genre ? { genres: { some: { genre: { name: genre } } } } : {}),
-      },
-      include: {
-        instruments: { include: { instrument: true } },
-        genres: { include: { genre: true } },
-      },
-      orderBy: { updatedAt: "desc" },
-      take: 50,
-    }),
-  ]);
+  const session = await getCurrentSession();
+  const { data: instruments } = await supabase
+    .from("instrument")
+    .select("name")
+    .order("name", { ascending: true });
+  const { data: genres } = await supabase
+    .from("genre")
+    .select("name")
+    .order("name", { ascending: true });
+
+  const { data: allProfiles } = await supabase
+    .from("musician_profile")
+    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .order("updated_at", { ascending: false });
+
+  const profiles = (allProfiles || [])
+    .filter((p: any) => !instrument || p.musician_instrument?.some((mi: any) => mi.instrument?.name === instrument))
+    .filter((p: any) => !genre || p.musician_genre?.some((mg: any) => mg.genre?.name === genre))
+    .slice(0, 50);
 
   const hasFilters = Boolean(instrument || genre);
   const showCreateProfileCta = !session?.user || session.user.role === "MUSICIAN";

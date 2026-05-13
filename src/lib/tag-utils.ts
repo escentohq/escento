@@ -1,11 +1,7 @@
-import type { Prisma } from "@prisma/client";
-
 import { normalizeTagName } from "@/lib/form-utils";
-
-type Transaction = Prisma.TransactionClient;
+import { db } from "@/lib/db";
 
 async function ensureTag(
-  tx: Transaction,
   model: "instrument" | "genre",
   rawName: string,
 ) {
@@ -14,26 +10,26 @@ async function ensureTag(
 
   const existing =
     model === "instrument"
-      ? await tx.instrument.findFirst({ where: { name } })
-      : await tx.genre.findFirst({ where: { name } });
+      ? await db.instrument.findFirst({ where: { name } })
+      : await db.genre.findFirst({ where: { name } });
 
   if (existing) return existing;
 
   return model === "instrument"
-    ? tx.instrument.create({ data: { name } })
-    : tx.genre.create({ data: { name } });
+    ? await db.instrument.create({ data: { name } })
+    : await db.genre.create({ data: { name } });
 }
 
-export async function ensureInstruments(tx: Transaction, names: string[]) {
+export async function ensureInstruments(names: string[]) {
   const records = await Promise.all(
-    Array.from(new Set(names)).map((name) => ensureTag(tx, "instrument", name)),
+    Array.from(new Set(names)).map((name) => ensureTag("instrument", name)),
   );
   return records.filter((record): record is NonNullable<typeof record> => Boolean(record));
 }
 
-export async function ensureGenres(tx: Transaction, names: string[]) {
+export async function ensureGenres(names: string[]) {
   const records = await Promise.all(
-    Array.from(new Set(names)).map((name) => ensureTag(tx, "genre", name)),
+    Array.from(new Set(names)).map((name) => ensureTag("genre", name)),
   );
   return records.filter((record): record is NonNullable<typeof record> => Boolean(record));
 }

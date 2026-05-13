@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { getCurrentSession } from "@/lib/auth-guards";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   PROJECT_TYPES,
   clampText,
@@ -8,7 +9,6 @@ import {
   projectTypeLabel,
   visibleTags,
 } from "@/lib/display";
-import { db } from "@/lib/db";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
@@ -22,26 +22,29 @@ export default async function GigsPage({
 }) {
   const { projectType, instrument, genre } = await searchParams;
   const safeProjectType = PROJECT_TYPES.find((type) => type === projectType);
+  const supabase = await createSupabaseServerClient();
 
-  const [session, instruments, genres, gigs] = await Promise.all([
-    getCurrentSession(),
-    db.instrument.findMany({ orderBy: { name: "asc" }, select: { name: true } }),
-    db.genre.findMany({ orderBy: { name: "asc" }, select: { name: true } }),
-    db.gig.findMany({
-      where: {
-        ...(safeProjectType ? { projectType: safeProjectType } : {}),
-        ...(instrument ? { instruments: { some: { instrument: { name: instrument } } } } : {}),
-        ...(genre ? { genres: { some: { genre: { name: genre } } } } : {}),
-        status: "OPEN",
-      },
-      include: {
-        instruments: { include: { instrument: true } },
-        genres: { include: { genre: true } },
-      },
-      orderBy: { createdAt: "desc" },
-      take: 50,
-    }),
-  ]);
+  const session = await getCurrentSession();
+  const { data: instruments } = await supabase
+    .from("instrument")
+    .select("name")
+    .order("name", { ascending: true });
+  const { data: genres } = await supabase
+    .from("genre")
+    .select("name")
+    .order("name", { ascending: true });
+
+  const { data: allGigs } = await supabase
+    .from("gig")
+    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
+    .eq("status", "OPEN")
+    .order("created_at", { ascending: false });
+
+  const gigs = (allGigs || [])
+    .filter((g: any) => !safeProjectType || g.project_type === safeProjectType)
+    .filter((g: any) => !instrument || g.gig_instrument?.some((gi: any) => gi.instrument?.name === instrument))
+    .filter((g: any) => !genre || g.gig_genre?.some((gg: any) => gg.genre?.name === genre))
+    .slice(0, 50);
 
   const hasFilters = Boolean(safeProjectType || instrument || genre);
   const showPostGigCta = !session?.user || session.user.role === "CREATOR";

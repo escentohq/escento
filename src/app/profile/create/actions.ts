@@ -106,39 +106,48 @@ export async function createMusicianProfile(
   }
 
   const data = parsed.data;
-  await db.$transaction(async (tx) => {
-    const [ensuredInstruments, ensuredGenres] = await Promise.all([
-      ensureInstruments(tx, data.instruments),
-      ensureGenres(tx, data.genres),
-    ]);
+  const [ensuredInstruments, ensuredGenres] = await Promise.all([
+    ensureInstruments(data.instruments),
+    ensureGenres(data.genres),
+  ]);
 
-    await tx.musicianProfile.create({
-      data: {
-        userId: session.user.id,
-        displayName: data.displayName,
-        bio: data.bio,
-        school: data.school,
-        location: data.location,
-        isRemote: data.isRemote,
-        seekingPaid: data.seekingPaid,
-        seekingUnpaid: data.seekingUnpaid,
-        yearsExperience: data.yearsExperience,
-        availabilityText: data.availabilityText,
-        contactEmail: data.contactEmail,
-        instagramUrl: data.instagramUrl,
-        youtubeUrl: data.youtubeUrl,
-        spotifyUrl: data.spotifyUrl,
-        soundcloudUrl: data.soundcloudUrl,
-        websiteUrl: data.websiteUrl,
-        instruments: {
-          create: ensuredInstruments.map((inst) => ({ instrumentId: inst.id })),
-        },
-        genres: {
-          create: ensuredGenres.map((genre) => ({ genreId: genre.id })),
-        },
-      },
-    });
+  const profile = await db.musicianProfile.create({
+    data: {
+      userId: session.user.id,
+      displayName: data.displayName,
+      bio: data.bio,
+      school: data.school,
+      location: data.location,
+      isRemote: data.isRemote,
+      seekingPaid: data.seekingPaid,
+      seekingUnpaid: data.seekingUnpaid,
+      yearsExperience: data.yearsExperience,
+      availabilityText: data.availabilityText,
+      contactEmail: data.contactEmail,
+      instagramUrl: data.instagramUrl,
+      youtubeUrl: data.youtubeUrl,
+      spotifyUrl: data.spotifyUrl,
+      soundcloudUrl: data.soundcloudUrl,
+      websiteUrl: data.websiteUrl,
+    },
   });
+
+  // Link instruments and genres
+  const supabase = await (await import("@/lib/supabase/server")).createSupabaseServerClient();
+  await Promise.all([
+    ...ensuredInstruments.map((inst) =>
+      supabase.from("musician_instrument").insert({
+        musician_profile_id: profile.id,
+        instrument_id: inst.id,
+      })
+    ),
+    ...ensuredGenres.map((genre) =>
+      supabase.from("musician_genre").insert({
+        musician_profile_id: profile.id,
+        genre_id: genre.id,
+      })
+    ),
+  ]);
 
   revalidatePath("/");
   revalidatePath("/musicians");

@@ -1,13 +1,13 @@
 import Link from "next/link";
 
 import { requireRole } from "@/lib/auth-guards";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   clampText,
   compensationLabel,
   projectTypeLabel,
   visibleTags,
 } from "@/lib/display";
-import { db } from "@/lib/db";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
@@ -19,15 +19,27 @@ import { DeleteGigButton } from "./DeleteGigButton";
 
 export default async function ManageGigsPage() {
   const session = await requireRole("CREATOR", "/gigs/manage");
+  const supabase = await createSupabaseServerClient();
 
-  const gigs = await db.gig.findMany({
-    where: { creatorId: session.user.id },
-    include: {
-      instruments: { include: { instrument: true } },
-      genres: { include: { genre: true } },
-    },
-    orderBy: { updatedAt: "desc" },
-  });
+  const { data: gigsRaw } = await supabase
+    .from("gig")
+    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
+    .eq("creator_id", session.user.id)
+    .order("updated_at", { ascending: false });
+
+  // Convert snake_case to camelCase for compatibility
+  const gigs = (gigsRaw || []).map((g: any) => ({
+    ...g,
+    creatorId: g.creator_id,
+    projectType: g.project_type,
+    isRemote: g.is_remote,
+    compensationType: g.compensation_type,
+    compensationDetails: g.compensation_details,
+    createdAt: g.created_at,
+    updatedAt: g.updated_at,
+    instruments: g.gig_instrument,
+    genres: g.gig_genre,
+  }));
 
   return (
     <PageShell

@@ -45,33 +45,37 @@ export async function createGig(_state: ActionState, fd: FormData): Promise<Acti
     return { ok: false, message: "Tighten the set before publishing.", fieldErrors };
   }
 
-  const gig = await db.$transaction(async (tx) => {
-    const [ensuredInstruments, ensuredGenres] = await Promise.all([
-      ensureInstruments(tx, instruments),
-      ensureGenres(tx, genres),
-    ]);
+  const [ensuredInstruments, ensuredGenres] = await Promise.all([
+    ensureInstruments(instruments),
+    ensureGenres(genres),
+  ]);
 
-    return tx.gig.create({
-      data: {
-        creatorId: session.user.id,
-        title,
-        description,
-        projectType: projectType!,
-        location,
-        isRemote,
-        compensationType: compensationType!,
-        compensationDetails,
-        deadline,
-        instruments: {
-          create: ensuredInstruments.map((inst) => ({ instrumentId: inst.id })),
-        },
-        genres: {
-          create: ensuredGenres.map((genre) => ({ genreId: genre.id })),
-        },
-      },
-      select: { id: true },
-    });
+  const gig = await db.gig.create({
+    data: {
+      creatorId: session.user.id,
+      title,
+      description,
+      projectType: projectType!,
+      location,
+      isRemote,
+      compensationType: compensationType!,
+      compensationDetails,
+      deadline,
+    },
   });
+
+  // Link instruments and genres
+  const supabase = await (await import("@/lib/supabase/server")).createSupabaseServerClient();
+  await Promise.all([
+    ...ensuredInstruments.map((inst) =>
+      supabase
+        .from("gig_instrument")
+        .insert({ gig_id: gig.id, instrument_id: inst.id })
+    ),
+    ...ensuredGenres.map((genre) =>
+      supabase.from("gig_genre").insert({ gig_id: gig.id, genre_id: genre.id })
+    ),
+  ]);
 
   revalidatePath("/gigs");
   revalidatePath("/gigs/manage");

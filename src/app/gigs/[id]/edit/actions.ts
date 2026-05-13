@@ -55,37 +55,45 @@ export async function updateGig(
     return { ok: false, message: "Tighten the set before saving.", fieldErrors };
   }
 
-  await db.$transaction(async (tx) => {
-    const [ensuredInstruments, ensuredGenres] = await Promise.all([
-      ensureInstruments(tx, instruments),
-      ensureGenres(tx, genres),
-    ]);
+  const [ensuredInstruments, ensuredGenres] = await Promise.all([
+    ensureInstruments(instruments),
+    ensureGenres(genres),
+  ]);
 
-    await Promise.all([
-      tx.gigInstrument.deleteMany({ where: { gigId } }),
-      tx.gigGenre.deleteMany({ where: { gigId } }),
-    ]);
+  const supabase = await (await import("@/lib/supabase/server")).createSupabaseServerClient();
 
-    await tx.gig.update({
-      where: { id: gigId },
-      data: {
-        title,
-        description,
-        projectType: projectType!,
-        location,
-        isRemote,
-        compensationType: compensationType!,
-        compensationDetails,
-        deadline,
-        instruments: {
-          create: ensuredInstruments.map((inst) => ({ instrumentId: inst.id })),
-        },
-        genres: {
-          create: ensuredGenres.map((genre) => ({ genreId: genre.id })),
-        },
-      },
-    });
+  // Delete existing relationships
+  await Promise.all([
+    supabase.from("gig_instrument").delete().eq("gig_id", gigId),
+    supabase.from("gig_genre").delete().eq("gig_id", gigId),
+  ]);
+
+  // Update gig
+  await db.gig.update({
+    where: { id: gigId },
+    data: {
+      title,
+      description,
+      projectType: projectType!,
+      location,
+      isRemote,
+      compensationType: compensationType!,
+      compensationDetails,
+      deadline,
+    },
   });
+
+  // Create new relationships
+  await Promise.all([
+    ...ensuredInstruments.map((inst) =>
+      supabase
+        .from("gig_instrument")
+        .insert({ gig_id: gigId, instrument_id: inst.id })
+    ),
+    ...ensuredGenres.map((genre) =>
+      supabase.from("gig_genre").insert({ gig_id: gigId, genre_id: genre.id })
+    ),
+  ]);
 
   revalidatePath("/gigs");
   revalidatePath("/gigs/manage");

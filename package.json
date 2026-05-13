@@ -6,14 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint .",
-    "postinstall": "prisma generate",
-    "prisma:validate": "prisma validate",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "lint": "eslint ."
   },
   "dependencies": {
-    "@prisma/client": "^6.16.1",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@supabase/ssr": "^0.6.1",
@@ -35,7 +30,6 @@
     "@types/react-dom": "^19.1.9",
     "eslint": "^9.35.0",
     "eslint-config-next": "^16.1.7",
-    "prisma": "^6.16.1",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2"
   }

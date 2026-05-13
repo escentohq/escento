@@ -105,44 +105,56 @@ export async function updateMusicianProfile(
   }
 
   const data = parsed.data;
-  await db.$transaction(async (tx) => {
-    const [ensuredInstruments, ensuredGenres] = await Promise.all([
-      ensureInstruments(tx, data.instruments),
-      ensureGenres(tx, data.genres),
-    ]);
+  const [ensuredInstruments, ensuredGenres] = await Promise.all([
+    ensureInstruments(data.instruments),
+    ensureGenres(data.genres),
+  ]);
 
-    await Promise.all([
-      tx.musicianInstrument.deleteMany({ where: { musicianProfileId: profile.id } }),
-      tx.musicianGenre.deleteMany({ where: { musicianProfileId: profile.id } }),
-    ]);
+  const supabase = await (await import("@/lib/supabase/server")).createSupabaseServerClient();
 
-    await tx.musicianProfile.update({
-      where: { id: profile.id },
-      data: {
-        displayName: data.displayName,
-        bio: data.bio,
-        school: data.school,
-        location: data.location,
-        isRemote: data.isRemote,
-        seekingPaid: data.seekingPaid,
-        seekingUnpaid: data.seekingUnpaid,
-        yearsExperience: data.yearsExperience,
-        availabilityText: data.availabilityText,
-        contactEmail: data.contactEmail,
-        instagramUrl: data.instagramUrl,
-        youtubeUrl: data.youtubeUrl,
-        spotifyUrl: data.spotifyUrl,
-        soundcloudUrl: data.soundcloudUrl,
-        websiteUrl: data.websiteUrl,
-        instruments: {
-          create: ensuredInstruments.map((inst) => ({ instrumentId: inst.id })),
-        },
-        genres: {
-          create: ensuredGenres.map((genre) => ({ genreId: genre.id })),
-        },
-      },
-    });
+  // Delete existing relationships
+  await Promise.all([
+    supabase.from("musician_instrument").delete().eq("musician_profile_id", profile.id),
+    supabase.from("musician_genre").delete().eq("musician_profile_id", profile.id),
+  ]);
+
+  // Update profile
+  await db.musicianProfile.update({
+    where: { id: profile.id },
+    data: {
+      displayName: data.displayName,
+      bio: data.bio,
+      school: data.school,
+      location: data.location,
+      isRemote: data.isRemote,
+      seekingPaid: data.seekingPaid,
+      seekingUnpaid: data.seekingUnpaid,
+      yearsExperience: data.yearsExperience,
+      availabilityText: data.availabilityText,
+      contactEmail: data.contactEmail,
+      instagramUrl: data.instagramUrl,
+      youtubeUrl: data.youtubeUrl,
+      spotifyUrl: data.spotifyUrl,
+      soundcloudUrl: data.soundcloudUrl,
+      websiteUrl: data.websiteUrl,
+    },
   });
+
+  // Create new relationships
+  await Promise.all([
+    ...ensuredInstruments.map((inst) =>
+      supabase.from("musician_instrument").insert({
+        musician_profile_id: profile.id,
+        instrument_id: inst.id,
+      })
+    ),
+    ...ensuredGenres.map((genre) =>
+      supabase.from("musician_genre").insert({
+        musician_profile_id: profile.id,
+        genre_id: genre.id,
+      })
+    ),
+  ]);
 
   revalidatePath("/");
   revalidatePath("/musicians");

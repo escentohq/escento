@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { PageShell } from "@/components/ui/page-shell";
 import { requireRole } from "@/lib/auth-guards";
-import { db } from "@/lib/db";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { GigForm } from "../../_gig-form";
 import { updateGig } from "./actions";
 
@@ -21,18 +21,17 @@ export default async function EditGigPage({
 
   if (!isValidId(id)) redirect("/gigs/manage");
 
-  const gig = await db.gig.findUnique({
-    where: { id },
-    include: {
-      instruments: { include: { instrument: true } },
-      genres: { include: { genre: true } },
-    },
-  });
+  const supabase = await createSupabaseServerClient();
+  const { data: gig } = await supabase
+    .from("gig")
+    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
+    .eq("id", id)
+    .single();
 
-  if (!gig || gig.creatorId !== session.user.id) redirect("/gigs/manage");
+  if (!gig || gig.creator_id !== session.user.id) redirect("/gigs/manage");
 
-  const instrumentsCsv = gig.instruments.map((x) => x.instrument.name).join(", ");
-  const genresCsv = gig.genres.map((x) => x.genre.name).join(", ");
+  const instrumentsCsv = (gig.gig_instrument || []).map((x: any) => x.instrument?.name).join(", ");
+  const genresCsv = (gig.gig_genre || []).map((x: any) => x.genre?.name).join(", ");
   const deadlineValue =
     gig.deadline instanceof Date
       ? gig.deadline.toISOString().slice(0, 10)
