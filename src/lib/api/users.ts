@@ -53,6 +53,7 @@ export async function createUser(input: CreateUserInput): Promise<AppUser> {
   const { data, error } = await supabase
     .from("user")
     .insert({
+      id: crypto.randomUUID(),
       email: input.email,
       name: input.name,
       image: input.image,

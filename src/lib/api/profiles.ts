@@ -95,6 +95,7 @@ export async function createProfile(
   const { data: profile, error: profileError } = await supabase
     .from("musician_profile")
     .insert({
+      id: crypto.randomUUID(),
       user_id: userId,
       display_name: input.displayName,
       bio: input.bio,
@@ -120,12 +121,14 @@ export async function createProfile(
   await Promise.all([
     ...instruments.map((inst) =>
       supabase.from("musician_instrument").insert({
+        id: crypto.randomUUID(),
         musician_profile_id: profile.id,
         instrument_id: inst.id,
       })
     ),
     ...genres.map((genre) =>
       supabase.from("musician_genre").insert({
+        id: crypto.randomUUID(),
         musician_profile_id: profile.id,
         genre_id: genre.id,
       })
@@ -204,12 +207,14 @@ export async function updateProfile(
     await Promise.all([
       ...instruments.map((inst) =>
         supabase.from("musician_instrument").insert({
+          id: crypto.randomUUID(),
           musician_profile_id: id,
           instrument_id: inst.id,
         })
       ),
       ...genres.map((genre) =>
         supabase.from("musician_genre").insert({
+          id: crypto.randomUUID(),
           musician_profile_id: id,
           genre_id: genre.id,
         })

@@ -32,7 +32,7 @@ export async function ensureInstruments(names: string[]): Promise<Tag[]> {
 
   const { data, error } = await supabase
     .from("instrument")
-    .upsert(normalized.map((name) => ({ name })), { onConflict: "name" })
+    .upsert(normalized.map((name) => ({ id: crypto.randomUUID(), name })), { onConflict: "name" })
     .select("id, name");
 
   if (error) throw error;
@@ -47,7 +47,7 @@ export async function ensureGenres(names: string[]): Promise<Tag[]> {
 
   const { data, error } = await supabase
     .from("genre")
-    .upsert(normalized.map((name) => ({ name })), { onConflict: "name" })
+    .upsert(normalized.map((name) => ({ id: crypto.randomUUID(), name })), { onConflict: "name" })
     .select("id, name");
 
   if (error) throw error;

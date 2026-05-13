@@ -107,6 +107,7 @@ export async function createGig(input: CreateGigInput, instrumentNames: string[]
   const { data: gig, error: gigError } = await supabase
     .from("gig")
     .insert({
+      id: crypto.randomUUID(),
       creator_id: input.creatorId,
       title: input.title,
       description: input.description,
@@ -124,9 +125,17 @@ export async function createGig(input: CreateGigInput, instrumentNames: string[]
 
   await Promise.all([
     ...instruments.map((inst) =>
-      supabase.from("gig_instrument").insert({ gig_id: gig.id, instrument_id: inst.id })
+      supabase.from("gig_instrument").insert({ 
+        id: crypto.randomUUID(),
+        gig_id: gig.id, 
+        instrument_id: inst.id 
+      })
     ),
-    ...genres.map((genre) => supabase.from("gig_genre").insert({ gig_id: gig.id, genre_id: genre.id })),
+    ...genres.map((genre) => supabase.from("gig_genre").insert({ 
+      id: crypto.randomUUID(),
+      gig_id: gig.id, 
+      genre_id: genre.id 
+    })),
   ]);
 
   return {
@@ -190,9 +199,17 @@ export async function updateGig(
 
     await Promise.all([
       ...instruments.map((inst) =>
-        supabase.from("gig_instrument").insert({ gig_id: id, instrument_id: inst.id })
+        supabase.from("gig_instrument").insert({ 
+          id: crypto.randomUUID(),
+          gig_id: id, 
+          instrument_id: inst.id 
+        })
       ),
-      ...genres.map((genre) => supabase.from("gig_genre").insert({ gig_id: id, genre_id: genre.id })),
+      ...genres.map((genre) => supabase.from("gig_genre").insert({ 
+        id: crypto.randomUUID(),
+        gig_id: id, 
+        genre_id: genre.id 
+      })),
     ]);
   }
 
