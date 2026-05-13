@@ -10,14 +10,14 @@ export type AppSession = {
     id: string;
     email: string | null;
     role: string | null;
+    name: string | null;
+    image: string | null;
   };
 };
 
 export async function getCurrentSession(): Promise<AppSession | null> {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user?.email) return null;
 
   const appUser = await syncAppUserFromAuth(user);
@@ -26,6 +26,8 @@ export async function getCurrentSession(): Promise<AppSession | null> {
       id: appUser.id,
       email: appUser.email,
       role: appUser.role,
+      name: appUser.name,
+      image: appUser.image,
     },
   };
 }
@@ -33,9 +35,7 @@ export async function getCurrentSession(): Promise<AppSession | null> {
 /** Signed in with Supabase; app user synced. Role may still be null (onboarding). */
 export async function requireSignedIn(callbackUrl: string): Promise<AppSession> {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user?.email) {
     redirect(`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
   }
@@ -46,6 +46,8 @@ export async function requireSignedIn(callbackUrl: string): Promise<AppSession> 
       id: appUser.id,
       email: appUser.email,
       role: appUser.role,
+      name: appUser.name,
+      image: appUser.image,
     },
   };
 }

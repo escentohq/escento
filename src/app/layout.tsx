@@ -35,6 +35,8 @@ export default async function RootLayout({
           signedIn={!!session?.user}
           email={session?.user?.email}
           role={session?.user?.role}
+          name={session?.user?.name}
+          image={session?.user?.image}
           musicianProfilePath={musicianProfilePath}
           isCreator={isCreator}
         />

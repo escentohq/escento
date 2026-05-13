@@ -86,3 +86,13 @@ export async function updateUser(id: string, input: UpdateUserInput): Promise<Ap
   if (error) throw error;
   return toAppUser(data);
 }
+
+export async function deleteUser(id: string): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("user")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+}
