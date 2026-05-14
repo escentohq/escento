@@ -12,5 +12,9 @@ export async function setRole(role: "MUSICIAN" | "CREATOR") {
   await updateUser(session.user.id, { role });
 
   revalidatePath("/");
-  redirect("/");
+  if (role === "MUSICIAN") {
+    redirect("/profile/create");
+  } else {
+    redirect("/gigs/manage");
+  }
 }
