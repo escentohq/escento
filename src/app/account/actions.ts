@@ -1,7 +1,8 @@
 "use server";
 
 import { requireSignedIn } from "@/lib/auth-guards";
-import { updateUser, deleteUser } from "@/lib/api/users";
+import { getUserById, updateUser, deleteUser } from "@/lib/api/users";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -32,7 +33,16 @@ export async function updateNameAction(
 
 export async function deleteAccountAction(): Promise<void> {
   const session = await requireSignedIn("/account");
-  await deleteUser(session.user.id);
+  const user = await getUserById(session.user.id);
+  if (!user?.supabaseUserId) {
+    throw new Error("Authenticated user is missing a Supabase auth id.");
+  }
+
+  const admin = createSupabaseAdminClient();
+  const { error } = await admin.auth.admin.deleteUser(user.supabaseUserId, false);
+  if (error) throw error;
+
+  await deleteUser(user.id);
 
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
