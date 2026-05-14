@@ -1,37 +1,281 @@
-# GigForge (MVP)
+# Motivo
 
-GigForge is a platform connecting student musicians with student creators who need collaborators for creative projects.
+Platform connecting student musicians with student creators for film, podcasts, live events, games, YouTube videos, and creative projects.
 
-Examples of projects include:
-- short films
-- live performances
-- podcasts
-- YouTube videos
-- indie games
+**Vision:** Students find collaborators fast. Musicians discover opportunities. Creators cast talent.
 
-The goal of the MVP is to allow creators to quickly discover and contact musicians.
+## Features
+
+### User Management
+- OAuth sign-in via Google
+- Profile avatars in navigation (image → initials → icon fallback)
+- Account settings page (update name, view email, delete account)
+- Role-based access (Musician / Creator)
+
+### Musician Features
+- Build public musician profiles with bio, instruments, genres, years of experience
+- Upload portfolio items (links to past work)
+- Browse and apply to open gigs
+- Filter gigs by instrument, genre, project type, compensation
+
+### Creator Features
+- Post gigs with project details, compensation, deadline, location
+- Specify required instruments and genres
+- Manage posted gigs (close, edit, delete)
+- Browse musician directory with filters
+
+### Discovery
+- Musician directory with searchable profiles
+- Gig listing with advanced filters (project type, instruments, genres, compensation)
+- Role-aware navigation (different menu for musicians vs. creators)
 
 ## Tech Stack
 
-- Next.js (App Router)
-- TypeScript
-- TailwindCSS
-- Prisma
-- PostgreSQL
-- NextAuth / Clerk
-- Vercel deployment
+### Frontend
+- **Framework:** Next.js 16 (App Router, Server Components)
+- **Language:** TypeScript 5.9+
+- **Styling:** Tailwind CSS v4 (`@tailwindcss/postcss`)
+- **Animations:** Framer Motion, GSAP + ScrollTrigger
+- **UI Primitives:** Radix UI (`@radix-ui/react-*` for dropdowns, dialogs, etc.)
+- **Icons:** Lucide React
+- **3D (hero only):** React Three Fiber + Drei
 
-## Core MVP Features
+### Backend
+- **Auth:** Supabase (JWT-based, Google OAuth provider)
+- **Database:** PostgreSQL (via Supabase)
+- **ORM:** None (raw Supabase client for now)
+- **Mutations:** Server Actions (no REST API routes except `/api/auth/[...nextauth]`)
 
-- Musician profiles
-- Musician directory
-- Gig posting
-- Gig browsing
-- Simple matching filters
-- Contact via email or external links
+## Project Structure
 
-## Status
+```
+src/
+├── app/                          # Next.js App Router
+│   ├── layout.tsx               # Root layout (NavBar, Footer)
+│   ├── page.tsx                 # Landing page
+│   ├── account/                 # User account settings
+│   │   ├── page.tsx
+│   │   ├── actions.ts
+│   │   ├── loading.tsx
+│   │   ├── error.tsx
+│   │   ├── _update-name-form.tsx
+│   │   └── _delete-account-button.tsx
+│   ├── musicians/               # Musician directory
+│   │   ├── page.tsx
+│   │   └── [id]/page.tsx       # Public musician profile
+│   ├── gigs/                    # Gig management
+│   │   ├── page.tsx            # Browse gigs
+│   │   ├── [id]/page.tsx       # Gig detail
+│   │   ├── [id]/edit/          # Edit gig (Creator only)
+│   │   ├── create/             # Post gig (Creator only)
+│   │   └── manage/             # Manage my gigs (Creator only)
+│   ├── profile/                 # Musician profile editor
+│   │   ├── create/             # Create profile (MUSICIAN role)
+│   │   └── edit/               # Edit profile (MUSICIAN role)
+│   ├── onboarding/              # Role selection
+│   │   └── role/page.tsx
+│   ├── signin/                  # Sign in page
+│   └── auth/callback/           # OAuth callback handler
+│
+├── lib/
+│   ├── api/                     # Service layer (DB operations)
+│   │   ├── users.ts            # User CRUD
+│   │   ├── profiles.ts         # Musician profile CRUD
+│   │   ├── gigs.ts             # Gig CRUD + queries
+│   │   ├── tags.ts             # Instrument/Genre upsert
+│   │   └── types.ts            # TypeScript interfaces
+│   ├── supabase/
+│   │   ├── server.ts           # Server-side Supabase client
+│   │   └── client.ts           # Browser-side Supabase client
+│   ├── auth/
+│   │   └── sync-app-user.ts   # Sync Supabase user → app user
+│   ├── auth-guards.ts          # Session checks + redirects
+│   ├── form-utils.ts           # CSV parsing, validation
+│   ├── db.ts                   # Prisma singleton (legacy)
+│   └── middleware.ts           # Protect /onboarding/*
+│
+├── components/
+│   ├── home/
+│   │   ├── HomeLanding.tsx     # Landing page hero (bright theme)
+│   │   └── StageLightsScene.tsx # 3D scene (R3F, only file allowed)
+│   ├── ui/
+│   │   ├── nav-bar.tsx         # Top navigation
+│   │   ├── _user-menu.tsx      # Profile avatar dropdown
+│   │   ├── footer.tsx
+│   │   ├── primary-cta.tsx
+│   │   ├── secondary-cta.tsx
+│   │   ├── page-shell.tsx      # Page layout wrapper
+│   │   ├── page-loading.tsx    # Skeleton loading
+│   │   ├── section-card.tsx    # Card component
+│   │   └── [other UI primitives]
+│   └── auth/
+│       ├── sign-out-button.tsx
+│       └── password-field.tsx
+│
+└── types/                       # Ambient types
+```
 
-This repository contains the MVP implementation.
+## Database Schema
 
-The project is currently under active development.
+**Tables:**
+- `user` — Core app user (id, email, name, image, role, supabase_user_id)
+- `musician_profile` — Musician-specific data (bio, instruments, genres, links)
+- `gig` — Posted opportunities (title, description, instruments, genres, compensation)
+- `instrument` — Tag reference (upserted on use)
+- `genre` — Tag reference (upserted on use)
+- `musician_instrument` — Junction (musician_profile → instruments)
+- `musician_genre` — Junction (musician_profile → genres)
+- `gig_instrument` — Junction (gig → required instruments)
+- `gig_genre` — Junction (gig → required genres)
+
+All cascade deletes on user → deletes profiles, gigs, and junction rows.
+
+## Authentication Flow
+
+1. User clicks "Sign in" → Google OAuth redirect
+2. Google redirects to `/auth/callback?code=...`
+3. Supabase exchanges code for session (JWT in httpOnly cookie)
+4. Callback redirects to home or callback URL
+5. Every page checks session via `getCurrentSession()` (Supabase auth + app user sync)
+6. First login: user onboarding at `/onboarding/role` to choose Musician or Creator
+7. Role persists in `user.role` column
+
+**Session shape:**
+```ts
+{ user: { id, email, role, name, image } }
+```
+
+## Key Patterns
+
+### Server Components by Default
+- Every `page.tsx` and `layout.tsx` is a Server Component
+- They `await getCurrentSession()` and call API functions
+- Only add `"use client"` when needed (forms, modals, animations)
+
+### Mutations via Server Actions
+- All writes go through `"use server"` functions in `actions.ts`
+- Session + role re-checked inside each action
+- After mutation: `revalidatePath()` + `redirect()`
+- No REST API routes (except `/api/auth/[...nextauth]`)
+
+### API Layer (`src/lib/api/*`)
+- Centralized DB operations (no direct Supabase calls in pages)
+- Handles snake_case ↔ camelCase transformation
+- Flattens junction tables (instruments/genres as `string[]`)
+
+### Design System
+**Tokens** (no zinc/violet, only bright theme):
+- Page: `#FAFAFA`
+- Ink: `#0F172A`
+- Accents: `#0055FF` (blue), `#FF3366` (pink), `#FFB000` (gold)
+- Focus ring: `outline-2 outline-[#0055FF] outline-offset-2`
+- Radius: `rounded-full` (pills), `rounded-3xl` (cards), `rounded-2xl` (inputs)
+
+**Component Patterns:**
+- Primary CTA: `rounded-full h-14 px-8 bg-[#0F172A] text-white`
+- Secondary CTA: `rounded-full border-2 border-[#E2E8F0] bg-white`
+- Destructive: `border-[#FF3366] text-[#FF3366] hover:bg-[#FF3366]/10`
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+
+- Supabase project (free tier OK)
+- Google OAuth credentials (for sign-in)
+
+### Local Setup
+
+1. **Clone & install:**
+   ```bash
+   git clone <repo>
+   cd gig-forge
+   npm install
+   ```
+
+2. **Environment variables** (`.env.local`):
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://...supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+   NEXT_PUBLIC_GOOGLE_CLIENT_ID=...
+   ```
+
+3. **Run dev server:**
+   ```bash
+   npm run dev
+   ```
+   Open http://localhost:3000
+
+### Database Setup
+
+1. Create PostgreSQL DB in Supabase
+2. Migrations auto-apply from `supabase/migrations/`
+3. Or manually run SQL schema from `supabase/migrations/*.sql`
+
+## Commands
+
+```bash
+npm run dev              # Start dev server (localhost:3000)
+npm run build           # Next.js production build
+npm run lint            # ESLint checks
+npm run prisma:generate # Generate Prisma types (if schema changes)
+```
+
+## File Naming Conventions
+
+| Type | Location | Pattern |
+|---|---|---|
+| Route page | `src/app/<segment>/` | `page.tsx` |
+| Route layout | `src/app/<segment>/` | `layout.tsx` |
+| Server action | `src/app/<segment>/` | `actions.ts` |
+| Co-located form | `src/app/<segment>/` | `_<name>.tsx` |
+| UI component | `src/components/ui/` | `kebab-case.tsx` |
+| Feature component | `src/components/<feature>/` | `PascalCase.tsx` |
+
+Underscore prefix (`_`) opts out of routing — use for co-located forms and helpers.
+
+## Security Checklist
+
+- [ ] Session + role re-checked in every server action
+- [ ] Ownership verified on edit/delete (`record.userId === session.user.id`)
+- [ ] Inputs validated (length, enum membership, URL format)
+- [ ] No `dangerouslySetInnerHTML`
+- [ ] External links use `rel="noopener noreferrer"`
+- [ ] No secrets in client bundle
+
+## Known Issues & TODOs
+
+- JWT callback hits DB on every request (perf issue)
+- Tag names lack `@unique` constraint (case-sensitive collisions possible)
+- Status on Gig is `STRING` (should be enum)
+- `PortfolioItem` and `MusicianInstrument.proficiency` are dead code
+- No `revalidatePath` after some mutations (cache inconsistency risk)
+
+## Deployment
+
+**Vercel:**
+1. Connect repo to Vercel
+2. Set env vars (Supabase URL, keys, Google OAuth credentials)
+3. Deploy (`git push` triggers automatic build)
+
+**Database:** Supabase (managed PostgreSQL)
+**Auth:** Supabase + Google OAuth (no additional infra)
+
+## Contributing
+
+1. Read `ai-context/AGENTS.md` for conventions
+2. Create feature branch from `main`
+3. Follow commit style: `feat(scope): description`
+4. `npm run lint && npm run build` must pass
+5. Create PR with test plan
+
+## Resources
+
+- **API docs:** `ai-context/DATABASE.md` (all service layer functions)
+- **Design system:** `ai-context/DESIGN.md` (colors, tokens, motion)
+- **UX rules:** `ai-context/UX_RULES.md` (forms, loading states, accessibility)
+- **Architecture:** `ai-context/FRONTEND_ARCH.md` (patterns, auth, data fetching)
+- **Components:** `ai-context/COMPONENTS.md` (reusable UI recipes)
+
+## License
+
+MIT
