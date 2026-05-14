@@ -1,2 +1,86 @@
-Read AGENTS.md before any work.
-Reference implementation: src/components/home/HomeLanding.tsx
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+**Read `AGENTS.md` before any work.** It contains the 10 non-negotiable rules, the full tech stack, the Definition of Done checklist, and which sub-agent file to load per task type. This file is the complement — architecture detail that requires reading across multiple files to understand.
+
+Reference implementation for all new UI: `src/components/home/HomeLanding.tsx`.
+
+---
+
+## Commands
+
+```bash
+npm run dev       # dev server at localhost:3000
+npm run build     # production build (must pass before done)
+npm run lint      # ESLint (must pass before done)
+```
+
+No test runner is configured. Verification is manual (browser) + `lint` + `build`.
+
+---
+
+## Architecture
+
+### Auth → App User sync (multi-file to understand)
+
+Supabase Auth and the app's own `user` table are two separate identity stores. Every request that touches an auth guard calls `syncAppUserFromAuth` (`src/lib/auth/sync-app-user.ts`), which upserts the Supabase JWT identity into the `user` table and returns the merged record. The session shape throughout the app is always:
+
+```ts
+{ user: { id, email, role, name, image } }  // id = app user id (TEXT), not Supabase UUID
+```
+
+Auth guards (`src/lib/auth-guards.ts`) layer on top: `getCurrentSession` → `requireSignedIn` → `requireUser` (has a role) → `requireRole("MUSICIAN"|"CREATOR", callbackUrl)`. Every protected page and server action calls one of these.
+
+`middleware.ts` only refreshes the Supabase cookie and blocks `/onboarding/*` for unauthenticated users. All other route-level auth is enforced at the page or action level, not in middleware.
+
+### Service layer (`src/lib/api/`)
+
+No direct Supabase calls outside this directory. Each file (`users.ts`, `profiles.ts`, `gigs.ts`, `tags.ts`) follows the same pattern:
+
+- Private `toX(raw)` normalizer converts Postgres snake_case → TypeScript camelCase and flattens junction arrays (e.g., `gig_instrument` rows → `instruments: string[]`).
+- All functions call `await createSupabaseServerClient()` at the top — never cached, never a module singleton.
+- IDs are `TEXT` generated via `crypto.randomUUID()` in application code before insert, not Postgres-native `uuid`.
+
+Tags (instruments, genres) are deduplicated via `normalizeTagName` and upserted via `ensureInstruments`/`ensureGenres` in `tags.ts`. Gig and profile mutations delete-and-reinsert junction rows on every update.
+
+### Server Actions pattern
+
+Actions live in `actions.ts` co-located with their route segment. The shape used with `useActionState`:
+
+```ts
+// actions.ts
+"use server";
+export async function doThingAction(_state: ActionState, fd: FormData): Promise<ActionState>
+```
+
+Inside every action: call an auth guard first, validate inputs, call service layer, then `revalidatePath()` + `redirect()`. The client form uses `useActionState(doThingAction, initialState)` and renders inline field errors from the returned `ActionState`.
+
+For actions bound with a pre-existing ID (e.g., edit flows): `updateGigAction.bind(null, gigId)` — the bound action's signature is `(gigId, _state, fd)`.
+
+### Layout and theme migration state
+
+`src/app/layout.tsx` and `src/app/globals.css` are **legacy dark-zinc shell** — they exist but are being phased out. Do not add new classes to `globals.css` (`.input-base`, `.btn-primary`, `.card` are dark-theme presets). All new pages use inline Tailwind with bright theme tokens directly. The legacy shell co-exists with the bright landing page because the landing page (`src/components/home/HomeLanding.tsx`) applies its own full-bleed styles that override the shell.
+
+### Route co-location conventions
+
+Inside `src/app/**`, only Next.js segment files are routes. Client forms and UI helpers use underscore prefix to opt out of routing:
+
+- `page.tsx` — Server Component, fetches data, renders layout
+- `actions.ts` — Server Actions for that segment
+- `_<name>.tsx` — Co-located client component (form, button group); not a route
+- `_ui.tsx` — Barrel for shared primitives used only within that segment
+
+Feature components shared across routes live in `src/components/<feature>/`. Global UI primitives live in `src/components/ui/`.
+
+### Animation stack usage
+
+Framer Motion is default for all entrance/hover/transition animations. The `<Reveal>` component (`src/components/ui/reveal.tsx`) wraps any block that should fade+lift in on scroll — use it instead of writing `whileInView` directly. GSAP ScrollTrigger is only for scroll-pinned timelines. R3F (`@react-three/fiber`) is restricted to `src/components/home/StageLightsScene.tsx` — no other file may import from `@react-three/*` or `three`. `useReducedMotion()` is required for any non-trivial animation.
+
+### Supabase Realtime
+
+Not currently used in the codebase. The browser client (`src/lib/supabase/client.ts` → `createSupabaseBrowserClient()`) is available for client components that need it. Any table that should broadcast Realtime events needs `ALTER PUBLICATION supabase_realtime ADD TABLE "tablename"` in a migration.
+
+### Database migrations
+
+Source of truth: `supabase/migrations/*.sql`. Apply manually to the Supabase project SQL editor or via `supabase db push`. The schema uses `TEXT` PKs throughout (not `uuid` type). No RLS — auth is enforced server-side. New migrations should be additive; destructive changes require explicit confirmation.
