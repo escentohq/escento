@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requireSignedIn } from "@/lib/auth-guards";
 import { getUserById } from "@/lib/api/users";
 import { PageShell } from "@/components/ui/page-shell";
@@ -41,16 +40,10 @@ export default async function AccountPage() {
               <label className="block text-sm font-bold text-[#0F172A]">
                 Role
               </label>
-              <div className="mt-2 flex items-center justify-between">
+              <div className="mt-2 flex items-center">
                 <span className="text-sm text-[#475569] capitalize">
                   {user.role?.toLowerCase() || "No role"}
                 </span>
-                <Link
-                  href="/onboarding/role"
-                  className="text-sm font-bold text-[#0055FF] transition-colors hover:text-[#0F172A]"
-                >
-                  Change role →
-                </Link>
               </div>
             </div>
           </div>
