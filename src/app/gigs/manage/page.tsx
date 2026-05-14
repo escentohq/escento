@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { getCurrentSession } from "@/lib/auth-guards";
+import { requireRole } from "@/lib/auth-guards";
 import { listGigsByCreator } from "@/lib/api/gigs";
 import { clampText, compensationLabel, projectTypeLabel, visibleTags } from "@/lib/display";
 import { Chip } from "@/components/ui/chip";
@@ -11,21 +11,7 @@ import { Reveal } from "@/components/ui/reveal";
 import { closeGigAction, deleteGigAction } from "./actions";
 
 export default async function ManageGigsPage() {
-  const session = await getCurrentSession();
-  if (!session?.user?.id) {
-    return (
-      <PageShell
-        eyebrow="Stage management"
-        title="Manage Gigs"
-        body="No gigs to manage. Sign in as a creator."
-      >
-        <EmptyState
-          title="Not signed in"
-          body="Sign in to manage your gigs."
-        />
-      </PageShell>
-    );
-  }
+  const session = await requireRole("CREATOR", "/gigs/manage");
 
   const gigs = await listGigsByCreator(session.user.id);
 
