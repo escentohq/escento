@@ -46,9 +46,9 @@ Load the sub-agent **in addition to** this file — sub-agents scope your task, 
 | Accessible primitives | `@radix-ui/react-*` (dialog, tooltip, dropdown) | interactive components |
 | Component variants | `class-variance-authority` + `clsx` | variant props on UI primitives |
 | Icons | `lucide-react` | app-wide |
-| ORM | Prisma | `^6.16.1` |
-| DB | PostgreSQL | (Supabase or any provider) |
-| Auth | NextAuth v4 + Prisma Adapter + JWT | `^4.24.11` |
+| Database | PostgreSQL | (Supabase) |
+| DB Client | Supabase JS SDK (`@supabase/supabase-js`, `@supabase/ssr`) | `^2.105.4`, `^0.6.1` |
+| Auth | Supabase Auth (session-based) | built-in |
 | OAuth | GitHub, Google | — |
 | Lint | ESLint + `eslint-config-next` | `^9.35.0` |
 
@@ -76,16 +76,16 @@ Do not add: date pickers, form libraries (react-hook-form, formik), state manage
 **Do.** `src/app/gigs/create/actions.ts` exporting `createGig(formData)`.
 **Don't.** Add `src/app/api/gigs/route.ts`. See [`FRONTEND_ARCH.md`](./FRONTEND_ARCH.md) §Server Actions.
 
-### 3. Prisma via `@/lib/db` only
-**Rule.** Import the singleton: `import { db } from "@/lib/db"`. Never `new PrismaClient()`.
-**Why.** Hot-reload in dev otherwise creates dozens of connections and blows the pool.
+### 3. Supabase client via `createSupabaseServerClient()` only
+**Rule.** Server Actions/Components use: `const supabase = await createSupabaseServerClient()` from `@/lib/supabase/server`. Service layer in `src/lib/api/` wraps Supabase calls with typed helpers.
+**Why.** Centralizes auth (cookies), avoids connection leaks, types queries.
 
-### 4. Auth via `getServerSession(authOptions)`
-**Rule.** Every protected page and action calls `const session = await getServerSession(authOptions)` and re-checks role inside the handler.
-**Why.** JWT can be replayed; per-request server check is the trust boundary. Middleware only protects `/onboarding/*` today.
+### 4. Auth via `getCurrentSession()` or `requireRole()`
+**Rule.** Every protected page/action calls `const session = await requireRole("CREATOR", "/path")` from `@/lib/auth-guards`. Middleware protects `/onboarding/*`.
+**Why.** Supabase session + app user sync. Per-request check is trust boundary.
 **Do.**
 ```ts
-if (session?.user?.role !== "CREATOR") redirect("/");
+const session = await requireRole("CREATOR", request.nextUrl.pathname);
 ```
 
 ### 5. Bright stage-light theme — no dark zinc
@@ -138,7 +138,7 @@ if (session?.user?.role !== "CREATOR") redirect("/");
 ## Definition of Done (agent self-check before reporting complete)
 
 - [ ] Page is a Server Component unless it genuinely needs to be client.
-- [ ] All mutations are Server Actions; session + role re-checked inside.
+- [ ] All mutations are Server Actions; session + role re-checked inside via `requireRole()` or `requireSignedIn()`.
 - [ ] Bright stage-light tokens used. No `bg-zinc-*`, no `violet-*`, no `text-zinc-*`.
 - [ ] Icons are `lucide-react`. No emoji.
 - [ ] Motion (if any) uses `framer-motion` with tokens from [`DESIGN.md`](./DESIGN.md). No R3F outside `src/components/home/`.
@@ -149,7 +149,7 @@ if (session?.user?.role !== "CREATOR") redirect("/");
 - [ ] `npm run lint` passes.
 - [ ] `npm run build` passes.
 - [ ] No new dependencies were added without approval.
-- [ ] Reused existing helpers (`db`, `authOptions`, future `parseCsv`) — did not duplicate.
+- [ ] Reused existing helpers (`createSupabaseServerClient()`, service layer in `src/lib/api/`, auth guards) — did not duplicate.
 
 ---
 
@@ -166,8 +166,8 @@ if (session?.user?.role !== "CREATOR") redirect("/");
 ## Things to ask about before doing
 
 - Adding a dependency.
-- Touching the Prisma schema (additive migrations are usually fine; destructive ones never without confirmation).
-- Refactoring `src/app/layout.tsx`, `globals.css`, `src/auth.ts`, or NextAuth callbacks.
+- Touching the database schema (migrations in `supabase/migrations/`; additive usually fine, destructive never without confirmation).
+- Refactoring `src/app/layout.tsx`, `globals.css`, `src/lib/auth-guards.ts`, or `middleware.ts`.
 - Introducing a new top-level route segment.
 - Anything in [`PRODUCT.md`](./PRODUCT.md) §Out of scope.
 
@@ -182,10 +182,13 @@ if (session?.user?.role !== "CREATOR") redirect("/");
 | `src/app/page.tsx` | Server-side session + role resolution pattern. |
 | `src/app/layout.tsx` | LEGACY dark shell — read so you know what to migrate away from. |
 | `src/app/globals.css` | LEGACY token classes — do not extend. |
-| `src/auth.ts` | NextAuth config, JWT role refresh. |
-| `src/lib/db.ts` | Prisma singleton. |
-| `prisma/schema.prisma` | Data model source of truth. |
+| `src/lib/supabase/server.ts` | Supabase server client factory. |
+| `src/lib/auth-guards.ts` | Auth helpers: `requireRole()`, `getCurrentSession()`, role guards. |
+| `src/lib/auth/sync-app-user.ts` | Syncs Supabase auth users with app user records. |
+| `src/lib/api/` | Service layer with typed DB helpers (users.ts, gigs.ts, etc.). |
+| `supabase/migrations/` | SQL migrations — source of truth for schema. |
+| `middleware.ts` | Supabase session refresh + `/onboarding/*` protection. |
 
 ---
 
-*Last updated: 2026-05-12.*
+*Last updated: 2026-05-14.*
