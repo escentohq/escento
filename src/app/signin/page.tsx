@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { GoogleButton } from "./_google-button";
 import { SignInForm } from "./_signin-form";
+import { getCurrentSession } from "@/lib/auth-guards";
 
 function safeCallbackUrl(callbackUrl?: string) {
   if (!callbackUrl || !callbackUrl.startsWith("/") || callbackUrl.startsWith("//")) {
@@ -15,6 +17,9 @@ export default async function SignInPage({
 }: {
   searchParams: Promise<{ callbackUrl?: string; error?: string }>;
 }) {
+  const session = await getCurrentSession();
+  if (session?.user?.id) redirect("/account");
+
   const { callbackUrl, error } = await searchParams;
   const base = safeCallbackUrl(callbackUrl);
   const signupHref = `/signup?callbackUrl=${encodeURIComponent(base)}`;
@@ -73,4 +78,3 @@ export default async function SignInPage({
     </div>
   );
 }
-

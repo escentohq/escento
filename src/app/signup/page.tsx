@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { GoogleButton } from "@/app/signin/_google-button";
+import { getCurrentSession } from "@/lib/auth-guards";
 import { SignUpForm } from "./_signup-form";
 
 function safeCallbackUrl(callbackUrl?: string) {
@@ -15,6 +17,9 @@ export default async function SignUpPage({
 }: {
   searchParams: Promise<{ callbackUrl?: string }>;
 }) {
+  const session = await getCurrentSession();
+  if (session?.user?.id) redirect("/account");
+
   const { callbackUrl } = await searchParams;
   const base = safeCallbackUrl(callbackUrl);
   const signinHref = `/signin?callbackUrl=${encodeURIComponent(base)}`;
@@ -67,4 +72,3 @@ export default async function SignUpPage({
     </div>
   );
 }
-
