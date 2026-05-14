@@ -8,7 +8,7 @@
 
 ## Overview
 
-Musicians can send a single intro message to a creator via a gig listing. The creator sees it in a dedicated "Conversation Requests" inbox — separate from active conversations — and either starts a full chat or declines. This mirrors Instagram's message request model: the full thread only opens after creator approval.
+Musicians are able to send a single intro message to a creator via a gig listing. The creator sees it in a dedicated "Conversation Requests" inbox — separate from active conversations — and either starts a full chat or declines. This mirrors Instagram's message request model: the full thread only opens after creator approval.
 
 ---
 
