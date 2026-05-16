@@ -81,6 +81,8 @@ Framer Motion is default for all entrance/hover/transition animations. The `<Rev
 
 Not currently used in the codebase. The browser client (`src/lib/supabase/client.ts` → `createSupabaseBrowserClient()`) is available for client components that need it. Any table that should broadcast Realtime events needs `ALTER PUBLICATION supabase_realtime ADD TABLE "tablename"` in a migration.
 
-### Database migrations
+### Database schema
 
-Source of truth: `supabase/migrations/*.sql`. Apply manually to the Supabase project SQL editor or via `supabase db push`. The schema uses `TEXT` PKs throughout (not `uuid` type). No RLS — auth is enforced server-side. New migrations should be additive; destructive changes require explicit confirmation.
+Source of truth: Supabase dashboard SQL editor. Schema documentation in `DB_REBUILD.md`. Apply schema changes directly via Supabase dashboard or MCP. No RLS — auth enforced server-side. IDs are `TEXT` (not `uuid` type). All FK constraints use `ON DELETE CASCADE`.
+
+Service layer (`src/lib/api/`) makes all DB calls — never direct queries outside this directory.
