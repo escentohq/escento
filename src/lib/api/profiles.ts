@@ -58,14 +58,18 @@ interface ListProfilesFilters {
 
 export async function listProfiles(filters?: ListProfilesFilters): Promise<MusicianProfile[]> {
   const supabase = await createSupabaseServerClient();
+  const showDemoUsers = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
+
   const { data, error } = await supabase
     .from("musician_profile")
-    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*)), user:user_id(is_fake)")
     .order("updated_at", { ascending: false });
 
   if (error) throw error;
 
-  let profiles = (data || []).map(toProfile);
+  let profiles = (data || [])
+    .filter((p) => showDemoUsers || !p.user?.is_fake)
+    .map(toProfile);
 
   if (filters?.instrument) {
     const instrument = filters.instrument;

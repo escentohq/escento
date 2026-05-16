@@ -55,10 +55,11 @@ interface ListOpenGigsFilters {
 
 export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]> {
   const supabase = await createSupabaseServerClient();
+  const showDemoUsers = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
   let query = supabase
     .from("gig")
-    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
+    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*)), user:creator_id(is_fake)")
     .eq("status", "OPEN")
     .order("created_at", { ascending: false });
 
@@ -70,7 +71,9 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
 
   if (error) throw error;
 
-  let gigs = (data || []).map(toGig);
+  let gigs = (data || [])
+    .filter((g) => showDemoUsers || !g.user?.is_fake)
+    .map(toGig);
 
   if (filters?.instrument) {
     const instrument = filters.instrument;
