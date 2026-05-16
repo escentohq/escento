@@ -62,5 +62,5 @@ export async function createGigAction(_state: ActionState, fd: FormData): Promis
 
   revalidatePath("/gigs");
   revalidatePath("/gigs/manage");
-  redirect(`/gigs/${gig.id}`);
+  redirect(`/gigs/draft/${gig.id}/step/2`);
 }

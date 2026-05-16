@@ -41,8 +41,8 @@ function imageFromAuth(authUser: SupabaseAuthUser): string | null {
 }
 
 /**
- * Ensures a Prisma `User` exists for the Supabase auth user and returns it.
- * Links by `supabaseUserId`, or by email for legacy rows created before Supabase.
+ * Ensures an `user` record exists for the Supabase auth user.
+ * Uses upsert to handle concurrent requests safely.
  */
 export async function syncAppUserFromAuth(authUser: SupabaseAuthUser) {
   const authId = authUser.id;
@@ -54,6 +54,7 @@ export async function syncAppUserFromAuth(authUser: SupabaseAuthUser) {
   const name = displayNameFromAuth(authUser);
   const image = imageFromAuth(authUser);
 
+  // First try: find by supabaseUserId or email, return if exists
   const bySupabase = await getUserBySupabaseId(authId);
   if (bySupabase) {
     return updateUser(bySupabase.id, {
@@ -72,10 +73,33 @@ export async function syncAppUserFromAuth(authUser: SupabaseAuthUser) {
     });
   }
 
-  return createUser({
-    email,
-    name,
-    image,
-    supabaseUserId: authId,
-  });
+  // For new users: try to upsert by email to avoid race conditions
+  // If another request creates the user simultaneously, upsert will update instead
+  const supabase = await (await import("@/lib/supabase/server")).createSupabaseServerClient();
+  const userId = crypto.randomUUID();
+
+  const { data, error } = await supabase
+    .from("user")
+    .upsert(
+      {
+        id: userId,
+        email,
+        name: name ?? null,
+        image: image ?? null,
+        supabase_user_id: authId,
+      },
+      { onConflict: "email" }
+    )
+    .select()
+    .single();
+
+  if (error) throw error;
+  return {
+    id: data.id,
+    email: data.email,
+    name: data.name,
+    image: data.image,
+    supabaseUserId: data.supabase_user_id,
+    role: data.role,
+  };
 }

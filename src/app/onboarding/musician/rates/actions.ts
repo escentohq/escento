@@ -19,35 +19,29 @@ export async function saveRatesAction(
 
   // Parse indexed rate rows: rate[0][type], rate[0][amount], etc.
   const rateRows = parseIndexedRows(fd, "rate");
-  const rates = rateRows.map((row, idx) => ({
-    id: `rate-${idx}`,
-    musicianProfileId: profile.id,
-    rateType: row.type || "",
-    amount: row.amount ? parseFloat(row.amount) : null,
-    description: row.description || null,
-  }));
+  const rates = rateRows
+    .filter((row) => row.type || row.amount)
+    .map((row) => ({
+      rateType: row.type || "",
+      amount: row.amount ? parseFloat(row.amount) : 0,
+      currency: row.currency || "USD",
+      notes: row.description || null,
+    }));
 
-  // Validate at least one rate if any rates are provided
-  const hasRates = rates.some((r) => r.rateType || r.amount);
-  if (hasRates) {
-    const errors: Record<string, string> = {};
-    rates.forEach((rate, idx) => {
-      if (rate.rateType && !rate.amount) {
-        errors[`rate[${idx}][amount]`] = "Amount is required";
-      }
-      if (rate.amount && !rate.rateType) {
-        errors[`rate[${idx}][type]`] = "Rate type is required";
-      }
-    });
-    if (Object.keys(errors).length) {
-      return { ok: false, message: "Please fix rate errors", fieldErrors: errors };
+  const errors: Record<string, string> = {};
+  rateRows.forEach((row, idx) => {
+    if (row.type && !row.amount) {
+      errors[`rate[${idx}][amount]`] = "Amount is required";
     }
+    if (row.amount && !row.type) {
+      errors[`rate[${idx}][type]`] = "Rate type is required";
+    }
+  });
+  if (Object.keys(errors).length) {
+    return { ok: false, message: "Please fix rate errors", fieldErrors: errors };
   }
 
-  await saveMusicianRates(
-    profile.id,
-    rates.filter((r) => r.rateType && r.amount)
-  );
+  await saveMusicianRates(profile.id, rates);
   await updateOnboardingStep(profile.id, 4);
 
   revalidatePath("/onboarding/musician");

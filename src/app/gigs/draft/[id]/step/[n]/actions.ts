@@ -74,7 +74,7 @@ export async function publishGigAction(
   // Parse custom questions (indexed FormData: question[0][text], question[0][type], etc.)
   const questions: Array<{ text: string; type: string }> = [];
   let idx = 0;
-  while (fd.get(`question[${idx}][text]`)) {
+  while (fd.has(`question[${idx}][text]`)) {
     const text = strOrEmpty(fd.get(`question[${idx}][text]`));
     const type = strOrEmpty(fd.get(`question[${idx}][type]`)) || "text";
     if (text) {
@@ -101,16 +101,7 @@ export async function publishGigAction(
   );
 
   if (questions.length > 0) {
-    await saveGigApplicationQuestions(
-      gigId,
-      questions.map((q, i) => ({
-        id: `q-${i}`,
-        gigId,
-        questionText: q.text,
-        questionType: q.type,
-        displayOrder: i,
-      }))
-    );
+    await saveGigApplicationQuestions(gigId, questions);
   }
 
   await publishGig(gigId);

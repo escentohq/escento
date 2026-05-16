@@ -13,7 +13,7 @@ export async function setRole(role: "MUSICIAN" | "CREATOR") {
 
   revalidatePath("/");
   if (role === "MUSICIAN") {
-    redirect("/profile/create");
+    redirect("/onboarding/musician/basics");
   } else {
     redirect("/gigs/manage");
   }

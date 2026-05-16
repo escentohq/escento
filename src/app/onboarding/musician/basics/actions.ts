@@ -22,10 +22,34 @@ export async function saveBasicsAction(
   const existing = await getProfileByUserId(session.user.id);
 
   if (!existing) {
-    // Lazy create - let sound step create with full data, just update if already exists
-    // This handles the case where profile was created in a previous attempt
+    await createProfile(
+      session.user.id,
+      {
+        displayName: data.displayName,
+        contactEmail: data.contactEmail,
+        bio: data.bio,
+        school: data.school,
+        location: data.location,
+        isRemote: false,
+        seekingPaid: true,
+        seekingUnpaid: true,
+        yearsExperience: null,
+        availabilityText: null,
+        instagramUrl: null,
+        youtubeUrl: null,
+        spotifyUrl: null,
+        soundcloudUrl: null,
+        websiteUrl: null,
+      },
+      [],
+      []
+    );
+    const profile = await getProfileByUserId(session.user.id);
+    if (profile) {
+      await updateProfile(profile.id, { onboardingStep: 1 });
+    }
   } else {
-    await updateProfile(existing.id, data);
+    await updateProfile(existing.id, { ...data, onboardingStep: 1 });
   }
 
   revalidatePath("/onboarding/musician");

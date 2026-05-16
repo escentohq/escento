@@ -21,6 +21,18 @@ function toProfile(raw: any): MusicianProfile {
     spotifyUrl: raw.spotify_url,
     soundcloudUrl: raw.soundcloud_url,
     websiteUrl: raw.website_url,
+    profileImageUrl: raw.profile_image_url,
+    resumePdfUrl: raw.resume_pdf_url,
+    videoPortfolioUrl: raw.video_portfolio_url,
+    willingToTravel: raw.willing_to_travel ?? false,
+    travelRadiusMiles: raw.travel_radius_miles,
+    tourStartDate: raw.tour_start_date,
+    tourEndDate: raw.tour_end_date,
+    minNoticeDays: raw.min_notice_days ?? 14,
+    isSearchable: raw.is_searchable ?? true,
+    allowEventInvitations: raw.allow_event_invitations ?? true,
+    newsletterOptIn: raw.newsletter_opt_in ?? false,
+    onboardingStep: raw.onboarding_step ?? 0,
     updatedAt: raw.updated_at,
     instruments: raw.musician_instrument?.map((x: any) => x.instrument?.name).filter(Boolean) ?? [],
     genres: raw.musician_genre?.map((x: any) => x.genre?.name).filter(Boolean) ?? [],
@@ -153,6 +165,18 @@ export async function createProfile(
     spotifyUrl: profile.spotify_url,
     soundcloudUrl: profile.soundcloud_url,
     websiteUrl: profile.website_url,
+    profileImageUrl: profile.profile_image_url || null,
+    resumePdfUrl: profile.resume_pdf_url || null,
+    videoPortfolioUrl: profile.video_portfolio_url || null,
+    willingToTravel: profile.willing_to_travel ?? false,
+    travelRadiusMiles: profile.travel_radius_miles || null,
+    tourStartDate: profile.tour_start_date || null,
+    tourEndDate: profile.tour_end_date || null,
+    minNoticeDays: profile.min_notice_days ?? 14,
+    isSearchable: profile.is_searchable ?? true,
+    allowEventInvitations: profile.allow_event_invitations ?? true,
+    newsletterOptIn: profile.newsletter_opt_in ?? false,
+    onboardingStep: profile.onboarding_step ?? 0,
     updatedAt: profile.updated_at,
     instruments: instrumentNames,
     genres: genreNames,
@@ -183,6 +207,18 @@ export async function updateProfile(
   if (input.spotifyUrl !== undefined) updateData.spotify_url = input.spotifyUrl;
   if (input.soundcloudUrl !== undefined) updateData.soundcloud_url = input.soundcloudUrl;
   if (input.websiteUrl !== undefined) updateData.website_url = input.websiteUrl;
+  if (input.profileImageUrl !== undefined) updateData.profile_image_url = input.profileImageUrl;
+  if (input.resumePdfUrl !== undefined) updateData.resume_pdf_url = input.resumePdfUrl;
+  if (input.videoPortfolioUrl !== undefined) updateData.video_portfolio_url = input.videoPortfolioUrl;
+  if (input.willingToTravel !== undefined) updateData.willing_to_travel = input.willingToTravel;
+  if (input.travelRadiusMiles !== undefined) updateData.travel_radius_miles = input.travelRadiusMiles;
+  if (input.tourStartDate !== undefined) updateData.tour_start_date = input.tourStartDate;
+  if (input.tourEndDate !== undefined) updateData.tour_end_date = input.tourEndDate;
+  if (input.minNoticeDays !== undefined) updateData.min_notice_days = input.minNoticeDays;
+  if (input.isSearchable !== undefined) updateData.is_searchable = input.isSearchable;
+  if (input.allowEventInvitations !== undefined) updateData.allow_event_invitations = input.allowEventInvitations;
+  if (input.newsletterOptIn !== undefined) updateData.newsletter_opt_in = input.newsletterOptIn;
+  if (input.onboardingStep !== undefined) updateData.onboarding_step = input.onboardingStep;
 
   if (instrumentNames || genreNames) {
     await Promise.all([
@@ -229,4 +265,55 @@ export async function updateProfile(
     .single();
 
   return toProfile(data);
+}
+
+export async function updateOnboardingStep(profileId: string, step: number): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("musician_profile")
+    .update({ onboarding_step: step })
+    .eq("id", profileId);
+  if (error) throw error;
+}
+
+export async function saveMusicianRates(
+  profileId: string,
+  rates: { rateType: string; amount: number; currency: string; notes: string | null }[],
+): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  await supabase.from("musician_rates").delete().eq("musician_profile_id", profileId);
+  if (rates.length === 0) return;
+
+  const rows = rates.map((r) => ({
+    id: crypto.randomUUID(),
+    musician_profile_id: profileId,
+    rate_type: r.rateType,
+    amount: r.amount,
+    currency: r.currency,
+    description: r.notes,
+  }));
+
+  const { error } = await supabase.from("musician_rates").insert(rows);
+  if (error) throw error;
+}
+
+export async function getMusicianRates(
+  profileId: string,
+): Promise<{ id: string; rateType: string; amount: number; currency: string; description: string | null }[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("musician_rates")
+    .select("*")
+    .eq("musician_profile_id", profileId)
+    .order("created_at");
+
+  if (error) throw error;
+
+  return (data || []).map((r: any) => ({
+    id: r.id,
+    rateType: r.rate_type,
+    amount: r.amount,
+    currency: r.currency,
+    description: r.description,
+  }));
 }

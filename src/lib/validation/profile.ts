@@ -39,8 +39,8 @@ export function validateStep1(fd: FormData) {
 export function validateStep2(fd: FormData) {
   const fieldErrors: Record<string, string> = {};
 
-  const instruments = parseCsv(fd.get("instrumentsCsv"));
-  const genres = parseCsv(fd.get("genresCsv"));
+  const instruments = parseCsv(fd.get("instruments"));
+  const genres = parseCsv(fd.get("genres"));
   const seekingPaid = fd.get("seekingPaid") === "on";
   const seekingUnpaid = fd.get("seekingUnpaid") === "on";
   const yearsExperienceRaw = strOrEmpty(fd.get("yearsExperience"));
@@ -48,9 +48,9 @@ export function validateStep2(fd: FormData) {
   const isRemote = fd.get("isRemote") === "on";
   const availabilityText = nonEmptyOrNull(fd.get("availabilityText"));
 
-  if (!instruments.length) fieldError(fieldErrors, "instrumentsCsv", "Add at least one instrument.");
-  if (!genres.length) fieldError(fieldErrors, "genresCsv", "Add at least one genre.");
-  if (!seekingPaid && !seekingUnpaid) fieldError(fieldErrors, "seekingPaid", "Choose at least one compensation preference.");
+  if (!instruments.length) fieldError(fieldErrors, "instruments", "Add at least one instrument.");
+  if (!genres.length) fieldError(fieldErrors, "genres", "Add at least one genre.");
+  if (!seekingPaid && !seekingUnpaid) fieldError(fieldErrors, "seeking", "Choose at least one compensation preference.");
   if (yearsExperienceRaw && yearsExperience === null) fieldError(fieldErrors, "yearsExperience", "Use a whole number.");
   if (yearsExperience !== null && yearsExperience < 0) fieldError(fieldErrors, "yearsExperience", "Experience cannot be negative.");
 

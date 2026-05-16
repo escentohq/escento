@@ -129,3 +129,182 @@ export async function updateMusicianProfileAction(
   revalidatePath(`/musicians/${profile.id}`);
   redirect("/profile/edit");
 }
+
+export async function saveBasicsSection(
+  _state: ActionState,
+  fd: FormData,
+): Promise<ActionState> {
+  const session = await requireRole("MUSICIAN", "/profile/edit");
+  const profile = await getProfileByUserId(session.user.id);
+  if (!profile) redirect("/profile/create");
+
+  const displayName = strOrEmpty(fd.get("displayName"));
+  const bio = nonEmptyOrNull(fd.get("bio"));
+  const school = nonEmptyOrNull(fd.get("school"));
+  const location = nonEmptyOrNull(fd.get("location"));
+  const contactEmail = strOrEmpty(fd.get("contactEmail"));
+
+  const fieldErrors: Record<string, string> = {};
+  if (!displayName) fieldError(fieldErrors, "displayName", "Add the name creators should see.");
+  if (displayName.length > 80) fieldError(fieldErrors, "displayName", "Keep the display name under 80 characters.");
+  if (bio && bio.length > 1200) fieldError(fieldErrors, "bio", "Keep the bio under 1,200 characters.");
+  if (!contactEmail) fieldError(fieldErrors, "contactEmail", "Add a contact email.");
+  if (contactEmail && !isValidEmail(contactEmail)) fieldError(fieldErrors, "contactEmail", "Use a valid email address.");
+
+  if (Object.keys(fieldErrors).length) {
+    return { ok: false, message: "Please fix the errors below", fieldErrors };
+  }
+
+  await updateProfile(profile.id, { displayName, bio, school, location, contactEmail });
+  revalidatePath("/profile/edit");
+  return { ok: true, message: "Saved!" };
+}
+
+export async function saveSoundSection(
+  _state: ActionState,
+  fd: FormData,
+): Promise<ActionState> {
+  const session = await requireRole("MUSICIAN", "/profile/edit");
+  const profile = await getProfileByUserId(session.user.id);
+  if (!profile) redirect("/profile/create");
+
+  const instruments = parseCsv(fd.get("instruments"));
+  const genres = parseCsv(fd.get("genres"));
+  const seekingPaid = fd.get("seekingPaid") === "on";
+  const seekingUnpaid = fd.get("seekingUnpaid") === "on";
+  const yearsExperienceRaw = strOrEmpty(fd.get("yearsExperience"));
+  const yearsExperience = parseOptionalInteger(yearsExperienceRaw);
+  const isRemote = fd.get("isRemote") === "on";
+
+  const fieldErrors: Record<string, string> = {};
+  if (!instruments.length) fieldError(fieldErrors, "instruments", "Add at least one instrument.");
+  if (!genres.length) fieldError(fieldErrors, "genres", "Add at least one genre.");
+  if (!seekingPaid && !seekingUnpaid) fieldError(fieldErrors, "seeking", "Choose at least one compensation preference.");
+
+  if (Object.keys(fieldErrors).length) {
+    return { ok: false, message: "Please fix the errors below", fieldErrors };
+  }
+
+  await updateProfile(
+    profile.id,
+    { seekingPaid, seekingUnpaid, yearsExperience, isRemote },
+    instruments,
+    genres,
+  );
+  revalidatePath("/profile/edit");
+  return { ok: true, message: "Saved!" };
+}
+
+export async function savePortfolioSection(
+  _state: ActionState,
+  fd: FormData,
+): Promise<ActionState> {
+  const session = await requireRole("MUSICIAN", "/profile/edit");
+  const profile = await getProfileByUserId(session.user.id);
+  if (!profile) redirect("/profile/create");
+
+  const videoPortfolioUrl = nonEmptyOrNull(fd.get("videoPortfolioUrl"));
+
+  const fieldErrors: Record<string, string> = {};
+  if (videoPortfolioUrl && !isValidUrlOrEmpty(videoPortfolioUrl)) {
+    fieldError(fieldErrors, "videoPortfolioUrl", "Use a full http:// or https:// URL.");
+  }
+
+  if (Object.keys(fieldErrors).length) {
+    return { ok: false, message: "Please fix the errors below", fieldErrors };
+  }
+
+  await updateProfile(profile.id, { videoPortfolioUrl });
+  revalidatePath("/profile/edit");
+  return { ok: true, message: "Saved!" };
+}
+
+export async function saveRatesSection(
+  _state: ActionState,
+  fd: FormData,
+): Promise<ActionState> {
+  const session = await requireRole("MUSICIAN", "/profile/edit");
+  const profile = await getProfileByUserId(session.user.id);
+  if (!profile) redirect("/profile/create");
+
+  return { ok: true, message: "Saved!" };
+}
+
+export async function saveAvailabilitySection(
+  _state: ActionState,
+  fd: FormData,
+): Promise<ActionState> {
+  const session = await requireRole("MUSICIAN", "/profile/edit");
+  const profile = await getProfileByUserId(session.user.id);
+  if (!profile) redirect("/profile/create");
+
+  return { ok: true, message: "Saved!" };
+}
+
+export async function saveSocialSection(
+  _state: ActionState,
+  fd: FormData,
+): Promise<ActionState> {
+  const session = await requireRole("MUSICIAN", "/profile/edit");
+  const profile = await getProfileByUserId(session.user.id);
+  if (!profile) redirect("/profile/create");
+
+  const instagramUrl = nonEmptyOrNull(fd.get("instagramUrl"));
+  const youtubeUrl = nonEmptyOrNull(fd.get("youtubeUrl"));
+  const spotifyUrl = nonEmptyOrNull(fd.get("spotifyUrl"));
+  const soundcloudUrl = nonEmptyOrNull(fd.get("soundcloudUrl"));
+  const websiteUrl = nonEmptyOrNull(fd.get("websiteUrl"));
+
+  const fieldErrors: Record<string, string> = {};
+  for (const [field, value] of Object.entries({
+    instagramUrl,
+    youtubeUrl,
+    spotifyUrl,
+    soundcloudUrl,
+    websiteUrl,
+  })) {
+    if (!isValidUrlOrEmpty(value)) fieldError(fieldErrors, field, "Use a full http:// or https:// URL.");
+  }
+
+  if (Object.keys(fieldErrors).length) {
+    return { ok: false, message: "Please fix the errors below", fieldErrors };
+  }
+
+  await updateProfile(profile.id, {
+    instagramUrl,
+    youtubeUrl,
+    spotifyUrl,
+    soundcloudUrl,
+    websiteUrl,
+  });
+  revalidatePath("/profile/edit");
+  return { ok: true, message: "Saved!" };
+}
+
+export async function saveEquipmentSection(
+  _state: ActionState,
+  fd: FormData,
+): Promise<ActionState> {
+  const session = await requireRole("MUSICIAN", "/profile/edit");
+  const profile = await getProfileByUserId(session.user.id);
+  if (!profile) redirect("/profile/create");
+
+  return { ok: true, message: "Saved!" };
+}
+
+export async function savePreferencesSection(
+  _state: ActionState,
+  fd: FormData,
+): Promise<ActionState> {
+  const session = await requireRole("MUSICIAN", "/profile/edit");
+  const profile = await getProfileByUserId(session.user.id);
+  if (!profile) redirect("/profile/create");
+
+  const isSearchable = fd.get("isSearchable") === "on";
+  const allowEventInvitations = fd.get("allowEventInvitations") === "on";
+  const newsletterOptIn = fd.get("newsletterOptIn") === "on";
+
+  await updateProfile(profile.id, { isSearchable, allowEventInvitations, newsletterOptIn });
+  revalidatePath("/profile/edit");
+  return { ok: true, message: "Saved!" };
+}

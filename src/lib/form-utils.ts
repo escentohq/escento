@@ -72,3 +72,17 @@ export function fieldError(fieldErrors: FieldErrors, field: string, message: str
   if (!fieldErrors[field]) fieldErrors[field] = message;
 }
 
+export function parseIndexedRows(fd: FormData, prefix: string): Record<string, string | null>[] {
+  const rows: Record<string, string | null>[] = [];
+  let idx = 0;
+  while (fd.has(`${prefix}[${idx}][type]`) || fd.has(`${prefix}[${idx}][amount]`)) {
+    const type = strOrEmpty(fd.get(`${prefix}[${idx}][type]`));
+    const amount = strOrEmpty(fd.get(`${prefix}[${idx}][amount]`));
+    const currency = strOrEmpty(fd.get(`${prefix}[${idx}][currency]`)) || "USD";
+    const description = nonEmptyOrNull(fd.get(`${prefix}[${idx}][description]`));
+    rows.push({ type, amount, currency, description });
+    idx++;
+  }
+  return rows;
+}
+

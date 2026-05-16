@@ -24,9 +24,12 @@ export async function saveSoundAction(
     redirect("/onboarding/musician/basics");
   }
 
-  await updateProfile(profile.id, data);
-  await ensureInstruments(data.instruments || []);
-  await ensureGenres(data.genres || []);
+  await updateProfile(
+    profile.id,
+    { seekingPaid: data.seekingPaid, seekingUnpaid: data.seekingUnpaid, yearsExperience: data.yearsExperience, isRemote: data.isRemote, availabilityText: data.availabilityText },
+    data.instruments || [],
+    data.genres || []
+  );
   await updateOnboardingStep(profile.id, 2);
 
   revalidatePath("/onboarding/musician");

@@ -24,8 +24,20 @@ function toGig(raw: any): Gig {
     status: raw.status,
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
+    experienceLevel: raw.experience_level,
+    ensembleSize: raw.ensemble_size,
+    equipmentRequirements: raw.equipment_requirements,
+    creatorName: raw.creator_name,
+    creatorPhone: raw.creator_phone,
+    creatorBio: raw.creator_bio,
+    creatorContactMethod: raw.creator_contact_method,
+    creatorContactLink: raw.creator_contact_link,
     instruments: raw.gig_instrument?.map((x: any) => x.instrument?.name).filter(Boolean) ?? [],
     genres: raw.gig_genre?.map((x: any) => x.genre?.name).filter(Boolean) ?? [],
+    applicationQuestions: raw.gig_application_questions?.map((q: any) => ({
+      text: q.question_text,
+      type: q.question_type,
+    })) ?? [],
     ...(raw.user && {
       creator: {
         name: raw.user.name,
@@ -117,6 +129,7 @@ export async function createGig(input: CreateGigInput, instrumentNames: string[]
       compensation_type: input.compensationType,
       compensation_details: input.compensationDetails,
       deadline: normalizeDeadline(input.deadline),
+      status: "DRAFT",
     })
     .select()
     .single();
@@ -152,6 +165,14 @@ export async function createGig(input: CreateGigInput, instrumentNames: string[]
     status: gig.status,
     createdAt: gig.created_at,
     updatedAt: gig.updated_at,
+    experienceLevel: gig.experience_level || null,
+    ensembleSize: gig.ensemble_size || null,
+    equipmentRequirements: gig.equipment_requirements || null,
+    creatorName: gig.creator_name || null,
+    creatorPhone: gig.creator_phone || null,
+    creatorBio: gig.creator_bio || null,
+    creatorContactMethod: gig.creator_contact_method || null,
+    creatorContactLink: gig.creator_contact_link || null,
     instruments: instrumentNames,
     genres: genreNames,
   };
@@ -174,6 +195,15 @@ export async function updateGig(
   if (input.compensationType !== undefined) updateData.compensation_type = input.compensationType;
   if (input.compensationDetails !== undefined) updateData.compensation_details = input.compensationDetails;
   if (input.deadline !== undefined) updateData.deadline = normalizeDeadline(input.deadline);
+  if (input.status !== undefined) updateData.status = input.status;
+  if (input.experienceLevel !== undefined) updateData.experience_level = input.experienceLevel;
+  if (input.ensembleSize !== undefined) updateData.ensemble_size = input.ensembleSize;
+  if (input.equipmentRequirements !== undefined) updateData.equipment_requirements = input.equipmentRequirements;
+  if (input.creatorName !== undefined) updateData.creator_name = input.creatorName;
+  if (input.creatorPhone !== undefined) updateData.creator_phone = input.creatorPhone;
+  if (input.creatorBio !== undefined) updateData.creator_bio = input.creatorBio;
+  if (input.creatorContactMethod !== undefined) updateData.creator_contact_method = input.creatorContactMethod;
+  if (input.creatorContactLink !== undefined) updateData.creator_contact_link = input.creatorContactLink;
 
   if (instrumentNames || genreNames) {
     await Promise.all([
@@ -239,5 +269,32 @@ export async function deleteGig(id: string): Promise<void> {
 
   const { error } = await supabase.from("gig").delete().eq("id", id);
 
+  if (error) throw error;
+}
+
+export async function publishGig(id: string): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("gig").update({ status: "OPEN" }).eq("id", id);
+  if (error) throw error;
+}
+
+export async function saveGigApplicationQuestions(
+  gigId: string,
+  questions: { text: string; type: string }[],
+): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  await supabase.from("gig_application_questions").delete().eq("gig_id", gigId);
+
+  if (questions.length === 0) return;
+
+  const rows = questions.map((q, i) => ({
+    id: crypto.randomUUID(),
+    gig_id: gigId,
+    question_text: q.text,
+    question_type: q.type,
+    sort_order: i,
+  }));
+
+  const { error } = await supabase.from("gig_application_questions").insert(rows);
   if (error) throw error;
 }
