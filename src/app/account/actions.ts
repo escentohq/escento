@@ -38,12 +38,15 @@ export async function deleteAccountAction(): Promise<void> {
     throw new Error("Authenticated user is missing a Supabase auth id.");
   }
 
+  // 1. Delete app user first (cascades to profiles, gigs, junctions)
+  await deleteUser(user.id);
+
+  // 2. Delete auth user second
   const admin = createSupabaseAdminClient();
   const { error } = await admin.auth.admin.deleteUser(user.supabaseUserId, false);
   if (error) throw error;
 
-  await deleteUser(user.id);
-
+  // 3. Sign out
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
 
