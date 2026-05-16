@@ -10,6 +10,7 @@ export interface AppUser {
   image: string | null;
   supabaseUserId: string | null;
   role: "MUSICIAN" | "CREATOR" | null;
+  isFake: boolean;
 }
 
 export interface Gig {
@@ -117,7 +118,8 @@ export interface CreateUserInput {
   email: string;
   name: string | null;
   image: string | null;
-  supabaseUserId: string;
+  supabaseUserId: string | null;
+  isFake?: boolean;
 }
 
 export interface UpdateUserInput {
@@ -126,4 +128,5 @@ export interface UpdateUserInput {
   image?: string | null;
   supabaseUserId?: string;
   role?: "MUSICIAN" | "CREATOR" | null;
+  isFake?: boolean;
 }

@@ -9,6 +9,7 @@ function toAppUser(raw: any): AppUser {
     image: raw.image,
     supabaseUserId: raw.supabase_user_id,
     role: raw.role,
+    isFake: raw.is_fake ?? false,
   };
 }
 
@@ -58,6 +59,7 @@ export async function createUser(input: CreateUserInput): Promise<AppUser> {
       name: input.name,
       image: input.image,
       supabase_user_id: input.supabaseUserId,
+      is_fake: input.isFake ?? false,
     })
     .select()
     .single();
@@ -75,6 +77,7 @@ export async function updateUser(id: string, input: UpdateUserInput): Promise<Ap
   if (input.image !== undefined) updateData.image = input.image;
   if (input.supabaseUserId !== undefined) updateData.supabase_user_id = input.supabaseUserId;
   if (input.role !== undefined) updateData.role = input.role;
+  if (input.isFake !== undefined) updateData.is_fake = input.isFake;
 
   const { data, error } = await supabase
     .from("user")
