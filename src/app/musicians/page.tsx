@@ -17,8 +17,8 @@ export default async function MusiciansPage({
 }) {
   const { instrument, genre } = await searchParams;
 
-  const session = await getCurrentSession();
-  const [instruments, genres, profiles] = await Promise.all([
+  const [session, instruments, genres, profiles] = await Promise.all([
+    getCurrentSession(),
     listInstruments(),
     listGenres(),
     listProfiles({ instrument, genre }),

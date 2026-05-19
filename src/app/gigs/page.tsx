@@ -24,8 +24,8 @@ export default async function GigsPage({
   const { projectType, instrument, genre } = await searchParams;
   const safeProjectType = PROJECT_TYPES.find((type) => type === projectType);
 
-  const session = await getCurrentSession();
-  const [instruments, genres, gigs] = await Promise.all([
+  const [session, instruments, genres, gigs] = await Promise.all([
+    getCurrentSession(),
     listInstruments(),
     listGenres(),
     listOpenGigs({ projectType: safeProjectType, instrument, genre }),

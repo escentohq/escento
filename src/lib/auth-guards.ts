@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AppSession = {
@@ -11,7 +12,7 @@ export type AppSession = {
   };
 };
 
-export async function getCurrentSession(): Promise<AppSession | null> {
+export const getCurrentSession = cache(async (): Promise<AppSession | null> => {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user?.id) return null;
@@ -26,25 +27,15 @@ export async function getCurrentSession(): Promise<AppSession | null> {
       image: typeof meta?.avatar_url === "string" ? meta.avatar_url : null,
     },
   };
-}
+});
 
 export async function requireSignedIn(callbackUrl: string): Promise<AppSession> {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.id) {
+  const session = await getCurrentSession();
+  if (!session?.user?.id) {
     redirect(`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
   }
 
-  const meta = user.user_metadata as Record<string, unknown> | undefined;
-  return {
-    user: {
-      id: user.id,
-      email: user.email ?? null,
-      name: typeof meta?.full_name === "string" ? meta.full_name : null,
-      role: typeof meta?.role === "string" ? meta.role : null,
-      image: typeof meta?.avatar_url === "string" ? meta.avatar_url : null,
-    },
-  };
+  return session;
 }
 
 export async function requireUser(callbackUrl: string): Promise<AppSession> {

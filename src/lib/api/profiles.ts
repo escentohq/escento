@@ -1,3 +1,5 @@
+import { cache } from "react";
+
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ensureInstruments, ensureGenres } from "./tags";
 import type { MusicianProfile, CreateProfileInput, UpdateProfileInput } from "./types";
@@ -27,7 +29,7 @@ function toProfile(raw: any): MusicianProfile {
   };
 }
 
-export async function getProfile(id: string): Promise<MusicianProfile | null> {
+export const getProfile = cache(async (id: string): Promise<MusicianProfile | null> => {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("musician_profile")
@@ -37,9 +39,9 @@ export async function getProfile(id: string): Promise<MusicianProfile | null> {
 
   if (error && error.code !== "PGRST116") throw error;
   return data ? toProfile(data) : null;
-}
+});
 
-export async function getProfileByUserId(userId: string): Promise<MusicianProfile | null> {
+export const getProfileByUserId = cache(async (userId: string): Promise<MusicianProfile | null> => {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("musician_profile")
@@ -49,7 +51,7 @@ export async function getProfileByUserId(userId: string): Promise<MusicianProfil
 
   if (error && error.code !== "PGRST116") throw error;
   return data ? toProfile(data) : null;
-}
+});
 
 interface ListProfilesFilters {
   instrument?: string;
