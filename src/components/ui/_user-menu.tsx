@@ -139,10 +139,9 @@ export function UserMenu({
 
           <DropdownMenu.Separator className="my-1.5 border-t border-[#F1F5F9]" />
 
+          <form id="sign-out-form" action={signOutAction} className="contents" />
           <DropdownMenu.Item asChild>
-            <form action={signOutAction} className="contents">
-              <SignOutButton />
-            </form>
+            <SignOutButton />
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
@@ -156,6 +155,7 @@ function SignOutButton() {
   return (
     <button
       type="submit"
+      form="sign-out-form"
       disabled={pending}
       className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#FF3366] transition-colors hover:bg-[#FF3366]/10 focus:bg-[#FF3366]/10 focus:outline-none cursor-pointer select-none disabled:opacity-60 disabled:cursor-wait"
     >
