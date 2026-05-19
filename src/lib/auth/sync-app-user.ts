@@ -1,7 +1,7 @@
 import type { User as SupabaseAuthUser } from "@supabase/supabase-js";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getUserBySupabaseId, updateUser } from "@/lib/api/users";
+import { getUserBySupabaseId, getUserByEmail, updateUser } from "@/lib/api/users";
 
 function displayNameFromAuth(authUser: SupabaseAuthUser): string | null {
   const meta = authUser.user_metadata as Record<string, unknown> | undefined;
@@ -43,8 +43,8 @@ function imageFromAuth(authUser: SupabaseAuthUser): string | null {
 
 /**
  * Ensures a Supabase auth user has a corresponding app user record.
- * Uses upsert on email to handle concurrent signup requests safely.
- * For existing supabaseId links, updates the record.
+ * For existing links, updates. For new signups, creates. Handles email-based
+ * linking when user existed before auth signup completed.
  */
 export async function syncAppUserFromAuth(authUser: SupabaseAuthUser) {
   const authId = authUser.id;
@@ -66,20 +66,28 @@ export async function syncAppUserFromAuth(authUser: SupabaseAuthUser) {
     });
   }
 
-  // For new signups: upsert on email to prevent race conditions on concurrent requests
+  // Check if user exists by email — link them to this auth ID
+  const byEmail = await getUserByEmail(email);
+  if (byEmail) {
+    return updateUser(byEmail.id, {
+      email,
+      supabaseUserId: authId,
+      name: name ?? byEmail.name,
+      image: image ?? byEmail.image,
+    });
+  }
+
+  // New user — create fresh record
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("user")
-    .upsert(
-      {
-        id: crypto.randomUUID(),
-        email,
-        supabase_user_id: authId,
-        name: name || undefined,
-        image: image || undefined,
-      },
-      { onConflict: "email" },
-    )
+    .insert({
+      id: crypto.randomUUID(),
+      email,
+      supabase_user_id: authId,
+      name: name || undefined,
+      image: image || undefined,
+    })
     .select()
     .single();
 
