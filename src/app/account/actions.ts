@@ -14,13 +14,19 @@ export async function signOutAction(): Promise<void> {
 
 export async function deleteAccountAction(): Promise<void> {
   const session = await requireSignedIn("/account");
-  const admin = createSupabaseAdminClient();
+  const supabase = await createSupabaseServerClient();
 
-  // Delete auth user (cascades delete profiles/gigs in DB)
+  // Delete profiles and gigs (cascades to junctions)
+  await Promise.all([
+    supabase.from("musician_profile").delete().eq("user_id", session.user.id),
+    supabase.from("gig").delete().eq("creator_id", session.user.id),
+  ]);
+
+  // Delete auth user
+  const admin = createSupabaseAdminClient();
   const { error } = await admin.auth.admin.deleteUser(session.user.id);
   if (error) throw error;
 
-  const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
   redirect("/");
 }
