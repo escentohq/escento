@@ -217,8 +217,8 @@ async function seedFakeUsers() {
       }
 
       await createGig(
+        creatorId,
         {
-          creatorId,
           title: gig.title,
           description: gig.description,
           projectType: gig.projectType,

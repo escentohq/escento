@@ -26,12 +26,6 @@ function toGig(raw: any): Gig {
     updatedAt: raw.updated_at,
     instruments: raw.gig_instrument?.map((x: any) => x.instrument?.name).filter(Boolean) ?? [],
     genres: raw.gig_genre?.map((x: any) => x.genre?.name).filter(Boolean) ?? [],
-    ...(raw.user && {
-      creator: {
-        name: raw.user.name,
-        email: raw.user.email,
-      },
-    }),
   };
 }
 
@@ -39,7 +33,7 @@ export async function getGig(id: string): Promise<Gig | null> {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("gig")
-    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*)), user(name, email)")
+    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
     .eq("id", id)
     .single();
 
@@ -55,11 +49,10 @@ interface ListOpenGigsFilters {
 
 export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]> {
   const supabase = await createSupabaseServerClient();
-  const showDemoUsers = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
   let query = supabase
     .from("gig")
-    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*)), user:creator_id(is_fake)")
+    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
     .eq("status", "OPEN")
     .order("created_at", { ascending: false });
 
@@ -71,9 +64,7 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
 
   if (error) throw error;
 
-  let gigs = (data || [])
-    .filter((g) => showDemoUsers || !g.user?.is_fake)
-    .map(toGig);
+  let gigs = (data || []).map(toGig);
 
   if (filters?.instrument) {
     const instrument = filters.instrument;
@@ -94,13 +85,19 @@ export async function listGigsByCreator(creatorId: string): Promise<Gig[]> {
     .from("gig")
     .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
     .eq("creator_id", creatorId)
-    .order("updated_at", { ascending: false });
+    .order("created_at", { ascending: false });
 
   if (error) throw error;
+
   return (data || []).map(toGig);
 }
 
-export async function createGig(input: CreateGigInput, instrumentNames: string[], genreNames: string[]): Promise<Gig> {
+export async function createGig(
+  creatorId: string,
+  input: CreateGigInput,
+  instrumentNames: string[],
+  genreNames: string[],
+): Promise<Gig> {
   const supabase = await createSupabaseServerClient();
   const [instruments, genres] = await Promise.all([
     ensureInstruments(instrumentNames),
@@ -111,7 +108,7 @@ export async function createGig(input: CreateGigInput, instrumentNames: string[]
     .from("gig")
     .insert({
       id: crypto.randomUUID(),
-      creator_id: input.creatorId,
+      creator_id: creatorId,
       title: input.title,
       description: input.description,
       project_type: input.projectType,
@@ -120,6 +117,7 @@ export async function createGig(input: CreateGigInput, instrumentNames: string[]
       compensation_type: input.compensationType,
       compensation_details: input.compensationDetails,
       deadline: normalizeDeadline(input.deadline),
+      status: "OPEN",
     })
     .select()
     .single();
@@ -128,17 +126,19 @@ export async function createGig(input: CreateGigInput, instrumentNames: string[]
 
   await Promise.all([
     ...instruments.map((inst) =>
-      supabase.from("gig_instrument").insert({ 
+      supabase.from("gig_instrument").insert({
         id: crypto.randomUUID(),
-        gig_id: gig.id, 
-        instrument_id: inst.id 
+        gig_id: gig.id,
+        instrument_id: inst.id,
       })
     ),
-    ...genres.map((genre) => supabase.from("gig_genre").insert({ 
-      id: crypto.randomUUID(),
-      gig_id: gig.id, 
-      genre_id: genre.id 
-    })),
+    ...genres.map((genre) =>
+      supabase.from("gig_genre").insert({
+        id: crypto.randomUUID(),
+        gig_id: gig.id,
+        genre_id: genre.id,
+      })
+    ),
   ]);
 
   return {
@@ -185,14 +185,12 @@ export async function updateGig(
     ]);
   }
 
-  const { data: gig, error: gigError } = await supabase
+  const { error: updateError } = await supabase
     .from("gig")
     .update(updateData)
-    .eq("id", id)
-    .select()
-    .single();
+    .eq("id", id);
 
-  if (gigError) throw gigError;
+  if (updateError) throw updateError;
 
   if (instrumentNames || genreNames) {
     const [instruments, genres] = await Promise.all([
@@ -202,17 +200,19 @@ export async function updateGig(
 
     await Promise.all([
       ...instruments.map((inst) =>
-        supabase.from("gig_instrument").insert({ 
+        supabase.from("gig_instrument").insert({
           id: crypto.randomUUID(),
-          gig_id: id, 
-          instrument_id: inst.id 
+          gig_id: id,
+          instrument_id: inst.id,
         })
       ),
-      ...genres.map((genre) => supabase.from("gig_genre").insert({ 
-        id: crypto.randomUUID(),
-        gig_id: id, 
-        genre_id: genre.id 
-      })),
+      ...genres.map((genre) =>
+        supabase.from("gig_genre").insert({
+          id: crypto.randomUUID(),
+          gig_id: id,
+          genre_id: genre.id,
+        })
+      ),
     ]);
   }
 
@@ -227,19 +227,16 @@ export async function updateGig(
 
 export async function closeGig(id: string): Promise<void> {
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.from("gig").update({ status: "CLOSED" }).eq("id", id);
+  const { error } = await supabase
+    .from("gig")
+    .update({ status: "CLOSED" })
+    .eq("id", id);
 
   if (error) throw error;
 }
 
 export async function deleteGig(id: string): Promise<void> {
   const supabase = await createSupabaseServerClient();
-
-  await Promise.all([
-    supabase.from("gig_instrument").delete().eq("gig_id", id),
-    supabase.from("gig_genre").delete().eq("gig_id", id),
-  ]);
-
   const { error } = await supabase.from("gig").delete().eq("id", id);
 
   if (error) throw error;

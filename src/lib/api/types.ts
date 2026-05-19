@@ -56,7 +56,6 @@ export interface MusicianProfile {
 }
 
 export interface CreateGigInput {
-  creatorId: string;
   title: string;
   description: string;
   projectType: string;

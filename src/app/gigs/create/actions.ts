@@ -45,8 +45,8 @@ export async function createGigAction(_state: ActionState, fd: FormData): Promis
   }
 
   const gig = await createGig(
+    session.user.id,
     {
-      creatorId: session.user.id,
       title,
       description,
       projectType: projectType!,
