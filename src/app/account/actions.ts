@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireSignedIn } from "@/lib/auth-guards";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function signOutAction(): Promise<void> {
   const supabase = await createSupabaseServerClient();
@@ -22,11 +21,7 @@ export async function deleteAccountAction(): Promise<void> {
     supabase.from("gig").delete().eq("creator_id", session.user.id),
   ]);
 
-  // Delete auth user
-  const admin = createSupabaseAdminClient();
-  const { error } = await admin.auth.admin.deleteUser(session.user.id);
-  if (error) throw error;
-
+  // Sign out (auth user stays — data is gone)
   await supabase.auth.signOut();
   redirect("/");
 }
