@@ -1,31 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useFormStatus } from "react-dom";
+import { signOutAction } from "@/app/account/actions";
 
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+export function SignOutButton({ className }: { className?: string }) {
+  return (
+    <form action={signOutAction} className="contents">
+      <SignOutButtonContent className={className} />
+    </form>
+  );
+}
 
-type Props = {
-  className?: string;
-};
-
-export function SignOutButton({ className }: Props) {
-  const [pending, setPending] = useState(false);
-
-  async function handleSignOut() {
-    setPending(true);
-    try {
-      const supabase = createSupabaseBrowserClient();
-      await supabase.auth.signOut();
-    } finally {
-      window.location.assign("/");
-    }
-  }
+function SignOutButtonContent({ className }: { className?: string }) {
+  const { pending } = useFormStatus();
 
   return (
     <button
-      type="button"
+      type="submit"
       disabled={pending}
-      onClick={() => void handleSignOut()}
       className={className}
       aria-label="Sign out"
     >

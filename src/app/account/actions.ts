@@ -1,11 +1,10 @@
 "use server";
 
-import { requireSignedIn } from "@/lib/auth-guards";
-import { getUserById, updateUser, deleteUser } from "@/lib/api/users";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { requireSignedIn } from "@/lib/auth-guards";
+import { updateUser, deleteUser } from "@/lib/api/users";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { strOrEmpty } from "@/lib/form-utils";
 import type { ActionState } from "@/lib/form-utils";
 
@@ -31,24 +30,21 @@ export async function updateNameAction(
   return { ok: true, message: "Name updated." };
 }
 
-export async function deleteAccountAction(): Promise<void> {
-  const session = await requireSignedIn("/account");
-  const user = await getUserById(session.user.id);
-  if (!user?.supabaseUserId) {
-    throw new Error("Authenticated user is missing a Supabase auth id.");
-  }
-
-  // 1. Delete app user first (cascades to profiles, gigs, junctions)
-  await deleteUser(user.id);
-
-  // 2. Sign out before deleting auth user (so session is cleared)
+export async function signOutAction(): Promise<void> {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
+  redirect("/");
+}
 
-  // 3. Delete auth user last
-  const admin = createSupabaseAdminClient();
-  const { error } = await admin.auth.admin.deleteUser(user.supabaseUserId, false);
-  if (error) throw error;
+export async function deleteAccountAction(): Promise<void> {
+  const session = await requireSignedIn("/account");
+
+  // Delete app user — DB trigger automatically deletes auth.users;
+  // FK cascade automatically deletes all profiles, gigs, and junction rows
+  await deleteUser(session.user.id);
+
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.signOut();
 
   redirect("/");
 }

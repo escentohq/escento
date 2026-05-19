@@ -1,9 +1,6 @@
 import { redirect } from "next/navigation";
-
-import { syncAppUserFromAuth } from "@/lib/auth/sync-app-user";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-type Role = "MUSICIAN" | "CREATOR";
+import { syncAppUserFromAuth } from "@/lib/auth/sync-app-user";
 
 export type AppSession = {
   user: {
@@ -20,19 +17,18 @@ export async function getCurrentSession(): Promise<AppSession | null> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user?.email) return null;
 
-  const appUser = await syncAppUserFromAuth(user);
+  const app = await syncAppUserFromAuth(user);
   return {
     user: {
-      id: appUser.id,
-      email: appUser.email,
-      role: appUser.role,
-      name: appUser.name,
-      image: appUser.image,
+      id: app.id,
+      email: app.email,
+      role: app.role,
+      name: app.name,
+      image: app.image,
     },
   };
 }
 
-/** Signed in with Supabase; app user synced. Role may still be null (onboarding). */
 export async function requireSignedIn(callbackUrl: string): Promise<AppSession> {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -40,14 +36,14 @@ export async function requireSignedIn(callbackUrl: string): Promise<AppSession> 
     redirect(`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
   }
 
-  const appUser = await syncAppUserFromAuth(user);
+  const app = await syncAppUserFromAuth(user);
   return {
     user: {
-      id: appUser.id,
-      email: appUser.email,
-      role: appUser.role,
-      name: appUser.name,
-      image: appUser.image,
+      id: app.id,
+      email: app.email,
+      role: app.role,
+      name: app.name,
+      image: app.image,
     },
   };
 }
@@ -58,7 +54,10 @@ export async function requireUser(callbackUrl: string): Promise<AppSession> {
   return session;
 }
 
-export async function requireRole(role: Role, callbackUrl: string) {
+export async function requireRole(
+  role: "MUSICIAN" | "CREATOR",
+  callbackUrl: string,
+): Promise<AppSession> {
   const session = await requireUser(callbackUrl);
   if (session.user.role !== role) redirect("/");
   return session;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import Link from "next/link";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
@@ -12,7 +12,7 @@ import {
   PlusCircle,
   LogOut,
 } from "lucide-react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { signOutAction } from "@/app/account/actions";
 
 type UserMenuProps = {
   email?: string | null;
@@ -40,8 +40,6 @@ export function UserMenu({
   musicianProfilePath,
   isCreator,
 }: UserMenuProps) {
-  const [pending, setPending] = useState(false);
-
   const avatarContent = image ? (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={image} alt="" className="h-full w-full rounded-full object-cover" />
@@ -54,16 +52,6 @@ export function UserMenu({
       <User className="h-5 w-5 text-[#475569]" />
     </div>
   );
-
-  async function handleSignOut() {
-    setPending(true);
-    try {
-      const supabase = createSupabaseBrowserClient();
-      await supabase.auth.signOut();
-    } finally {
-      window.location.assign("/");
-    }
-  }
 
   return (
     <DropdownMenu.Root>
@@ -152,17 +140,27 @@ export function UserMenu({
           <DropdownMenu.Separator className="my-1.5 border-t border-[#F1F5F9]" />
 
           <DropdownMenu.Item asChild>
-            <button
-              onClick={() => void handleSignOut()}
-              disabled={pending}
-              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#FF3366] transition-colors hover:bg-[#FF3366]/10 focus:bg-[#FF3366]/10 focus:outline-none cursor-pointer select-none disabled:opacity-60 disabled:cursor-wait"
-            >
-              <LogOut className="h-4 w-4" />
-              {pending ? "Signing out…" : "Sign out"}
-            </button>
+            <form action={signOutAction} className="contents">
+              <SignOutButton />
+            </form>
           </DropdownMenu.Item>
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>
+  );
+}
+
+function SignOutButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#FF3366] transition-colors hover:bg-[#FF3366]/10 focus:bg-[#FF3366]/10 focus:outline-none cursor-pointer select-none disabled:opacity-60 disabled:cursor-wait"
+    >
+      <LogOut className="h-4 w-4" />
+      {pending ? "Signing out…" : "Sign out"}
+    </button>
   );
 }
