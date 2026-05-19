@@ -1,15 +1,19 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-
+import { revalidatePath } from "next/cache";
 import { requireSignedIn } from "@/lib/auth-guards";
-import { updateUser } from "@/lib/api/users";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export async function setRole(role: "MUSICIAN" | "CREATOR") {
+export async function setRole(role: "MUSICIAN" | "CREATOR"): Promise<void> {
   const session = await requireSignedIn("/onboarding/role");
+  const supabase = await createSupabaseServerClient();
 
-  await updateUser(session.user.id, { role });
+  const { error } = await supabase.auth.updateUser({
+    data: { role },
+  });
+
+  if (error) throw error;
 
   revalidatePath("/");
   if (role === "MUSICIAN") {

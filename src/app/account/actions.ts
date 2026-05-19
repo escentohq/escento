@@ -3,32 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireSignedIn } from "@/lib/auth-guards";
-import { updateUser, deleteUser } from "@/lib/api/users";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { strOrEmpty } from "@/lib/form-utils";
-import type { ActionState } from "@/lib/form-utils";
-
-export async function updateNameAction(
-  _state: ActionState,
-  fd: FormData,
-): Promise<ActionState> {
-  const session = await requireSignedIn("/account");
-  const name = strOrEmpty(fd.get("name"));
-
-  if (!name) {
-    return { ok: false, fieldErrors: { name: "Name is required." } };
-  }
-
-  if (name.length > 80) {
-    return { ok: false, fieldErrors: { name: "Name must be 80 characters or fewer." } };
-  }
-
-  await updateUser(session.user.id, { name });
-  revalidatePath("/account");
-  revalidatePath("/");
-
-  return { ok: true, message: "Name updated." };
-}
 
 export async function signOutAction(): Promise<void> {
   const supabase = await createSupabaseServerClient();
@@ -38,13 +13,41 @@ export async function signOutAction(): Promise<void> {
 
 export async function deleteAccountAction(): Promise<void> {
   const session = await requireSignedIn("/account");
+  const supabase = await createSupabaseServerClient();
 
-  // Delete app user — DB trigger automatically deletes auth.users;
-  // FK cascade automatically deletes all profiles, gigs, and junction rows
-  await deleteUser(session.user.id);
+  // Delete auth user (cascades delete profiles/gigs in DB)
+  const { error } = await supabase.auth.admin.deleteUser(session.user.id);
+  if (error) throw error;
+
+  // Clear session (auth user already gone)
+  await supabase.auth.signOut();
+  redirect("/");
+}
+
+export async function updateNameAction(
+  _state: { ok: boolean; message?: string; fieldErrors?: Record<string, string> },
+  fd: FormData,
+) {
+  const session = await requireSignedIn("/account");
+  const name = String(fd.get("name") ?? "").trim();
+
+  if (!name) {
+    return { ok: false, fieldErrors: { name: "Name is required." } };
+  }
+
+  if (name.length > 80) {
+    return { ok: false, fieldErrors: { name: "Name must be 80 characters or fewer." } };
+  }
 
   const supabase = await createSupabaseServerClient();
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.updateUser({
+    data: { full_name: name },
+  });
 
-  redirect("/");
+  if (error) throw error;
+
+  revalidatePath("/account");
+  revalidatePath("/");
+
+  return { ok: true, message: "Name updated." };
 }

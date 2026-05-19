@@ -1,5 +1,4 @@
 import { requireSignedIn } from "@/lib/auth-guards";
-import { getUserById } from "@/lib/api/users";
 import { PageShell } from "@/components/ui/page-shell";
 import { SectionCard } from "@/components/ui/section-card";
 import { UpdateNameForm } from "./_update-name-form";
@@ -8,18 +7,13 @@ import { deleteAccountAction } from "./actions";
 
 export default async function AccountPage() {
   const session = await requireSignedIn("/account");
-  const user = await getUserById(session.user.id);
-
-  if (!user) {
-    throw new Error("User not found");
-  }
 
   return (
     <PageShell size="narrow" eyebrow="Backstage" title="Your Account">
       <div className="space-y-8">
         <SectionCard eyebrow="Profile" title="Your Account">
           <div className="space-y-6">
-            <UpdateNameForm initialName={user.name ?? ""} />
+            <UpdateNameForm initialName={session.user.name ?? ""} />
 
             <div>
               <label className="block text-sm font-bold text-[#0F172A]">
@@ -28,7 +22,7 @@ export default async function AccountPage() {
               <input
                 type="email"
                 disabled
-                value={user.email}
+                value={session.user.email ?? ""}
                 className="mt-2 w-full rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5 text-sm text-[#475569] disabled:cursor-not-allowed"
               />
               <p className="mt-2 text-xs text-[#64748B]">
@@ -42,7 +36,7 @@ export default async function AccountPage() {
               </label>
               <div className="mt-2 flex items-center">
                 <span className="text-sm text-[#475569] capitalize">
-                  {user.role?.toLowerCase() || "No role"}
+                  {session.user.role?.toLowerCase() || "No role"}
                 </span>
               </div>
             </div>

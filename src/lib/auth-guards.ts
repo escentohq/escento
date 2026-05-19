@@ -1,30 +1,29 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { syncAppUserFromAuth } from "@/lib/auth/sync-app-user";
 
 export type AppSession = {
   user: {
     id: string;
     email: string | null;
-    role: string | null;
-    name: string | null;
-    image: string | null;
+    name?: string | null;
+    role?: string | null;
+    image?: string | null;
   };
 };
 
 export async function getCurrentSession(): Promise<AppSession | null> {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.email) return null;
+  if (!user?.id) return null;
 
-  const app = await syncAppUserFromAuth(user);
+  const meta = user.user_metadata as Record<string, unknown> | undefined;
   return {
     user: {
-      id: app.id,
-      email: app.email,
-      role: app.role,
-      name: app.name,
-      image: app.image,
+      id: user.id,
+      email: user.email ?? null,
+      name: typeof meta?.full_name === "string" ? meta.full_name : null,
+      role: typeof meta?.role === "string" ? meta.role : null,
+      image: typeof meta?.avatar_url === "string" ? meta.avatar_url : null,
     },
   };
 }
@@ -32,18 +31,18 @@ export async function getCurrentSession(): Promise<AppSession | null> {
 export async function requireSignedIn(callbackUrl: string): Promise<AppSession> {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.email) {
+  if (!user?.id) {
     redirect(`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
   }
 
-  const app = await syncAppUserFromAuth(user);
+  const meta = user.user_metadata as Record<string, unknown> | undefined;
   return {
     user: {
-      id: app.id,
-      email: app.email,
-      role: app.role,
-      name: app.name,
-      image: app.image,
+      id: user.id,
+      email: user.email ?? null,
+      name: typeof meta?.full_name === "string" ? meta.full_name : null,
+      role: typeof meta?.role === "string" ? meta.role : null,
+      image: typeof meta?.avatar_url === "string" ? meta.avatar_url : null,
     },
   };
 }
