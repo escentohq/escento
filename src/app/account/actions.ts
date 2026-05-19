@@ -41,14 +41,14 @@ export async function deleteAccountAction(): Promise<void> {
   // 1. Delete app user first (cascades to profiles, gigs, junctions)
   await deleteUser(user.id);
 
-  // 2. Delete auth user second
+  // 2. Sign out before deleting auth user (so session is cleared)
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.signOut();
+
+  // 3. Delete auth user last
   const admin = createSupabaseAdminClient();
   const { error } = await admin.auth.admin.deleteUser(user.supabaseUserId, false);
   if (error) throw error;
-
-  // 3. Sign out
-  const supabase = await createSupabaseServerClient();
-  await supabase.auth.signOut();
 
   redirect("/");
 }
