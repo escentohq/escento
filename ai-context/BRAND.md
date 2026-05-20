@@ -99,6 +99,21 @@ Never: "Oops!", "It looks like…", "Sorry, no results found."
 
 ## Microcopy for forms
 
+See [`FORMS.md`](./FORMS.md) for full patterns. Error copy table:
+
+| Situation | Copy pattern | Example |
+|---|---|---|
+| Empty required | `Add a {field}.` | "Add a title." |
+| Invalid email | `Enter a valid email address.` | |
+| Invalid URL | `Enter a valid URL starting with https://` | |
+| Length | `Keep the {field} under {n} characters.` | |
+| Password rules | Mirror `getPasswordRequirements()` labels | |
+| Auth failure | `That email or password isn't right.` | |
+| Multi-field submit | `Fix {n} fields to continue.` | |
+| Server failure | `Something went wrong. Try again.` | Never raw Supabase strings |
+
+Forbidden for field errors: "ERROR", "Invalid input", "Wrong", "Failed validation", "Oops".
+
 - Submit labels: `Save`, `Publish Gig`, `Update Gig`, `Create Profile`, `Mark Filled`, `Delete`.
 - Pending: append `…` (`Saving…`, `Publishing…`).
 - Cancel link reads `Cancel` and routes back to the relevant index.

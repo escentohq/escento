@@ -6,6 +6,7 @@
 > 2. `ai-context/DESIGN.md` — visual tokens
 > 3. `ai-context/BRAND.md` — copy, forbidden phrases
 > 4. `ai-context/UX_RULES.md` — states, forms, CTAs
+> 5. `ai-context/FORMS.md` — form UX system when feature includes forms
 > 5. `ai-context/COMPONENTS.md` — component recipes
 > 6. `ai-context/FRONTEND_ARCH.md` — directory map, server action patterns
 > 7. `ai-context/PRODUCT.md` — scope boundary (check before building ANYTHING)

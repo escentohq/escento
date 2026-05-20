@@ -2,14 +2,21 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+
 import { requireSignedIn } from "@/lib/auth-guards";
+import {
+  fieldError,
+  formLevelMessage,
+  type FieldErrors,
+} from "@/lib/form-utils";
+import { validatePassword } from "@/lib/password";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-interface UpdatePasswordState {
+export type UpdatePasswordState = {
   ok: boolean;
   message?: string;
-  fieldErrors?: Record<string, string>;
-}
+  fieldErrors?: FieldErrors;
+};
 
 export async function updatePasswordAction(
   _state: UpdatePasswordState,
@@ -17,21 +24,22 @@ export async function updatePasswordAction(
 ): Promise<UpdatePasswordState> {
   await requireSignedIn("/account/update-password");
 
-  const password = String(fd.get("password") ?? "").trim();
-  const confirm = String(fd.get("confirm") ?? "").trim();
+  const password = String(fd.get("password") ?? "");
+  const confirm = String(fd.get("confirm") ?? "");
+  const fieldErrors: FieldErrors = {};
 
-  if (!password) {
-    return { ok: false, fieldErrors: { password: "Password is required." } };
-  }
-
-  if (password.length < 8) {
-    return { ok: false, fieldErrors: { password: "Password must be at least 8 characters." } };
-  }
-
+  if (!password) fieldError(fieldErrors, "password", "Choose a password.");
+  const passwordError = validatePassword(password);
+  if (password && passwordError) fieldError(fieldErrors, "password", passwordError);
   if (password !== confirm) {
+    fieldError(fieldErrors, "confirm", "Passwords need to match.");
+  }
+
+  if (Object.keys(fieldErrors).length) {
     return {
       ok: false,
-      fieldErrors: { confirm: "Passwords do not match." },
+      fieldErrors,
+      message: formLevelMessage(fieldErrors, "Tighten the password details."),
     };
   }
 
@@ -40,19 +48,17 @@ export async function updatePasswordAction(
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
-      console.error("Password update error:", error.message, error.status, error);
-      return { ok: false, message: `Failed: ${error.message}` };
+      console.error("Password update error:", error.message);
+      return { ok: false, message: "Something went wrong. Try again." };
     }
 
     revalidatePath("/account");
     redirect("/account");
   } catch (err) {
-    // Re-throw Next.js redirect errors
     if (err instanceof Error && err.message === "NEXT_REDIRECT") {
       throw err;
     }
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    console.error("Password update exception:", errorMsg, err);
-    return { ok: false, message: `Error: ${errorMsg}` };
+    console.error("Password update exception:", err);
+    return { ok: false, message: "Something went wrong. Try again." };
   }
 }

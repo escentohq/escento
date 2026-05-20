@@ -4,6 +4,11 @@ import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
 import { PasswordStrengthIndicator } from "@/components/auth/password-strength-indicator";
+import {
+  formErrorTextClass,
+  formInputBaseClass,
+  formInputInvalidClass,
+} from "@/lib/form-input-classes";
 
 export function PasswordField({
   id,
@@ -11,8 +16,10 @@ export function PasswordField({
   label,
   autoComplete,
   error,
+  showError = false,
   value,
   onChange,
+  onBlur,
   showStrength = false,
 }: {
   id: string;
@@ -20,26 +27,35 @@ export function PasswordField({
   label: string;
   autoComplete: string;
   error?: string;
+  showError?: boolean;
   value?: string;
   onChange?: (value: string) => void;
+  onBlur?: () => void;
   showStrength?: boolean;
 }) {
   const [visible, setVisible] = useState(false);
   const isControlled = value !== undefined && onChange !== undefined;
+  const errorId = `${id}-error`;
+  const describedBy = [showStrength && (value?.length ?? 0) > 0 ? `${id}-strength` : null, showError && error ? errorId : null]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div>
       <label htmlFor={id} className="text-sm font-bold text-[#0F172A]">
         {label} <span className="text-[#FF3366]">*</span>
       </label>
-      <div className="relative">
+      <div className="relative mt-2">
         <input
           id={id}
           name={name}
           type={visible ? "text" : "password"}
           autoComplete={autoComplete}
-          className="input-base pr-14"
-          required
+          className={`${formInputBaseClass.replace("mt-2 ", "")} pr-14 ${showError && error ? formInputInvalidClass : ""}`}
+          aria-required
+          aria-invalid={showError && error ? true : undefined}
+          aria-describedby={describedBy || undefined}
+          onBlur={onBlur}
           {...(isControlled
             ? {
                 value,
@@ -57,9 +73,18 @@ export function PasswordField({
         </button>
       </div>
       {showStrength && (value?.length ?? 0) > 0 ? (
-        <PasswordStrengthIndicator password={value ?? ""} />
+        <div id={`${id}-strength`}>
+          <PasswordStrengthIndicator password={value ?? ""} />
+        </div>
       ) : null}
-      {error ? <p className="mt-2 text-sm font-medium text-[#FF3366]">{error}</p> : null}
+      <p
+        id={errorId}
+        role={showError && error ? "alert" : undefined}
+        className={`${formErrorTextClass} ${showError && error ? "" : "invisible"}`}
+        aria-hidden={!(showError && error)}
+      >
+        {error || "\u00A0"}
+      </p>
     </div>
   );
 }

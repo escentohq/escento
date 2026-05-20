@@ -3,8 +3,13 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireSignedIn } from "@/lib/auth-guards";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  ADMIN_CREDENTIALS_ERROR,
+  DELETE_ACCOUNT_UNAVAILABLE,
+} from "@/lib/account-deletion";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { type ActionState } from "@/lib/form-utils";
 
 export async function signOutAction(): Promise<void> {
   const supabase = await createSupabaseServerClient();
@@ -15,27 +20,43 @@ export async function signOutAction(): Promise<void> {
 
 export async function deleteAccountAction(): Promise<void> {
   const session = await requireSignedIn("/account");
-  const serverSupabase = await createSupabaseServerClient();
-  const adminSupabase = createSupabaseAdminClient();
+  const supabase = await createSupabaseServerClient();
 
-  // Delete auth user — all app data cascades automatically
-  await adminSupabase.auth.admin.deleteUser(session.user.id);
+  const [profileResult, gigResult, appUserResult] = await Promise.all([
+    supabase.from("musician_profile").delete().eq("user_id", session.user.id),
+    supabase.from("gig").delete().eq("creator_id", session.user.id),
+    supabase.from("app_user").delete().eq("id", session.user.id),
+  ]);
 
-  // Clear session cookies — will error if auth row already gone, safe to ignore
-  await serverSupabase.auth.signOut().catch(() => {});
+  const deleteError = profileResult.error ?? gigResult.error ?? appUserResult.error;
+  if (deleteError) throw deleteError;
 
+  try {
+    const admin = createSupabaseAdminClient();
+    const { error } = await admin.auth.admin.deleteUser(session.user.id);
+    if (error) throw error;
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message === ADMIN_CREDENTIALS_ERROR
+    ) {
+      console.error("[deleteAccount] missing SUPABASE_SERVICE_ROLE_KEY");
+      throw new Error(DELETE_ACCOUNT_UNAVAILABLE);
+    }
+    throw error;
+  }
+
+  await supabase.auth.signOut().catch(() => {});
+  revalidatePath("/");
   redirect("/signin");
 }
 
-export async function updateNameAction(
-  _state: { ok: boolean; message?: string; fieldErrors?: Record<string, string> },
-  fd: FormData,
-) {
+export async function updateNameAction(_state: ActionState, fd: FormData): Promise<ActionState> {
   const session = await requireSignedIn("/account");
   const name = String(fd.get("name") ?? "").trim();
 
   if (!name) {
-    return { ok: false, fieldErrors: { name: "Name is required." } };
+    return { ok: false, fieldErrors: { name: "Add a display name." } };
   }
 
   if (name.length > 80) {

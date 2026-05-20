@@ -1,19 +1,37 @@
 "use server";
 
+import {
+  fieldError,
+  formLevelMessage,
+  isValidEmail,
+  type FieldErrors,
+} from "@/lib/form-utils";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export async function resetPasswordAction(
-  _state: { ok: boolean; message: string },
-  fd: FormData,
-) {
-  const email = String(fd.get("email") ?? "").trim().toLowerCase();
+export type ResetPasswordState = {
+  ok: boolean;
+  message?: string;
+  fieldErrors?: FieldErrors;
+};
 
-  if (!email) {
-    return { ok: false, message: "Email is required." };
+export async function resetPasswordAction(
+  _state: ResetPasswordState,
+  fd: FormData,
+): Promise<ResetPasswordState> {
+  const email = String(fd.get("email") ?? "").trim().toLowerCase();
+  const fieldErrors: FieldErrors = {};
+
+  if (!email) fieldError(fieldErrors, "email", "Enter your email address.");
+  if (email && !isValidEmail(email)) {
+    fieldError(fieldErrors, "email", "Enter a valid email address.");
   }
 
-  if (!email.includes("@")) {
-    return { ok: false, message: "Please enter a valid email." };
+  if (Object.keys(fieldErrors).length) {
+    return {
+      ok: false,
+      fieldErrors,
+      message: formLevelMessage(fieldErrors, "Enter your email address."),
+    };
   }
 
   try {
@@ -26,28 +44,18 @@ export async function resetPasswordAction(
 
     if (error) {
       console.error("Password reset error:", error);
-      if (error.message.includes("429") || error.message.toLowerCase().includes("rate limit")) {
-        return {
-          ok: true,
-          message: "If an account exists with that email, you'll receive a reset link shortly. (Check spam folder too.)",
-        };
-      }
-      // Don't leak whether email exists or not
-      return {
-        ok: true,
-        message: "If an account exists with that email, you'll receive a reset link shortly.",
-      };
     }
 
     return {
       ok: true,
-      message: "If an account exists with that email, you'll receive a reset link shortly.",
+      message:
+        "If an account exists with that email, you'll receive a reset link shortly.",
     };
   } catch (err) {
     console.error("Password reset error:", err);
     return {
       ok: false,
-      message: "Something went wrong. Please try again.",
+      message: "Something went wrong. Try again.",
     };
   }
 }

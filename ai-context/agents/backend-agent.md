@@ -4,7 +4,7 @@
 > Read these files before writing a single line:
 > 1. `AGENTS.md` (root) — non-negotiable rules + DoD checklist
 > 2. `ai-context/FRONTEND_ARCH.md` — full directory map, patterns, server action conventions
-> 3. `prisma/schema.prisma` — data model source of truth
+> 3. `ai-context/FORMS.md` — ActionState contract for form actions
 > 4. `src/auth.ts` — NextAuth config, JWT role refresh
 > 5. `src/lib/db.ts` — Prisma singleton (import `db`, never `new PrismaClient()`)
 
@@ -18,6 +18,7 @@ Write server actions, Prisma queries, auth guards, and route protection. No new 
 
 - Mutations = Server Actions only. No new `src/app/api/*` routes except `/api/auth/[...nextauth]`.
 - Every protected action: `const session = await getServerSession(authOptions)` + role check inside the handler.
+- **Form validation:** return `ActionState` (`fieldErrors`, `message`, `values`) — never `throw` for user-correctable input. See [`FORMS.md`](../FORMS.md).
 - Prisma via `import { db } from "@/lib/db"` only.
 - Additive migrations OK. Destructive = stop and confirm with user first.
 - Co-locate actions as `src/app/<route>/actions.ts` with file-scoped `"use server"`.

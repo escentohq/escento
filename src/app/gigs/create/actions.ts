@@ -9,12 +9,14 @@ import { COMPENSATION_TYPES, PROJECT_TYPES } from "@/lib/display";
 import {
   type ActionState,
   fieldError,
+  formLevelMessage,
   nonEmptyOrNull,
   parseCsv,
   parseOptionalDate,
   pickEnum,
   strOrEmpty,
 } from "@/lib/form-utils";
+import { gigValuesFromFormData } from "@/lib/form-snapshots";
 
 export async function createGigAction(_state: ActionState, fd: FormData): Promise<ActionState> {
   const session = await requireRole("CREATOR", "/gigs/create");
@@ -41,7 +43,12 @@ export async function createGigAction(_state: ActionState, fd: FormData): Promis
   if (deadlineRaw && !deadline) fieldError(fieldErrors, "deadline", "Use a valid date.");
 
   if (Object.keys(fieldErrors).length) {
-    return { ok: false, message: "Tighten the set before publishing.", fieldErrors };
+    return {
+      ok: false,
+      message: formLevelMessage(fieldErrors, "Tighten the set before publishing."),
+      fieldErrors,
+      values: gigValuesFromFormData(fd),
+    };
   }
 
   const gig = await createGig(

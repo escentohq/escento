@@ -1,9 +1,14 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 import { PasswordField } from "@/components/auth/password-field";
+import { FormErrorBanner } from "@/components/ui/form-error-banner";
+import { FormField } from "@/components/ui/form-field";
+import { FormSubmitButton } from "@/components/ui/form-submit-button";
+import { Input } from "@/components/ui/input";
+import { useFormFieldState } from "@/hooks/use-form-field-state";
+import { countFieldErrors, isValidEmail } from "@/lib/form-utils";
 import { signUpWithPasswordAction, type SignUpValidationResult } from "./actions";
 
 export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
@@ -11,6 +16,7 @@ export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const formFields = useFormFieldState();
 
   const [state, formAction] = useActionState(
     (prevState: SignUpValidationResult, formData: FormData) =>
@@ -19,59 +25,72 @@ export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
   );
 
   const errors = state.fieldErrors ?? {};
+  const fieldErrorCount = countFieldErrors(errors);
+  const emailFormatError =
+    email.length > 0 && !isValidEmail(email) ? "Enter a valid email address." : undefined;
+  const emailError = errors.email ?? emailFormatError;
   const confirmMismatch =
     confirmPassword.length > 0 && password !== confirmPassword
       ? "Passwords need to match."
       : undefined;
+  const confirmError = errors.confirmPassword ?? confirmMismatch;
+
+  useEffect(() => {
+    if (fieldErrorCount > 0) {
+      formFields.setSubmitAttempted(true);
+      formFields.scrollToFirstError(errors);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+
+  const successMessage = state.message?.startsWith("Check your email");
+  const showSummaryBanner =
+    Boolean(state.message) &&
+    (successMessage || fieldErrorCount >= 2 || (fieldErrorCount === 0 && !successMessage));
 
   return (
-    <form action={formAction} className="space-y-5">
-      {state.message ? (
-        <div
-          className={`rounded-2xl border px-4 py-3 text-sm font-bold ${
-            state.message.startsWith("Check your email")
-              ? "border-[#0055FF]/20 bg-[#0055FF]/10 text-[#0F172A]"
-              : "border-[#FF3366]/20 bg-[#FF3366]/10 text-[#B42318]"
-          }`}
-        >
-          {state.message}
-        </div>
+    <form
+      action={formAction}
+      noValidate
+      className="space-y-5"
+      onSubmit={() => formFields.setSubmitAttempted(true)}
+    >
+      {showSummaryBanner ? (
+        <FormErrorBanner
+          variant={successMessage ? "success" : "error"}
+          message={state.message ?? ""}
+          fieldErrorCount={fieldErrorCount}
+          onScrollToFirstError={() => formFields.scrollToFirstError(errors)}
+        />
       ) : null}
 
-      <div>
-        <label htmlFor="name" className="text-sm font-bold text-[#0F172A]">
-          Name
-        </label>
-        <input
-          id="name"
+      <FormField id="name" label="Name">
+        <Input
           name="name"
           type="text"
           autoComplete="name"
-          className="input-base"
           placeholder="Maya Singh"
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
-      </div>
+      </FormField>
 
-      <div>
-        <label htmlFor="email" className="text-sm font-bold text-[#0F172A]">
-          Email <span className="text-[#FF3366]">*</span>
-        </label>
-        <input
-          id="email"
+      <FormField
+        id="email"
+        label="Email"
+        required
+        error={emailError}
+        showError={formFields.shouldShowError("email", emailError)}
+        onBlur={() => formFields.markTouched("email")}
+      >
+        <Input
           name="email"
           type="email"
           autoComplete="email"
-          className="input-base"
-          required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
-        {errors.email ? (
-          <p className="mt-2 text-sm font-medium text-[#FF3366]">{errors.email}</p>
-        ) : null}
-      </div>
+      </FormField>
 
       <PasswordField
         id="password"
@@ -79,6 +98,8 @@ export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
         label="Password"
         autoComplete="new-password"
         error={errors.password}
+        showError={formFields.shouldShowError("password", errors.password)}
+        onBlur={() => formFields.markTouched("password")}
         value={password}
         onChange={setPassword}
         showStrength
@@ -89,15 +110,16 @@ export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
         name="confirmPassword"
         label="Confirm password"
         autoComplete="new-password"
-        error={errors.confirmPassword ?? confirmMismatch}
+        error={confirmError}
+        showError={formFields.shouldShowError("confirmPassword", confirmError)}
+        onBlur={() => formFields.markTouched("confirmPassword")}
         value={confirmPassword}
         onChange={setConfirmPassword}
       />
 
-      <button type="submit" className="btn-primary w-full">
-        <span>Create account</span>
-        <ArrowRight className="h-4 w-4" aria-hidden />
-      </button>
+      <FormSubmitButton pendingLabel="Creating account…" className="w-full">
+        Create account
+      </FormSubmitButton>
     </form>
   );
 }

@@ -230,28 +230,22 @@ The `role` is `null` for users who haven't completed onboarding. `name` and `ima
 
 ## Validation
 
-**Today.** No library. `required` attributes + manual `String(formData.get("x"))` parsing + `throw new Error()` on empty.
+**Today.** No Zod library yet. Manual parsing + return `ActionState` from server actions. Client uses `useActionState`.
 
-**Going forward.** Adding `zod` is approved when validating a new server action. Pattern:
+**Rule.** User-correctable validation never `throw`s — return:
 
 ```ts
-import { z } from "zod";
-
-const CreateGigSchema = z.object({
-  title: z.string().trim().min(1).max(120),
-  description: z.string().trim().min(1).max(2000),
-  projectType: z.enum(["FILM", "LIVE_EVENT", "PODCAST", "GAME", "YOUTUBE", "OTHER"]),
-  compensationType: z.enum(["PAID", "UNPAID", "NEGOTIABLE"]),
-  deadline: z.string().date().optional(),
-});
-
-const parsed = CreateGigSchema.safeParse(Object.fromEntries(formData));
-if (!parsed.success) {
-  // return field errors via useFormState (preferred) or throw
-}
+return {
+  ok: false,
+  fieldErrors: { title: "Add a title." },
+  message: formLevelMessage(fieldErrors, "Add a title."),
+  values: gigValuesFromFormData(fd), // rehydrate controlled form
+};
 ```
 
-**Rule.** Replace `as never` enum casts (currently used in `createGig`/`updateGig`) with explicit `z.enum` parsing. Enum injection is a real attack surface.
+See [`FORMS.md`](./FORMS.md) for the full contract.
+
+**Going forward.** Adding `zod` is approved when validating a new server action. Map `safeParse` failures to `fieldErrors`.
 
 ---
 
@@ -325,10 +319,13 @@ Required env vars (load via `.env.local`, fail fast if missing):
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://...supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+SUPABASE_SERVICE_ROLE_KEY=...          # server-only; Supabase Dashboard → API → service_role
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 `NEXT_PUBLIC_APP_URL` is used in email redirect links for password reset and signup confirmation.
+
+`SUPABASE_SERVICE_ROLE_KEY` is required for **account deletion** (`auth.admin.deleteUser` in `deleteAccountAction`). Do not prefix with `NEXT_PUBLIC_`.
 
 ---
 
@@ -346,6 +343,26 @@ npm run prisma:migrate    # local migration
 
 ---
 
+## Form system
+
+Canonical doc: [`FORMS.md`](./FORMS.md).
+
+| Concern | Location |
+|---|---|
+| `ActionState` type + helpers | `src/lib/form-utils.ts` |
+| Value snapshots on failure | `src/lib/form-snapshots.ts` |
+| Client touch/submit state | `src/hooks/use-form-field-state.ts` |
+| Primitives | `src/components/ui/form-*.tsx`, `src/components/ui/input.tsx` |
+
+**When to redirect vs return errors:**
+
+- Create/update success → `revalidatePath` + `redirect`
+- Validation failure → return `{ ok: false, fieldErrors, message, values }`
+- Auth/sign-in failure (wrong password) → form banner, not field-specific blame
+- Uncaught DB/auth errors → may still throw (500 boundary)
+
+---
+
 ## Known footguns (do not re-introduce)
 
 From `docs/REBUILD.md` §18:
@@ -353,7 +370,7 @@ From `docs/REBUILD.md` §18:
 1. **JWT callback hits DB every request.** Do not add more DB calls to it.
 2. **Tag name collisions.** `Instrument` and `Genre` lack `@unique` on `name`; current code is case-sensitive. Use `normalizeTagName` + `upsert` (above).
 3. **Enum injection.** `as never` casts on `projectType` / `compensationType` accept arbitrary strings. Use `z.enum`.
-4. **Server actions throw → error boundary.** Migrate new forms to `useFormState`.
+4. **Server actions throw → error boundary.** Return `ActionState` + `useActionState` for forms (see [`FORMS.md`](./FORMS.md)).
 5. **No `revalidatePath`** after writes. Add it.
 6. **No URL validation** on portfolio links. Use `z.string().url()`.
 7. **`PortfolioItem` and `MusicianInstrument.proficiency` are dead code.** Do not wire UI to them without re-scoping (they're flagged for removal).

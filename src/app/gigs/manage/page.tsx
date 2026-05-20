@@ -8,7 +8,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { Reveal } from "@/components/ui/reveal";
-import { closeGigAction, deleteGigAction } from "./actions";
+import { CloseGigButton } from "./CloseGigButton";
+import { DeleteGigButton } from "./DeleteGigButton";
 
 export default async function ManageGigsPage() {
   const session = await requireRole("CREATOR", "/gigs/manage");
@@ -86,25 +87,9 @@ export default async function ManageGigsPage() {
                         Edit
                       </Link>
 
-                      {gig.status === "OPEN" && (
-                        <form action={async () => { await closeGigAction(gig.id); }}>
-                          <button
-                            type="submit"
-                            className="w-full rounded-2xl bg-[#F8FAFC] px-4 py-2.5 text-sm font-bold text-[#475569] transition-all duration-200 hover:bg-[#E2E8F0] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
-                          >
-                            Close Gig
-                          </button>
-                        </form>
-                      )}
+                      {gig.status === "OPEN" ? <CloseGigButton gigId={gig.id} /> : null}
 
-                      <form action={async () => { await deleteGigAction(gig.id); }}>
-                        <button
-                          type="submit"
-                          className="w-full rounded-2xl bg-[#FEE2E2] px-4 py-2.5 text-sm font-bold text-[#DC2626] transition-all duration-200 hover:bg-[#FECACA] focus-visible:outline-2 focus-visible:outline-[#DC2626] focus-visible:outline-offset-2"
-                        >
-                          Delete
-                        </button>
-                      </form>
+                      <DeleteGigButton gigId={gig.id} className="w-full" />
                     </div>
                   </div>
                 </Reveal>

@@ -1,64 +1,93 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 import { PasswordField } from "@/components/auth/password-field";
-import { signInWithPasswordAction } from "./actions";
-
-interface SignInState {
-  ok: boolean;
-  message?: string;
-  fieldErrors?: Record<string, string>;
-}
+import { FormErrorBanner } from "@/components/ui/form-error-banner";
+import { FormField } from "@/components/ui/form-field";
+import { FormSubmitButton } from "@/components/ui/form-submit-button";
+import { Input } from "@/components/ui/input";
+import { useFormFieldState } from "@/hooks/use-form-field-state";
+import { countFieldErrors, isValidEmail } from "@/lib/form-utils";
+import { signInWithPasswordAction, type SignInState } from "./actions";
 
 export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const formFields = useFormFieldState();
 
   const [state, formAction] = useActionState(
     (prevState: SignInState, formData: FormData) =>
       signInWithPasswordAction(prevState, formData, callbackUrl),
-    { ok: false, message: "", fieldErrors: {} },
+    { ok: false, fieldErrors: {} },
   );
 
+  const errors = state.fieldErrors ?? {};
+  const fieldErrorCount = countFieldErrors(errors);
+  const emailFormatError =
+    email.length > 0 && !isValidEmail(email) ? "Enter a valid email address." : undefined;
+  const emailError = errors.email ?? emailFormatError;
+  const passwordError = errors.password;
+
+  useEffect(() => {
+    if (fieldErrorCount > 0) {
+      formFields.setSubmitAttempted(true);
+      formFields.scrollToFirstError(errors);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run when server validation returns
+  }, [state]);
+
   return (
-    <form action={formAction} className="space-y-5">
-      {state.message && !state.ok ? (
-        <div className="rounded-2xl border border-[#FF3366]/20 bg-[#FF3366]/10 px-4 py-3 text-sm font-bold text-[#B42318]">
-          {state.message}
-        </div>
+    <form
+      action={formAction}
+      noValidate
+      className="space-y-5"
+      onSubmit={() => formFields.setSubmitAttempted(true)}
+    >
+      {state.message && fieldErrorCount === 0 ? (
+        <FormErrorBanner message={state.message} />
       ) : null}
 
-      <div>
-        <label htmlFor="email" className="text-sm font-bold text-[#0F172A]">
-          Email <span className="text-[#FF3366]">*</span>
-        </label>
-        <input
-          id="email"
+      {fieldErrorCount >= 2 && state.message ? (
+        <FormErrorBanner
+          message={state.message}
+          fieldErrorCount={fieldErrorCount}
+          onScrollToFirstError={() => formFields.scrollToFirstError(errors)}
+        />
+      ) : null}
+
+      <FormField
+        id="email"
+        label="Email"
+        required
+        error={emailError}
+        showError={formFields.shouldShowError("email", emailError)}
+        onBlur={() => formFields.markTouched("email")}
+      >
+        <Input
           name="email"
           type="email"
           autoComplete="email"
-          className="input-base"
-          required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
         />
-      </div>
+      </FormField>
 
       <PasswordField
         id="password"
         name="password"
         label="Password"
         autoComplete="current-password"
+        error={passwordError}
+        showError={formFields.shouldShowError("password", passwordError)}
+        onBlur={() => formFields.markTouched("password")}
         value={password}
         onChange={setPassword}
       />
 
-      <button type="submit" className="btn-primary w-full">
-        <span>Sign in</span>
-        <ArrowRight className="h-4 w-4" aria-hidden />
-      </button>
+      <FormSubmitButton pendingLabel="Signing in…" className="w-full">
+        Sign in
+      </FormSubmitButton>
     </form>
   );
 }

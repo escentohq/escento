@@ -3,7 +3,8 @@
 > You write UI copy only: headlines, eyebrows, CTAs, empty states, microcopy. No code.
 > Read these files before writing anything:
 > 1. `ai-context/BRAND.md` — voice, patterns, forbidden phrases, status labels
-> 2. `ai-context/PRODUCT.md` — what the product is, personas, scope
+> 2. `ai-context/FORMS.md` — field error copy table (when writing form messages)
+> 3. `ai-context/PRODUCT.md` — what the product is, personas, scope
 
 ---
 
@@ -27,4 +28,12 @@ For each piece of copy, output:
 Location: /musicians page — section eyebrow
 Copy: "Now playing"
 Style: font-mono text-xs font-bold uppercase tracking-[0.2em]
+```
+
+For **field errors**, output:
+
+```
+Location: signup — password field error
+Copy: "Use at least 8 characters."
+Type: field error (inline, sentence case, no exclamation)
 ```

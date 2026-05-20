@@ -32,20 +32,31 @@
 ### Destructive
 
 - Reuse secondary shape; recolor: `border-[#FF3366] text-[#FF3366] hover:bg-[#FF3366]/10`.
-- Always paired with `window.confirm` + `useTransition` (see `src/app/gigs/manage/DeleteGigButton.tsx` for current pattern).
+- Always paired with [`ConfirmDialog`](../../src/components/ui/confirm-dialog.tsx) (see `DeleteGigButton`, `DeleteAccountButton`). Never `window.confirm`.
 
 ---
 
 ## Forms
 
-- **Labels are visible.** No placeholder-as-label. Use `<label htmlFor>` wired to input `id`.
+Full system: [`FORMS.md`](./FORMS.md). Summary:
+
+- **Labels are visible.** No placeholder-as-label. Use `<FormField>` or `<label htmlFor>` wired to input `id`.
 - **Required marker.** Small `*` after label text (in `text-[#FF3366]`). Do not use the word "required" in the label.
-- **Field stack.** `space-y-6` between fields. `mt-2` between label and input.
-- **Inline errors.** Field error text `text-sm text-[#FF3366] mt-2`. Server-action errors should surface as inline messages via `useFormState` (migrate from current `throw new Error()` pattern — see [`FRONTEND_ARCH.md`](./FRONTEND_ARCH.md) §Validation).
-- **Submit button.** Primary CTA at bottom-right. Disabled + label changes to `<verb>…` (e.g., `Saving…`) while `useTransition` is pending.
+- **Field stack.** `space-y-6` between fields. Reserved error slot under each field (no layout jump).
+- **Error hierarchy.** Field errors first → form banner when ≥2 field errors or non-field message → no validation toasts.
+- **Inline errors.** `text-sm font-medium text-[#B42318]` via `FormField`. Server actions return `ActionState` via `useActionState`.
+- **Validation timing.** Blur + submit via `useFormFieldState`; auth email/password may validate on blur in realtime.
+- **Submit button.** `FormSubmitButton` — disabled + `Loader2` spinner while pending (`Saving…`, etc.).
 - **Cancel link.** Plain text link to the relevant index, left of submit. Never a button.
 - **Section grouping.** Use `<fieldset>` with a small `<legend>` styled as eyebrow (`font-mono text-xs uppercase tracking-[0.2em]`).
 - **Field width.** Single-column on mobile. Two-column for short pairs (e.g., `instruments` + `genres`) on `md:`.
+
+## Form accessibility
+
+- `aria-invalid`, `aria-describedby` on every control with errors
+- Error text `role="alert"` when visible; form banner `role="alert"`
+- Focus first invalid field after failed submit (`scrollToFirstError`)
+- `focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2`
 
 ---
 

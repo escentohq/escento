@@ -1,10 +1,28 @@
 export type FieldErrors = Record<string, string>;
 
+export type FormValues = Record<string, string | boolean>;
+
 export type ActionState = {
   ok: boolean;
   message?: string;
   fieldErrors?: FieldErrors;
+  values?: FormValues;
 };
+
+export function countFieldErrors(fieldErrors?: FieldErrors): number {
+  return fieldErrors ? Object.keys(fieldErrors).length : 0;
+}
+
+export function firstErrorFieldId(fieldErrors?: FieldErrors): string | undefined {
+  if (!fieldErrors) return undefined;
+  return Object.keys(fieldErrors)[0];
+}
+
+export function formLevelMessage(fieldErrors: FieldErrors, fallback: string): string {
+  const count = countFieldErrors(fieldErrors);
+  if (count >= 2) return `Fix ${count} fields to continue.`;
+  return fallback;
+}
 
 export const emptyActionState: ActionState = { ok: false };
 

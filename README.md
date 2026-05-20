@@ -220,6 +220,7 @@ All cascade deletes on app_user → deletes profiles, gigs, and junction rows.
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://...supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+   SUPABASE_SERVICE_ROLE_KEY=...   # server-only; required for account deletion
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 

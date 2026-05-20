@@ -1,13 +1,21 @@
 "use server";
 
 import { redirect } from "next/navigation";
+
+import {
+  countFieldErrors,
+  fieldError,
+  formLevelMessage,
+  isValidEmail,
+  type FieldErrors,
+} from "@/lib/form-utils";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-interface SignInState {
+export type SignInState = {
   ok: boolean;
   message?: string;
-  fieldErrors?: Record<string, string>;
-}
+  fieldErrors?: FieldErrors;
+};
 
 export async function signInWithPasswordAction(
   _state: SignInState,
@@ -16,9 +24,18 @@ export async function signInWithPasswordAction(
 ): Promise<SignInState> {
   const email = String(fd.get("email") ?? "").trim().toLowerCase();
   const password = String(fd.get("password") ?? "");
+  const fieldErrors: FieldErrors = {};
 
-  if (!email || !password) {
-    return { ok: false, message: "Enter your email and password." };
+  if (!email) fieldError(fieldErrors, "email", "Enter your email address.");
+  if (email && !isValidEmail(email)) fieldError(fieldErrors, "email", "Enter a valid email address.");
+  if (!password) fieldError(fieldErrors, "password", "Enter your password.");
+
+  if (Object.keys(fieldErrors).length) {
+    return {
+      ok: false,
+      fieldErrors,
+      message: formLevelMessage(fieldErrors, "Enter your email and password."),
+    };
   }
 
   try {
@@ -31,19 +48,17 @@ export async function signInWithPasswordAction(
     if (error) {
       const message =
         error.message.toLowerCase().includes("invalid login")
-          ? "That email or password is not right."
-          : error.message;
+          ? "That email or password isn't right."
+          : "Something went wrong. Try again.";
       return { ok: false, message };
     }
 
     redirect(callbackUrl);
   } catch (err) {
-    // Re-throw Next.js redirect errors
     if (err instanceof Error && err.message === "NEXT_REDIRECT") {
       throw err;
     }
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    console.error("Sign in error:", errorMsg);
-    return { ok: false, message: "Something went wrong. Please try again." };
+    console.error("Sign in error:", err);
+    return { ok: false, message: "Something went wrong. Try again." };
   }
 }

@@ -7,6 +7,7 @@ import { getProfileByUserId, createProfile } from "@/lib/api/profiles";
 import {
   type ActionState,
   fieldError,
+  formLevelMessage,
   isValidEmail,
   isValidUrlOrEmpty,
   nonEmptyOrNull,
@@ -14,6 +15,7 @@ import {
   parseOptionalInteger,
   strOrEmpty,
 } from "@/lib/form-utils";
+import { profileValuesFromFormData } from "@/lib/form-snapshots";
 import { requireRole } from "@/lib/auth-guards";
 
 function validateProfile(fd: FormData) {
@@ -96,8 +98,9 @@ export async function createMusicianProfileAction(
   if (Object.keys(parsed.fieldErrors).length) {
     return {
       ok: false,
-      message: "Tighten the set before saving.",
+      message: formLevelMessage(parsed.fieldErrors, "Tighten the set before saving."),
       fieldErrors: parsed.fieldErrors,
+      values: profileValuesFromFormData(fd),
     };
   }
 

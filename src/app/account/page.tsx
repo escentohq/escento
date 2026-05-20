@@ -16,12 +16,14 @@ export default async function AccountPage() {
             <UpdateNameForm initialName={session.user.name ?? ""} />
 
             <div>
-              <label className="block text-sm font-bold text-[#0F172A]">
+              <label htmlFor="account-email" className="block text-sm font-bold text-[#0F172A]">
                 Email
               </label>
               <input
+                id="account-email"
                 type="email"
                 disabled
+                readOnly
                 value={session.user.email ?? ""}
                 className="mt-2 w-full rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5 text-sm text-[#475569] disabled:cursor-not-allowed"
               />

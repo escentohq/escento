@@ -6,7 +6,8 @@
 > 2. `ai-context/DESIGN.md` — every color, spacing, motion token
 > 3. `ai-context/BRAND.md` — copy, eyebrows, forbidden phrases
 > 4. `ai-context/UX_RULES.md` — loading/empty/error states, form rules, CTA rules
-> 5. `ai-context/COMPONENTS.md` — copy-paste component recipes
+> 5. `ai-context/FORMS.md` — form UX system (when building forms)
+> 6. `ai-context/COMPONENTS.md` — copy-paste component recipes
 > 6. `src/components/home/HomeLanding.tsx` — canonical reference. Study the animation patterns.
 
 **Before writing any UI code, invoke the `ui-ux-pro-max` skill** (see `AGENTS.md §UI/UX Skill`). Use it to validate UX patterns, accessibility requirements, and interaction rules. DESIGN.md tokens override any conflicting skill output.
@@ -214,3 +215,12 @@ export default function Loading() {
 ## Before declaring done
 
 Run AGENTS.md DoD checklist. Then: `npm run lint` + `npm run build`.
+
+### Form build checklist
+
+- [ ] `FormField` + bright `Input`/`Textarea`/`Select` (no legacy `.input-base`)
+- [ ] `useActionState` + `useFormFieldState` for blur/submit error timing
+- [ ] Form banner only when ≥2 field errors or non-field message
+- [ ] `FormSubmitButton` with pending spinner
+- [ ] Reserved error space (no layout jump)
+- [ ] Destructive actions use `ConfirmDialog`, not `window.confirm`

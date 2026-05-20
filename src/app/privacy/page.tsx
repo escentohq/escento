@@ -27,9 +27,9 @@ export default function PrivacyPage() {
         <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">Overview</h2>
           <p className="mb-4 text-[#475569]">
-            This Privacy Notice for Motivo ("we," "us," or "our") describes how
+            This Privacy Notice for Motivo (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) describes how
             and why we might access, collect, store, use, and/or share
-            ("process") your personal information when you use our services,
+            (&ldquo;process&rdquo;) your personal information when you use our services,
             including when you:
           </p>
           <ul className="ml-5 list-disc space-y-2 text-[#475569]">
@@ -365,7 +365,7 @@ export default function PrivacyPage() {
           </h2>
           <p className="text-[#475569]">
             We may update this Privacy Notice from time to time. The updated
-            version will be indicated by an updated "Revised" date. If we make
+            version will be indicated by an updated &ldquo;Revised&rdquo; date. If we make
             material changes, we may notify you by prominently posting a notice
             or by directly sending you a notification. We encourage you to
             review this Privacy Notice frequently to be informed of how we are

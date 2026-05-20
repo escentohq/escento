@@ -1,13 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
+import { FormErrorBanner } from "@/components/ui/form-error-banner";
+import { FormField } from "@/components/ui/form-field";
 import { FormSubmitButton } from "@/components/ui/form-submit-button";
-import type { ActionState } from "@/lib/form-utils";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useFormFieldState } from "@/hooks/use-form-field-state";
+import { boolValue, stringValue } from "@/lib/form-snapshots";
+import { countFieldErrors, isValidEmail, type ActionState } from "@/lib/form-utils";
 import { emptyActionState } from "@/lib/form-utils";
 
-type ProfileFormState = {
+export type ProfileFormValues = {
   displayName: string;
   bio: string;
   school: string;
@@ -29,47 +35,54 @@ type ProfileFormState = {
 
 type Action = (state: ActionState, fd: FormData) => Promise<ActionState>;
 
-function Field({
-  id,
-  label,
-  required,
-  error,
-  children,
-}: {
-  id: string;
-  label: string;
-  required?: boolean;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <label htmlFor={id} className="text-sm font-bold text-[#0F172A]">
-        {label} {required ? <span className="text-[#FF3366]">*</span> : null}
-      </label>
-      {children}
-      {error ? <p className="mt-2 text-sm font-medium text-[#FF3366]">{error}</p> : null}
-    </div>
-  );
+function buildValues(initial: Partial<ProfileFormValues>): ProfileFormValues {
+  return {
+    displayName: initial.displayName ?? "",
+    bio: initial.bio ?? "",
+    school: initial.school ?? "",
+    location: initial.location ?? "",
+    isRemote: initial.isRemote ?? true,
+    seekingPaid: initial.seekingPaid ?? true,
+    seekingUnpaid: initial.seekingUnpaid ?? true,
+    yearsExperience: initial.yearsExperience ?? "",
+    availabilityText: initial.availabilityText ?? "",
+    contactEmail: initial.contactEmail ?? "",
+    instagramUrl: initial.instagramUrl ?? "",
+    youtubeUrl: initial.youtubeUrl ?? "",
+    spotifyUrl: initial.spotifyUrl ?? "",
+    soundcloudUrl: initial.soundcloudUrl ?? "",
+    websiteUrl: initial.websiteUrl ?? "",
+    instrumentsCsv: initial.instrumentsCsv ?? "",
+    genresCsv: initial.genresCsv ?? "",
+  };
 }
 
 function CheckboxField({
   id,
   name,
   label,
-  defaultChecked,
+  checked,
+  onChange,
 }: {
   id: string;
   name: string;
   label: string;
-  defaultChecked: boolean;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
 }) {
   return (
     <label
       htmlFor={id}
       className="flex min-h-14 items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-white px-4 text-sm font-bold text-[#0F172A]"
     >
-      <input id={id} type="checkbox" name={name} defaultChecked={defaultChecked} className="h-4 w-4 accent-[#0055FF]" />
+      <input
+        id={id}
+        type="checkbox"
+        name={name}
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+        className="h-4 w-4 accent-[#0055FF]"
+      />
       {label}
     </label>
   );
@@ -81,49 +94,141 @@ export function ProfileForm({
   action,
 }: {
   mode: "create" | "edit";
-  initial: Partial<ProfileFormState>;
+  initial: Partial<ProfileFormValues>;
   action: Action;
 }) {
+  const [values, setValues] = useState(() => buildValues(initial));
+  const formFields = useFormFieldState();
   const [state, formAction] = useActionState(action, emptyActionState);
+
   const title = mode === "create" ? "Create Profile" : "Save Profile";
-  const pending = mode === "create" ? "Creating..." : "Saving...";
+  const pending = mode === "create" ? "Creating…" : "Saving…";
   const errors = state.fieldErrors ?? {};
+  const fieldErrorCount = countFieldErrors(errors);
+
+  useEffect(() => {
+    if (state.values) {
+      setValues((current) => ({
+        ...current,
+        displayName: stringValue(state.values, "displayName", current.displayName),
+        bio: stringValue(state.values, "bio", current.bio),
+        school: stringValue(state.values, "school", current.school),
+        location: stringValue(state.values, "location", current.location),
+        isRemote: boolValue(state.values, "isRemote", current.isRemote),
+        seekingPaid: boolValue(state.values, "seekingPaid", current.seekingPaid),
+        seekingUnpaid: boolValue(state.values, "seekingUnpaid", current.seekingUnpaid),
+        yearsExperience: stringValue(state.values, "yearsExperience", current.yearsExperience),
+        availabilityText: stringValue(state.values, "availabilityText", current.availabilityText),
+        contactEmail: stringValue(state.values, "contactEmail", current.contactEmail),
+        instagramUrl: stringValue(state.values, "instagramUrl", current.instagramUrl),
+        youtubeUrl: stringValue(state.values, "youtubeUrl", current.youtubeUrl),
+        spotifyUrl: stringValue(state.values, "spotifyUrl", current.spotifyUrl),
+        soundcloudUrl: stringValue(state.values, "soundcloudUrl", current.soundcloudUrl),
+        websiteUrl: stringValue(state.values, "websiteUrl", current.websiteUrl),
+        instrumentsCsv: stringValue(state.values, "instrumentsCsv", current.instrumentsCsv),
+        genresCsv: stringValue(state.values, "genresCsv", current.genresCsv),
+      }));
+    }
+  }, [state.values]);
+
+  useEffect(() => {
+    if (fieldErrorCount > 0) {
+      formFields.setSubmitAttempted(true);
+      formFields.scrollToFirstError(errors);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+
+  const contactEmailFormatError =
+    values.contactEmail.length > 0 && !isValidEmail(values.contactEmail)
+      ? "Enter a valid email address."
+      : undefined;
+  const contactEmailError = errors.contactEmail ?? contactEmailFormatError;
 
   return (
     <div className="rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm md:p-8">
-      {state.message ? (
-        <div className="mb-6 rounded-2xl border border-[#FF3366]/20 bg-[#FF3366]/10 px-4 py-3 text-sm font-bold text-[#B42318]">
-          {state.message}
+      {state.message && fieldErrorCount >= 2 ? (
+        <div className="mb-6">
+          <FormErrorBanner
+            message={state.message}
+            fieldErrorCount={fieldErrorCount}
+            onScrollToFirstError={() => formFields.scrollToFirstError(errors)}
+          />
         </div>
       ) : null}
 
-      <form action={formAction} className="space-y-10">
+      <form
+        action={formAction}
+        noValidate
+        className="space-y-10"
+        onSubmit={() => formFields.setSubmitAttempted(true)}
+      >
         <fieldset className="space-y-5">
           <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
             Spotlight
           </legend>
 
-          <Field id="displayName" label="Display name" required error={errors.displayName}>
-            <input id="displayName" name="displayName" defaultValue={initial.displayName ?? ""} className="input-base" placeholder="Maya Singh" required />
-          </Field>
+          <FormField
+            id="displayName"
+            label="Display name"
+            required
+            error={errors.displayName}
+            showError={formFields.shouldShowError("displayName", errors.displayName)}
+            onBlur={() => formFields.markTouched("displayName")}
+          >
+            <Input
+              name="displayName"
+              value={values.displayName}
+              onChange={(event) => setValues((current) => ({ ...current, displayName: event.target.value }))}
+              placeholder="Maya Singh"
+            />
+          </FormField>
 
-          <Field id="bio" label="Bio" error={errors.bio}>
-            <textarea
-              id="bio"
+          <FormField
+            id="bio"
+            label="Bio"
+            error={errors.bio}
+            showError={formFields.shouldShowError("bio", errors.bio)}
+            onBlur={() => formFields.markTouched("bio")}
+          >
+            <Textarea
               name="bio"
-              defaultValue={initial.bio ?? ""}
-              className="input-base min-h-36"
+              value={values.bio}
+              onChange={(event) => setValues((current) => ({ ...current, bio: event.target.value }))}
+              className="min-h-36"
               placeholder="What do you play, what projects do you like, and what should creators know before they email?"
             />
-          </Field>
+          </FormField>
 
           <div className="grid gap-5 md:grid-cols-2">
-            <Field id="school" label="School" error={errors.school}>
-              <input id="school" name="school" defaultValue={initial.school ?? ""} className="input-base" placeholder="UT Austin" />
-            </Field>
-            <Field id="location" label="Location" error={errors.location}>
-              <input id="location" name="location" defaultValue={initial.location ?? ""} className="input-base" placeholder="Austin, TX" />
-            </Field>
+            <FormField
+              id="school"
+              label="School"
+              error={errors.school}
+              showError={formFields.shouldShowError("school", errors.school)}
+              onBlur={() => formFields.markTouched("school")}
+            >
+              <Input
+                name="school"
+                value={values.school}
+                onChange={(event) => setValues((current) => ({ ...current, school: event.target.value }))}
+                placeholder="UT Austin"
+              />
+            </FormField>
+            <FormField
+              id="location"
+              label="Location"
+              error={errors.location}
+              showError={formFields.shouldShowError("location", errors.location)}
+              onBlur={() => formFields.markTouched("location")}
+            >
+              <Input
+                name="location"
+                value={values.location}
+                onChange={(event) => setValues((current) => ({ ...current, location: event.target.value }))}
+                placeholder="Austin, TX"
+              />
+            </FormField>
           </div>
         </fieldset>
 
@@ -133,21 +238,67 @@ export function ProfileForm({
           </legend>
 
           <div className="grid gap-4 md:grid-cols-3">
-            <CheckboxField id="isRemote" name="isRemote" label="Remote-friendly" defaultChecked={initial.isRemote ?? true} />
-            <CheckboxField id="seekingPaid" name="seekingPaid" label="Open to paid" defaultChecked={initial.seekingPaid ?? true} />
-            <CheckboxField id="seekingUnpaid" name="seekingUnpaid" label="Open to unpaid" defaultChecked={initial.seekingUnpaid ?? true} />
+            <CheckboxField
+              id="isRemote"
+              name="isRemote"
+              label="Remote-friendly"
+              checked={values.isRemote}
+              onChange={(checked) => setValues((current) => ({ ...current, isRemote: checked }))}
+            />
+            <CheckboxField
+              id="seekingPaid"
+              name="seekingPaid"
+              label="Open to paid"
+              checked={values.seekingPaid}
+              onChange={(checked) => setValues((current) => ({ ...current, seekingPaid: checked }))}
+            />
+            <CheckboxField
+              id="seekingUnpaid"
+              name="seekingUnpaid"
+              label="Open to unpaid"
+              checked={values.seekingUnpaid}
+              onChange={(checked) => setValues((current) => ({ ...current, seekingUnpaid: checked }))}
+            />
           </div>
           {errors.seekingPaid ? (
-            <p className="text-sm font-medium text-[#FF3366]">{errors.seekingPaid}</p>
+            <p
+              role={formFields.shouldShowError("seekingPaid", errors.seekingPaid) ? "alert" : undefined}
+              className={`text-sm font-medium text-[#B42318] ${formFields.shouldShowError("seekingPaid", errors.seekingPaid) ? "" : "sr-only"}`}
+            >
+              {errors.seekingPaid}
+            </p>
           ) : null}
 
           <div className="grid gap-5 md:grid-cols-2">
-            <Field id="yearsExperience" label="Years of experience" error={errors.yearsExperience}>
-              <input id="yearsExperience" name="yearsExperience" defaultValue={initial.yearsExperience ?? ""} className="input-base" inputMode="numeric" placeholder="3" />
-            </Field>
-            <Field id="availabilityText" label="Availability" error={errors.availabilityText}>
-              <input id="availabilityText" name="availabilityText" defaultValue={initial.availabilityText ?? ""} className="input-base" placeholder="Weekends, evenings, 2 weeks notice" />
-            </Field>
+            <FormField
+              id="yearsExperience"
+              label="Years of experience"
+              error={errors.yearsExperience}
+              showError={formFields.shouldShowError("yearsExperience", errors.yearsExperience)}
+              onBlur={() => formFields.markTouched("yearsExperience")}
+            >
+              <Input
+                name="yearsExperience"
+                value={values.yearsExperience}
+                onChange={(event) => setValues((current) => ({ ...current, yearsExperience: event.target.value }))}
+                inputMode="numeric"
+                placeholder="3"
+              />
+            </FormField>
+            <FormField
+              id="availabilityText"
+              label="Availability"
+              error={errors.availabilityText}
+              showError={formFields.shouldShowError("availabilityText", errors.availabilityText)}
+              onBlur={() => formFields.markTouched("availabilityText")}
+            >
+              <Input
+                name="availabilityText"
+                value={values.availabilityText}
+                onChange={(event) => setValues((current) => ({ ...current, availabilityText: event.target.value }))}
+                placeholder="Weekends, evenings, 2 weeks notice"
+              />
+            </FormField>
           </div>
         </fieldset>
 
@@ -156,12 +307,36 @@ export function ProfileForm({
             Plays
           </legend>
           <div className="grid gap-5 md:grid-cols-2">
-            <Field id="instrumentsCsv" label="Instruments" required error={errors.instrumentsCsv}>
-              <input id="instrumentsCsv" name="instrumentsCsv" defaultValue={initial.instrumentsCsv ?? ""} className="input-base" placeholder="Guitar, Vocals, Piano" required />
-            </Field>
-            <Field id="genresCsv" label="Genres" required error={errors.genresCsv}>
-              <input id="genresCsv" name="genresCsv" defaultValue={initial.genresCsv ?? ""} className="input-base" placeholder="Indie, Jazz, Film scoring" required />
-            </Field>
+            <FormField
+              id="instrumentsCsv"
+              label="Instruments"
+              required
+              error={errors.instrumentsCsv}
+              showError={formFields.shouldShowError("instrumentsCsv", errors.instrumentsCsv)}
+              onBlur={() => formFields.markTouched("instrumentsCsv")}
+            >
+              <Input
+                name="instrumentsCsv"
+                value={values.instrumentsCsv}
+                onChange={(event) => setValues((current) => ({ ...current, instrumentsCsv: event.target.value }))}
+                placeholder="Guitar, Vocals, Piano"
+              />
+            </FormField>
+            <FormField
+              id="genresCsv"
+              label="Genres"
+              required
+              error={errors.genresCsv}
+              showError={formFields.shouldShowError("genresCsv", errors.genresCsv)}
+              onBlur={() => formFields.markTouched("genresCsv")}
+            >
+              <Input
+                name="genresCsv"
+                value={values.genresCsv}
+                onChange={(event) => setValues((current) => ({ ...current, genresCsv: event.target.value }))}
+                placeholder="Indie, Jazz, Film scoring"
+              />
+            </FormField>
           </div>
         </fieldset>
 
@@ -170,22 +345,45 @@ export function ProfileForm({
             Links
           </legend>
           <div className="grid gap-5 md:grid-cols-2">
-            <Field id="youtubeUrl" label="YouTube" error={errors.youtubeUrl}>
-              <input id="youtubeUrl" name="youtubeUrl" defaultValue={initial.youtubeUrl ?? ""} className="input-base" placeholder="https://youtube.com/..." />
-            </Field>
-            <Field id="soundcloudUrl" label="SoundCloud" error={errors.soundcloudUrl}>
-              <input id="soundcloudUrl" name="soundcloudUrl" defaultValue={initial.soundcloudUrl ?? ""} className="input-base" placeholder="https://soundcloud.com/..." />
-            </Field>
-            <Field id="spotifyUrl" label="Spotify" error={errors.spotifyUrl}>
-              <input id="spotifyUrl" name="spotifyUrl" defaultValue={initial.spotifyUrl ?? ""} className="input-base" placeholder="https://open.spotify.com/..." />
-            </Field>
-            <Field id="websiteUrl" label="Website" error={errors.websiteUrl}>
-              <input id="websiteUrl" name="websiteUrl" defaultValue={initial.websiteUrl ?? ""} className="input-base" placeholder="https://..." />
-            </Field>
+            {(
+              [
+                ["youtubeUrl", "YouTube"],
+                ["soundcloudUrl", "SoundCloud"],
+                ["spotifyUrl", "Spotify"],
+                ["websiteUrl", "Website"],
+              ] as const
+            ).map(([key, label]) => (
+              <FormField
+                key={key}
+                id={key}
+                label={label}
+                error={errors[key]}
+                showError={formFields.shouldShowError(key, errors[key])}
+                onBlur={() => formFields.markTouched(key)}
+              >
+                <Input
+                  name={key}
+                  value={values[key]}
+                  onChange={(event) => setValues((current) => ({ ...current, [key]: event.target.value }))}
+                  placeholder={`https://${label.toLowerCase()}.com/...`}
+                />
+              </FormField>
+            ))}
             <div className="md:col-span-2">
-              <Field id="instagramUrl" label="Instagram" error={errors.instagramUrl}>
-                <input id="instagramUrl" name="instagramUrl" defaultValue={initial.instagramUrl ?? ""} className="input-base" placeholder="https://instagram.com/..." />
-              </Field>
+              <FormField
+                id="instagramUrl"
+                label="Instagram"
+                error={errors.instagramUrl}
+                showError={formFields.shouldShowError("instagramUrl", errors.instagramUrl)}
+                onBlur={() => formFields.markTouched("instagramUrl")}
+              >
+                <Input
+                  name="instagramUrl"
+                  value={values.instagramUrl}
+                  onChange={(event) => setValues((current) => ({ ...current, instagramUrl: event.target.value }))}
+                  placeholder="https://instagram.com/..."
+                />
+              </FormField>
             </div>
           </div>
         </fieldset>
@@ -194,9 +392,22 @@ export function ProfileForm({
           <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
             Contact
           </legend>
-          <Field id="contactEmail" label="Contact email" required error={errors.contactEmail}>
-            <input id="contactEmail" type="email" name="contactEmail" defaultValue={initial.contactEmail ?? ""} className="input-base" placeholder="maya@school.edu" required />
-          </Field>
+          <FormField
+            id="contactEmail"
+            label="Contact email"
+            required
+            error={contactEmailError}
+            showError={formFields.shouldShowError("contactEmail", contactEmailError)}
+            onBlur={() => formFields.markTouched("contactEmail")}
+          >
+            <Input
+              name="contactEmail"
+              type="email"
+              value={values.contactEmail}
+              onChange={(event) => setValues((current) => ({ ...current, contactEmail: event.target.value }))}
+              placeholder="maya@school.edu"
+            />
+          </FormField>
         </fieldset>
 
         <div className="flex flex-col-reverse gap-4 border-t border-[#F1F5F9] pt-6 sm:flex-row sm:items-center sm:justify-between">

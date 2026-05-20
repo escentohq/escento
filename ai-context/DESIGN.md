@@ -188,6 +188,21 @@ focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-of
 
 For inputs, replace outline with ring:
 
+### Form feedback tokens
+
+| Token | Value | Usage |
+|---|---|---|
+| Field error text | `#B42318` | Inline under field (`formErrorTextClass`) |
+| Field error border | `#FDA29B` | Invalid input border |
+| Form error banner bg | `#FEF3F2` | `FormErrorBanner` error variant |
+| Form success banner bg | `#ECFDF3` | Inline success after save |
+| Form info banner bg | `#EFF6FF` | Email confirmation, neutral info |
+| Warning accent | `#FFB000` | Non-blocking guidance |
+
+Invalid inputs: `border-[#FDA29B] focus:border-[#B42318] focus:ring-[#B42318]/20`.
+
+See [`FORMS.md`](./FORMS.md) and `src/lib/form-input-classes.ts`.
+
 ```
 focus:outline-none focus:ring-2 focus:ring-[#0055FF]/20 focus:border-[#0055FF]
 ```

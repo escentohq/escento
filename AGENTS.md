@@ -28,6 +28,7 @@ Load the sub-agent **in addition to** this file — sub-agents scope your task, 
 5. [`UX_RULES.md`](./UX_RULES.md) — interactions, loading/empty/error, a11y
 6. [`FRONTEND_ARCH.md`](./FRONTEND_ARCH.md) — Next.js, server actions, Prisma, auth
 7. [`COMPONENTS.md`](./COMPONENTS.md) — copy-pasteable component recipes
+8. [`FORMS.md`](./ai-context/FORMS.md) — form UX system (when touching forms)
 
 ---
 
@@ -145,6 +146,7 @@ const session = await requireRole("CREATOR", request.nextUrl.pathname);
 - [ ] Reduced-motion handled (`useReducedMotion()` for non-trivial animations).
 - [ ] Loading + empty + error states present for any new async route.
 - [ ] Form labels are `<label htmlFor>` bound to input `id`.
+- [ ] Forms use `FormField` + error hierarchy from [`FORMS.md`](./ai-context/FORMS.md); no validation toasts; bright `Input`/`Textarea`/`Select` (not legacy `.input-base`).
 - [ ] `aria-hidden` on decorative icons; `aria-label` on icon-only buttons/links.
 - [ ] `npm run lint` passes.
 - [ ] `npm run build` passes.

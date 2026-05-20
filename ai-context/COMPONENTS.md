@@ -316,13 +316,114 @@ export function Select({ children, ...props }: React.SelectHTMLAttributes<HTMLSe
 }
 ```
 
-**Label pattern:**
+**Label pattern** — prefer `FormField` (handles label, error slot, a11y):
+
+```tsx
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+
+<FormField id="title" label="Title" required error={errors.title} showError={show}>
+  <Input name="title" value={title} onChange={...} />
+</FormField>
+```
+
+Legacy manual label (only if `FormField` doesn't fit):
 
 ```tsx
 <label htmlFor="title" className="text-sm font-bold text-[#0F172A]">
   Title <span className="text-[#FF3366]">*</span>
 </label>
 <Input id="title" name="title" required />
+```
+
+---
+
+## `<FormField>`
+
+Wraps label + control + reserved error space. See [`FORMS.md`](./FORMS.md).
+
+```tsx
+// src/components/ui/form-field.tsx — usage
+<FormField
+  id="email"
+  label="Email"
+  required
+  hint="We'll never share this."
+  error={errors.email}
+  showError={formFields.shouldShowError("email", errors.email)}
+  onBlur={() => formFields.markTouched("email")}
+>
+  <Input name="email" type="email" value={email} onChange={...} />
+</FormField>
+```
+
+---
+
+## `<FormErrorBanner>`
+
+Form-level message. Use when ≥2 field errors or non-field failures.
+
+```tsx
+<FormErrorBanner
+  message={state.message}
+  fieldErrorCount={fieldErrorCount}
+  onScrollToFirstError={() => formFields.scrollToFirstError(errors)}
+/>
+
+// Success (inline, no toast):
+<FormErrorBanner variant="success" message="Name updated." />
+
+// Info (e.g. check your email):
+<FormErrorBanner variant="info" message="Check your inbox to confirm." />
+```
+
+---
+
+## `<FormSubmitButton>`
+
+Bright pill submit with pending spinner. Replaces legacy `.btn-primary`.
+
+```tsx
+<FormSubmitButton pendingLabel="Saving…">Save</FormSubmitButton>
+```
+
+---
+
+## `<PasswordField>`
+
+Auth password input with optional strength meter. Client-controlled only.
+
+```tsx
+import { PasswordField } from "@/components/auth/password-field";
+
+<PasswordField
+  id="password"
+  name="password"
+  label="Password"
+  value={password}
+  onChange={setPassword}
+  showStrength
+  error={errors.password}
+  showError={show}
+/>
+```
+
+---
+
+## `<ConfirmDialog>`
+
+Accessible destructive confirm (native `<dialog>`). Use instead of `window.confirm`.
+
+```tsx
+<ConfirmDialog
+  open={open}
+  title="Delete this gig?"
+  description="This cannot be undone."
+  confirmLabel="Delete gig"
+  pending={isPending}
+  onConfirm={handleConfirm}
+  onCancel={() => setOpen(false)}
+/>
 ```
 
 ---

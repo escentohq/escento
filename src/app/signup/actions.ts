@@ -1,18 +1,21 @@
 "use server";
 
 import { redirect } from "next/navigation";
+
+import {
+  fieldError,
+  formLevelMessage,
+  isValidEmail,
+  type FieldErrors,
+} from "@/lib/form-utils";
 import { validatePassword } from "@/lib/password";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type SignUpValidationResult = {
   ok: boolean;
   message?: string;
-  fieldErrors?: Record<string, string>;
+  fieldErrors?: FieldErrors;
 };
-
-function isValidEmail(email: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
 
 /** Validates sign-up fields before Supabase `signUp` runs on the client. */
 export async function validateSignUp(
@@ -22,21 +25,25 @@ export async function validateSignUp(
   const password = String(formData.get("password") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
-  const fieldErrors: Record<string, string> = {};
-  if (!email) fieldErrors.email = "Add your email.";
+  const fieldErrors: FieldErrors = {};
+  if (!email) fieldError(fieldErrors, "email", "Enter your email address.");
   if (email && !isValidEmail(email)) {
-    fieldErrors.email = "Use a valid email address.";
+    fieldError(fieldErrors, "email", "Enter a valid email address.");
   }
 
   const passwordError = validatePassword(password);
-  if (!password) fieldErrors.password = "Create a password.";
-  if (password && passwordError) fieldErrors.password = passwordError;
+  if (!password) fieldError(fieldErrors, "password", "Choose a password.");
+  if (password && passwordError) fieldError(fieldErrors, "password", passwordError);
   if (password !== confirmPassword) {
-    fieldErrors.confirmPassword = "Passwords need to match.";
+    fieldError(fieldErrors, "confirmPassword", "Passwords need to match.");
   }
 
   if (Object.keys(fieldErrors).length) {
-    return { ok: false, message: "Tighten the account details.", fieldErrors };
+    return {
+      ok: false,
+      message: formLevelMessage(fieldErrors, "Tighten the account details."),
+      fieldErrors,
+    };
   }
 
   return { ok: true };
@@ -89,7 +96,7 @@ export async function signUpWithPasswordAction(
       }
       return {
         ok: false,
-        message: error.message,
+        message: "Something went wrong. Try again.",
       };
     }
 
@@ -103,12 +110,10 @@ export async function signUpWithPasswordAction(
         "Check your email to confirm your account, then sign in to continue.",
     };
   } catch (err) {
-    // Re-throw Next.js redirect errors
     if (err instanceof Error && err.message === "NEXT_REDIRECT") {
       throw err;
     }
-    const errorMsg = err instanceof Error ? err.message : String(err);
-    console.error("Sign up error:", errorMsg);
-    return { ok: false, message: "Something went wrong. Please try again." };
+    console.error("Sign up error:", err);
+    return { ok: false, message: "Something went wrong. Try again." };
   }
 }
