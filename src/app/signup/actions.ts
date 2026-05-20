@@ -81,6 +81,12 @@ export async function signUpWithPasswordAction(
           },
         };
       }
+      if (error.message.includes("429") || error.message.toLowerCase().includes("rate limit")) {
+        return {
+          ok: false,
+          message: "Too many signup attempts. Wait a few minutes and try again.",
+        };
+      }
       return {
         ok: false,
         message: error.message,

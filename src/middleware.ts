@@ -31,7 +31,12 @@ export async function middleware(request: NextRequest) {
 
   // Refresh session — this is required by @supabase/ssr to keep JWTs fresh
   // Without this call, tokens expire after ~1 hour and users become silently deauthenticated
-  await supabase.auth.getUser();
+  try {
+    await supabase.auth.getUser();
+  } catch (err) {
+    // User doesn't exist (403) or other auth errors - let Supabase SDK handle cookie cleanup
+    // This is normal for deleted accounts or stale tokens
+  }
 
   return supabaseResponse;
 }

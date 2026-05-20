@@ -26,6 +26,12 @@ export async function resetPasswordAction(
 
     if (error) {
       console.error("Password reset error:", error);
+      if (error.message.includes("429") || error.message.toLowerCase().includes("rate limit")) {
+        return {
+          ok: true,
+          message: "If an account exists with that email, you'll receive a reset link shortly. (Check spam folder too.)",
+        };
+      }
       // Don't leak whether email exists or not
       return {
         ok: true,
