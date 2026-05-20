@@ -2,7 +2,12 @@ import Link from "next/link";
 
 import { requireRole } from "@/lib/auth-guards";
 import { listGigsByCreator } from "@/lib/api/gigs";
-import { clampText, compensationLabel, projectTypeLabel, visibleTags } from "@/lib/display";
+import {
+  clampText,
+  compensationLabel,
+  projectTypeLabel,
+  visibleTags,
+} from "@/lib/display";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
@@ -57,11 +62,13 @@ export default async function ManageGigsPage() {
                             {gig.status}
                           </Chip>
                         </div>
-                        <h2 className="mt-1 break-words text-lg font-black tracking-tight text-[#0F172A]">
+                        <h2 className="mt-1 wrap-break-word text-lg font-black tracking-tight text-[#0F172A]">
                           {gig.title}
                         </h2>
                       </div>
-                      <Chip tone="gold">{compensationLabel(gig.compensationType)}</Chip>
+                      <Chip tone="gold">
+                        {compensationLabel(gig.compensationType)}
+                      </Chip>
                     </div>
 
                     <p className="relative z-10 mt-4 text-sm font-medium leading-relaxed text-[#475569]">
@@ -70,12 +77,24 @@ export default async function ManageGigsPage() {
 
                     <div className="relative z-10 mt-5 space-y-2">
                       <div className="flex flex-wrap gap-2">
-                        {instrumentTags.shown.map((name) => <Chip key={`${gig.id}-i-${name}`} tone="blue">{name}</Chip>)}
-                        {instrumentTags.hiddenCount ? <Chip>+{instrumentTags.hiddenCount} more</Chip> : null}
+                        {instrumentTags.shown.map((name) => (
+                          <Chip key={`${gig.id}-i-${name}`} tone="blue">
+                            {name}
+                          </Chip>
+                        ))}
+                        {instrumentTags.hiddenCount ? (
+                          <Chip>+{instrumentTags.hiddenCount} more</Chip>
+                        ) : null}
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {genreTags.shown.map((name) => <Chip key={`${gig.id}-g-${name}`} tone="pink">{name}</Chip>)}
-                        {genreTags.hiddenCount ? <Chip>+{genreTags.hiddenCount} more</Chip> : null}
+                        {genreTags.shown.map((name) => (
+                          <Chip key={`${gig.id}-g-${name}`} tone="pink">
+                            {name}
+                          </Chip>
+                        ))}
+                        {genreTags.hiddenCount ? (
+                          <Chip>+{genreTags.hiddenCount} more</Chip>
+                        ) : null}
                       </div>
                     </div>
 
@@ -87,7 +106,9 @@ export default async function ManageGigsPage() {
                         Edit
                       </Link>
 
-                      {gig.status === "OPEN" ? <CloseGigButton gigId={gig.id} /> : null}
+                      {gig.status === "OPEN" ? (
+                        <CloseGigButton gigId={gig.id} />
+                      ) : null}
 
                       <DeleteGigButton gigId={gig.id} className="w-full" />
                     </div>
