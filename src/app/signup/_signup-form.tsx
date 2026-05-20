@@ -1,19 +1,28 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 import { PasswordField } from "@/components/auth/password-field";
-import { validateSignUp, signUpWithPasswordAction, type SignUpValidationResult } from "./actions";
+import { signUpWithPasswordAction, type SignUpValidationResult } from "./actions";
 
 export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
   const [state, formAction] = useActionState(
     (prevState: SignUpValidationResult, formData: FormData) =>
       signUpWithPasswordAction(prevState, formData, callbackUrl),
-    { ok: false, fieldErrors: {} }
+    { ok: false, fieldErrors: {} },
   );
-  
+
   const errors = state.fieldErrors ?? {};
+  const confirmMismatch =
+    confirmPassword.length > 0 && password !== confirmPassword
+      ? "Passwords need to match."
+      : undefined;
 
   return (
     <form action={formAction} className="space-y-5">
@@ -40,6 +49,8 @@ export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
           autoComplete="name"
           className="input-base"
           placeholder="Maya Singh"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
         />
       </div>
 
@@ -54,6 +65,8 @@ export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
           autoComplete="email"
           className="input-base"
           required
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
         />
         {errors.email ? (
           <p className="mt-2 text-sm font-medium text-[#FF3366]">{errors.email}</p>
@@ -66,6 +79,9 @@ export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
         label="Password"
         autoComplete="new-password"
         error={errors.password}
+        value={password}
+        onChange={setPassword}
+        showStrength
       />
 
       <PasswordField
@@ -73,7 +89,9 @@ export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
         name="confirmPassword"
         label="Confirm password"
         autoComplete="new-password"
-        error={errors.confirmPassword}
+        error={errors.confirmPassword ?? confirmMismatch}
+        value={confirmPassword}
+        onChange={setConfirmPassword}
       />
 
       <button type="submit" className="btn-primary w-full">

@@ -3,20 +3,29 @@
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
+import { PasswordStrengthIndicator } from "@/components/auth/password-strength-indicator";
+
 export function PasswordField({
   id,
   name,
   label,
   autoComplete,
   error,
+  value,
+  onChange,
+  showStrength = false,
 }: {
   id: string;
   name: string;
   label: string;
   autoComplete: string;
   error?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  showStrength?: boolean;
 }) {
   const [visible, setVisible] = useState(false);
+  const isControlled = value !== undefined && onChange !== undefined;
 
   return (
     <div>
@@ -31,6 +40,12 @@ export function PasswordField({
           autoComplete={autoComplete}
           className="input-base pr-14"
           required
+          {...(isControlled
+            ? {
+                value,
+                onChange: (event) => onChange(event.target.value),
+              }
+            : {})}
         />
         <button
           type="button"
@@ -41,8 +56,10 @@ export function PasswordField({
           {visible ? <EyeOff className="h-4 w-4" aria-hidden /> : <Eye className="h-4 w-4" aria-hidden />}
         </button>
       </div>
+      {showStrength && (value?.length ?? 0) > 0 ? (
+        <PasswordStrengthIndicator password={value ?? ""} />
+      ) : null}
       {error ? <p className="mt-2 text-sm font-medium text-[#FF3366]">{error}</p> : null}
     </div>
   );
 }
-

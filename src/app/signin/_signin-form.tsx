@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 import { PasswordField } from "@/components/auth/password-field";
 import { signInWithPasswordAction } from "./actions";
@@ -13,10 +13,13 @@ interface SignInState {
 }
 
 export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const [state, formAction] = useActionState(
     (prevState: SignInState, formData: FormData) =>
       signInWithPasswordAction(prevState, formData, callbackUrl),
-    { ok: false, message: "", fieldErrors: {} }
+    { ok: false, message: "", fieldErrors: {} },
   );
 
   return (
@@ -38,6 +41,8 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
           autoComplete="email"
           className="input-base"
           required
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
         />
       </div>
 
@@ -46,6 +51,8 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
         name="password"
         label="Password"
         autoComplete="current-password"
+        value={password}
+        onChange={setPassword}
       />
 
       <button type="submit" className="btn-primary w-full">
