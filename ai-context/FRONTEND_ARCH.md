@@ -12,55 +12,47 @@ src/
     layout.tsx                          # root shell — LEGACY dark, migrate to bright (see UX_RULES §Navigation)
     page.tsx                            # / landing host (server) — resolves session + role → renders <HomeLanding/>
     globals.css                         # Tailwind v4 entry + LEGACY token classes (.input-base, .btn-primary, .card)
-    api/
-      auth/[...nextauth]/route.ts       # only API route. do not add more.
+    signin/
+      page.tsx                          # Email/password sign-in form
+      actions.ts                        # signInWithPasswordAction(state, fd, callbackUrl)
+      _signin-form.tsx                  # client form component
+    signup/
+      page.tsx                          # Email/password sign-up form
+      actions.ts                        # validateSignUp + signUpWithPasswordAction
+      _signup-form.tsx                  # client form component
+    forgot-password/
+      page.tsx                          # Password reset request
+      actions.ts                        # requestPasswordReset
+      _forgot-password-form.tsx         # client form component
+    account/
+      page.tsx
+      actions.ts                        # updateNameAction, deleteAccountAction
+      update-password/                  # Change password (authenticated)
+        page.tsx
+        actions.ts                      # updatePasswordAction
+        _update-password-form.tsx       # client form component
+    onboarding/
+      role/
+        page.tsx
+        actions.ts                      # setRole(role)
   lib/
     api/                                # ← SERVICE LAYER (see DATABASE.md)
       types.ts                          # shared TypeScript interfaces
       gigs.ts                           # gig CRUD + queries
       profiles.ts                       # musician profile CRUD + queries
-      users.ts                          # user CRUD + queries
+      users.ts                          # user CRUD + queries (app_user table)
       tags.ts                           # instrument/genre CRUD (upsert pattern)
-    onboarding/
-      role/
-        page.tsx
-        actions.ts                      # setRole(role)
-    musicians/
-      page.tsx                          # directory
-      [id]/page.tsx                     # public profile
-      _ui.tsx                           # Chip, SectionCard, PrimaryLink (duplicated — consolidate to src/components/ui/)
-    profile/
-      create/page.tsx                   # MUSICIAN gate
-      create/actions.ts                 # createMusicianProfile(formData)
-      edit/page.tsx
-      edit/actions.ts                   # updateMusicianProfile(formData)
-      _profile-form.tsx                 # shared client form
-    gigs/
-      page.tsx                          # directory
-      [id]/page.tsx                     # detail
-      [id]/edit/page.tsx
-      [id]/edit/actions.ts              # updateGig(gigId, fd)
-      create/page.tsx
-      create/actions.ts                 # createGig(formData)
-      manage/page.tsx                   # CREATOR-only
-      manage/actions.ts                 # closeGig, deleteGig
-      manage/DeleteGigButton.tsx        # client, useTransition + window.confirm
-      _gig-form.tsx                     # shared form
-      _ui.tsx                           # Chip etc. (duplicate of musicians/_ui.tsx)
-    signin/
-      page.tsx
-      SignInButtons.tsx                 # client, OAuth provider buttons
+    supabase/
+      server.ts                         # Supabase server client (JWT-aware)
+      client.ts                         # Supabase browser client
+    auth-guards.ts                      # getCurrentSession, requireSignedIn, requireUser, requireRole
+    password.ts                         # validatePassword helper
+    middleware.ts                       # JWT refresh via supabase.auth.getUser()
   components/
     home/
       HomeLanding.tsx                   # canonical bright-theme reference — READ FIRST
       StageLightsScene.tsx              # only file allowed to import @react-three/* and three
-  auth.ts                               # NextAuth config + JWT role refresh
-  supabase/
-    server.ts                           # Supabase server client (auth-aware)
   types/                                # ambient types
-  middleware.ts                         # protects /onboarding/* only (expand matcher if adding gated routes)
-prisma/
-  schema.prisma                         # data model truth
 ```
 
 **Conventions:**
@@ -178,26 +170,23 @@ export async function createGigAction(formData: FormData) {
 
 ---
 
-## Auth (NextAuth v4)
+## Auth (Supabase email/password + JWT)
 
 ### Setup
 
-- Config in `src/auth.ts` (`authOptions`).
-- Providers: GitHub + Google.
-- Strategy: JWT sessions.
-- Adapter: `@next-auth/prisma-adapter`.
-- Custom `session` callback adds `user.id` and `user.role` from DB.
-- **Known issue:** the JWT callback refreshes role from DB on every request — flagged perf bug, see REBUILD §9. Do not pile more DB calls into this callback.
+- Supabase auth handles email/password signup + sign-in + password reset.
+- JWT stored in httpOnly cookies via `@supabase/ssr`.
+- `getCurrentSession()` from `@/lib/auth-guards` queries `auth.users` (Supabase) + `app_user` (app metadata).
+- `middleware.ts` refreshes JWT on every request via `supabase.auth.getUser()`.
 
 ### Pattern (every protected page)
 
 ```tsx
 import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/auth";
+import { getCurrentSession } from "@/lib/auth-guards";
 
 export default async function CreateGigPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getCurrentSession();
   if (!session?.user?.id) redirect("/signin?callbackUrl=/gigs/create");
   if (!session.user.role) redirect("/onboarding/role");
   if (session.user.role !== "CREATOR") redirect("/");
@@ -205,17 +194,37 @@ export default async function CreateGigPage() {
 }
 ```
 
+### Auth routes + actions
+
+| Route | Action | Purpose |
+|---|---|---|
+| `/signin` | `signInWithPasswordAction` | Email/password sign-in via `supabase.auth.signInWithPassword` |
+| `/signup` | `signUpWithPasswordAction` | Email/password signup + validation via `supabase.auth.signUp` |
+| `/forgot-password` | `requestPasswordReset` | Request password reset email link |
+| `/account/update-password` | `updatePasswordAction` | Change password (authenticated user only) |
+
 ### Middleware
 
-`src/middleware.ts` protects `/onboarding/*` only. **Per-page checks are the trust boundary.** When adding a new gated route, do NOT rely on middleware — re-check in the page and in every action.
+`src/middleware.ts` calls `supabase.auth.getUser()` on every request to refresh the JWT. This is required by `@supabase/ssr` to keep tokens fresh (~1 hour expiry). **Per-page checks are the trust boundary.** When adding a new gated route, do NOT rely on middleware — re-check in the page and in every action.
 
 ### `session.user` shape
 
 ```ts
-{ id: string; email?: string; role: "MUSICIAN" | "CREATOR" | null; name?: string; image?: string }
+{
+  id: string;                           // Supabase auth user id (TEXT, matches app_user.id)
+  email: string | null;                 // from auth.users
+  role: "MUSICIAN" | "CREATOR" | null;  // from app_user
+  name?: string | null;                 // from app_user
+  image?: string | null;                // from app_user
+}
 ```
 
-The `role` is `null` for users who haven't completed onboarding.
+The `role` is `null` for users who haven't completed onboarding. `name` and `image` are optional fields from the `app_user` table.
+
+**Auth tables:**
+- `auth.users` — Supabase-managed (email, password hash, email_confirmed_at)
+- `app_user` — App-specific metadata (role, name, image, timestamps)
+- `app_user.id` TEXT matches `auth.users.id`
 
 ---
 
@@ -314,16 +323,12 @@ await createGig(gigData, instrumentNames, genreNames);
 Required env vars (load via `.env.local`, fail fast if missing):
 
 ```
-DATABASE_URL=postgresql://...
-NEXTAUTH_SECRET=...
-NEXTAUTH_URL=http://localhost:3000
-GITHUB_ID=...
-GITHUB_SECRET=...
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
+NEXT_PUBLIC_SUPABASE_URL=https://...supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-**Rule.** Do not commit `.env*` files. Do not log env values. Do not pass them to client components.
+`NEXT_PUBLIC_APP_URL` is used in email redirect links for password reset and signup confirmation.
 
 ---
 

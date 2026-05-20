@@ -34,11 +34,10 @@ export interface Tag {
 ### `AppUser`
 ```ts
 export interface AppUser {
-  id: string;
-  email: string;
+  id: string;                  // TEXT, matches auth.users.id
+  email: string;               // from auth.users
   name: string | null;
   image: string | null;
-  supabaseUserId: string | null;
   role: "MUSICIAN" | "CREATOR" | null;
 }
 ```
@@ -203,28 +202,19 @@ Handles musician profile CRUD + queries.
 
 ## Users API (`src/lib/api/users.ts`)
 
-Handles user CRUD. Used by `src/lib/auth/sync-app-user.ts` to sync auth state → DB.
+Handles app_user table CRUD. Used during signup flow and onboarding.
 
 ### Read functions
 
-**`getUserBySupabaseId(supabaseId: string): Promise<AppUser | null>`**
-- Lookup user by Supabase UUID
-
-**`getUserByEmail(email: string): Promise<AppUser | null>`**
-- Lookup user by email
-
 **`getUserById(id: string): Promise<AppUser | null>`**
-- Lookup user by app user ID
+- Lookup user by app user ID (matches auth.users.id)
 
 ### Write functions
 
-**`createUser(input: CreateUserInput): Promise<AppUser>`**
-- Insert user from auth provider
-- Called during signup flow
-
-**`updateUser(id: string, input: UpdateUserInput): Promise<AppUser>`**
-- Update user fields (name, image, role, etc.)
+**`updateUser(id: string, input: { name?: string; image?: string; role?: string }): Promise<AppUser>`**
+- Update user fields (name, image, role)
 - Called during role selection onboarding
+- Called when user updates profile name/photo
 
 ---
 

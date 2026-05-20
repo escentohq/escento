@@ -7,7 +7,10 @@ Platform connecting student musicians with student creators for film, podcasts, 
 ## Features
 
 ### User Management
-- OAuth sign-in via Google
+- Email/password sign-up with confirmation
+- Sign-in with email/password
+- Password reset flow via email
+- Password change in account settings
 - Profile avatars in navigation (image → initials → icon fallback)
 - Account settings page (update name, view email, delete account)
 - Role-based access (Musician / Creator)
@@ -41,10 +44,10 @@ Platform connecting student musicians with student creators for film, podcasts, 
 - **3D (hero only):** React Three Fiber + Drei
 
 ### Backend
-- **Auth:** Supabase (JWT-based, Google OAuth provider)
+- **Auth:** Supabase (email/password + JWT in httpOnly cookies)
 - **Database:** PostgreSQL (via Supabase)
-- **ORM:** None (raw Supabase client for now)
-- **Mutations:** Server Actions (no REST API routes except `/api/auth/[...nextauth]`)
+- **ORM:** None (raw Supabase client)
+- **Mutations:** Server Actions (no REST API routes)
 
 ## Project Structure
 
@@ -56,10 +59,24 @@ src/
 │   ├── account/                 # User account settings
 │   │   ├── page.tsx
 │   │   ├── actions.ts
-│   │   ├── loading.tsx
-│   │   ├── error.tsx
 │   │   ├── _update-name-form.tsx
 │   │   └── _delete-account-button.tsx
+│   ├── update-password/         # Change password (authenticated)
+│   │   ├── page.tsx
+│   │   ├── actions.ts
+│   │   └── _update-password-form.tsx
+│   ├── signin/                  # Email/password sign in
+│   │   ├── page.tsx
+│   │   ├── actions.ts
+│   │   └── _signin-form.tsx
+│   ├── signup/                  # Email/password sign up
+│   │   ├── page.tsx
+│   │   ├── actions.ts
+│   │   └── _signup-form.tsx
+│   ├── forgot-password/         # Password reset request
+│   │   ├── page.tsx
+│   │   ├── actions.ts
+│   │   └── _forgot-password-form.tsx
 │   ├── musicians/               # Musician directory
 │   │   ├── page.tsx
 │   │   └── [id]/page.tsx       # Public musician profile
@@ -74,12 +91,12 @@ src/
 │   │   └── edit/               # Edit profile (MUSICIAN role)
 │   ├── onboarding/              # Role selection
 │   │   └── role/page.tsx
-│   ├── signin/                  # Sign in page
-│   └── auth/callback/           # OAuth callback handler
+│   ├── auth/callback/           # OAuth callback handler
+│   └── api/auth/[...auth]/      # Auth API routes
 │
 ├── lib/
 │   ├── api/                     # Service layer (DB operations)
-│   │   ├── users.ts            # User CRUD
+│   │   ├── users.ts            # User CRUD (app_user table)
 │   │   ├── profiles.ts         # Musician profile CRUD
 │   │   ├── gigs.ts             # Gig CRUD + queries
 │   │   ├── tags.ts             # Instrument/Genre upsert
@@ -88,11 +105,11 @@ src/
 │   │   ├── server.ts           # Server-side Supabase client
 │   │   └── client.ts           # Browser-side Supabase client
 │   ├── auth/
-│   │   └── sync-app-user.ts   # Sync Supabase user → app user
+│   │   └── sync-app-user.ts   # Sync Supabase user → app user (legacy)
 │   ├── auth-guards.ts          # Session checks + redirects
+│   ├── password.ts             # Password validation
 │   ├── form-utils.ts           # CSV parsing, validation
-│   ├── db.ts                   # Prisma singleton (legacy)
-│   └── middleware.ts           # Protect /onboarding/*
+│   └── middleware.ts           # JWT refresh
 │
 ├── components/
 │   ├── home/
@@ -117,8 +134,9 @@ src/
 
 ## Database Schema
 
-**Tables:**
-- `user` — Core app user (id, email, name, image, role, supabase_user_id)
+**Core tables:**
+- `app_user` — App user metadata (id: TEXT matching auth.users, email, name, image, role, created_at, updated_at)
+- `auth.users` — Supabase-managed auth (email, password hash, email_confirmed_at, managed by Supabase)
 - `musician_profile` — Musician-specific data (bio, instruments, genres, links)
 - `gig` — Posted opportunities (title, description, instruments, genres, compensation)
 - `instrument` — Tag reference (upserted on use)
@@ -128,22 +146,28 @@ src/
 - `gig_instrument` — Junction (gig → required instruments)
 - `gig_genre` — Junction (gig → required genres)
 
-All cascade deletes on user → deletes profiles, gigs, and junction rows.
+All cascade deletes on app_user → deletes profiles, gigs, and junction rows.
 
 ## Authentication Flow
 
-1. User clicks "Sign in" → Google OAuth redirect
-2. Google redirects to `/auth/callback?code=...`
-3. Supabase exchanges code for session (JWT in httpOnly cookie)
-4. Callback redirects to home or callback URL
-5. Every page checks session via `getCurrentSession()` (Supabase auth + app user sync)
+1. User signs up at `/signup` with email/password
+2. Supabase sends confirmation email (via `NEXT_PUBLIC_APP_URL`)
+3. User confirms email, then signs in at `/signin`
+4. `middleware.ts` refreshes JWT on every request via `supabase.auth.getUser()`
+5. Every protected page calls auth guard: `getCurrentSession()` → `requireSignedIn()` → `requireUser()` → `requireRole()`
 6. First login: user onboarding at `/onboarding/role` to choose Musician or Creator
-7. Role persists in `user.role` column
+7. Role persists in `app_user.role` column
+8. Password reset via `/forgot-password` → email link → `/account/update-password`
 
 **Session shape:**
 ```ts
-{ user: { id, email, role, name, image } }
+{ user: { id, email, role, name, image } }  // id = Supabase auth user id
 ```
+
+**Auth tables:**
+- `auth.users` — Supabase-managed (email, password hash, email_confirmed_at)
+- `app_user` — App-specific metadata (role, name, image)
+- `app_user.id` matches `auth.users.id` (TEXT)
 
 ## Key Patterns
 
@@ -181,7 +205,7 @@ All cascade deletes on user → deletes profiles, gigs, and junction rows.
 ### Prerequisites
 - Node.js 18+
 - Supabase project (free tier OK)
-- Google OAuth credentials (for sign-in)
+- Email service enabled in Supabase (for password reset confirmations)
 
 ### Local Setup
 
@@ -196,8 +220,7 @@ All cascade deletes on user → deletes profiles, gigs, and junction rows.
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://...supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-   SUPABASE_SERVICE_ROLE_KEY=...
-   NEXT_PUBLIC_GOOGLE_CLIENT_ID=...
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 
 3. **Run dev server:**
