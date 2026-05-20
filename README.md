@@ -2,7 +2,7 @@
 
 Platform connecting student musicians with student creators for film, podcasts, live events, games, YouTube videos, and creative projects.
 
-**Vision:** Students can find collaborators fast. Musicians discover opportunities. Creators cast talent.
+**Vision:** Students find collaborators fast. Musicians discover opportunities. Creators cast talent.
 
 ## Features
 
