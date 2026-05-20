@@ -21,19 +21,14 @@ export function Footer() {
             <Link href="/gigs" className="transition-colors hover:text-[#0055FF]">
               Gigs
             </Link>
-            <Link
-              href="/signin"
-              prefetch={false}
-              className="transition-colors hover:text-[#0055FF]"
-            >
-              Sign in
+            <Link href="/privacy" className="transition-colors hover:text-[#0055FF]">
+              Privacy
             </Link>
-            <Link
-              href="/signup"
-              prefetch={false}
-              className="transition-colors hover:text-[#0055FF]"
-            >
-              Sign up
+            <Link href="/terms" className="transition-colors hover:text-[#0055FF]">
+              Terms
+            </Link>
+            <Link href="/compliance" className="transition-colors hover:text-[#0055FF]">
+              Compliance
             </Link>
           </div>
         </div>
