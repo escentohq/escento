@@ -1,55 +1,29 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useActionState } from "react";
 
 import { PasswordField } from "@/components/auth/password-field";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { signInWithPasswordAction } from "./actions";
+
+interface SignInState {
+  ok: boolean;
+  message?: string;
+  fieldErrors?: Record<string, string>;
+}
 
 export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
-  const router = useRouter();
-  const [message, setMessage] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
-
-  async function submit(formData: FormData) {
-    setMessage(null);
-    setPending(true);
-    try {
-      const email = String(formData.get("email") ?? "").trim().toLowerCase();
-      const password = String(formData.get("password") ?? "");
-      if (!email || !password) {
-        setMessage("Enter your email and password.");
-        return;
-      }
-
-      const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        if (error.message.toLowerCase().includes("invalid login")) {
-          setMessage("That email or password is not right.");
-        } else {
-          setMessage(error.message);
-        }
-        return;
-      }
-
-      router.push(callbackUrl);
-      router.refresh();
-    } finally {
-      setPending(false);
-    }
-  }
+  const [state, formAction] = useActionState(
+    (prevState: SignInState, formData: FormData) =>
+      signInWithPasswordAction(prevState, formData, callbackUrl),
+    { ok: false, message: "", fieldErrors: {} }
+  );
 
   return (
-    <form action={submit} className="space-y-5">
-      {message ? (
+    <form action={formAction} className="space-y-5">
+      {state.message && !state.ok ? (
         <div className="rounded-2xl border border-[#FF3366]/20 bg-[#FF3366]/10 px-4 py-3 text-sm font-bold text-[#B42318]">
-          {message}
+          {state.message}
         </div>
       ) : null}
 
@@ -74,8 +48,8 @@ export function SignInForm({ callbackUrl }: { callbackUrl: string }) {
         autoComplete="current-password"
       />
 
-      <button type="submit" disabled={pending} className="btn-primary w-full">
-        <span>{pending ? "Signing in..." : "Sign in"}</span>
+      <button type="submit" className="btn-primary w-full">
+        <span>Sign in</span>
         <ArrowRight className="h-4 w-4" aria-hidden />
       </button>
     </form>

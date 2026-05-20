@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireSignedIn } from "@/lib/auth-guards";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export async function signOutAction(): Promise<void> {
   const supabase = await createSupabaseServerClient();
@@ -14,17 +15,16 @@ export async function signOutAction(): Promise<void> {
 
 export async function deleteAccountAction(): Promise<void> {
   const session = await requireSignedIn("/account");
-  const supabase = await createSupabaseServerClient();
+  const serverSupabase = await createSupabaseServerClient();
+  const adminSupabase = createSupabaseAdminClient();
 
-  // Delete profiles and gigs (cascades to junctions)
-  await Promise.all([
-    supabase.from("musician_profile").delete().eq("user_id", session.user.id),
-    supabase.from("gig").delete().eq("creator_id", session.user.id),
-  ]);
+  // Delete auth user — all app data cascades automatically
+  await adminSupabase.auth.admin.deleteUser(session.user.id);
 
-  // Sign out (auth user stays — data is gone)
-  await supabase.auth.signOut();
-  redirect("/");
+  // Clear session cookies — will error if auth row already gone, safe to ignore
+  await serverSupabase.auth.signOut().catch(() => {});
+
+  redirect("/signin");
 }
 
 export async function updateNameAction(
@@ -43,11 +43,20 @@ export async function updateNameAction(
   }
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.updateUser({
-    data: { full_name: name },
-  });
 
-  if (error) throw error;
+  // Update both app_user and auth metadata
+  const [appUserError, authError] = await Promise.all([
+    supabase
+      .from("app_user")
+      .update({ name })
+      .eq("id", session.user.id)
+      .then(r => r.error),
+    supabase.auth
+      .updateUser({ data: { full_name: name } })
+      .then(r => r.error),
+  ]);
+
+  if (appUserError || authError) throw appUserError || authError;
 
   revalidatePath("/account");
   revalidatePath("/");

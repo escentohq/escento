@@ -17,14 +17,24 @@ export const getCurrentSession = cache(async (): Promise<AppSession | null> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user?.id) return null;
 
-  const meta = user.user_metadata as Record<string, unknown> | undefined;
+  const { data: appUser, error: appUserError } = await supabase
+    .from("app_user")
+    .select("role, name, image")
+    .eq("id", user.id)
+    .single();
+
+  // Log unexpected errors (RLS violations, timeouts, etc) but ignore expected "not found"
+  if (appUserError && appUserError.code !== "PGRST116") {
+    console.error("[auth] app_user query failed:", appUserError);
+  }
+
   return {
     user: {
       id: user.id,
       email: user.email ?? null,
-      name: typeof meta?.full_name === "string" ? meta.full_name : null,
-      role: typeof meta?.role === "string" ? meta.role : null,
-      image: typeof meta?.avatar_url === "string" ? meta.avatar_url : null,
+      name: appUser?.name ?? null,
+      role: appUser?.role ?? null,
+      image: appUser?.image ?? null,
     },
   };
 });

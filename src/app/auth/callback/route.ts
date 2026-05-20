@@ -11,8 +11,22 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      const safeNext =
-        next.startsWith("/") && !next.startsWith("//") ? next : "/";
+      const { data: { user } } = await supabase.auth.getUser();
+      const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+
+      // Route new users (no role set) to onboarding, regardless of ?next parameter
+      if (user) {
+        const { data: appUser } = await supabase
+          .from("app_user")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        if (!appUser?.role) {
+          return NextResponse.redirect(new URL("/onboarding/role", origin));
+        }
+      }
+
       return NextResponse.redirect(new URL(safeNext, origin));
     }
   }

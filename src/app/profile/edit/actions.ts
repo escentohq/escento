@@ -120,6 +120,7 @@ export async function updateMusicianProfileAction(
       soundcloudUrl: data.soundcloudUrl,
       websiteUrl: data.websiteUrl,
     },
+    session.user.id,
     data.instruments,
     data.genres,
   );

@@ -1,87 +1,22 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useActionState } from "react";
 
 import { PasswordField } from "@/components/auth/password-field";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-
-import { validateSignUp, type SignUpValidationResult } from "./actions";
+import { validateSignUp, signUpWithPasswordAction, type SignUpValidationResult } from "./actions";
 
 export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
-  const router = useRouter();
-  const [state, setState] = useState<SignUpValidationResult>({ ok: false });
-  const [pending, setPending] = useState(false);
+  const [state, formAction] = useActionState(
+    (prevState: SignUpValidationResult, formData: FormData) =>
+      signUpWithPasswordAction(prevState, formData, callbackUrl),
+    { ok: false, fieldErrors: {} }
+  );
+  
   const errors = state.fieldErrors ?? {};
 
-  async function submit(formData: FormData) {
-    setState({ ok: false });
-    setPending(true);
-    try {
-      const validated = await validateSignUp(formData);
-      if (!validated.ok) {
-        setState(validated);
-        return;
-      }
-
-      const email = String(formData.get("email") ?? "").trim().toLowerCase();
-      const password = String(formData.get("password") ?? "");
-      const name = String(formData.get("name") ?? "").trim();
-
-      const supabase = createSupabaseBrowserClient();
-      const origin =
-        typeof window !== "undefined" ? window.location.origin : "";
-      const next =
-        callbackUrl.startsWith("/") ? callbackUrl : "/onboarding/role";
-
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
-          data: {
-            full_name: name || undefined,
-          },
-        },
-      });
-
-      if (error) {
-        if (error.message.toLowerCase().includes("already registered")) {
-          setState({
-            ok: false,
-            fieldErrors: {
-              email:
-                "An account already exists for this email. Sign in instead.",
-            },
-          });
-          return;
-        }
-        setState({
-          ok: false,
-          message: error.message,
-        });
-        return;
-      }
-
-      if (data.session) {
-        router.push(next);
-        router.refresh();
-        return;
-      }
-
-      setState({
-        ok: false,
-        message:
-          "Check your email to confirm your account, then sign in to continue.",
-      });
-    } finally {
-      setPending(false);
-    }
-  }
-
   return (
-    <form action={submit} className="space-y-5">
+    <form action={formAction} className="space-y-5">
       {state.message ? (
         <div
           className={`rounded-2xl border px-4 py-3 text-sm font-bold ${
@@ -141,8 +76,8 @@ export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
         error={errors.confirmPassword}
       />
 
-      <button type="submit" disabled={pending} className="btn-primary w-full">
-        <span>{pending ? "Creating..." : "Create account"}</span>
+      <button type="submit" className="btn-primary w-full">
+        <span>Create account</span>
         <ArrowRight className="h-4 w-4" aria-hidden />
       </button>
     </form>

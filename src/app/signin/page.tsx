@@ -74,6 +74,16 @@ export default async function SignInPage({
             Create an account
           </Link>
         </p>
+
+        <p className="mt-3 text-center text-sm font-bold text-[#475569]">
+          Forgot your password?{" "}
+          <Link
+            href="/forgot-password"
+            className="cursor-pointer text-[#0055FF] transition-colors hover:text-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+          >
+            Reset it
+          </Link>
+        </p>
       </div>
     </div>
   );

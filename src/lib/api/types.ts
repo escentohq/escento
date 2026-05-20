@@ -8,9 +8,7 @@ export interface AppUser {
   email: string;
   name: string | null;
   image: string | null;
-  supabaseUserId: string | null;
   role: "MUSICIAN" | "CREATOR" | null;
-  isFake: boolean;
 }
 
 export interface Gig {
@@ -18,13 +16,13 @@ export interface Gig {
   creatorId: string;
   title: string;
   description: string;
-  projectType: string;
+  projectType: "FILM" | "LIVE_EVENT" | "PODCAST" | "GAME" | "YOUTUBE" | "OTHER";
   location: string | null;
   isRemote: boolean;
-  compensationType: string;
+  compensationType: "PAID" | "UNPAID" | "NEGOTIABLE";
   compensationDetails: string | null;
   deadline: string | null;
-  status: string;
+  status: "OPEN" | "CLOSED";
   createdAt: string;
   updatedAt: string;
   instruments?: string[];
@@ -50,6 +48,7 @@ export interface MusicianProfile {
   spotifyUrl: string | null;
   soundcloudUrl: string | null;
   websiteUrl: string | null;
+  createdAt: string;
   updatedAt: string;
   instruments?: string[];
   genres?: string[];
@@ -58,10 +57,10 @@ export interface MusicianProfile {
 export interface CreateGigInput {
   title: string;
   description: string;
-  projectType: string;
+  projectType: "FILM" | "LIVE_EVENT" | "PODCAST" | "GAME" | "YOUTUBE" | "OTHER";
   location: string | null;
   isRemote: boolean;
-  compensationType: string;
+  compensationType: "PAID" | "UNPAID" | "NEGOTIABLE";
   compensationDetails: string | null;
   deadline: Date | string | null;
 }
@@ -69,10 +68,10 @@ export interface CreateGigInput {
 export interface UpdateGigInput {
   title?: string;
   description?: string;
-  projectType?: string;
+  projectType?: "FILM" | "LIVE_EVENT" | "PODCAST" | "GAME" | "YOUTUBE" | "OTHER";
   location?: string | null;
   isRemote?: boolean;
-  compensationType?: string;
+  compensationType?: "PAID" | "UNPAID" | "NEGOTIABLE";
   compensationDetails?: string | null;
   deadline?: Date | string | null;
 }
@@ -111,21 +110,4 @@ export interface UpdateProfileInput {
   spotifyUrl?: string | null;
   soundcloudUrl?: string | null;
   websiteUrl?: string | null;
-}
-
-export interface CreateUserInput {
-  email: string;
-  name: string | null;
-  image: string | null;
-  supabaseUserId: string | null;
-  isFake?: boolean;
-}
-
-export interface UpdateUserInput {
-  email?: string;
-  name?: string | null;
-  image?: string | null;
-  supabaseUserId?: string;
-  role?: "MUSICIAN" | "CREATOR" | null;
-  isFake?: boolean;
 }

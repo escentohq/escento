@@ -23,6 +23,7 @@ function toProfile(raw: any): MusicianProfile {
     spotifyUrl: raw.spotify_url,
     soundcloudUrl: raw.soundcloud_url,
     websiteUrl: raw.website_url,
+    createdAt: raw.created_at,
     updatedAt: raw.updated_at,
     instruments: raw.musician_instrument?.map((x: any) => x.instrument?.name).filter(Boolean) ?? [],
     genres: raw.musician_genre?.map((x: any) => x.genre?.name).filter(Boolean) ?? [],
@@ -61,26 +62,28 @@ interface ListProfilesFilters {
 export async function listProfiles(filters?: ListProfilesFilters): Promise<MusicianProfile[]> {
   const supabase = await createSupabaseServerClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("musician_profile")
     .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
     .order("updated_at", { ascending: false });
 
-  if (error) throw error;
-
-  let profiles = (data || []).map(toProfile);
-
   if (filters?.instrument) {
-    const instrument = filters.instrument;
-    profiles = profiles.filter((p) => p.instruments?.includes(instrument));
+    query = query
+      .select("*, musician_instrument!inner(instrument!inner(name)), musician_genre(*, genre(*))")
+      .eq("musician_instrument.instrument.name", filters.instrument);
   }
 
   if (filters?.genre) {
-    const genre = filters.genre;
-    profiles = profiles.filter((p) => p.genres?.includes(genre));
+    query = query
+      .select("*, musician_instrument(*, instrument(*)), musician_genre!inner(genre!inner(name))")
+      .eq("musician_genre.genre.name", filters.genre);
   }
 
-  return profiles.slice(0, 50);
+  const { data, error } = await query;
+
+  if (error) throw error;
+
+  return (data || []).map(toProfile).slice(0, 50);
 }
 
 export async function createProfile(
@@ -91,14 +94,13 @@ export async function createProfile(
 ): Promise<MusicianProfile> {
   const supabase = await createSupabaseServerClient();
   const [instruments, genres] = await Promise.all([
-    ensureInstruments(instrumentNames),
-    ensureGenres(genreNames),
+    ensureInstruments(instrumentNames, userId),
+    ensureGenres(genreNames, userId),
   ]);
 
   const { data: profile, error: profileError } = await supabase
     .from("musician_profile")
     .insert({
-      id: crypto.randomUUID(),
       user_id: userId,
       display_name: input.displayName,
       bio: input.bio,
@@ -124,14 +126,12 @@ export async function createProfile(
   await Promise.all([
     ...instruments.map((inst) =>
       supabase.from("musician_instrument").insert({
-        id: crypto.randomUUID(),
         musician_profile_id: profile.id,
         instrument_id: inst.id,
       })
     ),
     ...genres.map((genre) =>
       supabase.from("musician_genre").insert({
-        id: crypto.randomUUID(),
         musician_profile_id: profile.id,
         genre_id: genre.id,
       })
@@ -156,6 +156,7 @@ export async function createProfile(
     spotifyUrl: profile.spotify_url,
     soundcloudUrl: profile.soundcloud_url,
     websiteUrl: profile.website_url,
+    createdAt: profile.created_at,
     updatedAt: profile.updated_at,
     instruments: instrumentNames,
     genres: genreNames,
@@ -165,6 +166,7 @@ export async function createProfile(
 export async function updateProfile(
   id: string,
   input: UpdateProfileInput,
+  userId: string,
   instrumentNames?: string[],
   genreNames?: string[],
 ): Promise<MusicianProfile> {
@@ -203,21 +205,19 @@ export async function updateProfile(
 
   if (instrumentNames || genreNames) {
     const [instruments, genres] = await Promise.all([
-      instrumentNames ? ensureInstruments(instrumentNames) : Promise.resolve([]),
-      genreNames ? ensureGenres(genreNames) : Promise.resolve([]),
+      instrumentNames ? ensureInstruments(instrumentNames, userId) : Promise.resolve([]),
+      genreNames ? ensureGenres(genreNames, userId) : Promise.resolve([]),
     ]);
 
     await Promise.all([
       ...instruments.map((inst) =>
         supabase.from("musician_instrument").insert({
-          id: crypto.randomUUID(),
           musician_profile_id: id,
           instrument_id: inst.id,
         })
       ),
       ...genres.map((genre) =>
         supabase.from("musician_genre").insert({
-          id: crypto.randomUUID(),
           musician_profile_id: id,
           genre_id: genre.id,
         })

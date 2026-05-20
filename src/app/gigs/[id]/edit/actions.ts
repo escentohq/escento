@@ -63,6 +63,7 @@ export async function updateGigAction(
       compensationDetails,
       deadline,
     },
+    session.user.id,
     instruments,
     genres,
   );

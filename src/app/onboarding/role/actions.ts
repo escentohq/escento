@@ -9,12 +9,13 @@ export async function setRole(role: "MUSICIAN" | "CREATOR"): Promise<void> {
   const session = await requireSignedIn("/onboarding/role");
   const supabase = await createSupabaseServerClient();
 
-  const { error } = await supabase.auth.updateUser({
-    data: { role },
-  });
+  const { error } = await supabase
+    .from("app_user")
+    .upsert({ id: session.user.id, role }, { onConflict: "id" });
 
   if (error) throw error;
 
+  revalidatePath("/onboarding/role");
   revalidatePath("/");
   if (role === "MUSICIAN") {
     redirect("/profile/create");

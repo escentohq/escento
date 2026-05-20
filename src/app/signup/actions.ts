@@ -1,6 +1,8 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { validatePassword } from "@/lib/password";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type SignUpValidationResult = {
   ok: boolean;
@@ -38,4 +40,69 @@ export async function validateSignUp(
   }
 
   return { ok: true };
+}
+
+export async function signUpWithPasswordAction(
+  _state: SignUpValidationResult,
+  fd: FormData,
+  callbackUrl: string,
+): Promise<SignUpValidationResult> {
+  const validated = await validateSignUp(fd);
+  if (!validated.ok) {
+    return validated;
+  }
+
+  const email = String(fd.get("email") ?? "").trim().toLowerCase();
+  const password = String(fd.get("password") ?? "");
+  const name = String(fd.get("name") ?? "").trim();
+
+  try {
+    const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const next = callbackUrl.startsWith("/") ? callbackUrl : "/onboarding/role";
+
+    const supabase = await createSupabaseServerClient();
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        data: {
+          full_name: name || undefined,
+        },
+      },
+    });
+
+    if (error) {
+      if (error.message.toLowerCase().includes("already registered")) {
+        return {
+          ok: false,
+          fieldErrors: {
+            email: "An account already exists for this email. Sign in instead.",
+          },
+        };
+      }
+      return {
+        ok: false,
+        message: error.message,
+      };
+    }
+
+    if (data.session) {
+      redirect(next);
+    }
+
+    return {
+      ok: false,
+      message:
+        "Check your email to confirm your account, then sign in to continue.",
+    };
+  } catch (err) {
+    // Re-throw Next.js redirect errors
+    if (err instanceof Error && err.message === "NEXT_REDIRECT") {
+      throw err;
+    }
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    console.error("Sign up error:", errorMsg);
+    return { ok: false, message: "Something went wrong. Please try again." };
+  }
 }
