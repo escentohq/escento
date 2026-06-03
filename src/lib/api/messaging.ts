@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
   queueAcceptedConnectionRequestNotification,
   queueConnectionRequestNotification,
@@ -126,7 +127,7 @@ function toBlockedUser(raw: any): BlockedUser {
 }
 
 async function appUserExists(userId: string) {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("app_user")
     .select("id")
