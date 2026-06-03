@@ -5,8 +5,8 @@ create extension if not exists pgcrypto;
 
 create table if not exists conversation_requests (
   id text primary key default gen_random_uuid()::text,
-  requester_id text not null,
-  recipient_id text not null,
+  requester_id uuid not null,
+  recipient_id uuid not null,
   status text not null default 'pending',
   intro_message text,
   created_at timestamptz not null default now(),
@@ -31,7 +31,7 @@ create table if not exists conversations (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   last_message_at timestamptz,
-  created_by text not null,
+  created_by uuid not null,
   source_request_id text,
   constraint conversations_created_by_fkey
     foreign key (created_by) references app_user(id) on delete cascade,
@@ -44,7 +44,7 @@ create table if not exists conversations (
 create table if not exists conversation_participants (
   id text primary key default gen_random_uuid()::text,
   conversation_id text not null,
-  user_id text not null,
+  user_id uuid not null,
   joined_at timestamptz not null default now(),
   last_read_at timestamptz,
   deleted_at timestamptz,
@@ -57,7 +57,7 @@ create table if not exists conversation_participants (
 create table if not exists messages (
   id text primary key default gen_random_uuid()::text,
   conversation_id text not null,
-  sender_id text not null,
+  sender_id uuid not null,
   body text not null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -74,8 +74,8 @@ create table if not exists messages (
 
 create table if not exists user_blocks (
   id text primary key default gen_random_uuid()::text,
-  blocker_id text not null,
-  blocked_id text not null,
+  blocker_id uuid not null,
+  blocked_id uuid not null,
   created_at timestamptz not null default now(),
   constraint user_blocks_blocker_id_fkey
     foreign key (blocker_id) references app_user(id) on delete cascade,
@@ -150,7 +150,7 @@ for each row execute function messaging_touch_updated_at();
 
 create or replace function messaging_is_active_participant(
   p_conversation_id text,
-  p_user_id text
+  p_user_id uuid
 )
 returns boolean
 language sql
@@ -169,7 +169,7 @@ $$;
 
 create or replace function messaging_is_request_party(
   p_request_id text,
-  p_user_id text
+  p_user_id uuid
 )
 returns boolean
 language sql
@@ -186,8 +186,8 @@ as $$
 $$;
 
 create or replace function messaging_is_blocked_between(
-  p_user_a text,
-  p_user_b text
+  p_user_a uuid,
+  p_user_b uuid
 )
 returns boolean
 language sql
@@ -204,8 +204,8 @@ as $$
 $$;
 
 create or replace function messaging_direct_conversation_exists(
-  p_user_a text,
-  p_user_b text
+  p_user_a uuid,
+  p_user_b uuid
 )
 returns boolean
 language sql
@@ -233,7 +233,7 @@ returns trigger
 language plpgsql
 as $$
 declare
-  v_actor_id text := auth.uid()::text;
+  v_actor_id uuid := auth.uid();
 begin
   new.intro_message = nullif(btrim(coalesce(new.intro_message, '')), '');
 
@@ -358,7 +358,7 @@ language plpgsql
 as $$
 declare
   v_type text;
-  v_other_user_id text;
+  v_other_user_id uuid;
 begin
   new.body = btrim(new.body);
 
@@ -409,7 +409,7 @@ security definer
 set search_path = public
 as $$
 declare
-  v_actor_id text := auth.uid()::text;
+  v_actor_id uuid := auth.uid();
   v_request conversation_requests%rowtype;
   v_conversation_id text := gen_random_uuid()::text;
 begin
@@ -465,51 +465,51 @@ alter table user_blocks enable row level security;
 drop policy if exists "request parties can select requests" on conversation_requests;
 create policy "request parties can select requests"
 on conversation_requests for select
-using (auth.uid()::text in (requester_id, recipient_id));
+using (auth.uid() in (requester_id, recipient_id));
 
 drop policy if exists "users can create own requests" on conversation_requests;
 create policy "users can create own requests"
 on conversation_requests for insert
-with check (requester_id = auth.uid()::text);
+with check (requester_id = auth.uid());
 
 drop policy if exists "request parties can update requests" on conversation_requests;
 create policy "request parties can update requests"
 on conversation_requests for update
-using (auth.uid()::text in (requester_id, recipient_id))
-with check (auth.uid()::text in (requester_id, recipient_id));
+using (auth.uid() in (requester_id, recipient_id))
+with check (auth.uid() in (requester_id, recipient_id));
 
 drop policy if exists "participants can select conversations" on conversations;
 create policy "participants can select conversations"
 on conversations for select
-using (messaging_is_active_participant(id, auth.uid()::text));
+using (messaging_is_active_participant(id, auth.uid()));
 
 drop policy if exists "users can create conversations" on conversations;
 create policy "users can create conversations"
 on conversations for insert
-with check (created_by = auth.uid()::text);
+with check (created_by = auth.uid());
 
 drop policy if exists "participants can update conversations" on conversations;
 create policy "participants can update conversations"
 on conversations for update
-using (messaging_is_active_participant(id, auth.uid()::text))
-with check (messaging_is_active_participant(id, auth.uid()::text));
+using (messaging_is_active_participant(id, auth.uid()))
+with check (messaging_is_active_participant(id, auth.uid()));
 
 drop policy if exists "participants can select participants" on conversation_participants;
 create policy "participants can select participants"
 on conversation_participants for select
-using (messaging_is_active_participant(conversation_id, auth.uid()::text));
+using (messaging_is_active_participant(conversation_id, auth.uid()));
 
 drop policy if exists "request parties can create participants" on conversation_participants;
 create policy "request parties can create participants"
 on conversation_participants for insert
 with check (
   (
-    user_id = auth.uid()::text
+    user_id = auth.uid()
     and exists (
       select 1
       from conversations c
       where c.id = conversation_id
-        and c.created_by = auth.uid()::text
+        and c.created_by = auth.uid()
     )
   )
   or exists (
@@ -517,7 +517,7 @@ with check (
     from conversations c
     join conversation_requests cr on cr.id = c.source_request_id
     where c.id = conversation_id
-      and auth.uid()::text in (cr.requester_id, cr.recipient_id)
+      and auth.uid() in (cr.requester_id, cr.recipient_id)
       and user_id in (cr.requester_id, cr.recipient_id)
   )
 );
@@ -525,42 +525,42 @@ with check (
 drop policy if exists "users can update own participant row" on conversation_participants;
 create policy "users can update own participant row"
 on conversation_participants for update
-using (user_id = auth.uid()::text)
-with check (user_id = auth.uid()::text);
+using (user_id = auth.uid())
+with check (user_id = auth.uid());
 
 drop policy if exists "participants can select messages" on messages;
 create policy "participants can select messages"
 on messages for select
 using (
   deleted_at is null
-  and messaging_is_active_participant(conversation_id, auth.uid()::text)
+  and messaging_is_active_participant(conversation_id, auth.uid())
 );
 
 drop policy if exists "participants can send messages" on messages;
 create policy "participants can send messages"
 on messages for insert
 with check (
-  sender_id = auth.uid()::text
-  and messaging_is_active_participant(conversation_id, auth.uid()::text)
+  sender_id = auth.uid()
+  and messaging_is_active_participant(conversation_id, auth.uid())
 );
 
 drop policy if exists "senders can update own messages" on messages;
 create policy "senders can update own messages"
 on messages for update
-using (sender_id = auth.uid()::text)
-with check (sender_id = auth.uid()::text);
+using (sender_id = auth.uid())
+with check (sender_id = auth.uid());
 
 drop policy if exists "users can select own blocks" on user_blocks;
 create policy "users can select own blocks"
 on user_blocks for select
-using (blocker_id = auth.uid()::text);
+using (blocker_id = auth.uid());
 
 drop policy if exists "users can create own blocks" on user_blocks;
 create policy "users can create own blocks"
 on user_blocks for insert
-with check (blocker_id = auth.uid()::text);
+with check (blocker_id = auth.uid());
 
 drop policy if exists "users can delete own blocks" on user_blocks;
 create policy "users can delete own blocks"
 on user_blocks for delete
-using (blocker_id = auth.uid()::text);
+using (blocker_id = auth.uid());
