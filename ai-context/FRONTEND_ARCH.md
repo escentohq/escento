@@ -26,7 +26,10 @@ src/
       _forgot-password-form.tsx         # client form component
     account/
       page.tsx
-      actions.ts                        # updateNameAction, deleteAccountAction
+      actions.ts                        # updateNameAction, updateProfilePictureAction, signOutAction, deleteAccountAction
+      _update-profile-picture-form.tsx  # client avatar upload form
+      _update-name-form.tsx             # client name form
+      _delete-account-button.tsx        # client destructive confirm + server action
       update-password/                  # Change password (authenticated)
         page.tsx
         actions.ts                      # updatePasswordAction
@@ -40,14 +43,14 @@ src/
       types.ts                          # shared TypeScript interfaces
       gigs.ts                           # gig CRUD + queries
       profiles.ts                       # musician profile CRUD + queries
-      users.ts                          # user CRUD + queries (app_user table)
       tags.ts                           # instrument/genre CRUD (upsert pattern)
     supabase/
       server.ts                         # Supabase server client (JWT-aware)
       client.ts                         # Supabase browser client
+      admin.ts                          # server-only service-role client for auth admin/storage
     auth-guards.ts                      # getCurrentSession, requireSignedIn, requireUser, requireRole
     password.ts                         # validatePassword helper
-    middleware.ts                       # JWT refresh via supabase.auth.getUser()
+  middleware.ts                         # JWT refresh via supabase.auth.getUser()
   components/
     home/
       HomeLanding.tsx                   # canonical bright-theme reference — READ FIRST
@@ -157,12 +160,15 @@ export async function createGigAction(formData: FormData) {
 | `updateGig(gigId, fd)` | `app/gigs/[id]/edit/actions.ts` | user | `CREATOR` + owner |
 | `closeGig(gigId)` | `app/gigs/manage/actions.ts` | user | `CREATOR` + owner |
 | `deleteGig(gigId)` | `app/gigs/manage/actions.ts` | user | `CREATOR` + owner |
+| `updateNameAction(fd)` | `app/account/actions.ts` | user | any |
+| `updateProfilePictureAction(fd)` | `app/account/actions.ts` | user | any |
+| `deleteAccountAction()` | `app/account/actions.ts` | user | any |
 
 ---
 
 ## Data fetching strategy
 
-- **Server Components call API functions** from `@/lib/api/*` (centralized service layer). No direct Supabase queries in page/action files.
+- **Server Components call API functions** from `@/lib/api/*` for feature data where helpers exist. Auth/account actions may use Supabase directly for auth metadata, account deletion, and profile-picture storage.
 - API functions handle data transformation (snake_case → camelCase) and junction table flattening (instruments/genres as `string[]`).
 - No `revalidate` on routes today — every request hits the DB. Acceptable at MVP scale. Add `export const revalidate = 60;` on directory pages once a CDN is in front.
 - Search filters are GET query params → bookmarkable, shareable.
@@ -202,6 +208,9 @@ export default async function CreateGigPage() {
 | `/signup` | `signUpWithPasswordAction` | Email/password signup + validation via `supabase.auth.signUp` |
 | `/forgot-password` | `requestPasswordReset` | Request password reset email link |
 | `/account/update-password` | `updatePasswordAction` | Change password (authenticated user only) |
+| `/account` | `updateNameAction` | Update `app_user.name` + auth metadata |
+| `/account` | `updateProfilePictureAction` | Upload avatar to Supabase Storage and save URL to `app_user.image` + auth metadata |
+| `/account` | `deleteAccountAction` | Hard-delete app data and Supabase Auth user |
 
 ### Middleware
 
@@ -319,13 +328,23 @@ Required env vars (load via `.env.local`, fail fast if missing):
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://...supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...          # server-only; Supabase Dashboard → API → service_role
+SUPABASE_SERVICE_ROLE_KEY=...          # server-only; Supabase Dashboard → API Keys → service_role/secret
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 `NEXT_PUBLIC_APP_URL` is used in email redirect links for password reset and signup confirmation.
 
-`SUPABASE_SERVICE_ROLE_KEY` is required for **account deletion** (`auth.admin.deleteUser` in `deleteAccountAction`). Do not prefix with `NEXT_PUBLIC_`.
+`SUPABASE_SERVICE_ROLE_KEY` is required for:
+- **Account deletion** (`auth.admin.deleteUser` in `deleteAccountAction`)
+- **Profile picture uploads** (`profile-pictures` Supabase Storage bucket creation/upload)
+
+Do not prefix it with `NEXT_PUBLIC_` and never pass it to client components.
+
+### Storage
+
+Profile pictures are stored in a public Supabase Storage bucket named `profile-pictures`. The app currently creates the bucket on first upload through `createSupabaseAdminClient()`, validates image type (`image/jpeg`, `image/png`, `image/webp`), enforces a 2 MB app-level limit, uploads to `<authUserId>/profile.<ext>`, and saves the public URL in `app_user.image`.
+
+Musician public profile reads join `musician_profile -> app_user(image)` so the account avatar appears on `/musicians` and `/musicians/[id]`. Creators can update the same account avatar, but they do not have a public creator profile yet.
 
 ---
 
@@ -335,8 +354,6 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 npm run dev               # local dev
 npm run lint              # eslint
 npm run build             # next build — must pass before declaring done
-npm run prisma:generate   # after schema.prisma changes
-npm run prisma:migrate    # local migration
 ```
 
 **Rule.** `npm run lint && npm run build` must both pass cleanly before reporting work complete. TypeScript errors block.
@@ -367,14 +384,14 @@ Canonical doc: [`FORMS.md`](./FORMS.md).
 
 From `docs/REBUILD.md` §18:
 
-1. **JWT callback hits DB every request.** Do not add more DB calls to it.
+1. **Session reads hit `app_user`.** `getCurrentSession()` reads Supabase Auth plus `app_user`; do not add extra unrelated reads to it.
 2. **Tag name collisions.** `Instrument` and `Genre` lack `@unique` on `name`; current code is case-sensitive. Use `normalizeTagName` + `upsert` (above).
 3. **Enum injection.** `as never` casts on `projectType` / `compensationType` accept arbitrary strings. Use `z.enum`.
 4. **Server actions throw → error boundary.** Return `ActionState` + `useActionState` for forms (see [`FORMS.md`](./FORMS.md)).
 5. **No `revalidatePath`** after writes. Add it.
 6. **No URL validation** on portfolio links. Use `z.string().url()`.
 7. **`PortfolioItem` and `MusicianInstrument.proficiency` are dead code.** Do not wire UI to them without re-scoping (they're flagged for removal).
-8. **`status: String` on Gig** should be `enum GigStatus { OPEN, CLOSED }`. Migrate when you touch gig schema.
+8. **`status` on Gig** is stored as text/string (`OPEN` / `CLOSED`).
 
 ---
 

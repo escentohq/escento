@@ -47,7 +47,7 @@ You may edit:
 
 You must not edit:
 
-- Prisma schema or migrations
+- Database schema or storage policies
 - Server actions
 - Auth/session logic
 - API routes
@@ -153,4 +153,3 @@ Report:
 - The routes/components changed.
 - Any remaining responsive risks.
 - Verification command results.
-

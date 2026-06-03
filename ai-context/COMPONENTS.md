@@ -704,12 +704,17 @@ export function NavBar({ signedIn, email, role, musicianProfilePath, isCreator }
                   </span>
                 )}
               </div>
-              <a
-                href="/api/auth/signout"
-                className="rounded-full border-2 border-[#E2E8F0] px-4 py-2 text-xs font-bold text-[#0F172A] transition-colors hover:border-[#0F172A]"
+              <form
+                action={signOutAction}
+                className="contents"
               >
-                Sign out
-              </a>
+                <button
+                  type="submit"
+                  className="rounded-full border-2 border-[#E2E8F0] px-4 py-2 text-xs font-bold text-[#0F172A] transition-colors hover:border-[#0F172A]"
+                >
+                  Sign out
+                </button>
+              </form>
             </>
           )}
         </div>

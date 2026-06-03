@@ -33,6 +33,7 @@ export interface Gig {
 export interface MusicianProfile {
   id: string;
   userId: string;
+  image: string | null;
   displayName: string;
   bio: string | null;
   school: string | null;

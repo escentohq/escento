@@ -1,6 +1,7 @@
 import { requireSignedIn } from "@/lib/auth-guards";
 import { PageShell } from "@/components/ui/page-shell";
 import { SectionCard } from "@/components/ui/section-card";
+import { UpdateProfilePictureForm } from "./_update-profile-picture-form";
 import { UpdateNameForm } from "./_update-name-form";
 import { DeleteAccountButton } from "./_delete-account-button";
 import { deleteAccountAction } from "./actions";
@@ -13,6 +14,11 @@ export default async function AccountPage() {
       <div className="space-y-8">
         <SectionCard eyebrow="Profile" title="Your Account">
           <div className="space-y-6">
+            <UpdateProfilePictureForm
+              name={session.user.name}
+              image={session.user.image}
+            />
+
             <UpdateNameForm initialName={session.user.name ?? ""} />
 
             <div>

@@ -8,6 +8,7 @@ function toProfile(raw: any): MusicianProfile {
   return {
     id: raw.id,
     userId: raw.user_id,
+    image: raw.app_user?.image ?? null,
     displayName: raw.display_name,
     bio: raw.bio,
     school: raw.school,
@@ -34,7 +35,7 @@ export const getProfile = cache(async (id: string): Promise<MusicianProfile | nu
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("musician_profile")
-    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
     .eq("id", id)
     .single();
 
@@ -46,7 +47,7 @@ export const getProfileByUserId = cache(async (userId: string): Promise<Musician
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("musician_profile")
-    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
     .eq("user_id", userId)
     .single();
 
@@ -64,18 +65,18 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
 
   let query = supabase
     .from("musician_profile")
-    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
     .order("updated_at", { ascending: false });
 
   if (filters?.instrument) {
     query = query
-      .select("*, musician_instrument!inner(instrument!inner(name)), musician_genre(*, genre(*))")
+      .select("*, app_user(image), musician_instrument!inner(instrument!inner(name)), musician_genre(*, genre(*))")
       .eq("musician_instrument.instrument.name", filters.instrument);
   }
 
   if (filters?.genre) {
     query = query
-      .select("*, musician_instrument(*, instrument(*)), musician_genre!inner(genre!inner(name))")
+      .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre!inner(genre!inner(name))")
       .eq("musician_genre.genre.name", filters.genre);
   }
 
@@ -141,6 +142,7 @@ export async function createProfile(
   return {
     id: profile.id,
     userId: profile.user_id,
+    image: null,
     displayName: profile.display_name,
     bio: profile.bio,
     school: profile.school,
@@ -227,7 +229,7 @@ export async function updateProfile(
 
   const { data } = await supabase
     .from("musician_profile")
-    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
     .eq("id", id)
     .single();
 

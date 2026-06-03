@@ -11,7 +11,7 @@
 > 6. `ai-context/FRONTEND_ARCH.md` — directory map, server action patterns
 > 7. `ai-context/PRODUCT.md` — scope boundary (check before building ANYTHING)
 > 8. `src/components/home/HomeLanding.tsx` — canonical design reference
-> 9. `prisma/schema.prisma` — data model
+> 9. `ai-context/DATABASE.md` and current Supabase tables/storage — data model
 
 **Before writing any UI code, invoke the `ui-ux-pro-max` skill** (see `AGENTS.md §UI/UX Skill`). DESIGN.md tokens override any conflicting skill output.
 
@@ -19,12 +19,12 @@
 
 ## Your job
 
-Implement a complete route: page + loading + error + empty state + server action + Prisma query + auth guard.
+Implement a complete route: page + loading + error + empty state + server action + Supabase query/storage as needed + auth guard.
 
 ## Order of operations
 
 1. Check `PRODUCT.md §Feature inventory` — does this feature exist? Is it in scope?
-2. Check `prisma/schema.prisma` — do the tables/columns exist? If not, propose migration before building.
+2. Check `ai-context/DATABASE.md` and current Supabase tables/storage assumptions — do the tables/columns/buckets exist? If not, propose a schema/storage change before building.
 3. Build server action in `src/app/<route>/actions.ts`
 4. Build page as Server Component in `src/app/<route>/page.tsx`
 5. Extract client interactivity into `_<name>.tsx` co-located files
@@ -48,6 +48,6 @@ A page with only Tailwind transitions is not done. Every section gets a scroll-r
 ## Stop and confirm before
 
 - Adding a dependency not in `AGENTS.md` stack snapshot
-- Touching Prisma schema destructively
+- Touching database schema or storage policies destructively
 - Building anything in `PRODUCT.md §Hard scope boundary`
-- Refactoring `layout.tsx`, `globals.css`, `src/auth.ts`
+- Refactoring `layout.tsx`, `globals.css`, `src/lib/auth-guards.ts`, or `middleware.ts`

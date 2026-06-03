@@ -10,7 +10,7 @@
 | Task | Sub-agent file |
 |------|---------------|
 | New page / component / styling | [`ai-context/agents/ui-agent.md`](ai-context/agents/ui-agent.md) |
-| Prisma / server actions / auth | [`ai-context/agents/backend-agent.md`](ai-context/agents/backend-agent.md) |
+| Supabase / server actions / auth | [`ai-context/agents/backend-agent.md`](ai-context/agents/backend-agent.md) |
 | Complete feature (UI + data) | [`ai-context/agents/feature-agent.md`](ai-context/agents/feature-agent.md) |
 | Bug diagnosis | [`ai-context/agents/debug-agent.md`](ai-context/agents/debug-agent.md) |
 | Headlines / copy / microcopy | [`ai-context/agents/copy-agent.md`](ai-context/agents/copy-agent.md) |
@@ -26,7 +26,7 @@ Load the sub-agent **in addition to** this file — sub-agents scope your task, 
 3. [`BRAND.md`](./BRAND.md) — voice, copy patterns, forbidden phrases
 4. [`DESIGN.md`](./DESIGN.md) — color, type, spacing, motion tokens
 5. [`UX_RULES.md`](./UX_RULES.md) — interactions, loading/empty/error, a11y
-6. [`FRONTEND_ARCH.md`](./FRONTEND_ARCH.md) — Next.js, server actions, Prisma, auth
+6. [`FRONTEND_ARCH.md`](./FRONTEND_ARCH.md) — Next.js, server actions, Supabase, auth
 7. [`COMPONENTS.md`](./COMPONENTS.md) — copy-pasteable component recipes
 8. [`FORMS.md`](./ai-context/FORMS.md) — form UX system (when touching forms)
 
@@ -49,6 +49,7 @@ Load the sub-agent **in addition to** this file — sub-agents scope your task, 
 | Icons | `lucide-react` | app-wide |
 | Database | PostgreSQL | (Supabase) |
 | DB Client | Supabase JS SDK (`@supabase/supabase-js`, `@supabase/ssr`) | `^2.105.4`, `^0.6.1` |
+| Storage | Supabase Storage | profile pictures |
 | Auth | Supabase Auth (session-based) | built-in |
 | OAuth | GitHub, Google | — |
 | Lint | ESLint + `eslint-config-next` | `^9.35.0` |
@@ -67,12 +68,12 @@ Do not add: date pickers, form libraries (react-hook-form, formik), state manage
 
 ### 1. Server Components by default
 **Rule.** Every file under `src/app/**/page.tsx`, `layout.tsx`, and any non-form helper is a Server Component. Add `"use client"` **only** when you need browser-only APIs (event handlers, `useState`, `useEffect`, framer-motion, R3F).
-**Why.** Server Components own session + Prisma access. Client boundaries balloon bundle size and re-introduce data-fetching complexity.
-**Do.** `// app/musicians/page.tsx` — server, fetches via Prisma directly.
+**Why.** Server Components own session + server-side data access. Client boundaries balloon bundle size and re-introduce data-fetching complexity.
+**Do.** `// app/musicians/page.tsx` — server, fetches via the API layer.
 **Don't.** Add `"use client"` to a page just to use framer-motion. Extract the animated block into a child client component instead.
 
 ### 2. Mutations are Server Actions
-**Rule.** Every write goes through a `"use server"` function. No new REST routes except `/api/auth/[...nextauth]`.
+**Rule.** Every write goes through a `"use server"` function. No new REST routes for product mutations.
 **Why.** Server Actions inherit Next's CSRF protection, run on the same origin, and avoid hand-rolled API boilerplate.
 **Do.** `src/app/gigs/create/actions.ts` exporting `createGig(formData)`.
 **Don't.** Add `src/app/api/gigs/route.ts`. See [`FRONTEND_ARCH.md`](./FRONTEND_ARCH.md) §Server Actions.
@@ -116,7 +117,7 @@ const session = await requireRole("CREATOR", request.nextUrl.pathname);
 **Do.** Shared UI → `src/components/<feature>/<Name>.tsx`. Route-only client form → `src/app/<route>/_<name>.tsx`.
 
 ### 9. No new files without a home
-**Rule.** Before creating a file, find the right folder. UI primitives → `src/components/ui/`. Feature components → `src/components/<feature>/`. Server helpers → `src/lib/`. Schema → `prisma/`.
+**Rule.** Before creating a file, find the right folder. UI primitives → `src/components/ui/`. Feature components → `src/components/<feature>/`. Server helpers → `src/lib/`. Supabase schema/storage changes must be documented and confirmed when destructive.
 **Why.** Folder sprawl is the #1 source of duplication in this repo (see the duplicated `_ui.tsx` between `musicians/` and `gigs/`).
 
 ### 10. Run lint + build before declaring done
@@ -168,7 +169,7 @@ const session = await requireRole("CREATOR", request.nextUrl.pathname);
 ## Things to ask about before doing
 
 - Adding a dependency.
-- Touching the database schema (migrations in `supabase/migrations/`; additive usually fine, destructive never without confirmation).
+- Touching the database schema (additive usually fine, destructive never without confirmation).
 - Refactoring `src/app/layout.tsx`, `globals.css`, `src/lib/auth-guards.ts`, or `middleware.ts`.
 - Introducing a new top-level route segment.
 - Anything in [`PRODUCT.md`](./PRODUCT.md) §Out of scope.
@@ -186,9 +187,9 @@ const session = await requireRole("CREATOR", request.nextUrl.pathname);
 | `src/app/globals.css` | LEGACY token classes — do not extend. |
 | `src/lib/supabase/server.ts` | Supabase server client factory. |
 | `src/lib/auth-guards.ts` | Auth helpers: `requireRole()`, `getCurrentSession()`, role guards. |
-| `src/lib/auth/sync-app-user.ts` | Syncs Supabase auth users with app user records. |
-| `src/lib/api/` | Service layer with typed DB helpers (users.ts, gigs.ts, etc.). |
-| `supabase/migrations/` | SQL migrations — source of truth for schema. |
+| `src/lib/supabase/admin.ts` | Server-only service-role client for auth admin + profile-picture storage. |
+| `src/lib/api/` | Service layer with typed DB helpers (`profiles.ts`, `gigs.ts`, `tags.ts`). |
+| Supabase Dashboard | Source of truth for current schema/storage config when no migration file exists locally. |
 | `middleware.ts` | Supabase session refresh + `/onboarding/*` protection. |
 
 ---

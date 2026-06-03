@@ -63,8 +63,17 @@ export default async function MusicianPublicProfilePage({
                 </span>
 
                 <div className="mt-5 flex flex-wrap items-center gap-5">
-                  <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-linear-to-br from-[#0055FF]/25 via-[#FF3366]/20 to-[#FFB000]/25 text-xl font-black text-[#0F172A] ring-4 ring-[#F1F5F9]">
-                    {abbr}
+                  <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-to-br from-[#0055FF]/25 via-[#FF3366]/20 to-[#FFB000]/25 text-xl font-black text-[#0F172A] ring-4 ring-[#F1F5F9]">
+                    {profile.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={profile.image}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      abbr
+                    )}
                   </div>
                   <div className="min-w-0">
                     <h1 className="text-4xl font-black tracking-tight text-[#0F172A] md:text-5xl">

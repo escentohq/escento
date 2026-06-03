@@ -10,7 +10,7 @@
 | Task | Sub-agent file |
 |------|---------------|
 | New page / component / styling | [`ai-context/agents/ui-agent.md`](ai-context/agents/ui-agent.md) |
-| Prisma / server actions / auth | [`ai-context/agents/backend-agent.md`](ai-context/agents/backend-agent.md) |
+| Supabase / server actions / auth | [`ai-context/agents/backend-agent.md`](ai-context/agents/backend-agent.md) |
 | Complete feature (UI + data) | [`ai-context/agents/feature-agent.md`](ai-context/agents/feature-agent.md) |
 | Bug diagnosis | [`ai-context/agents/debug-agent.md`](ai-context/agents/debug-agent.md) |
 | Headlines / copy / microcopy | [`ai-context/agents/copy-agent.md`](ai-context/agents/copy-agent.md) |
@@ -58,7 +58,7 @@ python3 ~/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/.claude/
 3. [`BRAND.md`](./BRAND.md) — voice, copy patterns, forbidden phrases
 4. [`DESIGN.md`](./DESIGN.md) — color, type, spacing, motion tokens
 5. [`UX_RULES.md`](./UX_RULES.md) — interactions, loading/empty/error, a11y
-6. [`FRONTEND_ARCH.md`](./FRONTEND_ARCH.md) — Next.js, server actions, Prisma, auth
+6. [`FRONTEND_ARCH.md`](./FRONTEND_ARCH.md) — Next.js, server actions, Supabase, auth
 7. [`COMPONENTS.md`](./COMPONENTS.md) — copy-pasteable component recipes
 
 ---
@@ -78,9 +78,10 @@ python3 ~/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/.claude/
 | Accessible primitives | `@radix-ui/react-*` (dialog, tooltip, dropdown) | interactive components |
 | Component variants | `class-variance-authority` + `clsx` | variant props on UI primitives |
 | Icons | `lucide-react` | app-wide |
-| ORM | Prisma | `^6.16.1` |
-| DB | PostgreSQL | (Supabase or any provider) |
-| Auth | NextAuth v4 + Prisma Adapter + JWT | `^4.24.11` |
+| Database | PostgreSQL | Supabase |
+| DB Client | Supabase JS SDK (`@supabase/supabase-js`, `@supabase/ssr`) | `^2.105.4`, `^0.6.1` |
+| Storage | Supabase Storage | profile pictures |
+| Auth | Supabase Auth (session-based) | built-in |
 | OAuth | GitHub, Google | — |
 | Lint | ESLint + `eslint-config-next` | `^9.35.0` |
 
@@ -98,26 +99,26 @@ Do not add: date pickers, form libraries (react-hook-form, formik), state manage
 
 ### 1. Server Components by default
 **Rule.** Every file under `src/app/**/page.tsx`, `layout.tsx`, and any non-form helper is a Server Component. Add `"use client"` **only** when you need browser-only APIs (event handlers, `useState`, `useEffect`, framer-motion, R3F).
-**Why.** Server Components own session + Prisma access. Client boundaries balloon bundle size and re-introduce data-fetching complexity.
-**Do.** `// app/musicians/page.tsx` — server, fetches via Prisma directly.
+**Why.** Server Components own session + server-side data access. Client boundaries balloon bundle size and re-introduce data-fetching complexity.
+**Do.** `// app/musicians/page.tsx` — server, fetches via the API layer.
 **Don't.** Add `"use client"` to a page just to use framer-motion. Extract the animated block into a child client component instead.
 
 ### 2. Mutations are Server Actions
-**Rule.** Every write goes through a `"use server"` function. No new REST routes except `/api/auth/[...nextauth]`.
+**Rule.** Every write goes through a `"use server"` function. No new REST routes for product mutations.
 **Why.** Server Actions inherit Next's CSRF protection, run on the same origin, and avoid hand-rolled API boilerplate.
 **Do.** `src/app/gigs/create/actions.ts` exporting `createGig(formData)`.
 **Don't.** Add `src/app/api/gigs/route.ts`. See [`FRONTEND_ARCH.md`](./FRONTEND_ARCH.md) §Server Actions.
 
-### 3. Prisma via `@/lib/db` only
-**Rule.** Import the singleton: `import { db } from "@/lib/db"`. Never `new PrismaClient()`.
-**Why.** Hot-reload in dev otherwise creates dozens of connections and blows the pool.
+### 3. Supabase clients via helpers only
+**Rule.** Server Actions/Components use `createSupabaseServerClient()` from `@/lib/supabase/server`. Admin-only tasks use `createSupabaseAdminClient()` from `@/lib/supabase/admin` and must never expose `SUPABASE_SERVICE_ROLE_KEY` to the browser.
+**Why.** Centralizes auth cookies and keeps service-role access server-only.
 
-### 4. Auth via `getServerSession(authOptions)`
-**Rule.** Every protected page and action calls `const session = await getServerSession(authOptions)` and re-checks role inside the handler.
-**Why.** JWT can be replayed; per-request server check is the trust boundary. Middleware only protects `/onboarding/*` today.
+### 4. Auth via `getCurrentSession()` / `requireRole()`
+**Rule.** Protected pages/actions call helpers from `@/lib/auth-guards` and re-check role inside the handler.
+**Why.** Per-request server checks are the trust boundary. Middleware refreshes Supabase sessions but does not replace page/action checks.
 **Do.**
 ```ts
-if (session?.user?.role !== "CREATOR") redirect("/");
+const session = await requireRole("CREATOR", "/gigs/create");
 ```
 
 ### 5. Bright stage-light theme — no dark zinc
@@ -147,7 +148,7 @@ if (session?.user?.role !== "CREATOR") redirect("/");
 **Do.** Shared UI → `src/components/<feature>/<Name>.tsx`. Route-only client form → `src/app/<route>/_<name>.tsx`.
 
 ### 9. No new files without a home
-**Rule.** Before creating a file, find the right folder. UI primitives → `src/components/ui/`. Feature components → `src/components/<feature>/`. Server helpers → `src/lib/`. Schema → `prisma/`.
+**Rule.** Before creating a file, find the right folder. UI primitives → `src/components/ui/`. Feature components → `src/components/<feature>/`. Server helpers → `src/lib/`. Supabase schema/storage changes must be documented and confirmed when destructive.
 **Why.** Folder sprawl is the #1 source of duplication in this repo (see the duplicated `_ui.tsx` between `musicians/` and `gigs/`).
 
 ### 10. Run lint + build before declaring done
@@ -170,7 +171,7 @@ if (session?.user?.role !== "CREATOR") redirect("/");
 ## Definition of Done (agent self-check before reporting complete)
 
 - [ ] Page is a Server Component unless it genuinely needs to be client.
-- [ ] All mutations are Server Actions; session + role re-checked inside.
+- [ ] All mutations are Server Actions; session + role re-checked inside via `requireSignedIn()`, `requireUser()`, or `requireRole()`.
 - [ ] Bright stage-light tokens used. No `bg-zinc-*`, no `violet-*`, no `text-zinc-*`.
 - [ ] Icons are `lucide-react`. No emoji.
 - [ ] Motion (if any) uses `framer-motion` with tokens from [`DESIGN.md`](./DESIGN.md). No R3F outside `src/components/home/`.
@@ -181,7 +182,7 @@ if (session?.user?.role !== "CREATOR") redirect("/");
 - [ ] `npm run lint` passes.
 - [ ] `npm run build` passes.
 - [ ] No new dependencies were added without approval.
-- [ ] Reused existing helpers (`db`, `authOptions`, future `parseCsv`) — did not duplicate.
+- [ ] Reused existing helpers (`createSupabaseServerClient()`, `createSupabaseAdminClient()`, API layer, auth guards) — did not duplicate.
 
 ---
 
@@ -198,8 +199,8 @@ if (session?.user?.role !== "CREATOR") redirect("/");
 ## Things to ask about before doing
 
 - Adding a dependency.
-- Touching the Prisma schema (additive migrations are usually fine; destructive ones never without confirmation).
-- Refactoring `src/app/layout.tsx`, `globals.css`, `src/auth.ts`, or NextAuth callbacks.
+- Touching the database schema (additive changes are usually fine; destructive ones never without confirmation).
+- Refactoring `src/app/layout.tsx`, `globals.css`, `src/lib/auth-guards.ts`, or `middleware.ts`.
 - Introducing a new top-level route segment.
 - Anything in [`PRODUCT.md`](./PRODUCT.md) §Out of scope.
 
@@ -214,9 +215,9 @@ if (session?.user?.role !== "CREATOR") redirect("/");
 | `src/app/page.tsx` | Server-side session + role resolution pattern. |
 | `src/app/layout.tsx` | LEGACY dark shell — read so you know what to migrate away from. |
 | `src/app/globals.css` | LEGACY token classes — do not extend. |
-| `src/auth.ts` | NextAuth config, JWT role refresh. |
-| `src/lib/db.ts` | Prisma singleton. |
-| `prisma/schema.prisma` | Data model source of truth. |
+| `src/lib/supabase/server.ts` | Supabase server client factory. |
+| `src/lib/supabase/admin.ts` | Server-only service-role client for auth admin + profile-picture storage. |
+| `src/lib/auth-guards.ts` | Auth helpers: `getCurrentSession()`, `requireSignedIn()`, `requireUser()`, `requireRole()`. |
 
 ---
 

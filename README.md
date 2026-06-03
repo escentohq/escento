@@ -12,14 +12,15 @@ Platform connecting student musicians with student creators for film, podcasts, 
 - Password reset flow via email
 - Password change in account settings
 - Profile avatars in navigation (image → initials → icon fallback)
-- Account settings page (update name, view email, delete account)
+- Account settings page (update name, update profile picture, view email, delete account)
 - Role-based access (Musician / Creator)
 
 ### Musician Features
 - Build public musician profiles with bio, instruments, genres, years of experience
-- Upload portfolio items (links to past work)
-- Browse and apply to open gigs
-- Filter gigs by instrument, genre, project type, compensation
+- Profile picture from account settings appears on public musician profiles
+- Add portfolio links to past work
+- Browse open gigs
+- Filter gigs by instrument, genre, project type
 
 ### Creator Features
 - Post gigs with project details, compensation, deadline, location
@@ -28,8 +29,8 @@ Platform connecting student musicians with student creators for film, podcasts, 
 - Browse musician directory with filters
 
 ### Discovery
-- Musician directory with searchable profiles
-- Gig listing with advanced filters (project type, instruments, genres, compensation)
+- Musician directory with filters
+- Gig listing with filters (project type, instruments, genres)
 - Role-aware navigation (different menu for musicians vs. creators)
 
 ## Tech Stack
@@ -46,6 +47,7 @@ Platform connecting student musicians with student creators for film, podcasts, 
 ### Backend
 - **Auth:** Supabase (email/password + JWT in httpOnly cookies)
 - **Database:** PostgreSQL (via Supabase)
+- **Storage:** Supabase Storage (`profile-pictures` bucket for account avatars)
 - **ORM:** None (raw Supabase client)
 - **Mutations:** Server Actions (no REST API routes)
 
@@ -59,6 +61,7 @@ src/
 │   ├── account/                 # User account settings
 │   │   ├── page.tsx
 │   │   ├── actions.ts
+│   │   ├── _update-profile-picture-form.tsx
 │   │   ├── _update-name-form.tsx
 │   │   └── _delete-account-button.tsx
 │   ├── update-password/         # Change password (authenticated)
@@ -92,20 +95,18 @@ src/
 │   ├── onboarding/              # Role selection
 │   │   └── role/page.tsx
 │   ├── auth/callback/           # OAuth callback handler
-│   └── api/auth/[...auth]/      # Auth API routes
+│   └── auth/callback/           # Supabase OAuth/email callback
 │
 ├── lib/
 │   ├── api/                     # Service layer (DB operations)
-│   │   ├── users.ts            # User CRUD (app_user table)
 │   │   ├── profiles.ts         # Musician profile CRUD
 │   │   ├── gigs.ts             # Gig CRUD + queries
 │   │   ├── tags.ts             # Instrument/Genre upsert
 │   │   └── types.ts            # TypeScript interfaces
 │   ├── supabase/
 │   │   ├── server.ts           # Server-side Supabase client
-│   │   └── client.ts           # Browser-side Supabase client
-│   ├── auth/
-│   │   └── sync-app-user.ts   # Sync Supabase user → app user (legacy)
+│   │   ├── client.ts           # Browser-side Supabase client
+│   │   └── admin.ts            # Server-only service-role client
 │   ├── auth-guards.ts          # Session checks + redirects
 │   ├── password.ts             # Password validation
 │   ├── form-utils.ts           # CSV parsing, validation
@@ -146,7 +147,8 @@ src/
 - `gig_instrument` — Junction (gig → required instruments)
 - `gig_genre` — Junction (gig → required genres)
 
-All cascade deletes on app_user → deletes profiles, gigs, and junction rows.
+Account deletion hard-deletes app data and the Supabase Auth user through a server-only admin client.
+Profile pictures are stored in the public Supabase Storage bucket `profile-pictures`; the public URL is saved in `app_user.image`.
 
 ## Authentication Flow
 
@@ -180,7 +182,7 @@ All cascade deletes on app_user → deletes profiles, gigs, and junction rows.
 - All writes go through `"use server"` functions in `actions.ts`
 - Session + role re-checked inside each action
 - After mutation: `revalidatePath()` + `redirect()`
-- No REST API routes (except `/api/auth/[...nextauth]`)
+- No custom REST API routes for product mutations
 
 ### API Layer (`src/lib/api/*`)
 - Centralized DB operations (no direct Supabase calls in pages)
@@ -220,7 +222,7 @@ All cascade deletes on app_user → deletes profiles, gigs, and junction rows.
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://...supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-   SUPABASE_SERVICE_ROLE_KEY=...   # server-only; required for account deletion
+   SUPABASE_SERVICE_ROLE_KEY=...   # server-only; required for account deletion + profile picture uploads
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    ```
 
@@ -233,8 +235,8 @@ All cascade deletes on app_user → deletes profiles, gigs, and junction rows.
 ### Database Setup
 
 1. Create PostgreSQL DB in Supabase
-2. Migrations auto-apply from `supabase/migrations/`
-3. Or manually run SQL schema from `supabase/migrations/*.sql`
+2. Ensure the Motivo schema exists in Supabase (`app_user`, `musician_profile`, `gig`, tag tables, junction tables)
+3. The app creates the `profile-pictures` Storage bucket on first profile-picture update when `SUPABASE_SERVICE_ROLE_KEY` is configured
 
 ## Commands
 
@@ -242,7 +244,6 @@ All cascade deletes on app_user → deletes profiles, gigs, and junction rows.
 npm run dev              # Start dev server (localhost:3000)
 npm run build           # Next.js production build
 npm run lint            # ESLint checks
-npm run prisma:generate # Generate Prisma types (if schema changes)
 ```
 
 ## File Naming Conventions
@@ -265,25 +266,24 @@ Underscore prefix (`_`) opts out of routing — use for co-located forms and hel
 - [ ] Inputs validated (length, enum membership, URL format)
 - [ ] No `dangerouslySetInnerHTML`
 - [ ] External links use `rel="noopener noreferrer"`
-- [ ] No secrets in client bundle
+- [ ] No secrets in client bundle; never expose `SUPABASE_SERVICE_ROLE_KEY`
 
 ## Known Issues & TODOs
 
-- JWT callback hits DB on every request (perf issue)
-- Tag names lack `@unique` constraint (case-sensitive collisions possible)
-- Status on Gig is `STRING` (should be enum)
-- `PortfolioItem` and `MusicianInstrument.proficiency` are dead code
-- No `revalidatePath` after some mutations (cache inconsistency risk)
+- Some auth/session paths query `app_user` per request; keep new session work lean
+- Status on Gig is stored as text/string (`OPEN` / `CLOSED`)
+- No first-class portfolio item records in the UI; portfolio remains link-based
 
 ## Deployment
 
 **Vercel:**
 1. Connect repo to Vercel
-2. Set env vars (Supabase URL, keys, Google OAuth credentials)
+2. Set env vars (Supabase URL, anon key, service role key, app URL)
 3. Deploy (`git push` triggers automatic build)
 
 **Database:** Supabase (managed PostgreSQL)
-**Auth:** Supabase + Google OAuth (no additional infra)
+**Auth:** Supabase Auth
+**Storage:** Supabase Storage
 
 ## Contributing
 

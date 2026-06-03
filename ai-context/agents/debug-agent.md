@@ -18,8 +18,8 @@
 ## Common failure points in this repo
 
 - `"use client"` missing on a file that uses `useState`/`useEffect`/framer-motion
-- `new PrismaClient()` outside `src/lib/db.ts` — causes connection pool exhaustion
-- Missing `await` on `getServerSession()` — returns `null`, auth guard fails silently
+- Missing `await` on `getCurrentSession()` / `requireRole()` — auth guard fails silently
+- Service-role code imported into a client component — leaks privileged Supabase access
 - `redirect()` called outside Server Component — import from `next/navigation` not `next/router`
 - `loading.tsx` missing — route hangs with no feedback
 - Dark zinc classes on new components — legacy `globals.css` bleed
@@ -29,6 +29,6 @@
 
 ```
 File: src/app/gigs/page.tsx:42
-Problem: getServerSession called without await — returns null, session check always fails
-Fix: add `await` → `const session = await getServerSession(authOptions)`
+Problem: getCurrentSession called without await — returns a Promise, session check fails
+Fix: add `await` → `const session = await getCurrentSession()`
 ```

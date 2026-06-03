@@ -8,7 +8,7 @@ Tagline: **Take the Stage.**
 
 ## Two sides
 
-- **Musicians** create one public profile (instruments, genres, location, availability, portfolio links, contact email).
+- **Musicians** create one public profile (profile picture, instruments, genres, location, availability, portfolio links, contact email).
 - **Creators** post structured gig listings (project type, requirements, location/remote, compensation, deadline) and receive direct email contact from interested musicians.
 
 A `User` has exactly one `role` (`MUSICIAN` | `CREATOR`), chosen once at onboarding. There is no mechanism to switch or be both today.
@@ -35,7 +35,7 @@ A `User` has exactly one `role` (`MUSICIAN` | `CREATOR`), chosen once at onboard
 | Feature | Route(s) | Auth | Role |
 |---|---|---|---|
 | Landing with role-aware CTAs | `/` | Optional | Any |
-| OAuth sign-in (GitHub, Google) | `/signin`, `/api/auth/*` | — | — |
+| Sign-in/sign-up (email/password + Google OAuth) | `/signin`, `/signup`, `/auth/callback` | — | — |
 | Role selection (one-time) | `/onboarding/role` | Required | None → set |
 | Musician directory + filters | `/musicians` | Optional | Any |
 | Musician public profile | `/musicians/[id]` | Optional | Any |
@@ -47,6 +47,7 @@ A `User` has exactly one `role` (`MUSICIAN` | `CREATOR`), chosen once at onboard
 | Edit gig | `/gigs/[id]/edit` | Required | Owner `CREATOR` |
 | Manage own gigs | `/gigs/manage` | Required | `CREATOR` |
 | Contact via `mailto:` | both detail pages | — | — |
+| Account profile picture | `/account` | Required | Any |
 
 **Visibility rules:**
 - Only `status = OPEN` gigs appear in `/gigs` directory.
@@ -64,7 +65,7 @@ The following are **explicitly out of scope** for the MVP. Do not implement them
 - Mobile apps (native or PWA install flows)
 - Notifications (email digests, push, in-app)
 - Social feeds, follows, likes, comments
-- File uploads — portfolio is **link-only** (`youtubeUrl`, `soundcloudUrl`, `spotifyUrl`, `websiteUrl`, `instagramUrl`)
+- File uploads for portfolio work — portfolio is **link-only** (`youtubeUrl`, `soundcloudUrl`, `spotifyUrl`, `websiteUrl`, `instagramUrl`). Account profile pictures are the only supported upload.
 - A `/dashboard` route or analytics view
 - Compensation filter on `/gigs` (PRD mentions, not built — flagged)
 - Remote toggle filter on either directory
@@ -83,7 +84,7 @@ If a user request implies any of the above, **stop and confirm scope** before bu
 - **Genre** — same pattern as `Instrument` (e.g., "Jazz", "Indie", "Film scoring").
 - **ProjectType** (enum) — `FILM | LIVE_EVENT | PODCAST | GAME | YOUTUBE | OTHER`.
 - **CompensationType** (enum) — `PAID | UNPAID | NEGOTIABLE`.
-- **GigStatus** — `OPEN | CLOSED` (currently stored as string column; should be a Prisma enum — flagged debt).
+- **GigStatus** — `OPEN | CLOSED` (currently stored as text/string).
 - **UserRole** (enum) — `MUSICIAN | CREATOR`.
 
 ## Contact model

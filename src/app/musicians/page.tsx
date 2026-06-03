@@ -116,8 +116,17 @@ export default async function MusiciansPage({
 
                     <div className="relative z-10 flex min-w-0 items-start justify-between gap-4">
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-linear-to-br from-[#0055FF]/15 via-[#FF3366]/10 to-[#FFB000]/15 text-sm font-black text-[#0F172A]">
-                          {profile.displayName.split(" ").slice(0, 2).map((n) => n[0]).join("")}
+                        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-to-br from-[#0055FF]/15 via-[#FF3366]/10 to-[#FFB000]/15 text-sm font-black text-[#0F172A]">
+                          {profile.image ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={profile.image}
+                              alt=""
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            profile.displayName.split(" ").slice(0, 2).map((n) => n[0]).join("")
+                          )}
                         </div>
                         <div className="min-w-0">
                           <h2 className="break-words text-lg font-black tracking-tight text-[#0F172A] transition-colors group-hover:text-[#0055FF]">

@@ -1,6 +1,6 @@
 # UI Agent — Motivo
 
-> You build pages and components. You do NOT touch Prisma schema, auth, or server actions.
+> You build pages and components. You do NOT touch database schema/storage policies, auth, or server actions.
 > Read these files before writing a single line:
 > 1. `AGENTS.md` (root) — non-negotiable rules + DoD checklist **including the UI/UX Skill section**
 > 2. `ai-context/DESIGN.md` — every color, spacing, motion token

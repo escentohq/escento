@@ -11,11 +11,12 @@ src/lib/api/
 ├── types.ts      ← shared TypeScript interfaces
 ├── gigs.ts       ← gig CRUD + queries
 ├── profiles.ts   ← musician profile CRUD + queries
-├── users.ts      ← user CRUD + queries
 ├── tags.ts       ← instrument + genre CRUD
 ```
 
 **Data flow:** Page/Action → API function → Supabase → response (snake_case raw) → transform to camelCase → return typed object.
+
+`app_user` metadata is currently read by `src/lib/auth-guards.ts` and updated by onboarding/account actions directly. There is no `src/lib/api/users.ts` in the current codebase.
 
 ---
 
@@ -95,6 +96,7 @@ export interface UpdateGigInput {
 export interface MusicianProfile {
   id: string;
   userId: string;
+  image: string | null;      // joined from app_user.image
   displayName: string;
   bio: string | null;
   school: string | null;
@@ -176,7 +178,7 @@ Handles musician profile CRUD + queries.
 
 **`getProfile(id: string): Promise<MusicianProfile | null>`**
 - Fetch single profile by ID
-- Includes nested: instruments, genres
+- Includes nested: instruments, genres, and joined `app_user.image`
 
 **`getProfileByUserId(userId: string): Promise<MusicianProfile | null>`**
 - Fetch profile for a user
@@ -184,7 +186,7 @@ Handles musician profile CRUD + queries.
 
 **`listProfiles(filters?: { instrument?: string; genre?: string }): Promise<MusicianProfile[]>`**
 - Fetch all profiles
-- Client-side filtering by instrument/genre
+- DB-level filtering by instrument/genre joins
 - Ordered by `updated_at DESC`
 - Capped at 50 results
 
@@ -200,21 +202,22 @@ Handles musician profile CRUD + queries.
 
 ---
 
-## Users API (`src/lib/api/users.ts`)
+## App User Metadata
 
-Handles app_user table CRUD. Used during signup flow and onboarding.
+The current codebase does not have a `users.ts` service module. `app_user` is used as the app metadata table:
 
-### Read functions
+- `app_user.id` matches `auth.users.id`
+- `app_user.role` drives role guards
+- `app_user.name` drives account/nav display
+- `app_user.image` stores the public Supabase Storage URL for account avatars
 
-**`getUserById(id: string): Promise<AppUser | null>`**
-- Lookup user by app user ID (matches auth.users.id)
+Current write locations:
 
-### Write functions
+- `src/app/onboarding/role/actions.ts` updates `app_user.role`
+- `src/app/account/actions.ts` updates `app_user.name` and `app_user.image`
+- `src/app/account/actions.ts` deletes `app_user` during hard account deletion
 
-**`updateUser(id: string, input: { name?: string; image?: string; role?: string }): Promise<AppUser>`**
-- Update user fields (name, image, role)
-- Called during role selection onboarding
-- Called when user updates profile name/photo
+Profile pictures are stored in Supabase Storage bucket `profile-pictures`, uploaded by `updateProfilePictureAction()` with the server-only service-role client.
 
 ---
 
