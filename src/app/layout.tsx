@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 
 import { getCurrentSession } from "@/lib/auth-guards";
 import { getProfileByUserId } from "@/lib/api/profiles";
+import { getUnreadConversationSummariesForUser } from "@/lib/api/messaging";
 import { NavBar } from "@/components/ui/nav-bar";
 import { Footer } from "@/components/ui/footer";
 
@@ -27,6 +28,15 @@ export default async function RootLayout({
   }
 
   const isCreator = session?.user?.role === "CREATOR";
+  let unreadConversationCount = 0;
+  if (session?.user?.id && session.user.role) {
+    try {
+      const unread = await getUnreadConversationSummariesForUser(session.user.id);
+      unreadConversationCount = unread.length;
+    } catch (error) {
+      console.error("[layout] unread messaging badge failed:", error);
+    }
+  }
 
   return (
     <html lang="en">
@@ -39,6 +49,7 @@ export default async function RootLayout({
           image={session?.user?.image}
           musicianProfilePath={musicianProfilePath}
           isCreator={isCreator}
+          unreadConversationCount={unreadConversationCount}
         />
 
         <main className="flex-1">{children}</main>

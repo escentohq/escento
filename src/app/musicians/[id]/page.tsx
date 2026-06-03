@@ -5,6 +5,9 @@ import { BackLink } from "@/components/ui/back-link";
 import { Chip } from "@/components/ui/chip";
 import { SectionCard } from "@/components/ui/section-card";
 import { getProfile } from "@/lib/api/profiles";
+import { getCurrentSession } from "@/lib/auth-guards";
+import { getMessagingRelationshipForUser } from "@/lib/api/messaging";
+import { ConnectButton } from "./_connect-button";
 
 function isValidId(id: string) {
   return id.length > 0 && id.length < 64;
@@ -26,8 +29,15 @@ export default async function MusicianPublicProfilePage({
   const { id } = await params;
   if (!isValidId(id)) notFound();
 
-  const profile = await getProfile(id);
+  const [profile, session] = await Promise.all([
+    getProfile(id),
+    getCurrentSession(),
+  ]);
   if (!profile) notFound();
+
+  const relationship = session?.user?.id
+    ? await getMessagingRelationshipForUser(session.user.id, profile.userId)
+    : null;
 
   const links: Array<{ label: string; url: string }> = [
     ...(profile.websiteUrl ? [{ label: "Website", url: profile.websiteUrl }] : []),
@@ -213,6 +223,13 @@ export default async function MusicianPublicProfilePage({
                     <Mail className="h-4 w-4" aria-hidden />
                   </a>
                 )}
+
+                <ConnectButton
+                  recipientId={profile.userId}
+                  relationship={relationship}
+                  signedIn={Boolean(session?.user?.id)}
+                  callbackUrl={`/musicians/${profile.id}`}
+                />
               </div>
             </div>
 

@@ -1,0 +1,88 @@
+"use client";
+
+import Link from "next/link";
+import { MessageCircle, UserPlus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+
+import { sendConnectionRequest } from "@/app/messages/actions";
+import type { MessagingRelationship } from "@/lib/api/types";
+
+export function ConnectButton({
+  recipientId,
+  relationship,
+  signedIn,
+  callbackUrl,
+}: {
+  recipientId: string;
+  relationship: MessagingRelationship | null;
+  signedIn: boolean;
+  callbackUrl: string;
+}) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [state, setState] = useState<MessagingRelationship | null>(relationship);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!signedIn) {
+    return (
+      <Link
+        href={`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+        className="group mt-5 flex w-full cursor-pointer items-center justify-between rounded-2xl bg-[#0055FF] px-5 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#0044DD] focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+      >
+        <span>Sign in to Connect</span>
+        <UserPlus className="h-4 w-4" aria-hidden />
+      </Link>
+    );
+  }
+
+  if (state?.status === "self") return null;
+
+  if (state?.status === "connected") {
+    return (
+      <Link
+        href={`/messages/${state.conversationId}`}
+        className="group mt-5 flex w-full cursor-pointer items-center justify-between rounded-2xl bg-[#0055FF] px-5 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#0044DD] focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+      >
+        <span>Message</span>
+        <MessageCircle className="h-4 w-4" aria-hidden />
+      </Link>
+    );
+  }
+
+  if (state?.status === "pending") {
+    return (
+      <div className="mt-5 rounded-2xl border border-[#FFB000]/30 bg-[#FFB000]/10 px-5 py-3.5 text-sm font-bold text-[#FFB000]">
+        Pending
+      </div>
+    );
+  }
+
+  function connect() {
+    setError(null);
+    startTransition(async () => {
+      try {
+        const request = await sendConnectionRequest(recipientId);
+        setState({ status: "pending", request });
+        router.refresh();
+      } catch {
+        setError("Could not send this request.");
+      }
+    });
+  }
+
+  return (
+    <div className="mt-5 space-y-2">
+      <button
+        type="button"
+        onClick={connect}
+        disabled={isPending}
+        className="group flex w-full cursor-pointer items-center justify-between rounded-2xl bg-[#0055FF] px-5 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#0044DD] focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
+      >
+        <span>{isPending ? "Sending..." : "Connect"}</span>
+        <UserPlus className="h-4 w-4" aria-hidden />
+      </button>
+      {error ? <p className="text-sm font-medium text-[#FDA29B]" role="alert">{error}</p> : null}
+    </div>
+  );
+}

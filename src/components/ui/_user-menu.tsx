@@ -11,6 +11,7 @@ import {
   LayoutList,
   PlusCircle,
   LogOut,
+  MessageCircle,
 } from "lucide-react";
 import { signOutAction } from "@/app/account/actions";
 
@@ -21,6 +22,7 @@ type UserMenuProps = {
   role?: string | null;
   musicianProfilePath?: "/profile/create" | "/profile/edit" | null;
   isCreator?: boolean;
+  unreadConversationCount?: number;
 };
 
 function getInitials(name: string): string {
@@ -39,6 +41,7 @@ export function UserMenu({
   role,
   musicianProfilePath,
   isCreator,
+  unreadConversationCount = 0,
 }: UserMenuProps) {
   const avatarContent = image ? (
     // eslint-disable-next-line @next/next/no-img-element
@@ -81,6 +84,23 @@ export function UserMenu({
           </DropdownMenu.Label>
 
           <DropdownMenu.Separator className="my-1.5 border-t border-[#F1F5F9]" />
+
+          <DropdownMenu.Item asChild>
+            <Link
+              href="/messages"
+              className="flex items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus:bg-[#F8FAFC] focus:outline-none cursor-pointer select-none"
+            >
+              <span className="flex items-center gap-2.5">
+                <MessageCircle className="h-4 w-4" />
+                Messages
+              </span>
+              {unreadConversationCount > 0 ? (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF3366] px-1 text-[10px] font-black leading-none text-white">
+                  {unreadConversationCount > 9 ? "9+" : unreadConversationCount}
+                </span>
+              ) : null}
+            </Link>
+          </DropdownMenu.Item>
 
           <DropdownMenu.Item asChild>
             <Link

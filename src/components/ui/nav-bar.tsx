@@ -9,13 +9,37 @@ type Props = {
   image?: string | null;
   musicianProfilePath?: "/profile/create" | "/profile/edit" | null;
   isCreator?: boolean;
+  unreadConversationCount?: number;
 };
 
-export function NavBar({ signedIn, email, role, name, image, musicianProfilePath, isCreator }: Props) {
+function MessagesLink({ unreadConversationCount = 0 }: { unreadConversationCount?: number }) {
+  return (
+    <Link href="/messages" className="relative whitespace-nowrap transition-colors hover:text-[#0055FF]">
+      Messages
+      {unreadConversationCount > 0 ? (
+        <span className="absolute -right-3 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF3366] px-1 text-[10px] font-black leading-none text-white">
+          {unreadConversationCount > 9 ? "9+" : unreadConversationCount}
+        </span>
+      ) : null}
+    </Link>
+  );
+}
+
+export function NavBar({
+  signedIn,
+  email,
+  role,
+  name,
+  image,
+  musicianProfilePath,
+  isCreator,
+  unreadConversationCount = 0,
+}: Props) {
   const publicLinks = (
     <>
       <Link href="/musicians" className="whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Musicians</Link>
       <Link href="/gigs" className="whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Gigs</Link>
+      {signedIn ? <MessagesLink unreadConversationCount={unreadConversationCount} /> : null}
     </>
   );
 
@@ -57,6 +81,7 @@ export function NavBar({ signedIn, email, role, name, image, musicianProfilePath
               role={role}
               musicianProfilePath={musicianProfilePath}
               isCreator={isCreator}
+              unreadConversationCount={unreadConversationCount}
             />
           )}
         </div>

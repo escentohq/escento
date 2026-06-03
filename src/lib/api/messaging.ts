@@ -9,6 +9,7 @@ import type {
   ConversationParticipant,
   ConversationSummary,
   MessageRecord,
+  MessagingRelationship,
   MessagingUserSummary,
 } from "./types";
 
@@ -626,4 +627,44 @@ export async function getUnreadConversationSummariesForUser(
 ): Promise<ConversationSummary[]> {
   const conversations = await listConversationsForUser(userId);
   return conversations.filter((conversation) => conversation.unreadCount > 0);
+}
+
+export async function getMessagingRelationshipForUser(
+  userId: string,
+  otherUserId: string,
+): Promise<MessagingRelationship> {
+  assertValidId(userId, "user id");
+  assertValidId(otherUserId, "other user id");
+
+  if (userId === otherUserId) return { status: "self" };
+
+  const conversations = await listConversationsForUser(userId);
+  const directConversation = conversations.find((conversation) =>
+    conversation.type === "direct" &&
+    conversation.participants.some((participant) => participant.userId === otherUserId)
+  );
+
+  if (directConversation) {
+    return { status: "connected", conversationId: directConversation.id };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("conversation_requests")
+    .select(
+      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image)",
+    )
+    .eq("status", "pending")
+    .or(
+      `and(requester_id.eq.${userId},recipient_id.eq.${otherUserId}),and(requester_id.eq.${otherUserId},recipient_id.eq.${userId})`,
+    )
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  if (error) throw error;
+  if (data?.[0]) {
+    return { status: "pending", request: toConnectionRequest(data[0]) };
+  }
+
+  return { status: "none" };
 }

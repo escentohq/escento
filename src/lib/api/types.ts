@@ -188,3 +188,9 @@ export interface BlockedUser {
   createdAt: string;
   blockedUser?: MessagingUserSummary;
 }
+
+export type MessagingRelationship =
+  | { status: "self" }
+  | { status: "none" }
+  | { status: "pending"; request: ConnectionRequest }
+  | { status: "connected"; conversationId: string };
