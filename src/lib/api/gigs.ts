@@ -1,6 +1,13 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { ensureInstruments, ensureGenres } from "./tags";
 import type { Gig, CreateGigInput, UpdateGigInput } from "./types";
+
+type GigCreatorSummary = {
+  id: string;
+  name: string | null;
+  email: string | null;
+};
 
 function normalizeDeadline(deadline: Date | string | null | undefined): string | null {
   if (!deadline) return null;
@@ -9,7 +16,48 @@ function normalizeDeadline(deadline: Date | string | null | undefined): string |
   return null;
 }
 
-function toGig(raw: any): Gig {
+async function getCreatorSummaries(creatorIds: string[]): Promise<Map<string, GigCreatorSummary>> {
+  const uniqueIds = Array.from(new Set(creatorIds.filter(Boolean)));
+  if (!uniqueIds.length) return new Map();
+
+  try {
+    const supabase = createSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("app_user")
+      .select("id, name, email")
+      .in("id", uniqueIds);
+
+    if (error) throw error;
+
+    return new Map(
+      (data ?? []).map((user) => [
+        user.id,
+        {
+          id: user.id,
+          name: user.name ?? null,
+          email: user.email ?? null,
+        },
+      ]),
+    );
+  } catch (error) {
+    console.error("[gigs] creator summary lookup failed:", error);
+    return new Map();
+  }
+}
+
+async function withCreatorSummaries(rawGigs: any[]): Promise<Gig[]> {
+  const creatorSummaries = await getCreatorSummaries(
+    rawGigs.map((gig) => gig.creator_id),
+  );
+
+  return rawGigs.map((raw) => toGig(raw, creatorSummaries.get(raw.creator_id)));
+}
+
+function toGig(raw: any, creatorSummary?: GigCreatorSummary): Gig {
+  const joinedCreator = raw.app_user
+    ? { name: raw.app_user.name ?? null, email: raw.app_user.email ?? null }
+    : undefined;
+
   return {
     id: raw.id,
     creatorId: raw.creator_id,
@@ -26,7 +74,7 @@ function toGig(raw: any): Gig {
     updatedAt: raw.updated_at,
     instruments: raw.gig_instrument?.map((x: any) => x.instrument?.name).filter(Boolean) ?? [],
     genres: raw.gig_genre?.map((x: any) => x.genre?.name).filter(Boolean) ?? [],
-    creator: raw.app_user ? { name: raw.app_user.name, email: raw.app_user.email } : undefined,
+    creator: creatorSummary ?? joinedCreator,
   };
 }
 
@@ -39,7 +87,10 @@ export async function getGig(id: string): Promise<Gig | null> {
     .single();
 
   if (error && error.code !== "PGRST116") throw error;
-  return data ? toGig(data) : null;
+  if (!data) return null;
+
+  const [gig] = await withCreatorSummaries([data]);
+  return gig;
 }
 
 interface ListOpenGigsFilters {
@@ -77,7 +128,7 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
 
   if (error) throw error;
 
-  return (data || []).map(toGig).slice(0, 50);
+  return withCreatorSummaries((data || []).slice(0, 50));
 }
 
 export async function listGigsByCreator(creatorId: string): Promise<Gig[]> {
@@ -90,7 +141,7 @@ export async function listGigsByCreator(creatorId: string): Promise<Gig[]> {
 
   if (error) throw error;
 
-  return (data || []).map(toGig);
+  return withCreatorSummaries(data || []);
 }
 
 export async function createGig(

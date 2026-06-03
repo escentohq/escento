@@ -27,7 +27,7 @@ export interface Gig {
   updatedAt: string;
   instruments?: string[];
   genres?: string[];
-  creator?: { name: string | null; email: string };
+  creator?: { name: string | null; email: string | null };
 }
 
 export interface MusicianProfile {
