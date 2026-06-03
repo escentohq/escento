@@ -12,6 +12,7 @@ src/lib/api/
 ├── gigs.ts       ← gig CRUD + queries
 ├── profiles.ts   ← musician profile CRUD + queries
 ├── tags.ts       ← instrument + genre CRUD
+├── messaging.ts  ← connection requests, conversations, messages, unread, blocks
 ```
 
 **Data flow:** Page/Action → API function → Supabase → response (snake_case raw) → transform to camelCase → return typed object.
@@ -241,6 +242,45 @@ Manages instruments and genres using atomic upsert. Replaces old `tag-utils.ts` 
 
 **`listGenres(): Promise<Tag[]>`**
 - Fetch all genres, ordered by name
+
+---
+
+## Messaging API (`src/lib/api/messaging.ts`)
+
+Messaging is a backend foundation only for now. No full inbox/thread UI has shipped yet.
+
+### Tables
+
+- `conversation_requests` — requester, recipient, intro text, status lifecycle (`pending`, `accepted`, `rejected`, `cancelled`)
+- `conversations` — conversation shell with `type = "direct"` today and `source_request_id`
+- `conversation_participants` — per-user membership, `last_read_at`, and per-user soft delete via `deleted_at`
+- `messages` — trimmed text messages with soft delete via `deleted_at`
+- `user_blocks` — directional blocks; either direction prevents new requests and messages
+
+### Read/write functions
+
+- `createConnectionRequest(requesterId, recipientId, introMessage?)`
+- `listIncomingConnectionRequests(userId)`
+- `listOutgoingConnectionRequests(userId)`
+- `acceptConnectionRequestForUser(userId, requestId)`
+- `rejectConnectionRequestForUser(userId, requestId)`
+- `cancelConnectionRequestForUser(userId, requestId)`
+- `listConversationsForUser(userId)`
+- `getConversationForUser(userId, conversationId)`
+- `createMessageForUser(userId, conversationId, body)`
+- `markConversationReadForUser(userId, conversationId)`
+- `deleteConversationForUser(userId, conversationId)`
+- `blockUserForUser(userId, blockedUserId)`
+- `unblockUserForUser(userId, blockedUserId)`
+- `listBlockedUsersForUser(userId)`
+- `getUnreadMessageCountForUser(userId)`
+- `getUnreadConversationSummariesForUser(userId)`
+
+### Security model
+
+Server actions in `src/app/messages/actions.ts` derive the actor from `requireUser()` and pass that user id into the service layer. The migration also enables RLS on messaging tables, using participant/request/block ownership checks plus triggers for invariants that RLS cannot express cleanly.
+
+Unread counts are computed from `conversation_participants.last_read_at`: messages count as unread when they are in the conversation, not deleted, sent by someone else, and newer than the current participant's `last_read_at`.
 
 ---
 

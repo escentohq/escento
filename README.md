@@ -33,6 +33,13 @@ Platform connecting student musicians with student creators for film, podcasts, 
 - Gig listing with filters (project type, instruments, genres)
 - Role-aware navigation (different menu for musicians vs. creators)
 
+### Messaging Foundation
+- Signed-in users can send connection requests before a conversation starts
+- Accepted requests create direct conversations with participant-scoped access
+- Per-participant unread tracking via `last_read_at`
+- User blocking prevents requests and messages in either direction
+- Backend foundation only: no realtime, attachments, reactions, or full inbox UI yet
+
 ## Tech Stack
 
 ### Frontend
@@ -102,6 +109,7 @@ src/
 │   │   ├── profiles.ts         # Musician profile CRUD
 │   │   ├── gigs.ts             # Gig CRUD + queries
 │   │   ├── tags.ts             # Instrument/Genre upsert
+│   │   ├── messaging.ts        # Requests, conversations, messages, blocks
 │   │   └── types.ts            # TypeScript interfaces
 │   ├── supabase/
 │   │   ├── server.ts           # Server-side Supabase client
@@ -146,6 +154,11 @@ src/
 - `musician_genre` — Junction (musician_profile → genres)
 - `gig_instrument` — Junction (gig → required instruments)
 - `gig_genre` — Junction (gig → required genres)
+- `conversation_requests` — Connection request lifecycle before a conversation starts
+- `conversations` — Conversation shell (`direct` today; participant model supports groups later)
+- `conversation_participants` — Per-user membership, read cursor, and soft-delete state
+- `messages` — Basic direct message records
+- `user_blocks` — Directional user blocks
 
 Account deletion hard-deletes app data and the Supabase Auth user through a server-only admin client.
 Profile pictures are stored in the public Supabase Storage bucket `profile-pictures`; the public URL is saved in `app_user.image`.
@@ -236,7 +249,8 @@ Profile pictures are stored in the public Supabase Storage bucket `profile-pictu
 
 1. Create PostgreSQL DB in Supabase
 2. Ensure the Motivo schema exists in Supabase (`app_user`, `musician_profile`, `gig`, tag tables, junction tables)
-3. The app creates the `profile-pictures` Storage bucket on first profile-picture update when `SUPABASE_SERVICE_ROLE_KEY` is configured
+3. Apply SQL migrations in `supabase/migrations/` when present
+4. The app creates the `profile-pictures` Storage bucket on first profile-picture update when `SUPABASE_SERVICE_ROLE_KEY` is configured
 
 ## Commands
 

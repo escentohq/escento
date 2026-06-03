@@ -112,3 +112,79 @@ export interface UpdateProfileInput {
   soundcloudUrl?: string | null;
   websiteUrl?: string | null;
 }
+
+export type ConnectionRequestStatus =
+  | "pending"
+  | "accepted"
+  | "rejected"
+  | "cancelled";
+
+export type ConversationType = "direct";
+
+export interface MessagingUserSummary {
+  id: string;
+  email: string | null;
+  name: string | null;
+  image: string | null;
+}
+
+export interface ConnectionRequest {
+  id: string;
+  requesterId: string;
+  recipientId: string;
+  status: ConnectionRequestStatus;
+  introMessage: string | null;
+  createdAt: string;
+  updatedAt: string;
+  acceptedAt: string | null;
+  rejectedAt: string | null;
+  requester?: MessagingUserSummary;
+  recipient?: MessagingUserSummary;
+}
+
+export interface ConversationParticipant {
+  id: string;
+  conversationId: string;
+  userId: string;
+  joinedAt: string;
+  lastReadAt: string | null;
+  deletedAt: string | null;
+  user?: MessagingUserSummary;
+}
+
+export interface MessageRecord {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  sender?: MessagingUserSummary;
+}
+
+export interface ConversationSummary {
+  id: string;
+  type: ConversationType;
+  createdAt: string;
+  updatedAt: string;
+  lastMessageAt: string | null;
+  createdBy: string;
+  sourceRequestId: string | null;
+  participants: ConversationParticipant[];
+  otherParticipant: ConversationParticipant | null;
+  lastMessage: MessageRecord | null;
+  unreadCount: number;
+}
+
+export interface ConversationDetail extends ConversationSummary {
+  messages: MessageRecord[];
+}
+
+export interface BlockedUser {
+  id: string;
+  blockerId: string;
+  blockedId: string;
+  createdAt: string;
+  blockedUser?: MessagingUserSummary;
+}

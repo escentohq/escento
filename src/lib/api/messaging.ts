@@ -1,0 +1,629 @@
+import { randomUUID } from "crypto";
+
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { queueMessageNotification } from "@/lib/messaging-notifications";
+import type {
+  BlockedUser,
+  ConnectionRequest,
+  ConversationDetail,
+  ConversationParticipant,
+  ConversationSummary,
+  MessageRecord,
+  MessagingUserSummary,
+} from "./types";
+
+export const CONNECTION_REQUEST_INTRO_MAX_LENGTH = 600;
+export const MESSAGE_BODY_MAX_LENGTH = 2000;
+
+type MessagingErrorCode =
+  | "invalid_input"
+  | "not_found"
+  | "forbidden"
+  | "blocked"
+  | "duplicate"
+  | "database_error";
+
+export class MessagingError extends Error {
+  code: MessagingErrorCode;
+
+  constructor(code: MessagingErrorCode, message: string) {
+    super(message);
+    this.name = "MessagingError";
+    this.code = code;
+  }
+}
+
+function assertValidId(id: string, label = "id") {
+  if (!id || id.length > 128) {
+    throw new MessagingError("invalid_input", `Invalid ${label}.`);
+  }
+}
+
+function normalizeOptionalText(value: string | null | undefined, maxLength: number) {
+  const trimmed = String(value ?? "").trim();
+  if (!trimmed) return null;
+  if (trimmed.length > maxLength) {
+    throw new MessagingError("invalid_input", `Keep the message under ${maxLength} characters.`);
+  }
+  return trimmed;
+}
+
+function normalizeRequiredText(value: string, maxLength: number) {
+  const trimmed = value.trim();
+  if (!trimmed) throw new MessagingError("invalid_input", "Add a message.");
+  if (trimmed.length > maxLength) {
+    throw new MessagingError("invalid_input", `Keep the message under ${maxLength} characters.`);
+  }
+  return trimmed;
+}
+
+function toUserSummary(raw: any): MessagingUserSummary | undefined {
+  if (!raw) return undefined;
+  return {
+    id: raw.id,
+    email: raw.email ?? null,
+    name: raw.name ?? null,
+    image: raw.image ?? null,
+  };
+}
+
+function toConnectionRequest(raw: any): ConnectionRequest {
+  return {
+    id: raw.id,
+    requesterId: raw.requester_id,
+    recipientId: raw.recipient_id,
+    status: raw.status,
+    introMessage: raw.intro_message,
+    createdAt: raw.created_at,
+    updatedAt: raw.updated_at,
+    acceptedAt: raw.accepted_at,
+    rejectedAt: raw.rejected_at,
+    requester: toUserSummary(raw.requester),
+    recipient: toUserSummary(raw.recipient),
+  };
+}
+
+function toParticipant(raw: any): ConversationParticipant {
+  return {
+    id: raw.id,
+    conversationId: raw.conversation_id,
+    userId: raw.user_id,
+    joinedAt: raw.joined_at,
+    lastReadAt: raw.last_read_at,
+    deletedAt: raw.deleted_at,
+    user: toUserSummary(raw.user),
+  };
+}
+
+function toMessage(raw: any): MessageRecord {
+  return {
+    id: raw.id,
+    conversationId: raw.conversation_id,
+    senderId: raw.sender_id,
+    body: raw.body,
+    createdAt: raw.created_at,
+    updatedAt: raw.updated_at,
+    deletedAt: raw.deleted_at,
+    sender: toUserSummary(raw.sender),
+  };
+}
+
+function toBlockedUser(raw: any): BlockedUser {
+  return {
+    id: raw.id,
+    blockerId: raw.blocker_id,
+    blockedId: raw.blocked_id,
+    createdAt: raw.created_at,
+    blockedUser: toUserSummary(raw.blocked_user),
+  };
+}
+
+async function appUserExists(userId: string) {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("app_user")
+    .select("id")
+    .eq("id", userId)
+    .single();
+
+  if (error && error.code !== "PGRST116") throw error;
+  return Boolean(data);
+}
+
+async function hasBlockBetween(userA: string, userB: string) {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("messaging_is_blocked_between", {
+    p_user_a: userA,
+    p_user_b: userB,
+  });
+
+  if (error) throw error;
+  return Boolean(data);
+}
+
+async function hasActiveDirectConversation(userA: string, userB: string) {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("messaging_direct_conversation_exists", {
+    p_user_a: userA,
+    p_user_b: userB,
+  });
+
+  if (error) throw error;
+  return Boolean(data);
+}
+
+async function getActiveParticipant(userId: string, conversationId: string) {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("conversation_participants")
+    .select("*")
+    .eq("conversation_id", conversationId)
+    .eq("user_id", userId)
+    .is("deleted_at", null)
+    .single();
+
+  if (error && error.code !== "PGRST116") throw error;
+  return data ? toParticipant(data) : null;
+}
+
+async function getConversationParticipantRows(conversationIds: string[]) {
+  if (!conversationIds.length) return [];
+
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("conversation_participants")
+    .select("*, user:app_user!conversation_participants_user_id_fkey(id, email, name, image)")
+    .in("conversation_id", conversationIds)
+    .is("deleted_at", null);
+
+  if (error) throw error;
+  return (data ?? []).map(toParticipant);
+}
+
+async function getMessageRows(conversationIds: string[], ascending = false) {
+  if (!conversationIds.length) return [];
+
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("messages")
+    .select("*, sender:app_user!messages_sender_id_fkey(id, email, name, image)")
+    .in("conversation_id", conversationIds)
+    .is("deleted_at", null)
+    .order("created_at", { ascending });
+
+  if (error) throw error;
+  return (data ?? []).map(toMessage);
+}
+
+function getUnreadCount(
+  userId: string,
+  participant: ConversationParticipant | undefined,
+  messages: MessageRecord[],
+) {
+  if (!participant) return 0;
+  const lastReadTime = participant.lastReadAt
+    ? new Date(participant.lastReadAt).getTime()
+    : 0;
+
+  return messages.filter((message) => {
+    if (message.senderId === userId) return false;
+    if (message.deletedAt) return false;
+    return new Date(message.createdAt).getTime() > lastReadTime;
+  }).length;
+}
+
+function buildConversationSummary(
+  raw: any,
+  userId: string,
+  participants: ConversationParticipant[],
+  messages: MessageRecord[],
+): ConversationSummary {
+  const ownParticipant = participants.find((participant) => participant.userId === userId);
+  const otherParticipant = participants.find((participant) => participant.userId !== userId) ?? null;
+  const sortedMessages = [...messages].sort((a, b) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
+  return {
+    id: raw.id,
+    type: raw.type,
+    createdAt: raw.created_at,
+    updatedAt: raw.updated_at,
+    lastMessageAt: raw.last_message_at,
+    createdBy: raw.created_by,
+    sourceRequestId: raw.source_request_id,
+    participants,
+    otherParticipant,
+    lastMessage: sortedMessages[0] ?? null,
+    unreadCount: getUnreadCount(userId, ownParticipant, messages),
+  };
+}
+
+async function getConversationRowsForUser(userId: string) {
+  const supabase = await createSupabaseServerClient();
+  const { data: ownParticipants, error: participantsError } = await supabase
+    .from("conversation_participants")
+    .select("conversation_id")
+    .eq("user_id", userId)
+    .is("deleted_at", null);
+
+  if (participantsError) throw participantsError;
+
+  const conversationIds = Array.from(
+    new Set((ownParticipants ?? []).map((participant) => participant.conversation_id)),
+  );
+
+  if (!conversationIds.length) return [];
+
+  const { data: conversations, error: conversationsError } = await supabase
+    .from("conversations")
+    .select("*")
+    .in("id", conversationIds)
+    .order("last_message_at", { ascending: false, nullsFirst: false })
+    .order("updated_at", { ascending: false });
+
+  if (conversationsError) throw conversationsError;
+  return conversations ?? [];
+}
+
+export async function createConnectionRequest(
+  requesterId: string,
+  recipientId: string,
+  introMessage?: string | null,
+): Promise<ConnectionRequest> {
+  assertValidId(requesterId, "requester id");
+  assertValidId(recipientId, "recipient id");
+  if (requesterId === recipientId) {
+    throw new MessagingError("invalid_input", "You cannot message yourself.");
+  }
+
+  const normalizedIntro = normalizeOptionalText(
+    introMessage,
+    CONNECTION_REQUEST_INTRO_MAX_LENGTH,
+  );
+
+  const [recipientExists, blocked, directConversationExists] = await Promise.all([
+    appUserExists(recipientId),
+    hasBlockBetween(requesterId, recipientId),
+    hasActiveDirectConversation(requesterId, recipientId),
+  ]);
+
+  if (!recipientExists) {
+    throw new MessagingError("not_found", "Cannot send this request.");
+  }
+  if (blocked) {
+    throw new MessagingError("blocked", "Cannot send this request.");
+  }
+  if (directConversationExists) {
+    throw new MessagingError("duplicate", "A conversation already exists.");
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("conversation_requests")
+    .insert({
+      id: randomUUID(),
+      requester_id: requesterId,
+      recipient_id: recipientId,
+      intro_message: normalizedIntro,
+      status: "pending",
+    })
+    .select(
+      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image)",
+    )
+    .single();
+
+  if (error) {
+    if (error.code === "23505") {
+      throw new MessagingError("duplicate", "A pending request already exists.");
+    }
+    throw error;
+  }
+
+  return toConnectionRequest(data);
+}
+
+export async function listIncomingConnectionRequests(userId: string): Promise<ConnectionRequest[]> {
+  assertValidId(userId, "user id");
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("conversation_requests")
+    .select(
+      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image)",
+    )
+    .eq("recipient_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []).map(toConnectionRequest);
+}
+
+export async function listOutgoingConnectionRequests(userId: string): Promise<ConnectionRequest[]> {
+  assertValidId(userId, "user id");
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("conversation_requests")
+    .select(
+      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image)",
+    )
+    .eq("requester_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []).map(toConnectionRequest);
+}
+
+export async function acceptConnectionRequestForUser(
+  userId: string,
+  requestId: string,
+): Promise<ConversationDetail> {
+  assertValidId(userId, "user id");
+  assertValidId(requestId, "request id");
+
+  const supabase = await createSupabaseServerClient();
+  const { data: conversationId, error } = await supabase.rpc(
+    "messaging_accept_connection_request",
+    { p_request_id: requestId },
+  );
+
+  if (error) throw error;
+  if (!conversationId) {
+    throw new MessagingError("database_error", "Conversation could not be created.");
+  }
+
+  const conversation = await getConversationForUser(userId, String(conversationId));
+  if (!conversation) {
+    throw new MessagingError("database_error", "Conversation could not be loaded.");
+  }
+
+  return conversation;
+}
+
+export async function rejectConnectionRequestForUser(
+  userId: string,
+  requestId: string,
+): Promise<void> {
+  assertValidId(userId, "user id");
+  assertValidId(requestId, "request id");
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("conversation_requests")
+    .update({ status: "rejected", rejected_at: new Date().toISOString() })
+    .eq("id", requestId)
+    .eq("recipient_id", userId)
+    .eq("status", "pending");
+
+  if (error) throw error;
+}
+
+export async function cancelConnectionRequestForUser(
+  userId: string,
+  requestId: string,
+): Promise<void> {
+  assertValidId(userId, "user id");
+  assertValidId(requestId, "request id");
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("conversation_requests")
+    .update({ status: "cancelled" })
+    .eq("id", requestId)
+    .eq("requester_id", userId)
+    .eq("status", "pending");
+
+  if (error) throw error;
+}
+
+export async function listConversationsForUser(userId: string): Promise<ConversationSummary[]> {
+  assertValidId(userId, "user id");
+  const conversations = await getConversationRowsForUser(userId);
+  const conversationIds = conversations.map((conversation) => conversation.id);
+  const [participants, messages] = await Promise.all([
+    getConversationParticipantRows(conversationIds),
+    getMessageRows(conversationIds, false),
+  ]);
+
+  return conversations.map((conversation) => {
+    const conversationParticipants = participants.filter(
+      (participant) => participant.conversationId === conversation.id,
+    );
+    const conversationMessages = messages.filter(
+      (message) => message.conversationId === conversation.id,
+    );
+    return buildConversationSummary(
+      conversation,
+      userId,
+      conversationParticipants,
+      conversationMessages,
+    );
+  });
+}
+
+export async function getConversationForUser(
+  userId: string,
+  conversationId: string,
+): Promise<ConversationDetail | null> {
+  assertValidId(userId, "user id");
+  assertValidId(conversationId, "conversation id");
+
+  const ownParticipant = await getActiveParticipant(userId, conversationId);
+  if (!ownParticipant) return null;
+
+  const supabase = await createSupabaseServerClient();
+  const { data: conversation, error } = await supabase
+    .from("conversations")
+    .select("*")
+    .eq("id", conversationId)
+    .single();
+
+  if (error && error.code !== "PGRST116") throw error;
+  if (!conversation) return null;
+
+  const [participants, messages] = await Promise.all([
+    getConversationParticipantRows([conversationId]),
+    getMessageRows([conversationId], true),
+  ]);
+
+  return {
+    ...buildConversationSummary(conversation, userId, participants, messages),
+    messages,
+  };
+}
+
+export async function createMessageForUser(
+  userId: string,
+  conversationId: string,
+  body: string,
+): Promise<MessageRecord> {
+  assertValidId(userId, "user id");
+  assertValidId(conversationId, "conversation id");
+  const normalizedBody = normalizeRequiredText(body, MESSAGE_BODY_MAX_LENGTH);
+
+  const participant = await getActiveParticipant(userId, conversationId);
+  if (!participant) {
+    throw new MessagingError("forbidden", "You cannot send messages in this conversation.");
+  }
+
+  const conversation = await getConversationForUser(userId, conversationId);
+  if (!conversation) {
+    throw new MessagingError("not_found", "Conversation not found.");
+  }
+
+  if (conversation.type === "direct" && conversation.otherParticipant) {
+    const blocked = await hasBlockBetween(userId, conversation.otherParticipant.userId);
+    if (blocked) {
+      throw new MessagingError("blocked", "You cannot send messages in this conversation.");
+    }
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const now = new Date().toISOString();
+  const { data, error } = await supabase
+    .from("messages")
+    .insert({
+      id: randomUUID(),
+      conversation_id: conversationId,
+      sender_id: userId,
+      body: normalizedBody,
+    })
+    .select("*, sender:app_user!messages_sender_id_fkey(id, email, name, image)")
+    .single();
+
+  if (error) throw error;
+
+  const { error: conversationError } = await supabase
+    .from("conversations")
+    .update({ last_message_at: now })
+    .eq("id", conversationId);
+
+  if (conversationError) throw conversationError;
+
+  const message = toMessage(data);
+  await queueMessageNotification(message);
+  return message;
+}
+
+export async function markConversationReadForUser(
+  userId: string,
+  conversationId: string,
+): Promise<void> {
+  assertValidId(userId, "user id");
+  assertValidId(conversationId, "conversation id");
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("conversation_participants")
+    .update({ last_read_at: new Date().toISOString() })
+    .eq("conversation_id", conversationId)
+    .eq("user_id", userId)
+    .is("deleted_at", null);
+
+  if (error) throw error;
+}
+
+export async function deleteConversationForUser(
+  userId: string,
+  conversationId: string,
+): Promise<void> {
+  assertValidId(userId, "user id");
+  assertValidId(conversationId, "conversation id");
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("conversation_participants")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("conversation_id", conversationId)
+    .eq("user_id", userId)
+    .is("deleted_at", null);
+
+  if (error) throw error;
+}
+
+export async function blockUserForUser(userId: string, blockedUserId: string): Promise<void> {
+  assertValidId(userId, "user id");
+  assertValidId(blockedUserId, "blocked user id");
+
+  if (userId === blockedUserId) {
+    throw new MessagingError("invalid_input", "You cannot block yourself.");
+  }
+
+  const blockedUserExists = await appUserExists(blockedUserId);
+  if (!blockedUserExists) {
+    throw new MessagingError("not_found", "User not found.");
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("user_blocks")
+    .upsert(
+      {
+        id: randomUUID(),
+        blocker_id: userId,
+        blocked_id: blockedUserId,
+      },
+      { onConflict: "blocker_id,blocked_id", ignoreDuplicates: true },
+    );
+
+  if (error) throw error;
+}
+
+export async function unblockUserForUser(userId: string, blockedUserId: string): Promise<void> {
+  assertValidId(userId, "user id");
+  assertValidId(blockedUserId, "blocked user id");
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("user_blocks")
+    .delete()
+    .eq("blocker_id", userId)
+    .eq("blocked_id", blockedUserId);
+
+  if (error) throw error;
+}
+
+export async function listBlockedUsersForUser(userId: string): Promise<BlockedUser[]> {
+  assertValidId(userId, "user id");
+
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("user_blocks")
+    .select("*, blocked_user:app_user!user_blocks_blocked_id_fkey(id, email, name, image)")
+    .eq("blocker_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return (data ?? []).map(toBlockedUser);
+}
+
+export async function getUnreadMessageCountForUser(userId: string): Promise<number> {
+  const conversations = await listConversationsForUser(userId);
+  return conversations.reduce((total, conversation) => total + conversation.unreadCount, 0);
+}
+
+export async function getUnreadConversationSummariesForUser(
+  userId: string,
+): Promise<ConversationSummary[]> {
+  const conversations = await listConversationsForUser(userId);
+  return conversations.filter((conversation) => conversation.unreadCount > 0);
+}

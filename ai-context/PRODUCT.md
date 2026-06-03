@@ -2,7 +2,7 @@
 
 ## What Motivo is
 
-A directory + listings platform connecting **student musicians** with **student creators** (film students, podcasters, YouTubers, indie game devs, event organizers). It is intentionally **not** a social network: no feeds, no in-app messaging, no payments, no algorithmic recommendations. The MVP optimizes for the shortest possible path from *"I need someone"* to *"I found them and emailed them."*
+A directory + listings platform connecting **student musicians** with **student creators** (film students, podcasters, YouTubers, indie game devs, event organizers). It is intentionally **not** a social network: no feeds, no payments, no algorithmic recommendations. The MVP originally optimized for the shortest possible path from *"I need someone"* to *"I found them and emailed them."* Messaging has now been explicitly re-scoped as a barebones connection-request and direct-message foundation.
 
 Tagline: **Take the Stage.**
 
@@ -48,6 +48,7 @@ A `User` has exactly one `role` (`MUSICIAN` | `CREATOR`), chosen once at onboard
 | Manage own gigs | `/gigs/manage` | Required | `CREATOR` |
 | Contact via `mailto:` | both detail pages | — | — |
 | Account profile picture | `/account` | Required | Any |
+| Messaging backend foundation | server actions + service layer | Required | Any role |
 
 **Visibility rules:**
 - Only `status = OPEN` gigs appear in `/gigs` directory.
@@ -58,7 +59,6 @@ A `User` has exactly one `role` (`MUSICIAN` | `CREATOR`), chosen once at onboard
 
 The following are **explicitly out of scope** for the MVP. Do not implement them without an explicit, written re-scoping from the user.
 
-- Internal messaging / DMs
 - Payments / escrow / Stripe / any billing
 - Ratings, reviews, or testimonials
 - Recommendation algorithms, match scoring, or ranking beyond `updatedAt DESC`
@@ -89,6 +89,6 @@ If a user request implies any of the above, **stop and confirm scope** before bu
 
 ## Contact model
 
-The platform never relays messages. Contact between users is **always via `mailto:`** with the creator's or musician's listed email. Gig detail pre-fills the subject as `Motivo: <title>` (URL-encoded). Musician profile uses a plain `mailto:` button with no subject.
+Legacy public contact remains direct `mailto:` with the creator's or musician's listed email. Gig detail pre-fills the subject as `Motivo: <title>` (URL-encoded). Musician profile uses a plain `mailto:` button with no subject.
 
-This is a deliberate product choice — do not propose adding an in-app inbox.
+Messaging is now in scope as a signed-in-only foundation: users send connection requests, recipients accept before a direct conversation begins, blocks prevent requests/messages, and unread state is tracked per participant. Do not add feeds, recommendations, reactions, attachments, realtime, or notification systems unless explicitly scoped.
