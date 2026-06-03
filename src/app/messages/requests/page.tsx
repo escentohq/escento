@@ -32,6 +32,10 @@ function statusTone(status: string) {
   return "gold";
 }
 
+function roleLabel(role?: string | null) {
+  return role ? role.toLowerCase() : "user";
+}
+
 export default async function MessageRequestsPage() {
   const session = await requireUser("/messages/requests");
   const [incoming, outgoing] = await Promise.all([
@@ -84,7 +88,7 @@ export default async function MessageRequestsPage() {
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="break-words text-lg font-black text-[#0F172A]">{name}</h3>
-                          <Chip tone="neutral">User</Chip>
+                          <Chip tone="neutral">{roleLabel(user?.role)}</Chip>
                         </div>
                         {request.introMessage ? (
                           <p className="mt-3 whitespace-pre-wrap text-sm font-medium leading-relaxed text-[#475569]">

@@ -41,6 +41,12 @@ export default async function MessagesPage() {
       body="Your accepted conversations. Requests live one door over."
       action={<PrimaryCta href="/messages/requests" icon={MessageCircle}>View Requests</PrimaryCta>}
     >
+      <div className="mb-6 flex flex-wrap gap-3">
+        <Link href="/messages/blocked" className="btn-secondary min-h-11 px-5 text-xs">
+          Blocked Users
+        </Link>
+      </div>
+
       {conversations.length === 0 ? (
         <EmptyState
           eyebrow="Quiet room"

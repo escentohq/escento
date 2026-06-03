@@ -1,7 +1,11 @@
 import { randomUUID } from "crypto";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { queueMessageNotification } from "@/lib/messaging-notifications";
+import {
+  queueAcceptedConnectionRequestNotification,
+  queueConnectionRequestNotification,
+  queueMessageNotification,
+} from "@/lib/messaging-notifications";
 import type {
   BlockedUser,
   ConnectionRequest,
@@ -9,6 +13,7 @@ import type {
   ConversationParticipant,
   ConversationSummary,
   MessageRecord,
+  MessagingBlockStatus,
   MessagingRelationship,
   MessagingUserSummary,
 } from "./types";
@@ -65,6 +70,7 @@ function toUserSummary(raw: any): MessagingUserSummary | undefined {
     email: raw.email ?? null,
     name: raw.name ?? null,
     image: raw.image ?? null,
+    role: raw.role ?? null,
   };
 }
 
@@ -142,6 +148,40 @@ async function hasBlockBetween(userA: string, userB: string) {
   return Boolean(data);
 }
 
+export async function getMessagingBlockStatusForUser(
+  userId: string,
+  otherUserId: string,
+): Promise<MessagingBlockStatus> {
+  assertValidId(userId, "user id");
+  assertValidId(otherUserId, "other user id");
+
+  if (userId === otherUserId) {
+    return { blockedByMe: false, blockedMe: false };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const [{ data: ownBlock, error: ownBlockError }, { data: blockedBetween, error: blockedError }] = await Promise.all([
+    supabase
+    .from("user_blocks")
+      .select("id")
+      .eq("blocker_id", userId)
+      .eq("blocked_id", otherUserId)
+      .maybeSingle(),
+    supabase.rpc("messaging_is_blocked_between", {
+      p_user_a: userId,
+      p_user_b: otherUserId,
+    }),
+  ]);
+
+  if (ownBlockError) throw ownBlockError;
+  if (blockedError) throw blockedError;
+
+  return {
+    blockedByMe: Boolean(ownBlock),
+    blockedMe: Boolean(blockedBetween) && !ownBlock,
+  };
+}
+
 async function hasActiveDirectConversation(userA: string, userB: string) {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.rpc("messaging_direct_conversation_exists", {
@@ -173,7 +213,7 @@ async function getConversationParticipantRows(conversationIds: string[]) {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("conversation_participants")
-    .select("*, user:app_user!conversation_participants_user_id_fkey(id, email, name, image)")
+    .select("*, user:app_user!conversation_participants_user_id_fkey(id, email, name, image, role)")
     .in("conversation_id", conversationIds)
     .is("deleted_at", null);
 
@@ -187,7 +227,7 @@ async function getMessageRows(conversationIds: string[], ascending = false) {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("messages")
-    .select("*, sender:app_user!messages_sender_id_fkey(id, email, name, image)")
+    .select("*, sender:app_user!messages_sender_id_fkey(id, email, name, image, role)")
     .in("conversation_id", conversationIds)
     .is("deleted_at", null)
     .order("created_at", { ascending });
@@ -310,7 +350,7 @@ export async function createConnectionRequest(
       status: "pending",
     })
     .select(
-      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image)",
+      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image, role), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image, role)",
     )
     .single();
 
@@ -321,7 +361,9 @@ export async function createConnectionRequest(
     throw error;
   }
 
-  return toConnectionRequest(data);
+  const request = toConnectionRequest(data);
+  await queueConnectionRequestNotification(request);
+  return request;
 }
 
 export async function listIncomingConnectionRequests(userId: string): Promise<ConnectionRequest[]> {
@@ -330,7 +372,7 @@ export async function listIncomingConnectionRequests(userId: string): Promise<Co
   const { data, error } = await supabase
     .from("conversation_requests")
     .select(
-      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image)",
+      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image, role), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image, role)",
     )
     .eq("recipient_id", userId)
     .order("created_at", { ascending: false });
@@ -345,7 +387,7 @@ export async function listOutgoingConnectionRequests(userId: string): Promise<Co
   const { data, error } = await supabase
     .from("conversation_requests")
     .select(
-      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image)",
+      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image, role), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image, role)",
     )
     .eq("requester_id", userId)
     .order("created_at", { ascending: false });
@@ -362,6 +404,18 @@ export async function acceptConnectionRequestForUser(
   assertValidId(requestId, "request id");
 
   const supabase = await createSupabaseServerClient();
+  const { data: requestData, error: requestError } = await supabase
+    .from("conversation_requests")
+    .select(
+      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image, role), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image, role)",
+    )
+    .eq("id", requestId)
+    .eq("recipient_id", userId)
+    .eq("status", "pending")
+    .single();
+
+  if (requestError && requestError.code !== "PGRST116") throw requestError;
+
   const { data: conversationId, error } = await supabase.rpc(
     "messaging_accept_connection_request",
     { p_request_id: requestId },
@@ -375,6 +429,10 @@ export async function acceptConnectionRequestForUser(
   const conversation = await getConversationForUser(userId, String(conversationId));
   if (!conversation) {
     throw new MessagingError("database_error", "Conversation could not be loaded.");
+  }
+
+  if (requestData) {
+    await queueAcceptedConnectionRequestNotification(toConnectionRequest(requestData));
   }
 
   return conversation;
@@ -508,7 +566,7 @@ export async function createMessageForUser(
       sender_id: userId,
       body: normalizedBody,
     })
-    .select("*, sender:app_user!messages_sender_id_fkey(id, email, name, image)")
+    .select("*, sender:app_user!messages_sender_id_fkey(id, email, name, image, role)")
     .single();
 
   if (error) throw error;
@@ -521,7 +579,11 @@ export async function createMessageForUser(
   if (conversationError) throw conversationError;
 
   const message = toMessage(data);
-  await queueMessageNotification(message);
+  await queueMessageNotification({
+    message,
+    sender: message.sender,
+    recipient: conversation.otherParticipant?.user,
+  });
   return message;
 }
 
@@ -609,7 +671,7 @@ export async function listBlockedUsersForUser(userId: string): Promise<BlockedUs
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("user_blocks")
-    .select("*, blocked_user:app_user!user_blocks_blocked_id_fkey(id, email, name, image)")
+    .select("*, blocked_user:app_user!user_blocks_blocked_id_fkey(id, email, name, image, role)")
     .eq("blocker_id", userId)
     .order("created_at", { ascending: false });
 
@@ -652,7 +714,7 @@ export async function getMessagingRelationshipForUser(
   const { data, error } = await supabase
     .from("conversation_requests")
     .select(
-      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image)",
+      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image, role), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image, role)",
     )
     .eq("status", "pending")
     .or(
@@ -663,7 +725,11 @@ export async function getMessagingRelationshipForUser(
 
   if (error) throw error;
   if (data?.[0]) {
-    return { status: "pending", request: toConnectionRequest(data[0]) };
+    const request = toConnectionRequest(data[0]);
+    return {
+      status: request.requesterId === userId ? "pending_outgoing" : "pending_incoming",
+      request,
+    };
   }
 
   return { status: "none" };

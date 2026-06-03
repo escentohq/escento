@@ -4,10 +4,14 @@ import { notFound } from "next/navigation";
 import { BackLink } from "@/components/ui/back-link";
 import { Chip } from "@/components/ui/chip";
 import { SectionCard } from "@/components/ui/section-card";
+import { BlockUserButton } from "@/components/messaging/block-user-button";
+import { ConnectButton } from "@/components/messaging/connect-button";
 import { getProfile } from "@/lib/api/profiles";
 import { getCurrentSession } from "@/lib/auth-guards";
-import { getMessagingRelationshipForUser } from "@/lib/api/messaging";
-import { ConnectButton } from "./_connect-button";
+import {
+  getMessagingBlockStatusForUser,
+  getMessagingRelationshipForUser,
+} from "@/lib/api/messaging";
 
 function isValidId(id: string) {
   return id.length > 0 && id.length < 64;
@@ -35,9 +39,12 @@ export default async function MusicianPublicProfilePage({
   ]);
   if (!profile) notFound();
 
-  const relationship = session?.user?.id
-    ? await getMessagingRelationshipForUser(session.user.id, profile.userId)
-    : null;
+  const [relationship, blockStatus] = session?.user?.id
+    ? await Promise.all([
+        getMessagingRelationshipForUser(session.user.id, profile.userId),
+        getMessagingBlockStatusForUser(session.user.id, profile.userId),
+      ])
+    : [null, null];
 
   const links: Array<{ label: string; url: string }> = [
     ...(profile.websiteUrl ? [{ label: "Website", url: profile.websiteUrl }] : []),
@@ -227,9 +234,17 @@ export default async function MusicianPublicProfilePage({
                 <ConnectButton
                   recipientId={profile.userId}
                   relationship={relationship}
+                  blockStatus={blockStatus}
                   signedIn={Boolean(session?.user?.id)}
                   callbackUrl={`/musicians/${profile.id}`}
                 />
+
+                {session?.user?.id && relationship?.status !== "self" ? (
+                  <BlockUserButton
+                    userId={profile.userId}
+                    initiallyBlocked={Boolean(blockStatus?.blockedByMe)}
+                  />
+                ) : null}
               </div>
             </div>
 

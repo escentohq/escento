@@ -3,8 +3,14 @@ import { notFound } from "next/navigation";
 
 import { BackLink } from "@/components/ui/back-link";
 import { Chip } from "@/components/ui/chip";
-import { SectionCard } from "@/components/ui/section-card";
+import { BlockUserButton } from "@/components/messaging/block-user-button";
+import { ConnectButton } from "@/components/messaging/connect-button";
 import { getGig } from "@/lib/api/gigs";
+import { getCurrentSession } from "@/lib/auth-guards";
+import {
+  getMessagingBlockStatusForUser,
+  getMessagingRelationshipForUser,
+} from "@/lib/api/messaging";
 import { compensationLabel, projectTypeLabel } from "@/lib/display";
 
 function isValidId(id: string) {
@@ -19,10 +25,18 @@ export default async function GigPage({
   const { id } = await params;
   if (!isValidId(id)) notFound();
 
-  const gig = await getGig(id);
+  const [gig, session] = await Promise.all([
+    getGig(id),
+    getCurrentSession(),
+  ]);
   if (!gig) notFound();
 
-  const links: Array<{ label: string; url: string }> = [];
+  const [relationship, blockStatus] = session?.user?.id
+    ? await Promise.all([
+        getMessagingRelationshipForUser(session.user.id, gig.creatorId),
+        getMessagingBlockStatusForUser(session.user.id, gig.creatorId),
+      ])
+    : [null, null];
 
   return (
     <div className="bg-[#FAFAFA] px-4 py-12 sm:px-6 md:py-16 lg:py-24">
@@ -138,6 +152,23 @@ export default async function GigPage({
                     <Chip tone="blue">Remote-friendly</Chip>
                   </div>
                 )}
+
+                <ConnectButton
+                  recipientId={gig.creatorId}
+                  relationship={relationship}
+                  blockStatus={blockStatus}
+                  signedIn={Boolean(session?.user?.id)}
+                  callbackUrl={`/gigs/${gig.id}`}
+                  connectLabel="Contact Creator"
+                  introMessage={`Reached out about: ${gig.title} (${gig.id})`}
+                />
+
+                {session?.user?.id && relationship?.status !== "self" ? (
+                  <BlockUserButton
+                    userId={gig.creatorId}
+                    initiallyBlocked={Boolean(blockStatus?.blockedByMe)}
+                  />
+                ) : null}
               </div>
             </div>
           </aside>

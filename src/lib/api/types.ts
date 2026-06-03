@@ -126,6 +126,7 @@ export interface MessagingUserSummary {
   email: string | null;
   name: string | null;
   image: string | null;
+  role: "MUSICIAN" | "CREATOR" | null;
 }
 
 export interface ConnectionRequest {
@@ -192,5 +193,11 @@ export interface BlockedUser {
 export type MessagingRelationship =
   | { status: "self" }
   | { status: "none" }
-  | { status: "pending"; request: ConnectionRequest }
+  | { status: "pending_outgoing"; request: ConnectionRequest }
+  | { status: "pending_incoming"; request: ConnectionRequest }
   | { status: "connected"; conversationId: string };
+
+export interface MessagingBlockStatus {
+  blockedByMe: boolean;
+  blockedMe: boolean;
+}
