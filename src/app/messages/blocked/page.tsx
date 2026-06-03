@@ -6,6 +6,7 @@ import { PageShell } from "@/components/ui/page-shell";
 import { Reveal } from "@/components/ui/reveal";
 import { requireUser } from "@/lib/auth-guards";
 import { listBlockedUsersForUser } from "@/lib/api/messaging";
+import type { BlockedUser } from "@/lib/api/types";
 
 function displayName(name?: string | null, email?: string | null) {
   return name || email || "Motivo user";
@@ -13,7 +14,15 @@ function displayName(name?: string | null, email?: string | null) {
 
 export default async function BlockedUsersPage() {
   const session = await requireUser("/messages/blocked");
-  const blockedUsers = await listBlockedUsersForUser(session.user.id);
+  let blockedUsers: BlockedUser[] = [];
+  let messagingUnavailable = false;
+
+  try {
+    blockedUsers = await listBlockedUsersForUser(session.user.id);
+  } catch (error) {
+    messagingUnavailable = true;
+    console.error("[blocked-users] list failed:", error);
+  }
 
   return (
     <PageShell
@@ -22,7 +31,13 @@ export default async function BlockedUsersPage() {
       body="Manage people who cannot send you requests or messages."
       size="medium"
     >
-      {blockedUsers.length === 0 ? (
+      {messagingUnavailable ? (
+        <EmptyState
+          eyebrow="Setup"
+          title="Blocking is not ready yet."
+          body="Apply the messaging database migration, then refresh this page."
+        />
+      ) : blockedUsers.length === 0 ? (
         <EmptyState
           eyebrow="Clear"
           title="No blocked users."

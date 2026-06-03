@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { Reveal } from "@/components/ui/reveal";
+import type { ConversationSummary } from "@/lib/api/types";
 
 function displayName(name?: string | null, email?: string | null) {
   return name || email || "Motivo user";
@@ -32,7 +33,15 @@ function formatTime(value: string | null) {
 
 export default async function MessagesPage() {
   const session = await requireUser("/messages");
-  const conversations = await listConversationsForUser(session.user.id);
+  let conversations: ConversationSummary[] = [];
+  let messagingUnavailable = false;
+
+  try {
+    conversations = await listConversationsForUser(session.user.id);
+  } catch (error) {
+    messagingUnavailable = true;
+    console.error("[messages] conversation list failed:", error);
+  }
 
   return (
     <PageShell
@@ -47,7 +56,13 @@ export default async function MessagesPage() {
         </Link>
       </div>
 
-      {conversations.length === 0 ? (
+      {messagingUnavailable ? (
+        <EmptyState
+          eyebrow="Setup"
+          title="Messaging is not ready yet."
+          body="Apply the messaging database migration, then refresh this page."
+        />
+      ) : conversations.length === 0 ? (
         <EmptyState
           eyebrow="Quiet room"
           title="No conversations yet."

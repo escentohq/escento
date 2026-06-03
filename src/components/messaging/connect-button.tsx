@@ -19,6 +19,7 @@ export function ConnectButton({
   callbackUrl,
   introMessage,
   connectLabel = "Connect",
+  disabledReason,
 }: {
   recipientId: string;
   relationship: MessagingRelationship | null;
@@ -27,6 +28,7 @@ export function ConnectButton({
   callbackUrl: string;
   introMessage?: string | null;
   connectLabel?: string;
+  disabledReason?: string | null;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -46,6 +48,14 @@ export function ConnectButton({
   }
 
   if (state?.status === "self") return null;
+
+  if (disabledReason) {
+    return (
+      <div className="mt-5 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-5 py-3.5 text-sm font-bold text-[#64748B]">
+        {disabledReason}
+      </div>
+    );
+  }
 
   if (blockStatus?.blockedByMe) {
     return (

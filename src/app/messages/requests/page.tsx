@@ -13,6 +13,7 @@ import {
   CancelRequestButton,
   IncomingRequestActions,
 } from "./_request-actions";
+import type { ConnectionRequest } from "@/lib/api/types";
 
 function displayName(name?: string | null, email?: string | null) {
   return name || email || "Motivo user";
@@ -38,10 +39,19 @@ function roleLabel(role?: string | null) {
 
 export default async function MessageRequestsPage() {
   const session = await requireUser("/messages/requests");
-  const [incoming, outgoing] = await Promise.all([
-    listIncomingConnectionRequests(session.user.id),
-    listOutgoingConnectionRequests(session.user.id),
-  ]);
+  let incoming: ConnectionRequest[] = [];
+  let outgoing: ConnectionRequest[] = [];
+  let messagingUnavailable = false;
+
+  try {
+    [incoming, outgoing] = await Promise.all([
+      listIncomingConnectionRequests(session.user.id),
+      listOutgoingConnectionRequests(session.user.id),
+    ]);
+  } catch (error) {
+    messagingUnavailable = true;
+    console.error("[message-requests] request list failed:", error);
+  }
 
   const pendingIncoming = incoming.filter((request) => request.status === "pending");
 
@@ -51,6 +61,13 @@ export default async function MessageRequestsPage() {
       title="Connection Requests"
       body="Accept a request to open a conversation. Pending outgoing requests stay here until they move."
     >
+      {messagingUnavailable ? (
+        <EmptyState
+          eyebrow="Setup"
+          title="Requests are not ready yet."
+          body="Apply the messaging database migration, then refresh this page."
+        />
+      ) : (
       <div className="grid gap-8 lg:grid-cols-2">
         <section className="space-y-4">
           <div>
@@ -154,6 +171,7 @@ export default async function MessageRequestsPage() {
           )}
         </section>
       </div>
+      )}
     </PageShell>
   );
 }

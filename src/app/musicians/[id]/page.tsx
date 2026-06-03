@@ -12,6 +12,10 @@ import {
   getMessagingBlockStatusForUser,
   getMessagingRelationshipForUser,
 } from "@/lib/api/messaging";
+import type {
+  MessagingBlockStatus,
+  MessagingRelationship,
+} from "@/lib/api/types";
 
 function isValidId(id: string) {
   return id.length > 0 && id.length < 64;
@@ -39,12 +43,21 @@ export default async function MusicianPublicProfilePage({
   ]);
   if (!profile) notFound();
 
-  const [relationship, blockStatus] = session?.user?.id
-    ? await Promise.all([
+  let relationship: MessagingRelationship | null = null;
+  let blockStatus: MessagingBlockStatus | null = null;
+  let messagingUnavailable = false;
+
+  if (session?.user?.id) {
+    try {
+      [relationship, blockStatus] = await Promise.all([
         getMessagingRelationshipForUser(session.user.id, profile.userId),
         getMessagingBlockStatusForUser(session.user.id, profile.userId),
-      ])
-    : [null, null];
+      ]);
+    } catch (error) {
+      messagingUnavailable = true;
+      console.error("[musician-profile] messaging status failed:", error);
+    }
+  }
 
   const links: Array<{ label: string; url: string }> = [
     ...(profile.websiteUrl ? [{ label: "Website", url: profile.websiteUrl }] : []),
@@ -237,9 +250,10 @@ export default async function MusicianPublicProfilePage({
                   blockStatus={blockStatus}
                   signedIn={Boolean(session?.user?.id)}
                   callbackUrl={`/musicians/${profile.id}`}
+                  disabledReason={messagingUnavailable ? "Messaging is unavailable right now." : null}
                 />
 
-                {session?.user?.id && relationship?.status !== "self" ? (
+                {session?.user?.id && relationship?.status !== "self" && !messagingUnavailable ? (
                   <BlockUserButton
                     userId={profile.userId}
                     initiallyBlocked={Boolean(blockStatus?.blockedByMe)}

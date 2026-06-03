@@ -11,6 +11,10 @@ import {
   getMessagingBlockStatusForUser,
   getMessagingRelationshipForUser,
 } from "@/lib/api/messaging";
+import type {
+  MessagingBlockStatus,
+  MessagingRelationship,
+} from "@/lib/api/types";
 import { compensationLabel, projectTypeLabel } from "@/lib/display";
 
 function isValidId(id: string) {
@@ -31,12 +35,21 @@ export default async function GigPage({
   ]);
   if (!gig) notFound();
 
-  const [relationship, blockStatus] = session?.user?.id
-    ? await Promise.all([
+  let relationship: MessagingRelationship | null = null;
+  let blockStatus: MessagingBlockStatus | null = null;
+  let messagingUnavailable = false;
+
+  if (session?.user?.id) {
+    try {
+      [relationship, blockStatus] = await Promise.all([
         getMessagingRelationshipForUser(session.user.id, gig.creatorId),
         getMessagingBlockStatusForUser(session.user.id, gig.creatorId),
-      ])
-    : [null, null];
+      ]);
+    } catch (error) {
+      messagingUnavailable = true;
+      console.error("[gig-detail] messaging status failed:", error);
+    }
+  }
 
   return (
     <div className="bg-[#FAFAFA] px-4 py-12 sm:px-6 md:py-16 lg:py-24">
@@ -161,9 +174,10 @@ export default async function GigPage({
                   callbackUrl={`/gigs/${gig.id}`}
                   connectLabel="Contact Creator"
                   introMessage={`Reached out about: ${gig.title} (${gig.id})`}
+                  disabledReason={messagingUnavailable ? "Messaging is unavailable right now." : null}
                 />
 
-                {session?.user?.id && relationship?.status !== "self" ? (
+                {session?.user?.id && relationship?.status !== "self" && !messagingUnavailable ? (
                   <BlockUserButton
                     userId={gig.creatorId}
                     initiallyBlocked={Boolean(blockStatus?.blockedByMe)}
