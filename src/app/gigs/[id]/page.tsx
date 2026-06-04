@@ -173,7 +173,7 @@ export default async function GigPage({
                   signedIn={Boolean(session?.user?.id)}
                   callbackUrl={`/gigs/${gig.id}`}
                   connectLabel="Contact Creator"
-                  introMessage={`Reached out about: ${gig.title} (${gig.id})`}
+                  introMessage={`Reached out about your gig: ${gig.title}`}
                   disabledReason={messagingUnavailable ? "Messaging is unavailable right now." : null}
                 />
 

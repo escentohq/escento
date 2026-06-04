@@ -126,6 +126,90 @@ function toBlockedUser(raw: any): BlockedUser {
   };
 }
 
+async function getUserSummaries(userIds: string[]) {
+  const uniqueIds = Array.from(new Set(userIds.filter(Boolean)));
+  if (!uniqueIds.length) return new Map<string, MessagingUserSummary>();
+
+  const supabase = createSupabaseAdminClient();
+  const [{ data: users, error: usersError }, { data: profiles, error: profilesError }] =
+    await Promise.all([
+      supabase
+        .from("app_user")
+        .select("id, email, name, image, role")
+        .in("id", uniqueIds),
+      supabase
+        .from("musician_profile")
+        .select("user_id, display_name")
+        .in("user_id", uniqueIds),
+    ]);
+
+  if (usersError) throw usersError;
+  if (profilesError) throw profilesError;
+
+  const profileNames = new Map(
+    (profiles ?? []).map((profile) => [profile.user_id, profile.display_name ?? null]),
+  );
+
+  return new Map(
+    (users ?? []).map((user) => {
+      const profileName = profileNames.get(user.id) ?? null;
+      const name = user.role === "MUSICIAN"
+        ? profileName || user.name || null
+        : user.name || profileName || null;
+
+      return [
+        user.id,
+        {
+          id: user.id,
+          email: user.email ?? null,
+          name,
+          image: user.image ?? null,
+          role: user.role ?? null,
+        },
+      ];
+    }),
+  );
+}
+
+async function enrichConnectionRequests(requests: ConnectionRequest[]) {
+  const summaries = await getUserSummaries(
+    requests.flatMap((request) => [request.requesterId, request.recipientId]),
+  );
+
+  return requests.map((request) => ({
+    ...request,
+    requester: summaries.get(request.requesterId) ?? request.requester,
+    recipient: summaries.get(request.recipientId) ?? request.recipient,
+  }));
+}
+
+async function enrichParticipants(participants: ConversationParticipant[]) {
+  const summaries = await getUserSummaries(participants.map((participant) => participant.userId));
+
+  return participants.map((participant) => ({
+    ...participant,
+    user: summaries.get(participant.userId) ?? participant.user,
+  }));
+}
+
+async function enrichMessages(messages: MessageRecord[]) {
+  const summaries = await getUserSummaries(messages.map((message) => message.senderId));
+
+  return messages.map((message) => ({
+    ...message,
+    sender: summaries.get(message.senderId) ?? message.sender,
+  }));
+}
+
+async function enrichBlockedUsers(blockedUsers: BlockedUser[]) {
+  const summaries = await getUserSummaries(blockedUsers.map((block) => block.blockedId));
+
+  return blockedUsers.map((block) => ({
+    ...block,
+    blockedUser: summaries.get(block.blockedId) ?? block.blockedUser,
+  }));
+}
+
 async function appUserExists(userId: string) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
@@ -219,7 +303,7 @@ async function getConversationParticipantRows(conversationIds: string[]) {
     .is("deleted_at", null);
 
   if (error) throw error;
-  return (data ?? []).map(toParticipant);
+  return enrichParticipants((data ?? []).map(toParticipant));
 }
 
 async function getMessageRows(conversationIds: string[], ascending = false) {
@@ -234,7 +318,7 @@ async function getMessageRows(conversationIds: string[], ascending = false) {
     .order("created_at", { ascending });
 
   if (error) throw error;
-  return (data ?? []).map(toMessage);
+  return enrichMessages((data ?? []).map(toMessage));
 }
 
 function getUnreadCount(
@@ -362,7 +446,7 @@ export async function createConnectionRequest(
     throw error;
   }
 
-  const request = toConnectionRequest(data);
+  const [request] = await enrichConnectionRequests([toConnectionRequest(data)]);
   await queueConnectionRequestNotification(request);
   return request;
 }
@@ -379,7 +463,7 @@ export async function listIncomingConnectionRequests(userId: string): Promise<Co
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return (data ?? []).map(toConnectionRequest);
+  return enrichConnectionRequests((data ?? []).map(toConnectionRequest));
 }
 
 export async function listOutgoingConnectionRequests(userId: string): Promise<ConnectionRequest[]> {
@@ -394,7 +478,7 @@ export async function listOutgoingConnectionRequests(userId: string): Promise<Co
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return (data ?? []).map(toConnectionRequest);
+  return enrichConnectionRequests((data ?? []).map(toConnectionRequest));
 }
 
 export async function acceptConnectionRequestForUser(
@@ -433,7 +517,8 @@ export async function acceptConnectionRequestForUser(
   }
 
   if (requestData) {
-    await queueAcceptedConnectionRequestNotification(toConnectionRequest(requestData));
+    const [request] = await enrichConnectionRequests([toConnectionRequest(requestData)]);
+    await queueAcceptedConnectionRequestNotification(request);
   }
 
   return conversation;
@@ -677,7 +762,7 @@ export async function listBlockedUsersForUser(userId: string): Promise<BlockedUs
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return (data ?? []).map(toBlockedUser);
+  return enrichBlockedUsers((data ?? []).map(toBlockedUser));
 }
 
 export async function getUnreadMessageCountForUser(userId: string): Promise<number> {
@@ -726,7 +811,7 @@ export async function getMessagingRelationshipForUser(
 
   if (error) throw error;
   if (data?.[0]) {
-    const request = toConnectionRequest(data[0]);
+    const [request] = await enrichConnectionRequests([toConnectionRequest(data[0])]);
     return {
       status: request.requesterId === userId ? "pending_outgoing" : "pending_incoming",
       request,
