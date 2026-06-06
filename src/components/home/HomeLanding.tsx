@@ -30,6 +30,9 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
 };
 
+// Set this to true to restore the original landing page marketplace proof sections.
+const SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS = false;
+
 // ── Data ────────────────────────────────────────────────────────────────────
 
 const SCHOOLS = [
@@ -235,21 +238,23 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
   useEffect(() => {
     if (prefersReducedMotion) return;
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".gsap-stat",
-        { opacity: 0, y: 30, scale: 0.94 },
-        {
-          opacity: 1, y: 0, scale: 1,
-          stagger: 0.1,
-          duration: 0.8,
-          ease: "expo.out",
-          scrollTrigger: {
-            trigger: ".gsap-stats-section",
-            start: "top 75%",
-            toggleActions: "play none none reverse",
-          },
-        }
-      );
+      if (SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS) {
+        gsap.fromTo(
+          ".gsap-stat",
+          { opacity: 0, y: 30, scale: 0.94 },
+          {
+            opacity: 1, y: 0, scale: 1,
+            stagger: 0.1,
+            duration: 0.8,
+            ease: "expo.out",
+            scrollTrigger: {
+              trigger: ".gsap-stats-section",
+              start: "top 75%",
+              toggleActions: "play none none reverse",
+            },
+          }
+        );
+      }
       gsap.fromTo(
         ".gsap-step",
         { opacity: 0, x: -24 },
@@ -401,7 +406,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
       <TheCallsheet />
 
       {/* ── Trust marquee ────────────────────────────────────────────────── */}
-      <TrustMarquee />
+      {SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS ? <TrustMarquee /> : null}
 
       {/* ── Value props — dark band ──────────────────────────────────────── */}
       <section className="relative z-20 border-t border-white/5 bg-[#0F172A] px-6 py-24">
@@ -435,6 +440,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
       </section>
 
       {/* ── Stats ────────────────────────────────────────────────────────── */}
+      {SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS ? (
       <section className="gsap-stats-section relative z-20 border-t border-[#F1F5F9] bg-white px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-4">
@@ -454,6 +460,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
           </div>
         </div>
       </section>
+      ) : null}
 
       {/* ── How it works ─────────────────────────────────────────────────── */}
       <section className="gsap-steps-section relative z-20 border-t border-[#F1F5F9] bg-[#F8FAFC] px-6 py-28">
@@ -509,6 +516,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
       </section>
 
       {/* ── Featured talent ──────────────────────────────────────────────── */}
+      {SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS ? (
       <section className="relative z-20 border-t border-[#F1F5F9] bg-white px-6 py-28">
         <div className="mx-auto max-w-6xl">
           <motion.div
@@ -641,8 +649,10 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
           </motion.div>
         </div>
       </section>
+      ) : null}
 
       {/* ── Testimonials ─────────────────────────────────────────────────── */}
+      {SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS ? (
       <section className="relative z-20 border-t border-[#F1F5F9] bg-[#F8FAFC] px-6 py-28">
         <div className="mx-auto max-w-6xl">
           <motion.div
@@ -727,6 +737,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
           </motion.div>
         </div>
       </section>
+      ) : null}
 
       {/* ── Final CTA — dark full-bleed ───────────────────────────────────── */}
       <section className="relative z-20 overflow-hidden bg-[#0F172A] px-6 py-36 text-center">
@@ -754,8 +765,9 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
               </span>
             </h2>
             <p className="mb-12 text-lg font-medium leading-relaxed text-[#94A3B8] md:text-xl">
-              Hundreds of student musicians and creators.
-              One direct line between them. No middleman.
+              {SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS
+                ? "Hundreds of student musicians and creators. One direct line between them. No middleman."
+                : "Browse musicians, post gigs, and reach out directly when you find the right fit."}
             </p>
 
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
