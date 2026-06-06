@@ -35,11 +35,12 @@ export default async function GigPage({
   ]);
   if (!gig) notFound();
 
+  const isOwnGig = session?.user?.id === gig.creatorId;
   let relationship: MessagingRelationship | null = null;
   let blockStatus: MessagingBlockStatus | null = null;
   let messagingUnavailable = false;
 
-  if (session?.user?.id) {
+  if (session?.user?.id && !isOwnGig) {
     try {
       [relationship, blockStatus] = await Promise.all([
         getMessagingRelationshipForUser(session.user.id, gig.creatorId),
@@ -148,9 +149,11 @@ export default async function GigPage({
                   Details
                 </span>
                 <h2 className="mt-3 text-2xl font-black tracking-tight">About</h2>
-                <p className="mt-3 text-sm font-medium leading-relaxed text-[#94A3B8]">
-                  Interested in this project? Reach out to the creator directly.
-                </p>
+                {!isOwnGig ? (
+                  <p className="mt-3 text-sm font-medium leading-relaxed text-[#94A3B8]">
+                    Interested in this project? Reach out to the creator directly.
+                  </p>
+                ) : null}
 
                 <div className="mt-6 rounded-2xl bg-[#1E293B] p-4">
                   <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748B]">
@@ -167,18 +170,20 @@ export default async function GigPage({
                   </div>
                 )}
 
-                <ConnectButton
-                  recipientId={gig.creatorId}
-                  relationship={relationship}
-                  blockStatus={blockStatus}
-                  signedIn={Boolean(session?.user?.id)}
-                  callbackUrl={`/gigs/${gig.id}`}
-                  connectLabel="Contact Creator"
-                  introMessage={`Reached out about your gig: ${gig.title}`}
-                  disabledReason={messagingUnavailable ? "Messaging is unavailable right now." : null}
-                />
+                {!isOwnGig ? (
+                  <ConnectButton
+                    recipientId={gig.creatorId}
+                    relationship={relationship}
+                    blockStatus={blockStatus}
+                    signedIn={Boolean(session?.user?.id)}
+                    callbackUrl={`/gigs/${gig.id}`}
+                    connectLabel="Contact Creator"
+                    introMessage={`Reached out about your gig: ${gig.title}`}
+                    disabledReason={messagingUnavailable ? "Messaging is unavailable right now." : null}
+                  />
+                ) : null}
 
-                {session?.user?.id && relationship?.status !== "self" && !messagingUnavailable ? (
+                {session?.user?.id && !isOwnGig && relationship?.status !== "self" && !messagingUnavailable ? (
                   <BlockUserButton
                     userId={gig.creatorId}
                     initiallyBlocked={Boolean(blockStatus?.blockedByMe)}

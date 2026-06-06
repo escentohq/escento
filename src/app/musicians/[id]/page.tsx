@@ -69,6 +69,7 @@ export default async function MusicianPublicProfilePage({
   ];
 
   const abbr = initials(profile.displayName);
+  const isOwnProfile = session?.user?.id === profile.userId;
 
   return (
     <div className="bg-[#FAFAFA] px-4 py-12 sm:px-6 md:py-16 lg:py-24">
@@ -77,7 +78,7 @@ export default async function MusicianPublicProfilePage({
           <BackLink href="/musicians">Back to musicians</BackLink>
         </div>
 
-        {session?.user?.id === profile.userId && !profile.isVerified && (
+        {isOwnProfile && !profile.isVerified && (
           <div className="mb-8 rounded-2xl border border-[#FF3366]/20 bg-[#FF3366]/5 px-5 py-5">
             <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
               Your profile is hidden
@@ -231,6 +232,7 @@ export default async function MusicianPublicProfilePage({
           {/* ── Sidebar ── */}
           <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
             {/* Contact card — dark */}
+            {!isOwnProfile ? (
             <div className="relative overflow-hidden rounded-3xl bg-[#0F172A] p-8 text-white shadow-sm">
               <div
                 className="pointer-events-none absolute right-0 top-0 h-32 w-32 rounded-bl-full bg-linear-to-br from-[#0055FF]/20 to-transparent"
@@ -262,6 +264,7 @@ export default async function MusicianPublicProfilePage({
                 ) : null}
               </div>
             </div>
+            ) : null}
 
             {/* Work prefs */}
             <SectionCard eyebrow="Soundcheck" title="Work preferences">
