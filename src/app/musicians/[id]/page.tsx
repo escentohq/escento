@@ -1,4 +1,5 @@
 import { ExternalLink, Mail, MapPin, Clock, Music } from "lucide-react";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { BackLink } from "@/components/ui/back-link";
@@ -76,6 +77,23 @@ export default async function MusicianPublicProfilePage({
           <BackLink href="/musicians">Back to musicians</BackLink>
         </div>
 
+        {session?.user?.id === profile.userId && !profile.isVerified && (
+          <div className="mb-8 rounded-2xl border border-[#FF3366]/20 bg-[#FF3366]/5 px-5 py-5">
+            <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
+              Your profile is hidden
+            </p>
+            <p className="mt-1 text-sm font-medium text-[#475569]">
+              Creators can&apos;t find you yet. Add a bio (50+ chars) and one portfolio link to go live.
+            </p>
+            <Link
+              href="/profile/edit"
+              className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#0F172A] px-5 py-2.5 text-sm font-bold text-white transition-all hover:scale-105 hover:shadow-[0_0_30px_-8px_#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+            >
+              Update profile →
+            </Link>
+          </div>
+        )}
+
         <div className="grid gap-8 lg:grid-cols-3">
           {/* ── Main column ── */}
           <div className="space-y-8 lg:col-span-2">
@@ -88,9 +106,16 @@ export default async function MusicianPublicProfilePage({
               />
 
               <div className="relative z-10">
-                <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
-                  On stage
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
+                    On stage
+                  </span>
+                  {profile.isVerified ? (
+                    <Chip tone="blue">Verified</Chip>
+                  ) : (
+                    <Chip>Unverified</Chip>
+                  )}
+                </div>
 
                 <div className="mt-5 flex flex-wrap items-center gap-5">
                   <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-to-br from-[#0055FF]/25 via-[#FF3366]/20 to-[#FFB000]/25 text-xl font-black text-[#0F172A] ring-4 ring-[#F1F5F9]">
