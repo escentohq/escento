@@ -52,6 +52,7 @@ export interface MusicianProfile {
   createdAt: string;
   updatedAt: string;
   isVerified: boolean;
+  noPortfolioAttested: boolean;
   instruments?: string[];
   genres?: string[];
 }
@@ -94,6 +95,7 @@ export interface CreateProfileInput {
   spotifyUrl: string | null;
   soundcloudUrl: string | null;
   websiteUrl: string | null;
+  noPortfolioAttested: boolean;
 }
 
 export interface UpdateProfileInput {
@@ -112,6 +114,7 @@ export interface UpdateProfileInput {
   spotifyUrl?: string | null;
   soundcloudUrl?: string | null;
   websiteUrl?: string | null;
+  noPortfolioAttested?: boolean;
 }
 
 export type ConnectionRequestStatus =

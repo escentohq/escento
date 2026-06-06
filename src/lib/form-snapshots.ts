@@ -19,6 +19,7 @@ export function profileValuesFromFormData(fd: FormData): FormValues {
     spotifyUrl: strOrEmpty(fd.get("spotifyUrl")),
     soundcloudUrl: strOrEmpty(fd.get("soundcloudUrl")),
     websiteUrl: strOrEmpty(fd.get("websiteUrl")),
+    noPortfolioAttested: fd.get("noPortfolioAttested") === "on",
   };
 }
 

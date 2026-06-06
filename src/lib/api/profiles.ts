@@ -11,13 +11,14 @@ function computeIsVerified(input: {
   spotifyUrl?: string | null;
   soundcloudUrl?: string | null;
   websiteUrl?: string | null;
+  noPortfolioAttested?: boolean;
 }): boolean {
   const hasBio = Boolean(input.bio && input.bio.trim().length >= 50);
   const hasLink = Boolean(
     input.instagramUrl || input.youtubeUrl || input.spotifyUrl ||
     input.soundcloudUrl || input.websiteUrl,
   );
-  return hasBio && hasLink;
+  return hasBio && (hasLink || Boolean(input.noPortfolioAttested));
 }
 
 function toProfile(raw: any): MusicianProfile {
@@ -43,6 +44,7 @@ function toProfile(raw: any): MusicianProfile {
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
     isVerified: raw.is_verified ?? false,
+    noPortfolioAttested: raw.no_portfolio_attested ?? false,
     instruments: raw.musician_instrument?.map((x: any) => x.instrument?.name).filter(Boolean) ?? [],
     genres: raw.musician_genre?.map((x: any) => x.genre?.name).filter(Boolean) ?? [],
   };
@@ -136,6 +138,7 @@ export async function createProfile(
       spotify_url: input.spotifyUrl,
       soundcloud_url: input.soundcloudUrl,
       website_url: input.websiteUrl,
+      no_portfolio_attested: input.noPortfolioAttested ?? false,
       is_verified: computeIsVerified(input),
     })
     .select()
@@ -180,6 +183,7 @@ export async function createProfile(
     createdAt: profile.created_at,
     updatedAt: profile.updated_at,
     isVerified: profile.is_verified ?? false,
+    noPortfolioAttested: profile.no_portfolio_attested ?? false,
     instruments: instrumentNames,
     genres: genreNames,
   };
@@ -210,6 +214,7 @@ export async function updateProfile(
   if (input.spotifyUrl !== undefined) updateData.spotify_url = input.spotifyUrl;
   if (input.soundcloudUrl !== undefined) updateData.soundcloud_url = input.soundcloudUrl;
   if (input.websiteUrl !== undefined) updateData.website_url = input.websiteUrl;
+  if (input.noPortfolioAttested !== undefined) updateData.no_portfolio_attested = input.noPortfolioAttested;
 
   updateData.is_verified = computeIsVerified({
     bio: input.bio,
@@ -218,6 +223,7 @@ export async function updateProfile(
     spotifyUrl: input.spotifyUrl,
     soundcloudUrl: input.soundcloudUrl,
     websiteUrl: input.websiteUrl,
+    noPortfolioAttested: input.noPortfolioAttested,
   });
 
   if (instrumentNames || genreNames) {
