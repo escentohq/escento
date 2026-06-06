@@ -39,7 +39,6 @@ function validateProfile(fd: FormData) {
   const spotifyUrl = nonEmptyOrNull(fd.get("spotifyUrl"));
   const soundcloudUrl = nonEmptyOrNull(fd.get("soundcloudUrl"));
   const websiteUrl = nonEmptyOrNull(fd.get("websiteUrl"));
-  const noPortfolioAttested = fd.get("noPortfolioAttested") === "on";
 
   if (!displayName) fieldError(fieldErrors, "displayName", "Add the name creators should see.");
   if (displayName.length > 80) fieldError(fieldErrors, "displayName", "Keep the display name under 80 characters.");
@@ -82,7 +81,6 @@ function validateProfile(fd: FormData) {
       spotifyUrl,
       soundcloudUrl,
       websiteUrl,
-      noPortfolioAttested,
     },
   };
 }
@@ -125,7 +123,6 @@ export async function createMusicianProfileAction(
       spotifyUrl: data.spotifyUrl,
       soundcloudUrl: data.soundcloudUrl,
       websiteUrl: data.websiteUrl,
-      noPortfolioAttested: data.noPortfolioAttested,
     },
     data.instruments,
     data.genres,

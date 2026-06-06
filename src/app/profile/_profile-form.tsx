@@ -31,7 +31,6 @@ export type ProfileFormValues = {
   websiteUrl: string;
   instrumentsCsv: string;
   genresCsv: string;
-  noPortfolioAttested: boolean;
 };
 
 type Action = (state: ActionState, fd: FormData) => Promise<ActionState>;
@@ -55,7 +54,6 @@ function buildValues(initial: Partial<ProfileFormValues>): ProfileFormValues {
     websiteUrl: initial.websiteUrl ?? "",
     instrumentsCsv: initial.instrumentsCsv ?? "",
     genresCsv: initial.genresCsv ?? "",
-    noPortfolioAttested: initial.noPortfolioAttested ?? false,
   };
 }
 
@@ -129,7 +127,6 @@ export function ProfileForm({
         websiteUrl: stringValue(state.values, "websiteUrl", current.websiteUrl),
         instrumentsCsv: stringValue(state.values, "instrumentsCsv", current.instrumentsCsv),
         genresCsv: stringValue(state.values, "genresCsv", current.genresCsv),
-        noPortfolioAttested: boolValue(state.values, "noPortfolioAttested", current.noPortfolioAttested),
       }));
     }
   }, [state.values]);
@@ -348,27 +345,7 @@ export function ProfileForm({
             Links
           </legend>
 
-          <label
-            htmlFor="noPortfolioAttested"
-            className={`flex min-h-14 cursor-pointer items-center gap-3 rounded-2xl border px-4 text-sm font-bold transition-colors ${
-              values.noPortfolioAttested
-                ? "border-[#0055FF]/30 bg-[#0055FF]/5 text-[#0055FF]"
-                : "border-[#E2E8F0] bg-white text-[#0F172A]"
-            }`}
-          >
-            <input
-              id="noPortfolioAttested"
-              type="checkbox"
-              name="noPortfolioAttested"
-              checked={values.noPortfolioAttested}
-              onChange={(event) => setValues((current) => ({ ...current, noPortfolioAttested: event.target.checked }))}
-              className="h-4 w-4 accent-[#0055FF]"
-            />
-            I don&apos;t have online portfolio links yet
-          </label>
-
-          {!values.noPortfolioAttested && (
-            <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
               {(
                 [
                   ["youtubeUrl", "YouTube"],
@@ -409,8 +386,7 @@ export function ProfileForm({
                   />
                 </FormField>
               </div>
-            </div>
-          )}
+          </div>
         </fieldset>
 
         <fieldset className="space-y-5">

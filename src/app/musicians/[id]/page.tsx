@@ -1,5 +1,4 @@
 import { ExternalLink, MapPin, Clock, Music } from "lucide-react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { BackLink } from "@/components/ui/back-link";
@@ -77,23 +76,6 @@ export default async function MusicianPublicProfilePage({
         <div className="mb-8">
           <BackLink href="/musicians">Back to musicians</BackLink>
         </div>
-
-        {isOwnProfile && !profile.isVerified && (
-          <div className="mb-8 rounded-2xl border border-[#FF3366]/20 bg-[#FF3366]/5 px-5 py-5">
-            <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
-              Your profile is hidden
-            </p>
-            <p className="mt-1 text-sm font-medium text-[#475569]">
-              Creators can&apos;t find you yet. Add a bio (50+ chars) and one portfolio link to go live.
-            </p>
-            <Link
-              href="/profile/edit"
-              className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#0F172A] px-5 py-2.5 text-sm font-bold text-white transition-all hover:scale-105 hover:shadow-[0_0_30px_-8px_#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
-            >
-              Update profile →
-            </Link>
-          </div>
-        )}
 
         <div className="grid gap-8 lg:grid-cols-3">
           {/* ── Main column ── */}
