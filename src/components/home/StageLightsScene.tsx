@@ -142,7 +142,7 @@ function FloatingShapes() {
 
   return (
     <>
-      {/* Blue icosahedron — top left */}
+      {/* Blue icosahedron, top left */}
       <Float speed={1.8} rotationIntensity={0.3} floatIntensity={1.2}>
         <mesh ref={icoRef} position={[-6, 3, -8]}>
           <icosahedronGeometry args={[1.2, 1]} />
@@ -157,7 +157,7 @@ function FloatingShapes() {
         </mesh>
       </Float>
 
-      {/* Pink torus — right side */}
+      {/* Pink torus, right side */}
       <Float speed={2.2} rotationIntensity={0.5} floatIntensity={1.8}>
         <mesh ref={torusRef} position={[7, -2, -10]}>
           <torusGeometry args={[1.4, 0.35, 16, 48]} />
@@ -171,7 +171,7 @@ function FloatingShapes() {
         </mesh>
       </Float>
 
-      {/* Gold octahedron — bottom center */}
+      {/* Gold octahedron, bottom center */}
       <Float speed={1.5} rotationIntensity={0.4} floatIntensity={1.0}>
         <mesh ref={octaRef} position={[2, -5, -12]}>
           <octahedronGeometry args={[1.6, 0]} />

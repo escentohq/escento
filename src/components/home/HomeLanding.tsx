@@ -33,7 +33,7 @@ const fadeUp = {
 // Set this to true to restore the original landing page marketplace proof sections.
 const SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS = false;
 
-// ── Data ────────────────────────────────────────────────────────────────────
+// Data
 
 const SCHOOLS = [
   "UT Austin", "NYU", "USC Film", "Berklee", "UCLA", "Northwestern",
@@ -42,7 +42,7 @@ const SCHOOLS = [
 
 const ACCOLADES = [
   { accent: "#0055FF", text: "No account needed to browse" },
-  { accent: "#FF3366", text: "Direct email contact — no inbox" },
+  { accent: "#FF3366", text: "Direct email contact, no inbox" },
   { accent: "#FFB000", text: "Free for student musicians" },
   { accent: "#0055FF", text: "Post a gig in under 2 minutes" },
   { accent: "#FF3366", text: "No algorithms. No feed." },
@@ -144,7 +144,7 @@ const TESTIMONIALS = [
   },
 ];
 
-// ── Trust marquee ────────────────────────────────────────────────────────────
+// Trust marquee
 
 function TrustMarquee() {
   const [paused, setPaused] = useState(false);
@@ -216,7 +216,7 @@ function TrustMarquee() {
   );
 }
 
-// ── Main ─────────────────────────────────────────────────────────────────────
+// Main
 
 type HomeLandingProps = {
   secondaryHref: string;
@@ -279,7 +279,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
       ref={containerRef}
       className="relative left-1/2 -mt-6 min-h-screen w-screen -translate-x-1/2 overflow-hidden bg-[#FAFAFA] font-sans text-[#0F172A] selection:bg-[#0055FF] selection:text-white"
     >
-      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      {/* Hero */}
       <section className="relative flex min-h-[85vh] flex-col justify-center overflow-hidden px-6 py-28">
         {/* Multi-point bg glow */}
         <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
@@ -288,7 +288,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
           <div className="absolute bottom-1/4 left-1/2 h-[350px] w-[350px] -translate-x-1/2 rounded-full bg-[#FFB000]/5 blur-[90px]" />
         </div>
 
-        {/* Floating instrument tags — desktop, decorative */}
+        {/* Floating instrument tags, desktop decorative */}
         {!prefersReducedMotion &&
           HERO_TAGS.map((tag) => (
             <motion.span
@@ -353,8 +353,8 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
             transition={{ duration: 0.8, delay: 0.22, ease }}
             className="mt-8 max-w-xl text-lg font-medium leading-relaxed text-[#475569] md:text-xl"
           >
-            Student musicians. Student creators. Campus gigs.
-            No algorithms, no feed — just the people you need.
+            Musicians, find your next opportunity.
+            Creators, find just the people you need.
           </motion.p>
 
           {/* CTAs */}
@@ -402,13 +402,13 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
         </motion.div>
       </section>
 
-      {/* ── Stage Flip ───────────────────────────────────────────────────── */}
-      <TheCallsheet />
+      {/* Stage Flip */}
+      {SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS ? <TheCallsheet /> : null}
 
-      {/* ── Trust marquee ────────────────────────────────────────────────── */}
+      {/* Trust marquee */}
       {SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS ? <TrustMarquee /> : null}
 
-      {/* ── Value props — dark band ──────────────────────────────────────── */}
+      {/* Value props */}
       <section className="relative z-20 border-t border-white/5 bg-[#0F172A] px-6 py-24">
         <div className="mx-auto max-w-6xl">
           <motion.div
@@ -439,7 +439,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
         </div>
       </section>
 
-      {/* ── Stats ────────────────────────────────────────────────────────── */}
+      {/* Stats */}
       {SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS ? (
       <section className="gsap-stats-section relative z-20 border-t border-[#F1F5F9] bg-white px-6 py-24">
         <div className="mx-auto max-w-6xl">
@@ -462,7 +462,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
       </section>
       ) : null}
 
-      {/* ── How it works ─────────────────────────────────────────────────── */}
+      {/* How it works */}
       <section className="gsap-steps-section relative z-20 border-t border-[#F1F5F9] bg-[#F8FAFC] px-6 py-28">
         <div className="mx-auto max-w-6xl">
           <motion.div
@@ -481,7 +481,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
           </motion.div>
 
           <div className="relative">
-            {/* Connector line — desktop only */}
+            {/* Connector line, desktop only */}
             <div
               className="absolute left-1/6 right-1/6 top-9 hidden h-px bg-linear-to-r from-[#0055FF]/25 via-[#FF3366]/25 to-[#FFB000]/25 md:block"
               aria-hidden
@@ -515,7 +515,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
         </div>
       </section>
 
-      {/* ── Featured talent ──────────────────────────────────────────────── */}
+      {/* Featured talent */}
       {SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS ? (
       <section className="relative z-20 border-t border-[#F1F5F9] bg-white px-6 py-28">
         <div className="mx-auto max-w-6xl">
@@ -541,7 +541,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
             viewport={{ once: true, margin: "-60px" }}
             className="grid grid-cols-1 gap-8 md:grid-cols-2"
           >
-            {/* Light card — musician */}
+            {/* Light card, musician */}
             <motion.div
               variants={fadeUp}
               whileHover={{ y: -8 }}
@@ -595,7 +595,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
               </Link>
             </motion.div>
 
-            {/* Dark card — gig */}
+            {/* Dark card, gig */}
             <motion.div
               variants={fadeUp}
               whileHover={{ y: -8 }}
@@ -623,7 +623,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
               </div>
 
               <p className="relative z-10 mb-6 font-medium leading-relaxed text-[#CBD5E1]">
-                Rough cut ready. Need sparse orchestral cues — mostly strings.
+                Rough cut ready. Need sparse orchestral cues, mostly strings.
                 $200 flat, on-screen credit. Three-week turnaround.
               </p>
 
@@ -651,7 +651,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
       </section>
       ) : null}
 
-      {/* ── Testimonials ─────────────────────────────────────────────────── */}
+      {/* Testimonials */}
       {SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS ? (
       <section className="relative z-20 border-t border-[#F1F5F9] bg-[#F8FAFC] px-6 py-28">
         <div className="mx-auto max-w-6xl">
@@ -739,7 +739,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
       </section>
       ) : null}
 
-      {/* ── Final CTA — dark full-bleed ───────────────────────────────────── */}
+      {/* Final CTA */}
       <section className="relative z-20 overflow-hidden bg-[#0F172A] px-6 py-36 text-center">
         {/* Bg glows */}
         <div className="pointer-events-none absolute inset-0" aria-hidden>

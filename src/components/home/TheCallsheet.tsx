@@ -9,7 +9,7 @@ import Link from "next/link";
 import { Music, Video, MapPin, BadgeDollarSign, ArrowRight, Radio } from "lucide-react";
 import { useRef } from "react";
 
-// ── Sample data ──────────────────────────────────────────────────────────────
+// Sample data
 
 const CARDS = [
   {
@@ -83,7 +83,7 @@ const CARDS = [
   },
 ] as const;
 
-// ── Card ─────────────────────────────────────────────────────────────────────
+// Card
 
 type CardData = (typeof CARDS)[number];
 
@@ -206,7 +206,7 @@ function CallCard({ card, index, reduced }: { card: CardData; index: number; red
   );
 }
 
-// ── Main ─────────────────────────────────────────────────────────────────────
+// Main
 
 export function TheCallsheet() {
   const reduced = useReducedMotion() ?? false;
@@ -266,7 +266,7 @@ export function TheCallsheet() {
             </h2>
             <p className="max-w-md text-base font-medium leading-relaxed text-[#94A3B8]">
               Profiles ready to collaborate. Gigs waiting for the right musician.
-              No middleman — just the work.
+              No middleman. Just the work.
             </p>
           </div>
 
