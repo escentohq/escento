@@ -51,6 +51,7 @@ export interface MusicianProfile {
   websiteUrl: string | null;
   createdAt: string;
   updatedAt: string;
+  isVerified: boolean;
   instruments?: string[];
   genres?: string[];
 }

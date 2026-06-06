@@ -4,6 +4,22 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ensureInstruments, ensureGenres } from "./tags";
 import type { MusicianProfile, CreateProfileInput, UpdateProfileInput } from "./types";
 
+function computeIsVerified(input: {
+  bio?: string | null;
+  instagramUrl?: string | null;
+  youtubeUrl?: string | null;
+  spotifyUrl?: string | null;
+  soundcloudUrl?: string | null;
+  websiteUrl?: string | null;
+}): boolean {
+  const hasBio = Boolean(input.bio && input.bio.trim().length >= 50);
+  const hasLink = Boolean(
+    input.instagramUrl || input.youtubeUrl || input.spotifyUrl ||
+    input.soundcloudUrl || input.websiteUrl,
+  );
+  return hasBio && hasLink;
+}
+
 function toProfile(raw: any): MusicianProfile {
   return {
     id: raw.id,
@@ -26,6 +42,7 @@ function toProfile(raw: any): MusicianProfile {
     websiteUrl: raw.website_url,
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
+    isVerified: raw.is_verified ?? false,
     instruments: raw.musician_instrument?.map((x: any) => x.instrument?.name).filter(Boolean) ?? [],
     genres: raw.musician_genre?.map((x: any) => x.genre?.name).filter(Boolean) ?? [],
   };
@@ -66,6 +83,7 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
   let query = supabase
     .from("musician_profile")
     .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .eq("is_verified", true)
     .order("updated_at", { ascending: false });
 
   if (filters?.instrument) {
@@ -118,6 +136,7 @@ export async function createProfile(
       spotify_url: input.spotifyUrl,
       soundcloud_url: input.soundcloudUrl,
       website_url: input.websiteUrl,
+      is_verified: computeIsVerified(input),
     })
     .select()
     .single();
@@ -160,6 +179,7 @@ export async function createProfile(
     websiteUrl: profile.website_url,
     createdAt: profile.created_at,
     updatedAt: profile.updated_at,
+    isVerified: profile.is_verified ?? false,
     instruments: instrumentNames,
     genres: genreNames,
   };
@@ -190,6 +210,15 @@ export async function updateProfile(
   if (input.spotifyUrl !== undefined) updateData.spotify_url = input.spotifyUrl;
   if (input.soundcloudUrl !== undefined) updateData.soundcloud_url = input.soundcloudUrl;
   if (input.websiteUrl !== undefined) updateData.website_url = input.websiteUrl;
+
+  updateData.is_verified = computeIsVerified({
+    bio: input.bio,
+    instagramUrl: input.instagramUrl,
+    youtubeUrl: input.youtubeUrl,
+    spotifyUrl: input.spotifyUrl,
+    soundcloudUrl: input.soundcloudUrl,
+    websiteUrl: input.websiteUrl,
+  });
 
   if (instrumentNames || genreNames) {
     await Promise.all([
