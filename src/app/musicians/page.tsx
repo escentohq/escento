@@ -138,7 +138,6 @@ export default async function MusiciansPage({
                         </div>
                       </div>
                       <div className="flex shrink-0 flex-col items-end gap-1.5">
-                        <Chip tone="blue">Verified</Chip>
                         <Chip tone={profile.isRemote ? "blue" : "neutral"}>
                           {profile.isRemote ? "Remote" : "In person"}
                         </Chip>

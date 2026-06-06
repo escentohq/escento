@@ -110,11 +110,6 @@ export default async function MusicianPublicProfilePage({
                   <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
                     On stage
                   </span>
-                  {profile.isVerified ? (
-                    <Chip tone="blue">Verified</Chip>
-                  ) : (
-                    <Chip>Unverified</Chip>
-                  )}
                 </div>
 
                 <div className="mt-5 flex flex-wrap items-center gap-5">
