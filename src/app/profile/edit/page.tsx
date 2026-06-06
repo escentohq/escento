@@ -50,11 +50,11 @@ export default async function EditProfilePage() {
               </span>
             </li>
             <li className="flex items-start gap-3">
-              {hasLink
+              {hasLink || profile.noPortfolioAttested
                 ? <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#0055FF]" aria-hidden />
                 : <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-[#FF3366]" aria-hidden />}
-              <span className={`text-sm font-bold ${hasLink ? "text-[#0F172A]" : "text-[#475569]"}`}>
-                At least one portfolio link (YouTube, SoundCloud, Spotify, Website, or Instagram)
+              <span className={`text-sm font-bold ${hasLink || profile.noPortfolioAttested ? "text-[#0F172A]" : "text-[#475569]"}`}>
+                At least one portfolio link — or check &ldquo;I don&apos;t have links yet&rdquo; in the Links section
               </span>
             </li>
           </ul>
@@ -84,6 +84,7 @@ export default async function EditProfilePage() {
           websiteUrl: profile.websiteUrl ?? "",
           instrumentsCsv,
           genresCsv,
+          noPortfolioAttested: profile.noPortfolioAttested,
         }}
         action={updateMusicianProfileAction}
       />
