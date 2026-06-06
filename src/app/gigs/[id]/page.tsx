@@ -77,6 +77,7 @@ export default async function GigPage({
                       {projectTypeLabel(gig.projectType)}
                     </span>
                     <Chip tone="gold">{compensationLabel(gig.compensationType)}</Chip>
+                    {gig.creator?.name ? <Chip tone="blue">Verified Creator</Chip> : null}
                   </div>
                   <h1 className="text-4xl font-black tracking-tight text-[#0F172A] md:text-5xl">
                     {gig.title}

@@ -129,6 +129,7 @@ export default async function GigsPage({
                           <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748B]">
                             {projectTypeLabel(gig.projectType)}
                           </span>
+                          {gig.creator?.name ? <Chip tone="blue">Verified Creator</Chip> : null}
                         </div>
                         <h2 className="mt-1 break-words text-lg font-black tracking-tight text-[#0F172A] transition-colors group-hover:text-[#FF3366]">
                           {gig.title}
