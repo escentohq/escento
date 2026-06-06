@@ -15,6 +15,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { SecondaryCta } from "@/components/ui/secondary-cta";
 import { TheCallsheet } from "@/components/home/TheCallsheet";
+import { ProductStory } from "@/components/home/ProductStory";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -277,7 +278,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
   return (
     <div
       ref={containerRef}
-      className="relative left-1/2 -mt-6 min-h-screen w-screen -translate-x-1/2 overflow-hidden bg-[#FAFAFA] font-sans text-[#0F172A] selection:bg-[#0055FF] selection:text-white"
+      className="relative left-1/2 -mt-6 min-h-screen w-screen -translate-x-1/2 overflow-x-clip bg-[#FAFAFA] font-sans text-[#0F172A] selection:bg-[#0055FF] selection:text-white"
     >
       {/* Hero */}
       <section className="relative flex min-h-[85vh] flex-col justify-center overflow-hidden px-6 py-28">
@@ -401,6 +402,9 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
           </motion.div>
         </motion.div>
       </section>
+
+      {/* Product story */}
+      <ProductStory />
 
       {/* Stage Flip */}
       {SHOW_ORIGINAL_MARKETPLACE_PROOF_SECTIONS ? <TheCallsheet /> : null}
