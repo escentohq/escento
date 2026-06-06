@@ -38,7 +38,8 @@ Platform connecting student musicians with student creators for film, podcasts, 
 - Accepted requests create direct conversations with participant-scoped access
 - Per-participant unread tracking via `last_read_at`
 - User blocking prevents requests and messages in either direction
-- Backend foundation only: no realtime, attachments, reactions, or full inbox UI yet
+- Messages inbox, request inbox, conversation threads, unread badges, and blocking UI are available
+- No realtime, attachments, reactions, or advanced notification center yet
 
 ## Tech Stack
 

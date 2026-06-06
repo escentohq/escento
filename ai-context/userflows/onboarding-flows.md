@@ -57,7 +57,7 @@ Current state of two onboarding paths triggered after user signup. Documents com
 - `PageShell` (wrapper)
   - eyebrow: "On stage"
   - title: "Create Profile"
-  - body: "Put your sound where creators can find it. Keep it specific, link your work, and make email easy."
+  - body: "Put your sound where creators can find it. Keep it specific and make it easy to start a conversation."
 - `ProfileForm` (client component, `src/app/profile/_profile-form.tsx`)
   - mode: "create"
   - initial values: `{ isRemote: true, seekingPaid: true, seekingUnpaid: true }`
@@ -365,4 +365,3 @@ All actions call auth guards first, before any business logic.
 - **Role cannot be changed after selection**: no UI currently exists to switch roles post-onboarding (would require explicit migration)
 - **Tag deduplication**: instruments & genres use `normalizeTagName` before insert to prevent duplicates across profiles/gigs
 - **Form validation is client-facing**: errors returned via `ActionState` and rendered inline below each field
-

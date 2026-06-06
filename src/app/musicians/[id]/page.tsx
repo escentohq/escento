@@ -1,4 +1,4 @@
-import { ExternalLink, Mail, MapPin, Clock, Music } from "lucide-react";
+import { ExternalLink, MapPin, Clock, Music } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -247,27 +247,8 @@ export default async function MusicianPublicProfilePage({
                 </span>
                 <h2 className="mt-3 text-2xl font-black tracking-tight">Contact</h2>
                 <p className="mt-3 text-sm font-medium leading-relaxed text-[#94A3B8]">
-                  Interested in working together? Reach out directly.
+                  Interested in working together? Send a connection request to start a conversation.
                 </p>
-
-                <div className="mt-6 rounded-2xl bg-[#1E293B] p-4">
-                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748B]">
-                    Email
-                  </p>
-                  <p className="mt-2 break-all text-sm font-bold text-white">
-                    {profile.contactEmail ?? "Not provided"}
-                  </p>
-                </div>
-
-                {profile.contactEmail && (
-                  <a
-                    href={`mailto:${profile.contactEmail}`}
-                    className="group mt-5 flex w-full cursor-pointer items-center justify-between rounded-2xl bg-[#0055FF] px-5 py-3.5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#0044DD] focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
-                  >
-                    <span>Contact Musician</span>
-                    <Mail className="h-4 w-4" aria-hidden />
-                  </a>
-                )}
 
                 <ConnectButton
                   recipientId={profile.userId}

@@ -119,10 +119,10 @@ Forbidden for field errors: "ERROR", "Invalid input", "Wrong", "Failed validatio
 - Cancel link reads `Cancel` and routes back to the relevant index.
 - Required-field marker: a small `*` after the label, not the word "required".
 
-## Email subject for `mailto:` links
+## Messaging Request Copy
 
-- Gig contact: `Motivo: <title>` (URL-encoded).
-- Musician contact: no subject (let the user write their own).
+- Gig contact: use a connection request with context like `Reached out about your gig: <title>`.
+- Musician contact: use a connection request from the public profile. Do not create separate gig-specific threads.
 
 ## Meta / SEO copy (when adding `<Metadata>`)
 

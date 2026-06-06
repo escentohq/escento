@@ -247,7 +247,7 @@ Manages instruments and genres using atomic upsert. Replaces old `tag-utils.ts` 
 
 ## Messaging API (`src/lib/api/messaging.ts`)
 
-Messaging is a backend foundation only for now. No full inbox/thread UI has shipped yet.
+Messaging powers the V1 inbox, request inbox, conversation threads, unread badges, blocking UI, and profile/gig connect buttons.
 
 ### Tables
 

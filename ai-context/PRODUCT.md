@@ -2,14 +2,14 @@
 
 ## What Motivo is
 
-A directory + listings platform connecting **student musicians** with **student creators** (film students, podcasters, YouTubers, indie game devs, event organizers). It is intentionally **not** a social network: no feeds, no payments, no algorithmic recommendations. The MVP originally optimized for the shortest possible path from *"I need someone"* to *"I found them and emailed them."* Messaging has now been explicitly re-scoped as a barebones connection-request and direct-message foundation.
+A directory + listings platform connecting **student musicians** with **student creators** (film students, podcasters, YouTubers, indie game devs, event organizers). It is intentionally **not** a social network: no feeds, no payments, no algorithmic recommendations. The MVP now uses connection requests and direct messages for the shortest possible path from *"I need someone"* to *"I found them and started the conversation."*
 
 Tagline: **Take the Stage.**
 
 ## Two sides
 
 - **Musicians** create one public profile (profile picture, instruments, genres, location, availability, portfolio links, contact email).
-- **Creators** post structured gig listings (project type, requirements, location/remote, compensation, deadline) and receive direct email contact from interested musicians.
+- **Creators** post structured gig listings (project type, requirements, location/remote, compensation, deadline) and receive connection requests from interested musicians.
 
 A `User` has exactly one `role` (`MUSICIAN` | `CREATOR`), chosen once at onboarding. There is no mechanism to switch or be both today.
 
@@ -24,8 +24,8 @@ A `User` has exactly one `role` (`MUSICIAN` | `CREATOR`), chosen once at onboard
 |---|---|
 | **A** | Musician signs up → `/` → Sign in (GitHub or Google) → `/onboarding/role` (choose `MUSICIAN`) → `/profile/create` → `/profile/edit` |
 | **B** | Creator signs up → `/` → Sign in → `/onboarding/role` (choose `CREATOR`) → `/gigs/create` → `/gigs/[id]` |
-| **C** | Anyone discovers a musician → `/` → `/musicians` (filter by instrument, genre) → `/musicians/[id]` → `mailto:` button |
-| **D** | Anyone discovers a gig → `/` → `/gigs` (filter by projectType, instrument, genre) → `/gigs/[id]` → `mailto:` button |
+| **C** | Anyone discovers a musician → `/` → `/musicians` (filter by instrument, genre) → `/musicians/[id]` → signed-in user sends connection request |
+| **D** | Anyone discovers a gig → `/` → `/gigs` (filter by projectType, instrument, genre) → `/gigs/[id]` → signed-in user contacts the owner through a connection request |
 | **E** | Creator manages own gigs → navbar → `/gigs/manage` → Edit / Mark Filled / Delete / View |
 
 **Browsing is anonymous.** No auth required for `/musicians`, `/musicians/[id]`, `/gigs`, `/gigs/[id]`.
@@ -46,7 +46,7 @@ A `User` has exactly one `role` (`MUSICIAN` | `CREATOR`), chosen once at onboard
 | Create gig | `/gigs/create` | Required | `CREATOR` |
 | Edit gig | `/gigs/[id]/edit` | Required | Owner `CREATOR` |
 | Manage own gigs | `/gigs/manage` | Required | `CREATOR` |
-| Contact via `mailto:` | both detail pages | — | — |
+| Connect / contact via messaging request | profile and gig detail pages | Required | Any role |
 | Account profile picture | `/account` | Required | Any |
 | Messaging backend foundation | server actions + service layer | Required | Any role |
 
@@ -63,7 +63,7 @@ The following are **explicitly out of scope** for the MVP. Do not implement them
 - Ratings, reviews, or testimonials
 - Recommendation algorithms, match scoring, or ranking beyond `updatedAt DESC`
 - Mobile apps (native or PWA install flows)
-- Notifications (email digests, push, in-app)
+- Advanced notifications (email digests, push, notification center)
 - Social feeds, follows, likes, comments
 - File uploads for portfolio work — portfolio is **link-only** (`youtubeUrl`, `soundcloudUrl`, `spotifyUrl`, `websiteUrl`, `instagramUrl`). Account profile pictures are the only supported upload.
 - A `/dashboard` route or analytics view
@@ -89,6 +89,4 @@ If a user request implies any of the above, **stop and confirm scope** before bu
 
 ## Contact model
 
-Legacy public contact remains direct `mailto:` with the creator's or musician's listed email. Gig detail pre-fills the subject as `Motivo: <title>` (URL-encoded). Musician profile uses a plain `mailto:` button with no subject.
-
-Messaging is now in scope as a signed-in-only foundation: users send connection requests, recipients accept before a direct conversation begins, blocks prevent requests/messages, and unread state is tracked per participant. Do not add feeds, recommendations, reactions, attachments, realtime, or notification systems unless explicitly scoped.
+Messaging is the primary contact model. Signed-in users send connection requests from public profiles or gig details. Recipients accept before a direct conversation begins. Blocks prevent requests/messages, unread state is tracked per participant, and the Messages nav/request CTAs show unread or pending counts. Do not add feeds, recommendations, reactions, attachments, realtime, or advanced notification systems unless explicitly scoped.

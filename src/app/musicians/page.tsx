@@ -31,7 +31,7 @@ export default async function MusiciansPage({
     <PageShell
       eyebrow="Now playing"
       title="Browse Musicians"
-      body="Find student musicians by sound, instrument, and availability. Browse first. Email when the fit is right."
+      body="Find student musicians by sound, instrument, and availability. Browse first. Send a request when the fit is right."
       action={showCreateProfileCta ? <PrimaryCta href="/profile/create">Create Profile</PrimaryCta> : null}
     >
       <Reveal>

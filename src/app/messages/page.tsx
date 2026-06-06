@@ -2,12 +2,15 @@ import Link from "next/link";
 import { MessageCircle } from "lucide-react";
 
 import { requireUser } from "@/lib/auth-guards";
-import { listConversationsForUser } from "@/lib/api/messaging";
+import {
+  listConversationsForUser,
+  listIncomingConnectionRequests,
+} from "@/lib/api/messaging";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { Reveal } from "@/components/ui/reveal";
-import type { ConversationSummary } from "@/lib/api/types";
+import type { ConnectionRequest, ConversationSummary } from "@/lib/api/types";
 
 function displayName(name?: string | null, email?: string | null) {
   return name || email || "Motivo user";
@@ -34,21 +37,37 @@ function formatTime(value: string | null) {
 export default async function MessagesPage() {
   const session = await requireUser("/messages");
   let conversations: ConversationSummary[] = [];
+  let incomingRequests: ConnectionRequest[] = [];
   let messagingUnavailable = false;
 
   try {
-    conversations = await listConversationsForUser(session.user.id);
+    [conversations, incomingRequests] = await Promise.all([
+      listConversationsForUser(session.user.id),
+      listIncomingConnectionRequests(session.user.id),
+    ]);
   } catch (error) {
     messagingUnavailable = true;
     console.error("[messages] conversation list failed:", error);
   }
+
+  const pendingIncomingRequestCount = incomingRequests.filter(
+    (request) => request.status === "pending",
+  ).length;
 
   return (
     <PageShell
       eyebrow="Backstage"
       title="Messages"
       body="Your accepted conversations. Requests live one door over."
-      action={<PrimaryCta href="/messages/requests" icon={MessageCircle}>View Requests</PrimaryCta>}
+      action={
+        <PrimaryCta
+          href="/messages/requests"
+          icon={MessageCircle}
+          badgeCount={pendingIncomingRequestCount}
+        >
+          View Requests
+        </PrimaryCta>
+      }
     >
       <div className="mb-6 flex flex-wrap gap-3">
         <Link href="/messages/blocked" className="btn-secondary min-h-11 px-5 text-xs">

@@ -10,11 +10,11 @@ import {
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import {
-  Mail,
   Clapperboard,
   BadgeDollarSign,
   MapPin,
   Clock,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -44,7 +44,7 @@ const GIG = {
     { icon: Clock, label: "Deadline", value: "3 weeks" },
   ] as const,
   chips: ["Strings", "Piano"],
-  mailSubject: "Motivo: Composer for 10-minute thesis short.",
+  requestContext: "Message request: Composer for 10-minute thesis short.",
 };
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
@@ -119,8 +119,8 @@ function MusicianFace() {
       {/* Footer */}
       <div className="mt-auto border-t border-[#F1F5F9] pt-4">
         <div className="flex items-center gap-2 text-sm font-bold text-[#0F172A]">
-          <Mail className="h-4 w-4 text-[#64748B]" aria-hidden="true" />
-          Reach out →
+          <MessageCircle className="h-4 w-4 text-[#64748B]" aria-hidden="true" />
+          Send request
         </div>
       </div>
     </div>
@@ -179,8 +179,8 @@ function GigFace() {
       {/* Footer */}
       <div className="relative z-10 mt-auto border-t border-white/10 pt-4">
         <div className="flex items-center gap-2">
-          <Mail className="h-4 w-4 flex-shrink-0 text-[#94A3B8]" aria-hidden="true" />
-          <span className="truncate font-mono text-xs text-[#94A3B8]">{GIG.mailSubject}</span>
+          <MessageCircle className="h-4 w-4 flex-shrink-0 text-[#94A3B8]" aria-hidden="true" />
+          <span className="truncate font-mono text-xs text-[#94A3B8]">{GIG.requestContext}</span>
         </div>
       </div>
     </div>

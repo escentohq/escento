@@ -16,7 +16,7 @@ export default async function CreateProfilePage() {
     <PageShell
       eyebrow="On stage"
       title="Create Profile"
-      body="Put your sound where creators can find it. Keep it specific, link your work, and make email easy."
+      body="Put your sound where creators can find it. Keep it specific and make it easy to start a conversation."
       size="medium"
     >
       <ProfileForm

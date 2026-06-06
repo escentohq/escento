@@ -413,7 +413,7 @@ From `docs/REBUILD.md` §18:
 - [ ] Enum strings parsed with `z.enum`, not `as never`.
 - [ ] External links: `rel="noopener noreferrer"` + `target="_blank"`.
 - [ ] No `dangerouslySetInnerHTML`.
-- [ ] `mailto:` subject/body are `encodeURIComponent`-wrapped.
+- [ ] Messaging/contact mutations go through Server Actions and derive the actor from session.
 - [ ] No secrets in client bundle (verify with `next build` output if uncertain).
 
 ---

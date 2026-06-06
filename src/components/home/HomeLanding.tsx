@@ -8,7 +8,7 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Music, Users, Zap, Mail } from "lucide-react";
+import { ArrowRight, Music, Users, Zap, MessageCircle } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -42,7 +42,7 @@ const SCHOOLS = [
 
 const ACCOLADES = [
   { accent: "#0055FF", text: "No account needed to browse" },
-  { accent: "#FF3366", text: "Direct email contact, no inbox" },
+  { accent: "#FF3366", text: "Connect through Motivo messages" },
   { accent: "#FFB000", text: "Free for student musicians" },
   { accent: "#0055FF", text: "Post a gig in under 2 minutes" },
   { accent: "#FF3366", text: "No algorithms. No feed." },
@@ -61,8 +61,8 @@ const HERO_TAGS = [
 const VALUE_PROPS = [
   {
     icon: Users,
-    title: "No account to browse.",
-    body: "Open, find, email. No login gate between you and the musician you need.",
+    title: "Browse first.",
+    body: "Look through musicians and gigs before you commit. Sign in when you are ready to reach out.",
     accent: "#0055FF",
     bg: "bg-[#0055FF]/15",
   },
@@ -74,9 +74,9 @@ const VALUE_PROPS = [
     bg: "bg-[#FF3366]/15",
   },
   {
-    icon: Mail,
-    title: "Email direct. No inbox.",
-    body: "Motivo never relays messages. You talk to the musician, not a bot.",
+    icon: MessageCircle,
+    title: "Message in Motivo.",
+    body: "Send a connection request, accept the fit, then keep the conversation in one place.",
     accent: "#FFB000",
     bg: "bg-[#FFB000]/15",
   },
@@ -103,8 +103,8 @@ const HOW_IT_WORKS = [
   {
     num: "02",
     eyebrow: "Connect",
-    title: "Email directly.",
-    desc: "Every profile has contact info front and center. One click opens your mail client, subject pre-filled.",
+    title: "Send a request.",
+    desc: "Use Motivo to ask about a profile or gig. Once the request is accepted, the message thread opens.",
     accent: "#FF3366",
     accentBg: "bg-[#FF3366]/10",
     accentText: "text-[#FF3366]",
@@ -124,7 +124,7 @@ const HOW_IT_WORKS = [
 
 const TESTIMONIALS = [
   {
-    quote: "Found a composer for my thesis short in two days. Sent one email. She was on set the next week.",
+    quote: "Found a composer for my thesis short in two days. Sent a request. She was on set the next week.",
     name: "Alex Park",
     role: "Film · UT RTF",
     initials: "AP",
