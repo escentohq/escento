@@ -33,7 +33,7 @@ alter table musician_profile
 alter table musician_profile
   drop constraint if exists musician_profile_location_provider_check,
   add constraint musician_profile_location_provider_check
-    check (location_provider is null or location_provider in ('geoapify', 'google', 'manual'));
+    check (location_provider is null or location_provider in ('geoapify', 'launch_market', 'google', 'manual'));
 
 alter table gig
   drop constraint if exists gig_location_visibility_check,
@@ -43,7 +43,7 @@ alter table gig
 alter table gig
   drop constraint if exists gig_location_provider_check,
   add constraint gig_location_provider_check
-    check (location_provider is null or location_provider in ('geoapify', 'google', 'manual'));
+    check (location_provider is null or location_provider in ('geoapify', 'launch_market', 'google', 'manual'));
 
 create index if not exists musician_profile_location_lat_lng_idx
   on musician_profile(location_lat, location_lng)

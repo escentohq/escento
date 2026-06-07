@@ -1,6 +1,11 @@
 "use server";
 
 import { strOrEmpty } from "@/lib/form-utils";
+import {
+  getLaunchMarketByPlaceId,
+  getLaunchMarketSuggestions,
+  type LaunchMarket,
+} from "@/lib/launch-markets";
 
 export type LocationSuggestion = {
   placeId: string;
@@ -11,7 +16,7 @@ export type LocationSuggestion = {
   city: string | null;
   state: string | null;
   country: string | null;
-  provider: "geoapify";
+  provider: "geoapify" | "launch_market";
 };
 
 export type LocationDetails = {
@@ -22,7 +27,7 @@ export type LocationDetails = {
   city: string | null;
   state: string | null;
   country: string | null;
-  provider: "geoapify";
+  provider: "geoapify" | "launch_market";
 };
 
 type GeoapifyFeature = {
@@ -86,10 +91,40 @@ function toLocationDetails(feature: GeoapifyFeature): LocationDetails | null {
   };
 }
 
+function launchMarketToDetails(market: LaunchMarket): LocationDetails {
+  return {
+    placeId: market.placeId,
+    displayName: market.displayName,
+    lat: market.lat,
+    lng: market.lng,
+    city: market.city,
+    state: market.state,
+    country: market.country,
+    provider: "launch_market",
+  };
+}
+
+function dedupeSuggestions(suggestions: LocationSuggestion[]) {
+  const seen = new Set<string>();
+  return suggestions.filter((suggestion) => {
+    const key = `${suggestion.displayName.toLowerCase()}:${suggestion.lat}:${suggestion.lng}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export async function getLocationSuggestions(query: string): Promise<LocationSuggestion[]> {
   const input = strOrEmpty(query);
+  const launchSuggestions = getLaunchMarketSuggestions(input).map((market) => ({
+    ...launchMarketToDetails(market),
+    description: market.displayName,
+  }));
+
+  if (launchSuggestions.length >= 3) return launchSuggestions.slice(0, 5);
+
   const key = geoapifyKey();
-  if (!key || input.length < 2) return [];
+  if (!key || input.length < 2) return launchSuggestions;
 
   const url = new URL("https://api.geoapify.com/v1/geocode/autocomplete");
   url.searchParams.set("text", input);
@@ -102,10 +137,10 @@ export async function getLocationSuggestions(query: string): Promise<LocationSug
 
   try {
     const response = await fetch(url, { next: { revalidate: 60 } });
-    if (!response.ok) return [];
+    if (!response.ok) return launchSuggestions;
     const data = await response.json();
 
-    return (data.features ?? [])
+    const geoapifySuggestions = (data.features ?? [])
       .map((feature: GeoapifyFeature) => toLocationDetails(feature))
       .filter((details: LocationDetails | null): details is LocationDetails => Boolean(details))
       .slice(0, 5)
@@ -113,14 +148,19 @@ export async function getLocationSuggestions(query: string): Promise<LocationSug
         ...details,
         description: details.displayName,
       }));
+
+    return dedupeSuggestions([...launchSuggestions, ...geoapifySuggestions]).slice(0, 5);
   } catch (error) {
     console.error("[location] Geoapify autocomplete failed:", error);
-    return [];
+    return launchSuggestions;
   }
 }
 
 export async function getLocationDetails(placeId: string): Promise<LocationDetails | null> {
   const id = strOrEmpty(placeId);
+  const launchMarket = getLaunchMarketByPlaceId(id);
+  if (launchMarket) return launchMarketToDetails(launchMarket);
+
   const key = geoapifyKey();
   if (!key || !id) return null;
 
