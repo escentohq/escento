@@ -29,6 +29,8 @@ export type ProfileFormValues = {
   locationCity: string;
   locationState: string;
   locationCountry: string;
+  locationProvider: string;
+  providerPlaceId: string;
   locationVisibility: "public_region" | "private";
   isRemote: boolean;
   seekingPaid: boolean;
@@ -60,6 +62,8 @@ function buildValues(initial: Partial<ProfileFormValues>): ProfileFormValues {
     locationCity: initial.locationCity ?? "",
     locationState: initial.locationState ?? "",
     locationCountry: initial.locationCountry ?? "",
+    locationProvider: initial.locationProvider ?? "",
+    providerPlaceId: initial.providerPlaceId ?? initial.locationPlaceId ?? "",
     locationVisibility: initial.locationVisibility ?? "public_region",
     isRemote: initial.isRemote ?? true,
     seekingPaid: initial.seekingPaid ?? true,
@@ -141,6 +145,8 @@ export function ProfileForm({
         locationCity: stringValue(state.values, "locationCity", current.locationCity),
         locationState: stringValue(state.values, "locationState", current.locationState),
         locationCountry: stringValue(state.values, "locationCountry", current.locationCountry),
+        locationProvider: stringValue(state.values, "locationProvider", current.locationProvider),
+        providerPlaceId: stringValue(state.values, "providerPlaceId", current.providerPlaceId),
         locationVisibility: stringValue(state.values, "locationVisibility", current.locationVisibility) === "private" ? "private" : "public_region",
         isRemote: boolValue(state.values, "isRemote", current.isRemote),
         seekingPaid: boolValue(state.values, "seekingPaid", current.seekingPaid),

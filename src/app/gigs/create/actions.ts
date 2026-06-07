@@ -67,6 +67,8 @@ export async function createGigAction(_state: ActionState, fd: FormData): Promis
       locationCity: location.locationCity,
       locationState: location.locationState,
       locationCountry: location.locationCountry,
+      locationProvider: location.locationProvider,
+      providerPlaceId: location.providerPlaceId,
       locationVisibility: location.locationVisibility,
       isRemote,
       compensationType: compensationType!,

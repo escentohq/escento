@@ -74,6 +74,8 @@ export async function updateGigAction(
       locationCity: location.locationCity,
       locationState: location.locationState,
       locationCountry: location.locationCountry,
+      locationProvider: location.locationProvider,
+      providerPlaceId: location.providerPlaceId,
       locationVisibility: location.locationVisibility,
       isRemote,
       compensationType: compensationType!,

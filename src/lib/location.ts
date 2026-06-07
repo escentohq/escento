@@ -11,6 +11,8 @@ export type StructuredLocationInput = {
   locationCity: string | null;
   locationState: string | null;
   locationCountry: string | null;
+  locationProvider: string | null;
+  providerPlaceId: string | null;
   locationVisibility: "public_region" | "private";
 };
 
@@ -34,16 +36,20 @@ function parseNumber(value: unknown): number | null {
 export function parseStructuredLocation(fd: FormData): StructuredLocationInput {
   const displayName = nonEmptyOrNull(fd.get("locationDisplayName"));
   const legacyLocation = nonEmptyOrNull(fd.get("location")) ?? displayName;
+  const locationPlaceId = nonEmptyOrNull(fd.get("locationPlaceId"));
+  const providerPlaceId = nonEmptyOrNull(fd.get("providerPlaceId")) ?? locationPlaceId;
 
   return {
     location: legacyLocation,
     locationDisplayName: displayName,
-    locationPlaceId: nonEmptyOrNull(fd.get("locationPlaceId")),
+    locationPlaceId,
     locationLat: parseNumber(fd.get("locationLat")),
     locationLng: parseNumber(fd.get("locationLng")),
     locationCity: nonEmptyOrNull(fd.get("locationCity")),
     locationState: nonEmptyOrNull(fd.get("locationState")),
     locationCountry: nonEmptyOrNull(fd.get("locationCountry")),
+    locationProvider: nonEmptyOrNull(fd.get("locationProvider")),
+    providerPlaceId,
     locationVisibility: fd.get("locationVisibility") === "private" ? "private" : "public_region",
   };
 }
@@ -104,8 +110,7 @@ export function parseLocationSearch(params: {
     query: nonEmptyOrNull(params.q) ?? undefined,
     lat: parseNumber(params.lat),
     lng: parseNumber(params.lng),
-    radiusMiles: radius && [5, 10, 20, 50, 100].includes(radius) ? radius : null,
+    radiusMiles: radius && [5, 10, 15, 20, 25, 50, 100].includes(radius) ? radius : null,
     remoteFilter,
   };
 }
-

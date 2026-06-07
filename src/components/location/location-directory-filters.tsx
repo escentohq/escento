@@ -61,6 +61,8 @@ export function LocationDirectoryFilters({
     locationCity: "",
     locationState: "",
     locationCountry: "",
+    locationProvider: "",
+    providerPlaceId: "",
     locationVisibility: "public_region",
   });
 
@@ -120,7 +122,7 @@ export function LocationDirectoryFilters({
         Radius
         <Select id="radius" name="radius" defaultValue={radius}>
           <option value="">Any distance</option>
-          {[5, 10, 20, 50, 100].map((value) => (
+          {[5, 10, 15, 20, 25, 50, 100].map((value) => (
             <option key={value} value={value}>{value} miles</option>
           ))}
         </Select>

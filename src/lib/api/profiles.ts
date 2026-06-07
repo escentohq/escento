@@ -21,6 +21,8 @@ function toProfile(raw: any, distance?: number | null): MusicianProfile {
     locationCity: raw.location_city,
     locationState: raw.location_state,
     locationCountry: raw.location_country,
+    locationProvider: raw.location_provider,
+    providerPlaceId: raw.provider_place_id,
     locationVisibility: raw.location_visibility ?? "public_region",
     isRemote: raw.is_remote,
     distanceMiles: distance ?? null,
@@ -166,6 +168,8 @@ export async function createProfile(
       location_city: input.locationCity,
       location_state: input.locationState,
       location_country: input.locationCountry,
+      location_provider: input.locationProvider,
+      provider_place_id: input.providerPlaceId,
       location_visibility: input.locationVisibility,
       is_remote: input.isRemote,
       seeking_paid: input.seekingPaid,
@@ -214,6 +218,8 @@ export async function createProfile(
     locationCity: profile.location_city,
     locationState: profile.location_state,
     locationCountry: profile.location_country,
+    locationProvider: profile.location_provider,
+    providerPlaceId: profile.provider_place_id,
     locationVisibility: profile.location_visibility ?? "public_region",
     isRemote: profile.is_remote,
     distanceMiles: null,
@@ -255,6 +261,8 @@ export async function updateProfile(
   if (input.locationCity !== undefined) updateData.location_city = input.locationCity;
   if (input.locationState !== undefined) updateData.location_state = input.locationState;
   if (input.locationCountry !== undefined) updateData.location_country = input.locationCountry;
+  if (input.locationProvider !== undefined) updateData.location_provider = input.locationProvider;
+  if (input.providerPlaceId !== undefined) updateData.provider_place_id = input.providerPlaceId;
   if (input.locationVisibility !== undefined) updateData.location_visibility = input.locationVisibility;
   if (input.isRemote !== undefined) updateData.is_remote = input.isRemote;
   if (input.seekingPaid !== undefined) updateData.seeking_paid = input.seekingPaid;

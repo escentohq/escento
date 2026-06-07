@@ -36,6 +36,8 @@ export default async function EditProfilePage() {
           locationCity: profile.locationCity ?? "",
           locationState: profile.locationState ?? "",
           locationCountry: profile.locationCountry ?? "",
+          locationProvider: profile.locationProvider ?? "",
+          providerPlaceId: profile.providerPlaceId ?? profile.locationPlaceId ?? "",
           locationVisibility: profile.locationVisibility,
           isRemote: profile.isRemote,
           seekingPaid: profile.seekingPaid,

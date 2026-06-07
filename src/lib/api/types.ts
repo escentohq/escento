@@ -25,6 +25,8 @@ export interface Gig {
   locationCity: string | null;
   locationState: string | null;
   locationCountry: string | null;
+  locationProvider: string | null;
+  providerPlaceId: string | null;
   locationVisibility: "public_region" | "private";
   isRemote: boolean;
   distanceMiles?: number | null;
@@ -54,6 +56,8 @@ export interface MusicianProfile {
   locationCity: string | null;
   locationState: string | null;
   locationCountry: string | null;
+  locationProvider: string | null;
+  providerPlaceId: string | null;
   locationVisibility: "public_region" | "private";
   isRemote: boolean;
   distanceMiles?: number | null;
@@ -85,6 +89,8 @@ export interface CreateGigInput {
   locationCity: string | null;
   locationState: string | null;
   locationCountry: string | null;
+  locationProvider: string | null;
+  providerPlaceId: string | null;
   locationVisibility: "public_region" | "private";
   isRemote: boolean;
   compensationType: "PAID" | "UNPAID" | "NEGOTIABLE";
@@ -104,6 +110,8 @@ export interface UpdateGigInput {
   locationCity?: string | null;
   locationState?: string | null;
   locationCountry?: string | null;
+  locationProvider?: string | null;
+  providerPlaceId?: string | null;
   locationVisibility?: "public_region" | "private";
   isRemote?: boolean;
   compensationType?: "PAID" | "UNPAID" | "NEGOTIABLE";
@@ -123,6 +131,8 @@ export interface CreateProfileInput {
   locationCity: string | null;
   locationState: string | null;
   locationCountry: string | null;
+  locationProvider: string | null;
+  providerPlaceId: string | null;
   locationVisibility: "public_region" | "private";
   isRemote: boolean;
   seekingPaid: boolean;
@@ -149,6 +159,8 @@ export interface UpdateProfileInput {
   locationCity?: string | null;
   locationState?: string | null;
   locationCountry?: string | null;
+  locationProvider?: string | null;
+  providerPlaceId?: string | null;
   locationVisibility?: "public_region" | "private";
   isRemote?: boolean;
   seekingPaid?: boolean;

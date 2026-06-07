@@ -73,6 +73,8 @@ function toGig(raw: any, creatorSummary?: GigCreatorSummary, distance?: number |
     locationCity: raw.location_city,
     locationState: raw.location_state,
     locationCountry: raw.location_country,
+    locationProvider: raw.location_provider,
+    providerPlaceId: raw.provider_place_id,
     locationVisibility: raw.location_visibility ?? "public_region",
     isRemote: raw.is_remote,
     distanceMiles: distance ?? null,
@@ -223,6 +225,8 @@ export async function createGig(
       location_city: input.locationCity,
       location_state: input.locationState,
       location_country: input.locationCountry,
+      location_provider: input.locationProvider,
+      provider_place_id: input.providerPlaceId,
       location_visibility: input.locationVisibility,
       is_remote: input.isRemote,
       compensation_type: input.compensationType,
@@ -264,6 +268,8 @@ export async function createGig(
     locationCity: gig.location_city,
     locationState: gig.location_state,
     locationCountry: gig.location_country,
+    locationProvider: gig.location_provider,
+    providerPlaceId: gig.provider_place_id,
     locationVisibility: gig.location_visibility ?? "public_region",
     isRemote: gig.is_remote,
     distanceMiles: null,
@@ -299,6 +305,8 @@ export async function updateGig(
   if (input.locationCity !== undefined) updateData.location_city = input.locationCity;
   if (input.locationState !== undefined) updateData.location_state = input.locationState;
   if (input.locationCountry !== undefined) updateData.location_country = input.locationCountry;
+  if (input.locationProvider !== undefined) updateData.location_provider = input.locationProvider;
+  if (input.providerPlaceId !== undefined) updateData.provider_place_id = input.providerPlaceId;
   if (input.locationVisibility !== undefined) updateData.location_visibility = input.locationVisibility;
   if (input.isRemote !== undefined) updateData.is_remote = input.isRemote;
   if (input.compensationType !== undefined) updateData.compensation_type = input.compensationType;

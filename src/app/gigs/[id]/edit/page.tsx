@@ -43,6 +43,8 @@ export default async function EditGigPage({
           locationCity: gig.locationCity ?? "",
           locationState: gig.locationState ?? "",
           locationCountry: gig.locationCountry ?? "",
+          locationProvider: gig.locationProvider ?? "",
+          providerPlaceId: gig.providerPlaceId ?? gig.locationPlaceId ?? "",
           locationVisibility: gig.locationVisibility,
           isRemote: gig.isRemote,
           compensationType: gig.compensationType,

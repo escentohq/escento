@@ -14,6 +14,8 @@ export type LocationAutocompleteValue = {
   locationCity: string;
   locationState: string;
   locationCountry: string;
+  locationProvider: string;
+  providerPlaceId: string;
   locationVisibility: "public_region" | "private";
 };
 
@@ -32,6 +34,8 @@ const emptyStructured = {
   locationCity: "",
   locationState: "",
   locationCountry: "",
+  locationProvider: "",
+  providerPlaceId: "",
 };
 
 export function LocationAutocompleteField({
@@ -73,6 +77,37 @@ export function LocationAutocompleteField({
   }
 
   function selectSuggestion(suggestion: LocationSuggestion) {
+    const applyDetails = (details: {
+      placeId: string;
+      displayName: string;
+      lat: number;
+      lng: number;
+      city: string | null;
+      state: string | null;
+      country: string | null;
+      provider: string;
+    }) => {
+      onChange({
+        ...value,
+        location: details.displayName,
+        locationDisplayName: details.displayName,
+        locationPlaceId: details.placeId,
+        providerPlaceId: details.placeId,
+        locationProvider: details.provider,
+        locationLat: String(details.lat),
+        locationLng: String(details.lng),
+        locationCity: details.city ?? "",
+        locationState: details.state ?? "",
+        locationCountry: details.country ?? "",
+      });
+      setSuggestions([]);
+    };
+
+    if (typeof suggestion.lat === "number" && typeof suggestion.lng === "number") {
+      applyDetails(suggestion);
+      return;
+    }
+
     startTransition(async () => {
       const details = await getLocationDetails(suggestion.placeId);
       if (!details) {
@@ -86,18 +121,7 @@ export function LocationAutocompleteField({
         return;
       }
 
-      onChange({
-        ...value,
-        location: details.displayName,
-        locationDisplayName: details.displayName,
-        locationPlaceId: details.placeId,
-        locationLat: String(details.lat),
-        locationLng: String(details.lng),
-        locationCity: details.city ?? "",
-        locationState: details.state ?? "",
-        locationCountry: details.country ?? "",
-      });
-      setSuggestions([]);
+      applyDetails(details);
     });
   }
 
@@ -120,6 +144,8 @@ export function LocationAutocompleteField({
       <input type="hidden" name="locationCity" value={value.locationCity} />
       <input type="hidden" name="locationState" value={value.locationState} />
       <input type="hidden" name="locationCountry" value={value.locationCountry} />
+      <input type="hidden" name="locationProvider" value={value.locationProvider} />
+      <input type="hidden" name="providerPlaceId" value={value.providerPlaceId} />
       <input type="hidden" name="locationVisibility" value={value.locationVisibility} />
 
       {shouldSearch && suggestions.length > 0 ? (

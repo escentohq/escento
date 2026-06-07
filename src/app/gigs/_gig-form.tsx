@@ -30,6 +30,8 @@ export type GigFormInitial = {
   locationCity: string;
   locationState: string;
   locationCountry: string;
+  locationProvider: string;
+  providerPlaceId: string;
   locationVisibility: "public_region" | "private";
   isRemote: boolean;
   compensationType: string;
@@ -53,6 +55,8 @@ const emptyInitial: GigFormInitial = {
   locationCity: "",
   locationState: "",
   locationCountry: "",
+  locationProvider: "",
+  providerPlaceId: "",
   locationVisibility: "public_region",
   isRemote: true,
   compensationType: "",
@@ -102,6 +106,8 @@ export function GigForm({
         locationCity: stringValue(state.values, "locationCity", current.locationCity),
         locationState: stringValue(state.values, "locationState", current.locationState),
         locationCountry: stringValue(state.values, "locationCountry", current.locationCountry),
+        locationProvider: stringValue(state.values, "locationProvider", current.locationProvider),
+        providerPlaceId: stringValue(state.values, "providerPlaceId", current.providerPlaceId),
         locationVisibility: stringValue(state.values, "locationVisibility", current.locationVisibility) === "private" ? "private" : "public_region",
         isRemote: boolValue(state.values, "isRemote", current.isRemote),
         compensationType: stringValue(state.values, "compensationType", current.compensationType),

@@ -5,6 +5,13 @@ import { strOrEmpty } from "@/lib/form-utils";
 export type LocationSuggestion = {
   placeId: string;
   description: string;
+  displayName: string;
+  lat: number;
+  lng: number;
+  city: string | null;
+  state: string | null;
+  country: string | null;
+  provider: "geoapify";
 };
 
 export type LocationDetails = {
@@ -15,73 +22,124 @@ export type LocationDetails = {
   city: string | null;
   state: string | null;
   country: string | null;
+  provider: "geoapify";
 };
 
-function googleKey() {
-  return process.env.GOOGLE_MAPS_API_KEY;
+type GeoapifyFeature = {
+  properties?: {
+    place_id?: string;
+    formatted?: string;
+    name?: string;
+    city?: string;
+    town?: string;
+    village?: string;
+    municipality?: string;
+    state?: string;
+    state_code?: string;
+    country?: string;
+    country_code?: string;
+    lat?: number;
+    lon?: number;
+  };
+};
+
+function geoapifyKey() {
+  return process.env.GEOAPIFY_API_KEY;
 }
 
-function component(components: any[], type: string, useShortName = false) {
-  const found = components.find((item) => item.types?.includes(type));
-  if (!found) return null;
-  return useShortName ? found.short_name ?? found.long_name ?? null : found.long_name ?? null;
+function locality(properties: NonNullable<GeoapifyFeature["properties"]>) {
+  return properties.city ?? properties.town ?? properties.village ?? properties.municipality ?? properties.name ?? null;
+}
+
+function cleanDisplay(properties: NonNullable<GeoapifyFeature["properties"]>) {
+  const city = locality(properties);
+  const state = properties.state_code ?? properties.state ?? null;
+  const country = properties.country_code?.toUpperCase() ?? properties.country ?? null;
+
+  if (city && state && country && country !== "US") return `${city}, ${state}, ${country}`;
+  if (city && state) return `${city}, ${state}`;
+  if (city && country && country !== "US") return `${city}, ${country}`;
+  return properties.formatted ?? city ?? "";
+}
+
+function toLocationDetails(feature: GeoapifyFeature): LocationDetails | null {
+  const properties = feature.properties;
+  if (!properties || typeof properties.lat !== "number" || typeof properties.lon !== "number") {
+    return null;
+  }
+
+  const displayName = cleanDisplay(properties);
+  if (!displayName) return null;
+
+  const placeId = properties.place_id ?? `${properties.lat},${properties.lon},${displayName}`;
+  const country = properties.country_code?.toUpperCase() ?? properties.country ?? null;
+
+  return {
+    placeId,
+    displayName,
+    lat: properties.lat,
+    lng: properties.lon,
+    city: locality(properties),
+    state: properties.state_code ?? properties.state ?? null,
+    country,
+    provider: "geoapify",
+  };
 }
 
 export async function getLocationSuggestions(query: string): Promise<LocationSuggestion[]> {
   const input = strOrEmpty(query);
-  const key = googleKey();
+  const key = geoapifyKey();
   if (!key || input.length < 2) return [];
 
-  const url = new URL("https://maps.googleapis.com/maps/api/place/autocomplete/json");
-  url.searchParams.set("input", input);
-  url.searchParams.set("key", key);
-  url.searchParams.set("types", "geocode");
-  url.searchParams.set("language", "en");
-  url.searchParams.set("components", "country:us");
+  const url = new URL("https://api.geoapify.com/v1/geocode/autocomplete");
+  url.searchParams.set("text", input);
+  url.searchParams.set("apiKey", key);
+  url.searchParams.set("type", "city");
+  url.searchParams.set("filter", "countrycode:us");
+  url.searchParams.set("format", "geojson");
+  url.searchParams.set("lang", "en");
+  url.searchParams.set("limit", "5");
 
-  const response = await fetch(url, { next: { revalidate: 60 } });
-  if (!response.ok) return [];
-  const data = await response.json();
-  if (data.status !== "OK" && data.status !== "ZERO_RESULTS") return [];
+  try {
+    const response = await fetch(url, { next: { revalidate: 60 } });
+    if (!response.ok) return [];
+    const data = await response.json();
 
-  return (data.predictions ?? []).slice(0, 5).map((prediction: any) => ({
-    placeId: prediction.place_id,
-    description: prediction.description,
-  }));
+    return (data.features ?? [])
+      .map((feature: GeoapifyFeature) => toLocationDetails(feature))
+      .filter((details: LocationDetails | null): details is LocationDetails => Boolean(details))
+      .slice(0, 5)
+      .map((details: LocationDetails) => ({
+        ...details,
+        description: details.displayName,
+      }));
+  } catch (error) {
+    console.error("[location] Geoapify autocomplete failed:", error);
+    return [];
+  }
 }
 
 export async function getLocationDetails(placeId: string): Promise<LocationDetails | null> {
   const id = strOrEmpty(placeId);
-  const key = googleKey();
+  const key = geoapifyKey();
   if (!key || !id) return null;
 
-  const url = new URL("https://maps.googleapis.com/maps/api/place/details/json");
-  url.searchParams.set("place_id", id);
-  url.searchParams.set("key", key);
-  url.searchParams.set("language", "en");
-  url.searchParams.set("fields", "place_id,formatted_address,geometry,address_component");
+  const url = new URL("https://api.geoapify.com/v1/geocode/search");
+  url.searchParams.set("apiKey", key);
+  url.searchParams.set("filter", `place:${id}`);
+  url.searchParams.set("format", "geojson");
+  url.searchParams.set("lang", "en");
+  url.searchParams.set("limit", "1");
 
-  const response = await fetch(url, { next: { revalidate: 60 * 60 * 24 } });
-  if (!response.ok) return null;
-  const data = await response.json();
-  if (data.status !== "OK") return null;
+  try {
+    const response = await fetch(url, { next: { revalidate: 60 * 60 * 24 } });
+    if (!response.ok) return null;
+    const data = await response.json();
+    const feature = data.features?.[0];
 
-  const result = data.result;
-  const components = result.address_components ?? [];
-  const location = result.geometry?.location;
-  if (!location || typeof location.lat !== "number" || typeof location.lng !== "number") return null;
-
-  return {
-    placeId: result.place_id,
-    displayName: result.formatted_address,
-    lat: location.lat,
-    lng: location.lng,
-    city:
-      component(components, "locality") ??
-      component(components, "postal_town") ??
-      component(components, "administrative_area_level_2"),
-    state: component(components, "administrative_area_level_1", true),
-    country: component(components, "country", true),
-  };
+    return feature ? toLocationDetails(feature) : null;
+  } catch (error) {
+    console.error("[location] Geoapify details lookup failed:", error);
+    return null;
+  }
 }
-

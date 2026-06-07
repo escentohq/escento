@@ -121,6 +121,8 @@ export async function createMusicianProfileAction(
       locationCity: data.locationCity,
       locationState: data.locationState,
       locationCountry: data.locationCountry,
+      locationProvider: data.locationProvider,
+      providerPlaceId: data.providerPlaceId,
       locationVisibility: data.locationVisibility,
       isRemote: data.isRemote,
       seekingPaid: data.seekingPaid,
