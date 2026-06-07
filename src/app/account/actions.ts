@@ -49,19 +49,57 @@ export async function signOutAction(): Promise<void> {
 export async function deleteAccountAction(): Promise<void> {
   const session = await requireSignedIn("/account");
   const supabase = await createSupabaseServerClient();
-
-  const [profileResult, gigResult, appUserResult] = await Promise.all([
-    supabase.from("musician_profile").delete().eq("user_id", session.user.id),
-    supabase.from("gig").delete().eq("creator_id", session.user.id),
-    supabase.from("app_user").delete().eq("id", session.user.id),
-  ]);
-
-  const deleteError = profileResult.error ?? gigResult.error ?? appUserResult.error;
-  if (deleteError) throw deleteError;
+  const userId = session.user.id;
 
   try {
     const admin = createSupabaseAdminClient();
-    const { error } = await admin.auth.admin.deleteUser(session.user.id);
+    const [profiles, gigs] = await Promise.all([
+      admin.from("musician_profile").select("id").eq("user_id", userId),
+      admin.from("gig").select("id").eq("creator_id", userId),
+    ]);
+
+    if (profiles.error || gigs.error) throw profiles.error || gigs.error;
+
+    const profileIds = (profiles.data ?? []).map((profile) => profile.id);
+    const gigIds = (gigs.data ?? []).map((gig) => gig.id);
+
+    if (profileIds.length) {
+      const [instrumentDelete, genreDelete] = await Promise.all([
+        admin.from("musician_instrument").delete().in("musician_profile_id", profileIds),
+        admin.from("musician_genre").delete().in("musician_profile_id", profileIds),
+      ]);
+      if (instrumentDelete.error || genreDelete.error) {
+        throw instrumentDelete.error || genreDelete.error;
+      }
+    }
+
+    if (gigIds.length) {
+      const [instrumentDelete, genreDelete] = await Promise.all([
+        admin.from("gig_instrument").delete().in("gig_id", gigIds),
+        admin.from("gig_genre").delete().in("gig_id", gigIds),
+      ]);
+      if (instrumentDelete.error || genreDelete.error) {
+        throw instrumentDelete.error || genreDelete.error;
+      }
+    }
+
+    const [profileDelete, gigDelete, appUserDelete] = await Promise.all([
+      admin.from("musician_profile").delete().eq("user_id", userId),
+      admin.from("gig").delete().eq("creator_id", userId),
+      admin.from("app_user").delete().eq("id", userId),
+    ]);
+
+    const deleteError = profileDelete.error ?? gigDelete.error ?? appUserDelete.error;
+    if (deleteError) throw deleteError;
+
+    const existing = await admin.storage.from(PROFILE_PICTURES_BUCKET).list(userId);
+    if (existing.data?.length) {
+      await admin.storage
+        .from(PROFILE_PICTURES_BUCKET)
+        .remove(existing.data.map((item) => `${userId}/${item.name}`));
+    }
+
+    const { error } = await admin.auth.admin.deleteUser(userId);
     if (error) throw error;
   } catch (error) {
     if (
