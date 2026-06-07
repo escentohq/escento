@@ -115,13 +115,51 @@ function launchMarketToDetails(market: LaunchMarket): LocationDetails {
   };
 }
 
-function dedupeSuggestions(suggestions: LocationSuggestion[]) {
-  const seen = new Set<string>();
-  return suggestions.filter((suggestion) => {
-    const key = suggestion.displayName.toLowerCase();
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
+function milesBetween(a: LocationSuggestion, b: LocationSuggestion) {
+  const toRad = (degrees: number) => degrees * (Math.PI / 180);
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+
+  const value =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+
+  return 7917.5226 * Math.asin(Math.sqrt(value));
+}
+
+function coordinateHint(suggestion: LocationSuggestion) {
+  return `Approx. ${suggestion.lat.toFixed(2)}, ${suggestion.lng.toFixed(2)}`;
+}
+
+function dedupeAndDisambiguateSuggestions(suggestions: LocationSuggestion[]) {
+  const accepted: LocationSuggestion[] = [];
+
+  for (const suggestion of suggestions) {
+    const sameLabel = accepted.filter(
+      (item) => item.displayName.toLowerCase() === suggestion.displayName.toLowerCase(),
+    );
+    const nearbyDuplicate = sameLabel.some((item) => milesBetween(item, suggestion) < 10);
+
+    if (nearbyDuplicate) continue;
+
+    accepted.push(
+      sameLabel.length > 0 && !suggestion.secondaryDescription
+        ? { ...suggestion, secondaryDescription: coordinateHint(suggestion) }
+        : suggestion,
+    );
+  }
+
+  return accepted.map((suggestion, index, all) => {
+    const hasDuplicateLabel = all.some(
+      (item, itemIndex) =>
+        itemIndex !== index &&
+        item.displayName.toLowerCase() === suggestion.displayName.toLowerCase(),
+    );
+
+    if (!hasDuplicateLabel || suggestion.secondaryDescription) return suggestion;
+    return { ...suggestion, secondaryDescription: coordinateHint(suggestion) };
   });
 }
 
@@ -131,8 +169,6 @@ export async function getLocationSuggestions(query: string): Promise<LocationSug
     ...launchMarketToDetails(market),
     description: market.displayName,
   }));
-
-  if (launchSuggestions.length >= 3) return launchSuggestions.slice(0, 5);
 
   const key = geoapifyKey();
   if (!key || input.length < 2) return launchSuggestions;
@@ -163,7 +199,7 @@ export async function getLocationSuggestions(query: string): Promise<LocationSug
       })
       .filter((details: LocationSuggestion | null): details is LocationSuggestion => Boolean(details));
 
-    return dedupeSuggestions([...launchSuggestions, ...geoapifySuggestions]).slice(0, 5);
+    return dedupeAndDisambiguateSuggestions([...launchSuggestions, ...geoapifySuggestions]).slice(0, 5);
   } catch (error) {
     console.error("[location] Geoapify autocomplete failed:", error);
     return launchSuggestions;
