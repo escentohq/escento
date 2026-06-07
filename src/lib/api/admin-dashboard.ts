@@ -156,7 +156,6 @@ export async function listAdminCreators(): Promise<AdminCreatorRow[]> {
     supabase
       .from("app_user")
       .select("id, email, name, role, is_public, is_verified, moderation_status, admin_notes, created_at, updated_at")
-      .eq("role", "CREATOR")
       .order("created_at", { ascending: false }),
     supabase.from("gig").select("creator_id"),
   ]);
@@ -168,10 +167,12 @@ export async function listAdminCreators(): Promise<AdminCreatorRow[]> {
     gigCounts.set(gig.creator_id, (gigCounts.get(gig.creator_id) ?? 0) + 1);
   }
 
-  return (users.data ?? []).map((user) => ({
-    ...userRow(user),
-    gigCount: gigCounts.get(user.id) ?? 0,
-  }));
+  return (users.data ?? [])
+    .filter((user) => user.role === "CREATOR" || gigCounts.has(user.id))
+    .map((user) => ({
+      ...userRow(user),
+      gigCount: gigCounts.get(user.id) ?? 0,
+    }));
 }
 
 export async function listAdminGigs() {
