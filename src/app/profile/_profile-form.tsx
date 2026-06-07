@@ -8,6 +8,10 @@ import { FormField } from "@/components/ui/form-field";
 import { FormSubmitButton } from "@/components/ui/form-submit-button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  LocationAutocompleteField,
+  type LocationAutocompleteValue,
+} from "@/components/location/location-autocomplete-field";
 import { useFormFieldState } from "@/hooks/use-form-field-state";
 import { boolValue, stringValue } from "@/lib/form-snapshots";
 import { countFieldErrors, isValidEmail, type ActionState } from "@/lib/form-utils";
@@ -18,6 +22,14 @@ export type ProfileFormValues = {
   bio: string;
   school: string;
   location: string;
+  locationDisplayName: string;
+  locationPlaceId: string;
+  locationLat: string;
+  locationLng: string;
+  locationCity: string;
+  locationState: string;
+  locationCountry: string;
+  locationVisibility: "public_region" | "private";
   isRemote: boolean;
   seekingPaid: boolean;
   seekingUnpaid: boolean;
@@ -41,6 +53,14 @@ function buildValues(initial: Partial<ProfileFormValues>): ProfileFormValues {
     bio: initial.bio ?? "",
     school: initial.school ?? "",
     location: initial.location ?? "",
+    locationDisplayName: initial.locationDisplayName ?? initial.location ?? "",
+    locationPlaceId: initial.locationPlaceId ?? "",
+    locationLat: initial.locationLat ?? "",
+    locationLng: initial.locationLng ?? "",
+    locationCity: initial.locationCity ?? "",
+    locationState: initial.locationState ?? "",
+    locationCountry: initial.locationCountry ?? "",
+    locationVisibility: initial.locationVisibility ?? "public_region",
     isRemote: initial.isRemote ?? true,
     seekingPaid: initial.seekingPaid ?? true,
     seekingUnpaid: initial.seekingUnpaid ?? true,
@@ -114,6 +134,14 @@ export function ProfileForm({
         bio: stringValue(state.values, "bio", current.bio),
         school: stringValue(state.values, "school", current.school),
         location: stringValue(state.values, "location", current.location),
+        locationDisplayName: stringValue(state.values, "locationDisplayName", current.locationDisplayName),
+        locationPlaceId: stringValue(state.values, "locationPlaceId", current.locationPlaceId),
+        locationLat: stringValue(state.values, "locationLat", current.locationLat),
+        locationLng: stringValue(state.values, "locationLng", current.locationLng),
+        locationCity: stringValue(state.values, "locationCity", current.locationCity),
+        locationState: stringValue(state.values, "locationState", current.locationState),
+        locationCountry: stringValue(state.values, "locationCountry", current.locationCountry),
+        locationVisibility: stringValue(state.values, "locationVisibility", current.locationVisibility) === "private" ? "private" : "public_region",
         isRemote: boolValue(state.values, "isRemote", current.isRemote),
         seekingPaid: boolValue(state.values, "seekingPaid", current.seekingPaid),
         seekingUnpaid: boolValue(state.values, "seekingUnpaid", current.seekingUnpaid),
@@ -216,17 +244,17 @@ export function ProfileForm({
               />
             </FormField>
             <FormField
-              id="location"
+              id="locationDisplayName"
               label="Location"
-              error={errors.location}
-              showError={formFields.shouldShowError("location", errors.location)}
-              onBlur={() => formFields.markTouched("location")}
+              error={errors.locationDisplayName}
+              showError={formFields.shouldShowError("locationDisplayName", errors.locationDisplayName)}
+              onBlur={() => formFields.markTouched("locationDisplayName")}
+              hint="Choose a city or region from the suggestions. Select Remote-friendly below if location does not matter."
             >
-              <Input
-                name="location"
-                value={values.location}
-                onChange={(event) => setValues((current) => ({ ...current, location: event.target.value }))}
-                placeholder="Austin, TX"
+              <LocationAutocompleteField
+                value={values as LocationAutocompleteValue}
+                onChange={(next) => setValues((current) => ({ ...current, ...next }))}
+                invalid={formFields.shouldShowError("locationDisplayName", errors.locationDisplayName) && Boolean(errors.locationDisplayName)}
               />
             </FormField>
           </div>

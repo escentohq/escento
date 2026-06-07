@@ -10,28 +10,31 @@ import {
   projectTypeLabel,
   visibleTags,
 } from "@/lib/display";
+import { displayLocation, parseLocationSearch } from "@/lib/location";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { Reveal } from "@/components/ui/reveal";
+import { LocationDirectoryFilters } from "@/components/location/location-directory-filters";
 
 export default async function GigsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ projectType?: string; instrument?: string; genre?: string }>;
+  searchParams: Promise<{ q?: string; projectType?: string; instrument?: string; genre?: string; locationDisplayName?: string; lat?: string; lng?: string; radius?: string; remote?: string }>;
 }) {
-  const { projectType, instrument, genre } = await searchParams;
+  const { q, projectType, instrument, genre, locationDisplayName, lat, lng, radius, remote } = await searchParams;
   const safeProjectType = PROJECT_TYPES.find((type) => type === projectType);
+  const locationSearch = parseLocationSearch({ q, lat, lng, radius, remote });
 
   const [session, instruments, genres, gigs] = await Promise.all([
     getCurrentSession(),
     listInstruments(),
     listGenres(),
-    listOpenGigs({ projectType: safeProjectType, instrument, genre }),
+    listOpenGigs({ q: locationSearch.query, projectType: safeProjectType, instrument, genre, location: locationSearch }),
   ]);
 
-  const hasFilters = Boolean(safeProjectType || instrument || genre);
+  const hasFilters = Boolean(q || safeProjectType || instrument || genre || locationDisplayName || radius || (remote && remote !== "include"));
   const showPostGigCta = !session?.user || session.user.role === "CREATOR";
 
   return (
@@ -43,52 +46,24 @@ export default async function GigsPage({
     >
       <Reveal>
         <div className="rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm md:p-6">
-          <form method="GET" className="grid gap-4 md:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]" action="/gigs">
-            <label htmlFor="projectType" className="text-sm font-bold text-[#0F172A]">
-              Project type
-              <select id="projectType" name="projectType" defaultValue={safeProjectType ?? ""} className="select-base">
-                <option value="">All types</option>
-                {PROJECT_TYPES.map((type) => (
-                  <option key={type} value={type}>
-                    {projectTypeLabel(type)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label htmlFor="instrument" className="text-sm font-bold text-[#0F172A]">
-              Instrument
-              <select id="instrument" name="instrument" defaultValue={instrument ?? ""} className="select-base">
-                <option value="">All instruments</option>
-                {instruments.map((i) => <option key={i.name} value={i.name}>{i.name}</option>)}
-              </select>
-            </label>
-
-            <label htmlFor="genre" className="text-sm font-bold text-[#0F172A]">
-              Genre
-              <select id="genre" name="genre" defaultValue={genre ?? ""} className="select-base">
-                <option value="">All genres</option>
-                {genres.map((g) => <option key={g.name} value={g.name}>{g.name}</option>)}
-              </select>
-            </label>
-
-            <div className="flex flex-col gap-3 md:col-span-2 md:flex-row md:items-end lg:col-span-1">
-              <button
-                type="submit"
-                className="inline-flex min-h-14 cursor-pointer items-center justify-center rounded-full bg-[#0F172A] px-8 text-sm font-bold tracking-wide text-white transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_-8px_#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
-              >
-                Apply
-              </button>
-              {hasFilters ? (
-                <Link
-                  href="/gigs"
-                  className="inline-flex min-h-11 cursor-pointer items-center justify-center text-sm font-bold text-[#475569] transition-colors hover:text-[#0055FF] md:justify-start md:pb-1"
-                >
-                  Clear
-                </Link>
-              ) : null}
-            </div>
-          </form>
+          <LocationDirectoryFilters
+            action="/gigs"
+            clearHref="/gigs"
+            keyword={q}
+            locationDisplayName={locationDisplayName}
+            locationLat={lat}
+            locationLng={lng}
+            radius={radius}
+            remote={locationSearch.remoteFilter}
+            projectType={safeProjectType}
+            projectTypes={PROJECT_TYPES}
+            projectTypeLabel={projectTypeLabel}
+            instrument={instrument}
+            instruments={instruments}
+            genre={genre}
+            genres={genres}
+            hasFilters={hasFilters}
+          />
         </div>
       </Reveal>
 
@@ -139,7 +114,10 @@ export default async function GigsPage({
                     </div>
 
                     <p className="relative z-10 mt-1 font-mono text-xs text-[#94A3B8]">
-                      {gig.isRemote ? "Remote option" : gig.location || "Location TBD"}
+                      {displayLocation(gig, "Location TBD")}
+                      {gig.distanceMiles !== null && gig.distanceMiles !== undefined
+                        ? ` · ${Math.round(gig.distanceMiles)} mi`
+                        : ""}
                     </p>
 
                     <p className="relative z-10 mt-4 text-sm font-medium leading-relaxed text-[#475569]">

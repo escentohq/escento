@@ -4,27 +4,30 @@ import { getCurrentSession } from "@/lib/auth-guards";
 import { listInstruments, listGenres } from "@/lib/api/tags";
 import { listProfiles } from "@/lib/api/profiles";
 import { clampText, visibleTags } from "@/lib/display";
+import { displayLocation, parseLocationSearch } from "@/lib/location";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { Reveal } from "@/components/ui/reveal";
+import { LocationDirectoryFilters } from "@/components/location/location-directory-filters";
 
 export default async function MusiciansPage({
   searchParams,
 }: {
-  searchParams: Promise<{ instrument?: string; genre?: string }>;
+  searchParams: Promise<{ q?: string; instrument?: string; genre?: string; locationDisplayName?: string; lat?: string; lng?: string; radius?: string; remote?: string }>;
 }) {
-  const { instrument, genre } = await searchParams;
+  const { q, instrument, genre, locationDisplayName, lat, lng, radius, remote } = await searchParams;
+  const locationSearch = parseLocationSearch({ q, lat, lng, radius, remote });
 
   const [session, instruments, genres, profiles] = await Promise.all([
     getCurrentSession(),
     listInstruments(),
     listGenres(),
-    listProfiles({ instrument, genre }),
+    listProfiles({ q: locationSearch.query, instrument, genre, location: locationSearch }),
   ]);
 
-  const hasFilters = Boolean(instrument || genre);
+  const hasFilters = Boolean(q || instrument || genre || locationDisplayName || radius || (remote && remote !== "include"));
   const showCreateProfileCta = !session?.user || session.user.role === "MUSICIAN";
 
   return (
@@ -36,48 +39,21 @@ export default async function MusiciansPage({
     >
       <Reveal>
         <div className="rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm md:p-6">
-          <form method="GET" className="grid gap-4 md:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]" action="/musicians">
-            <label htmlFor="instrument" className="text-sm font-bold text-[#0F172A]">
-              Instrument
-              <select id="instrument" name="instrument" defaultValue={instrument ?? ""} className="select-base">
-                <option value="">All instruments</option>
-                {instruments.map((i) => (
-                  <option key={i.name} value={i.name}>
-                    {i.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label htmlFor="genre" className="text-sm font-bold text-[#0F172A]">
-              Genre
-              <select id="genre" name="genre" defaultValue={genre ?? ""} className="select-base">
-                <option value="">All genres</option>
-                {genres.map((g) => (
-                  <option key={g.name} value={g.name}>
-                    {g.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <div className="flex flex-col gap-3 md:col-span-2 md:flex-row md:items-end lg:col-span-1">
-              <button
-                type="submit"
-                className="inline-flex min-h-14 cursor-pointer items-center justify-center rounded-full bg-[#0F172A] px-8 text-sm font-bold tracking-wide text-white transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_-8px_#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
-              >
-                Apply
-              </button>
-              {hasFilters ? (
-                <Link
-                  href="/musicians"
-                  className="inline-flex min-h-11 cursor-pointer items-center justify-center text-sm font-bold text-[#475569] transition-colors hover:text-[#0055FF] md:justify-start md:pb-1"
-                >
-                  Clear
-                </Link>
-              ) : null}
-            </div>
-          </form>
+          <LocationDirectoryFilters
+            action="/musicians"
+            clearHref="/musicians"
+            keyword={q}
+            locationDisplayName={locationDisplayName}
+            locationLat={lat}
+            locationLng={lng}
+            radius={radius}
+            remote={locationSearch.remoteFilter}
+            instrument={instrument}
+            instruments={instruments}
+            genre={genre}
+            genres={genres}
+            hasFilters={hasFilters}
+          />
         </div>
       </Reveal>
 
@@ -133,7 +109,10 @@ export default async function MusiciansPage({
                             {profile.displayName}
                           </h2>
                           <p className="mt-0.5 font-mono text-xs text-[#64748B]">
-                            {profile.location || "Location not specified"}
+                            {displayLocation(profile)}
+                            {profile.distanceMiles !== null && profile.distanceMiles !== undefined
+                              ? ` · ${Math.round(profile.distanceMiles)} mi`
+                              : ""}
                           </p>
                         </div>
                       </div>

@@ -7,6 +7,10 @@ import { FormErrorBanner } from "@/components/ui/form-error-banner";
 import { FormField } from "@/components/ui/form-field";
 import { FormSubmitButton } from "@/components/ui/form-submit-button";
 import { Input } from "@/components/ui/input";
+import {
+  LocationAutocompleteField,
+  type LocationAutocompleteValue,
+} from "@/components/location/location-autocomplete-field";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useFormFieldState } from "@/hooks/use-form-field-state";
@@ -19,6 +23,14 @@ export type GigFormInitial = {
   description: string;
   projectType: string;
   location: string;
+  locationDisplayName: string;
+  locationPlaceId: string;
+  locationLat: string;
+  locationLng: string;
+  locationCity: string;
+  locationState: string;
+  locationCountry: string;
+  locationVisibility: "public_region" | "private";
   isRemote: boolean;
   compensationType: string;
   compensationDetails: string;
@@ -34,6 +46,14 @@ const emptyInitial: GigFormInitial = {
   description: "",
   projectType: "",
   location: "",
+  locationDisplayName: "",
+  locationPlaceId: "",
+  locationLat: "",
+  locationLng: "",
+  locationCity: "",
+  locationState: "",
+  locationCountry: "",
+  locationVisibility: "public_region",
   isRemote: true,
   compensationType: "",
   compensationDetails: "",
@@ -75,6 +95,14 @@ export function GigForm({
         description: stringValue(state.values, "description", current.description),
         projectType: stringValue(state.values, "projectType", current.projectType),
         location: stringValue(state.values, "location", current.location),
+        locationDisplayName: stringValue(state.values, "locationDisplayName", current.locationDisplayName),
+        locationPlaceId: stringValue(state.values, "locationPlaceId", current.locationPlaceId),
+        locationLat: stringValue(state.values, "locationLat", current.locationLat),
+        locationLng: stringValue(state.values, "locationLng", current.locationLng),
+        locationCity: stringValue(state.values, "locationCity", current.locationCity),
+        locationState: stringValue(state.values, "locationState", current.locationState),
+        locationCountry: stringValue(state.values, "locationCountry", current.locationCountry),
+        locationVisibility: stringValue(state.values, "locationVisibility", current.locationVisibility) === "private" ? "private" : "public_region",
         isRemote: boolValue(state.values, "isRemote", current.isRemote),
         compensationType: stringValue(state.values, "compensationType", current.compensationType),
         compensationDetails: stringValue(state.values, "compensationDetails", current.compensationDetails),
@@ -211,17 +239,17 @@ export function GigForm({
           </legend>
           <div className="grid gap-5 md:grid-cols-2">
             <FormField
-              id="location"
+              id="locationDisplayName"
               label="Location"
-              error={errors.location}
-              showError={formFields.shouldShowError("location", errors.location)}
-              onBlur={() => formFields.markTouched("location")}
+              error={errors.locationDisplayName}
+              showError={formFields.shouldShowError("locationDisplayName", errors.locationDisplayName)}
+              onBlur={() => formFields.markTouched("locationDisplayName")}
+              hint="Choose a place from the suggestions, or use Remote option if location does not matter."
             >
-              <Input
-                name="location"
-                value={values.location}
-                onChange={(event) => setValues((current) => ({ ...current, location: event.target.value }))}
-                placeholder="Austin, TX"
+              <LocationAutocompleteField
+                value={values as LocationAutocompleteValue}
+                onChange={(next) => setValues((current) => ({ ...current, ...next }))}
+                invalid={formFields.shouldShowError("locationDisplayName", errors.locationDisplayName) && Boolean(errors.locationDisplayName)}
               />
             </FormField>
             <label

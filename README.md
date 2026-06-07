@@ -238,6 +238,7 @@ Profile pictures are stored in the public Supabase Storage bucket `profile-pictu
    NEXT_PUBLIC_SUPABASE_ANON_KEY=...
    SUPABASE_SERVICE_ROLE_KEY=...   # server-only; required for account deletion + profile picture uploads
    NEXT_PUBLIC_APP_URL=http://localhost:3000
+   GOOGLE_MAPS_API_KEY=...         # server-only; enables Places autocomplete for profile/gig locations
    ```
 
 3. **Run dev server:**
@@ -252,6 +253,7 @@ Profile pictures are stored in the public Supabase Storage bucket `profile-pictu
 2. Ensure the Motivo schema exists in Supabase (`app_user`, `musician_profile`, `gig`, tag tables, junction tables)
 3. Apply SQL migrations in `supabase/migrations/` when present
 4. The app creates the `profile-pictures` Storage bucket on first profile-picture update when `SUPABASE_SERVICE_ROLE_KEY` is configured
+5. Apply `supabase/migrations/20260607000000_add_structured_locations.sql` before using location radius search
 
 ## Commands
 

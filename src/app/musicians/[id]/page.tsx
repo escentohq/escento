@@ -16,6 +16,7 @@ import type {
   MessagingBlockStatus,
   MessagingRelationship,
 } from "@/lib/api/types";
+import { displayLocation } from "@/lib/location";
 
 function isValidId(id: string) {
   return id.length > 0 && id.length < 64;
@@ -69,6 +70,7 @@ export default async function MusicianPublicProfilePage({
 
   const abbr = initials(profile.displayName);
   const isOwnProfile = session?.user?.id === profile.userId;
+  const profileLocation = displayLocation(profile, "");
 
   return (
     <div className="bg-[#FAFAFA] px-4 py-12 sm:px-6 md:py-16 lg:py-24">
@@ -113,10 +115,10 @@ export default async function MusicianPublicProfilePage({
                       {profile.displayName}
                     </h1>
                     <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-[#64748B]">
-                      {profile.location && (
+                      {profileLocation && (
                         <span className="inline-flex items-center gap-1.5">
                           <MapPin className="h-3.5 w-3.5" aria-hidden />
-                          {profile.location}
+                          {profileLocation}
                         </span>
                       )}
                       {profile.school && (

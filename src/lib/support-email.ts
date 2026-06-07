@@ -1,5 +1,3 @@
-import { Resend } from "resend";
-
 type SupportEmailPayload = {
   name: string | null;
   email: string;
@@ -73,18 +71,25 @@ export async function sendSupportEmail(payload: SupportEmailPayload): Promise<Su
   }
 
   try {
-    const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({
-      from: process.env.SUPPORT_FROM_EMAIL || DEFAULT_FROM,
-      to: destination,
-      replyTo: payload.email,
-      subject: `[Motivo Support] ${payload.subject}`,
-      text: formatSupportEmail(payload),
-      html: formatSupportEmailHtml(payload),
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: process.env.SUPPORT_FROM_EMAIL || DEFAULT_FROM,
+        to: destination,
+        reply_to: payload.email,
+        subject: `[Motivo Support] ${payload.subject}`,
+        text: formatSupportEmail(payload),
+        html: formatSupportEmailHtml(payload),
+      }),
     });
 
-    if (error) {
-      console.error("[support-email] Resend returned an error:", error);
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "Unknown Resend error");
+      console.error("[support-email] Resend returned an error:", errorText);
       return { ok: false, reason: "delivery_failed" };
     }
 
@@ -94,4 +99,3 @@ export async function sendSupportEmail(payload: SupportEmailPayload): Promise<Su
     return { ok: false, reason: "delivery_failed" };
   }
 }
-

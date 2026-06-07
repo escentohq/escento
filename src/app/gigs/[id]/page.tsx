@@ -16,6 +16,7 @@ import type {
   MessagingRelationship,
 } from "@/lib/api/types";
 import { compensationLabel, projectTypeLabel } from "@/lib/display";
+import { displayLocation } from "@/lib/location";
 
 function isValidId(id: string) {
   return id.length > 0 && id.length < 64;
@@ -36,6 +37,7 @@ export default async function GigPage({
   if (!gig) notFound();
 
   const isOwnGig = session?.user?.id === gig.creatorId;
+  const gigLocation = displayLocation(gig, "");
   let relationship: MessagingRelationship | null = null;
   let blockStatus: MessagingBlockStatus | null = null;
   let messagingUnavailable = false;
@@ -84,10 +86,10 @@ export default async function GigPage({
                     {gig.title}
                   </h1>
                   <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-[#64748B]">
-                    {gig.location && (
+                    {gigLocation && (
                       <span className="inline-flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5" aria-hidden />
-                        {gig.location}
+                        {gigLocation}
                       </span>
                     )}
                     {gig.deadline && (

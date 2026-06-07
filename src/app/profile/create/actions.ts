@@ -15,6 +15,7 @@ import {
   parseOptionalInteger,
   strOrEmpty,
 } from "@/lib/form-utils";
+import { parseStructuredLocation, validateStructuredLocation } from "@/lib/location";
 import { profileValuesFromFormData } from "@/lib/form-snapshots";
 import { requireRole } from "@/lib/auth-guards";
 
@@ -24,7 +25,7 @@ function validateProfile(fd: FormData) {
   const displayName = strOrEmpty(fd.get("displayName"));
   const bio = nonEmptyOrNull(fd.get("bio"));
   const school = nonEmptyOrNull(fd.get("school"));
-  const location = nonEmptyOrNull(fd.get("location"));
+  const location = parseStructuredLocation(fd);
   const isRemote = fd.get("isRemote") === "on";
   const seekingPaid = fd.get("seekingPaid") === "on";
   const seekingUnpaid = fd.get("seekingUnpaid") === "on";
@@ -50,6 +51,7 @@ function validateProfile(fd: FormData) {
   if (yearsExperienceRaw && yearsExperience === null) fieldError(fieldErrors, "yearsExperience", "Use a whole number.");
   if (yearsExperience !== null && yearsExperience < 0) fieldError(fieldErrors, "yearsExperience", "Experience cannot be negative.");
   if (!seekingPaid && !seekingUnpaid) fieldError(fieldErrors, "seekingPaid", "Choose at least one compensation preference.");
+  validateStructuredLocation(fieldErrors, location, isRemote);
 
   for (const [field, value] of Object.entries({
     instagramUrl,
@@ -67,7 +69,7 @@ function validateProfile(fd: FormData) {
       displayName,
       bio,
       school,
-      location,
+      ...location,
       isRemote,
       seekingPaid,
       seekingUnpaid,
@@ -112,6 +114,14 @@ export async function createMusicianProfileAction(
       bio: data.bio,
       school: data.school,
       location: data.location,
+      locationDisplayName: data.locationDisplayName,
+      locationPlaceId: data.locationPlaceId,
+      locationLat: data.locationLat,
+      locationLng: data.locationLng,
+      locationCity: data.locationCity,
+      locationState: data.locationState,
+      locationCountry: data.locationCountry,
+      locationVisibility: data.locationVisibility,
       isRemote: data.isRemote,
       seekingPaid: data.seekingPaid,
       seekingUnpaid: data.seekingUnpaid,

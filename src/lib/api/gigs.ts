@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { distanceMiles, type LocationSearch } from "@/lib/location";
 import { ensureInstruments, ensureGenres } from "./tags";
 import type { Gig, CreateGigInput, UpdateGigInput } from "./types";
 
@@ -53,7 +54,7 @@ async function withCreatorSummaries(rawGigs: any[]): Promise<Gig[]> {
   return rawGigs.map((raw) => toGig(raw, creatorSummaries.get(raw.creator_id)));
 }
 
-function toGig(raw: any, creatorSummary?: GigCreatorSummary): Gig {
+function toGig(raw: any, creatorSummary?: GigCreatorSummary, distance?: number | null): Gig {
   const joinedCreator = raw.app_user
     ? { name: raw.app_user.name ?? null, email: raw.app_user.email ?? null }
     : undefined;
@@ -65,7 +66,16 @@ function toGig(raw: any, creatorSummary?: GigCreatorSummary): Gig {
     description: raw.description,
     projectType: raw.project_type,
     location: raw.location,
+    locationDisplayName: raw.location_display_name,
+    locationPlaceId: raw.location_place_id,
+    locationLat: raw.location_lat,
+    locationLng: raw.location_lng,
+    locationCity: raw.location_city,
+    locationState: raw.location_state,
+    locationCountry: raw.location_country,
+    locationVisibility: raw.location_visibility ?? "public_region",
     isRemote: raw.is_remote,
+    distanceMiles: distance ?? null,
     compensationType: raw.compensation_type,
     compensationDetails: raw.compensation_details,
     deadline: raw.deadline,
@@ -97,6 +107,12 @@ interface ListOpenGigsFilters {
   projectType?: string;
   instrument?: string;
   genre?: string;
+  q?: string;
+  location?: LocationSearch;
+}
+
+function safeSearchPattern(value: string) {
+  return value.replace(/[,%()]/g, " ").trim();
 }
 
 export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]> {
@@ -107,6 +123,11 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
     .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*)), app_user(name, email)")
     .eq("status", "OPEN")
     .order("created_at", { ascending: false });
+
+  const q = filters?.q ? safeSearchPattern(filters.q) : "";
+  if (q) {
+    query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%,compensation_details.ilike.%${q}%`);
+  }
 
   if (filters?.projectType) {
     query = query.eq("project_type", filters.projectType);
@@ -128,7 +149,38 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
 
   if (error) throw error;
 
-  return withCreatorSummaries((data || []).slice(0, 50));
+  let gigs = await withCreatorSummaries(data || []);
+  const location = filters?.location;
+
+  if (location?.remoteFilter === "remote") {
+    gigs = gigs.filter((gig) => gig.isRemote);
+  } else if (location?.remoteFilter === "in_person") {
+    gigs = gigs.filter((gig) => !gig.isRemote);
+  }
+
+  if (location?.lat !== null && location?.lat !== undefined && location.lng !== null && location.lng !== undefined && location.radiusMiles) {
+    gigs = gigs
+      .map((gig) => {
+        if (gig.locationLat === null || gig.locationLng === null) return gig;
+        return {
+          ...gig,
+          distanceMiles: distanceMiles(location.lat!, location.lng!, gig.locationLat, gig.locationLng),
+        };
+      })
+      .filter((gig) => {
+        if (gig.distanceMiles !== null && gig.distanceMiles !== undefined) {
+          return gig.distanceMiles <= location.radiusMiles!;
+        }
+        return location.remoteFilter === "include" && gig.isRemote;
+      })
+      .sort((a, b) => {
+        if (a.distanceMiles === null || a.distanceMiles === undefined) return 1;
+        if (b.distanceMiles === null || b.distanceMiles === undefined) return -1;
+        return a.distanceMiles - b.distanceMiles;
+      });
+  }
+
+  return gigs.slice(0, 50);
 }
 
 export async function listGigsByCreator(creatorId: string): Promise<Gig[]> {
@@ -164,6 +216,14 @@ export async function createGig(
       description: input.description,
       project_type: input.projectType,
       location: input.location,
+      location_display_name: input.locationDisplayName,
+      location_place_id: input.locationPlaceId,
+      location_lat: input.locationLat,
+      location_lng: input.locationLng,
+      location_city: input.locationCity,
+      location_state: input.locationState,
+      location_country: input.locationCountry,
+      location_visibility: input.locationVisibility,
       is_remote: input.isRemote,
       compensation_type: input.compensationType,
       compensation_details: input.compensationDetails,
@@ -197,7 +257,16 @@ export async function createGig(
     description: gig.description,
     projectType: gig.project_type,
     location: gig.location,
+    locationDisplayName: gig.location_display_name,
+    locationPlaceId: gig.location_place_id,
+    locationLat: gig.location_lat,
+    locationLng: gig.location_lng,
+    locationCity: gig.location_city,
+    locationState: gig.location_state,
+    locationCountry: gig.location_country,
+    locationVisibility: gig.location_visibility ?? "public_region",
     isRemote: gig.is_remote,
+    distanceMiles: null,
     compensationType: gig.compensation_type,
     compensationDetails: gig.compensation_details,
     deadline: gig.deadline,
@@ -223,6 +292,14 @@ export async function updateGig(
   if (input.description !== undefined) updateData.description = input.description;
   if (input.projectType !== undefined) updateData.project_type = input.projectType;
   if (input.location !== undefined) updateData.location = input.location;
+  if (input.locationDisplayName !== undefined) updateData.location_display_name = input.locationDisplayName;
+  if (input.locationPlaceId !== undefined) updateData.location_place_id = input.locationPlaceId;
+  if (input.locationLat !== undefined) updateData.location_lat = input.locationLat;
+  if (input.locationLng !== undefined) updateData.location_lng = input.locationLng;
+  if (input.locationCity !== undefined) updateData.location_city = input.locationCity;
+  if (input.locationState !== undefined) updateData.location_state = input.locationState;
+  if (input.locationCountry !== undefined) updateData.location_country = input.locationCountry;
+  if (input.locationVisibility !== undefined) updateData.location_visibility = input.locationVisibility;
   if (input.isRemote !== undefined) updateData.is_remote = input.isRemote;
   if (input.compensationType !== undefined) updateData.compensation_type = input.compensationType;
   if (input.compensationDetails !== undefined) updateData.compensation_details = input.compensationDetails;

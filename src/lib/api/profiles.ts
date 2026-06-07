@@ -1,10 +1,11 @@
 import { cache } from "react";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { distanceMiles, type LocationSearch } from "@/lib/location";
 import { ensureInstruments, ensureGenres } from "./tags";
 import type { MusicianProfile, CreateProfileInput, UpdateProfileInput } from "./types";
 
-function toProfile(raw: any): MusicianProfile {
+function toProfile(raw: any, distance?: number | null): MusicianProfile {
   return {
     id: raw.id,
     userId: raw.user_id,
@@ -13,7 +14,16 @@ function toProfile(raw: any): MusicianProfile {
     bio: raw.bio,
     school: raw.school,
     location: raw.location,
+    locationDisplayName: raw.location_display_name,
+    locationPlaceId: raw.location_place_id,
+    locationLat: raw.location_lat,
+    locationLng: raw.location_lng,
+    locationCity: raw.location_city,
+    locationState: raw.location_state,
+    locationCountry: raw.location_country,
+    locationVisibility: raw.location_visibility ?? "public_region",
     isRemote: raw.is_remote,
+    distanceMiles: distance ?? null,
     seekingPaid: raw.seeking_paid,
     seekingUnpaid: raw.seeking_unpaid,
     yearsExperience: raw.years_experience,
@@ -58,6 +68,12 @@ export const getProfileByUserId = cache(async (userId: string): Promise<Musician
 interface ListProfilesFilters {
   instrument?: string;
   genre?: string;
+  q?: string;
+  location?: LocationSearch;
+}
+
+function safeSearchPattern(value: string) {
+  return value.replace(/[,%()]/g, " ").trim();
 }
 
 export async function listProfiles(filters?: ListProfilesFilters): Promise<MusicianProfile[]> {
@@ -67,6 +83,11 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
     .from("musician_profile")
     .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
     .order("updated_at", { ascending: false });
+
+  const q = filters?.q ? safeSearchPattern(filters.q) : "";
+  if (q) {
+    query = query.or(`display_name.ilike.%${q}%,bio.ilike.%${q}%,school.ilike.%${q}%`);
+  }
 
   if (filters?.instrument) {
     query = query
@@ -84,7 +105,38 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
 
   if (error) throw error;
 
-  return (data || []).map(toProfile).slice(0, 50);
+  let profiles = (data || []).map((raw) => toProfile(raw));
+  const location = filters?.location;
+
+  if (location?.remoteFilter === "remote") {
+    profiles = profiles.filter((profile) => profile.isRemote);
+  } else if (location?.remoteFilter === "in_person") {
+    profiles = profiles.filter((profile) => !profile.isRemote);
+  }
+
+  if (location?.lat !== null && location?.lat !== undefined && location.lng !== null && location.lng !== undefined && location.radiusMiles) {
+    profiles = profiles
+      .map((profile) => {
+        if (profile.locationLat === null || profile.locationLng === null) return profile;
+        return {
+          ...profile,
+          distanceMiles: distanceMiles(location.lat!, location.lng!, profile.locationLat, profile.locationLng),
+        };
+      })
+      .filter((profile) => {
+        if (profile.distanceMiles !== null && profile.distanceMiles !== undefined) {
+          return profile.distanceMiles <= location.radiusMiles!;
+        }
+        return location.remoteFilter === "include" && profile.isRemote;
+      })
+      .sort((a, b) => {
+        if (a.distanceMiles === null || a.distanceMiles === undefined) return 1;
+        if (b.distanceMiles === null || b.distanceMiles === undefined) return -1;
+        return a.distanceMiles - b.distanceMiles;
+      });
+  }
+
+  return profiles.slice(0, 50);
 }
 
 export async function createProfile(
@@ -107,6 +159,14 @@ export async function createProfile(
       bio: input.bio,
       school: input.school,
       location: input.location,
+      location_display_name: input.locationDisplayName,
+      location_place_id: input.locationPlaceId,
+      location_lat: input.locationLat,
+      location_lng: input.locationLng,
+      location_city: input.locationCity,
+      location_state: input.locationState,
+      location_country: input.locationCountry,
+      location_visibility: input.locationVisibility,
       is_remote: input.isRemote,
       seeking_paid: input.seekingPaid,
       seeking_unpaid: input.seekingUnpaid,
@@ -147,7 +207,16 @@ export async function createProfile(
     bio: profile.bio,
     school: profile.school,
     location: profile.location,
+    locationDisplayName: profile.location_display_name,
+    locationPlaceId: profile.location_place_id,
+    locationLat: profile.location_lat,
+    locationLng: profile.location_lng,
+    locationCity: profile.location_city,
+    locationState: profile.location_state,
+    locationCountry: profile.location_country,
+    locationVisibility: profile.location_visibility ?? "public_region",
     isRemote: profile.is_remote,
+    distanceMiles: null,
     seekingPaid: profile.seeking_paid,
     seekingUnpaid: profile.seeking_unpaid,
     yearsExperience: profile.years_experience,
@@ -179,6 +248,14 @@ export async function updateProfile(
   if (input.bio !== undefined) updateData.bio = input.bio;
   if (input.school !== undefined) updateData.school = input.school;
   if (input.location !== undefined) updateData.location = input.location;
+  if (input.locationDisplayName !== undefined) updateData.location_display_name = input.locationDisplayName;
+  if (input.locationPlaceId !== undefined) updateData.location_place_id = input.locationPlaceId;
+  if (input.locationLat !== undefined) updateData.location_lat = input.locationLat;
+  if (input.locationLng !== undefined) updateData.location_lng = input.locationLng;
+  if (input.locationCity !== undefined) updateData.location_city = input.locationCity;
+  if (input.locationState !== undefined) updateData.location_state = input.locationState;
+  if (input.locationCountry !== undefined) updateData.location_country = input.locationCountry;
+  if (input.locationVisibility !== undefined) updateData.location_visibility = input.locationVisibility;
   if (input.isRemote !== undefined) updateData.is_remote = input.isRemote;
   if (input.seekingPaid !== undefined) updateData.seeking_paid = input.seekingPaid;
   if (input.seekingUnpaid !== undefined) updateData.seeking_unpaid = input.seekingUnpaid;

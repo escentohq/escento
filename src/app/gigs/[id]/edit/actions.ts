@@ -17,6 +17,7 @@ import {
   strOrEmpty,
 } from "@/lib/form-utils";
 import { gigValuesFromFormData } from "@/lib/form-snapshots";
+import { parseStructuredLocation, validateStructuredLocation } from "@/lib/location";
 
 export async function updateGigAction(
   gigId: string,
@@ -32,7 +33,7 @@ export async function updateGigAction(
   const title = strOrEmpty(fd.get("title"));
   const description = strOrEmpty(fd.get("description"));
   const projectType = pickEnum(fd.get("projectType"), PROJECT_TYPES);
-  const location = nonEmptyOrNull(fd.get("location"));
+  const location = parseStructuredLocation(fd);
   const isRemote = fd.get("isRemote") === "on";
   const compensationType = pickEnum(fd.get("compensationType"), COMPENSATION_TYPES);
   const compensationDetails = nonEmptyOrNull(fd.get("compensationDetails"));
@@ -48,6 +49,7 @@ export async function updateGigAction(
   if (!projectType) fieldError(fieldErrors, "projectType", "Choose a project type.");
   if (!compensationType) fieldError(fieldErrors, "compensationType", "Choose a compensation type.");
   if (deadlineRaw && !deadline) fieldError(fieldErrors, "deadline", "Use a valid date.");
+  validateStructuredLocation(fieldErrors, location, isRemote);
 
   if (Object.keys(fieldErrors).length) {
     return {
@@ -64,7 +66,15 @@ export async function updateGigAction(
       title,
       description,
       projectType: projectType!,
-      location,
+      location: location.location,
+      locationDisplayName: location.locationDisplayName,
+      locationPlaceId: location.locationPlaceId,
+      locationLat: location.locationLat,
+      locationLng: location.locationLng,
+      locationCity: location.locationCity,
+      locationState: location.locationState,
+      locationCountry: location.locationCountry,
+      locationVisibility: location.locationVisibility,
       isRemote,
       compensationType: compensationType!,
       compensationDetails,
