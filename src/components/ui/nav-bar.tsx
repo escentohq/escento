@@ -14,10 +14,13 @@ type Props = {
 
 function MessagesLink({ unreadConversationCount = 0 }: { unreadConversationCount?: number }) {
   return (
-    <Link href="/messages" className="relative whitespace-nowrap transition-colors hover:text-[#0055FF]">
+    <Link href="/messages" className="relative whitespace-nowrap pr-1 transition-colors hover:text-[#0055FF]">
       Messages
       {unreadConversationCount > 0 ? (
-        <span className="absolute -right-3 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF3366] px-1 text-[10px] font-black leading-none text-white">
+        <span
+          aria-label={`${unreadConversationCount} unread`}
+          className="absolute -right-2.5 -top-2.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FF3366] px-1 text-[10px] font-black leading-none text-white ring-2 ring-white"
+        >
           {unreadConversationCount > 9 ? "9+" : unreadConversationCount}
         </span>
       ) : null}
