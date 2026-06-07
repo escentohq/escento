@@ -10,6 +10,7 @@ import {
 export type LocationSuggestion = {
   placeId: string;
   description: string;
+  secondaryDescription?: string | null;
   displayName: string;
   lat: number;
   lng: number;
@@ -43,6 +44,7 @@ type GeoapifyFeature = {
     state_code?: string;
     country?: string;
     country_code?: string;
+    county?: string;
     lat?: number;
     lon?: number;
   };
@@ -65,6 +67,15 @@ function cleanDisplay(properties: NonNullable<GeoapifyFeature["properties"]>) {
   if (city && state) return `${city}, ${state}`;
   if (city && country && country !== "US") return `${city}, ${country}`;
   return properties.formatted ?? city ?? "";
+}
+
+function secondaryDisplay(properties: NonNullable<GeoapifyFeature["properties"]>) {
+  const parts = [
+    properties.county,
+    properties.country_code?.toUpperCase() === "US" ? null : properties.country,
+  ].filter(Boolean);
+
+  return parts.length ? parts.join(", ") : null;
 }
 
 function toLocationDetails(feature: GeoapifyFeature): LocationDetails | null {
@@ -107,7 +118,7 @@ function launchMarketToDetails(market: LaunchMarket): LocationDetails {
 function dedupeSuggestions(suggestions: LocationSuggestion[]) {
   const seen = new Set<string>();
   return suggestions.filter((suggestion) => {
-    const key = `${suggestion.displayName.toLowerCase()}:${suggestion.lat}:${suggestion.lng}`;
+    const key = suggestion.displayName.toLowerCase();
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -130,10 +141,9 @@ export async function getLocationSuggestions(query: string): Promise<LocationSug
   url.searchParams.set("text", input);
   url.searchParams.set("apiKey", key);
   url.searchParams.set("type", "city");
-  url.searchParams.set("filter", "countrycode:us");
   url.searchParams.set("format", "geojson");
   url.searchParams.set("lang", "en");
-  url.searchParams.set("limit", "5");
+  url.searchParams.set("limit", "8");
 
   try {
     const response = await fetch(url, { next: { revalidate: 60 } });
@@ -141,13 +151,17 @@ export async function getLocationSuggestions(query: string): Promise<LocationSug
     const data = await response.json();
 
     const geoapifySuggestions = (data.features ?? [])
-      .map((feature: GeoapifyFeature) => toLocationDetails(feature))
-      .filter((details: LocationDetails | null): details is LocationDetails => Boolean(details))
-      .slice(0, 5)
-      .map((details: LocationDetails) => ({
-        ...details,
-        description: details.displayName,
-      }));
+      .map((feature: GeoapifyFeature) => {
+        const details = toLocationDetails(feature);
+        if (!details) return null;
+
+        return {
+          ...details,
+          description: details.displayName,
+          secondaryDescription: feature.properties ? secondaryDisplay(feature.properties) : null,
+        };
+      })
+      .filter((details: LocationSuggestion | null): details is LocationSuggestion => Boolean(details));
 
     return dedupeSuggestions([...launchSuggestions, ...geoapifySuggestions]).slice(0, 5);
   } catch (error) {

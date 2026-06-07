@@ -158,7 +158,12 @@ export function LocationAutocompleteField({
               onClick={() => selectSuggestion(suggestion)}
               className="block w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus-visible:outline-2 focus-visible:outline-[#0055FF]"
             >
-              {suggestion.description}
+              <span className="block">{suggestion.description}</span>
+              {suggestion.secondaryDescription ? (
+                <span className="mt-0.5 block text-xs font-medium text-[#64748B]">
+                  {suggestion.secondaryDescription}
+                </span>
+              ) : null}
             </button>
           ))}
         </div>
