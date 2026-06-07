@@ -26,6 +26,10 @@ export default async function GigsPage({
   const { q, projectType, instrument, genre, locationDisplayName, lat, lng, radius, remote } = await searchParams;
   const safeProjectType = PROJECT_TYPES.find((type) => type === projectType);
   const locationSearch = parseLocationSearch({ q, lat, lng, radius, remote });
+  const projectTypeOptions = PROJECT_TYPES.map((type) => ({
+    value: type,
+    label: projectTypeLabel(type),
+  }));
 
   const [session, instruments, genres, gigs] = await Promise.all([
     getCurrentSession(),
@@ -56,8 +60,7 @@ export default async function GigsPage({
             radius={radius}
             remote={locationSearch.remoteFilter}
             projectType={safeProjectType}
-            projectTypes={PROJECT_TYPES}
-            projectTypeLabel={projectTypeLabel}
+            projectTypeOptions={projectTypeOptions}
             instrument={instrument}
             instruments={instruments}
             genre={genre}

@@ -15,6 +15,11 @@ type Option = {
   name: string;
 };
 
+type SelectOption = {
+  value: string;
+  label: string;
+};
+
 type Props = {
   action: string;
   clearHref: string;
@@ -25,8 +30,7 @@ type Props = {
   radius?: string;
   remote?: RemoteFilter;
   projectType?: string;
-  projectTypes?: readonly string[];
-  projectTypeLabel?: (value: string) => string;
+  projectTypeOptions?: readonly SelectOption[];
   instrument?: string;
   instruments: Option[];
   genre?: string;
@@ -44,8 +48,7 @@ export function LocationDirectoryFilters({
   radius = "",
   remote = "include",
   projectType = "",
-  projectTypes,
-  projectTypeLabel,
+  projectTypeOptions,
   instrument = "",
   instruments,
   genre = "",
@@ -78,13 +81,13 @@ export function LocationDirectoryFilters({
         />
       </label>
 
-      {projectTypes && projectTypeLabel ? (
+      {projectTypeOptions ? (
         <label htmlFor="projectType" className="text-sm font-bold text-[#0F172A]">
           Project type
           <Select id="projectType" name="projectType" defaultValue={projectType}>
             <option value="">All types</option>
-            {projectTypes.map((type) => (
-              <option key={type} value={type}>{projectTypeLabel(type)}</option>
+            {projectTypeOptions.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
             ))}
           </Select>
         </label>
