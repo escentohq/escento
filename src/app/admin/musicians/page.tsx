@@ -1,5 +1,5 @@
 import { AdminActionButton } from "@/components/admin/admin-action-button";
-import { AdminNav, AdminUnavailable, DateValue, ModerationTodo, Preview, StatusCells } from "@/components/admin/admin-display";
+import { AdminNav, AdminSetupRequired, AdminUnavailable, DateValue, ModerationTodo, Preview, StatusCells } from "@/components/admin/admin-display";
 import { PageShell } from "@/components/ui/page-shell";
 import { getAdminAccess } from "@/lib/admin-auth";
 import { listAdminMusicians } from "@/lib/api/admin-dashboard";
@@ -7,7 +7,13 @@ import { listAdminMusicians } from "@/lib/api/admin-dashboard";
 export default async function AdminMusiciansPage() {
   const access = await getAdminAccess();
   if (!access.ok) return <AdminUnavailable reason={access.reason} />;
-  const profiles = await listAdminMusicians();
+  let profiles;
+  try {
+    profiles = await listAdminMusicians();
+  } catch (error) {
+    console.error("[admin] musician data failed", error);
+    return <AdminSetupRequired />;
+  }
 
   return (
     <PageShell eyebrow="Admin" title="Musician profiles" body="Review musician profile content without changing public app behavior.">

@@ -53,3 +53,5 @@ create index if not exists admin_audit_log_created_at_idx
 
 create index if not exists admin_audit_log_target_idx
   on admin_audit_log(target_type, target_id, created_at desc);
+
+alter table admin_audit_log enable row level security;

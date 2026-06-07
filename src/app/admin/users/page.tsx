@@ -1,4 +1,4 @@
-import { AdminNav, AdminUnavailable, DateValue, ModerationTodo, StatusCells } from "@/components/admin/admin-display";
+import { AdminNav, AdminSetupRequired, AdminUnavailable, DateValue, ModerationTodo, StatusCells } from "@/components/admin/admin-display";
 import { AdminActionButton } from "@/components/admin/admin-action-button";
 import { PageShell } from "@/components/ui/page-shell";
 import { getAdminAccess } from "@/lib/admin-auth";
@@ -7,7 +7,13 @@ import { listAdminUsers } from "@/lib/api/admin-dashboard";
 export default async function AdminUsersPage() {
   const access = await getAdminAccess();
   if (!access.ok) return <AdminUnavailable reason={access.reason} />;
-  const users = await listAdminUsers();
+  let users;
+  try {
+    users = await listAdminUsers();
+  } catch (error) {
+    console.error("[admin] users data failed", error);
+    return <AdminSetupRequired />;
+  }
 
   return (
     <PageShell eyebrow="Admin" title="Users" body="View Motivo user accounts and admin moderation metadata.">

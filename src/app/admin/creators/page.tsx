@@ -1,5 +1,5 @@
 import { AdminActionButton } from "@/components/admin/admin-action-button";
-import { AdminNav, AdminUnavailable, DateValue, ModerationTodo, StatusCells } from "@/components/admin/admin-display";
+import { AdminNav, AdminSetupRequired, AdminUnavailable, DateValue, ModerationTodo, StatusCells } from "@/components/admin/admin-display";
 import { PageShell } from "@/components/ui/page-shell";
 import { getAdminAccess } from "@/lib/admin-auth";
 import { listAdminCreators } from "@/lib/api/admin-dashboard";
@@ -7,7 +7,13 @@ import { listAdminCreators } from "@/lib/api/admin-dashboard";
 export default async function AdminCreatorsPage() {
   const access = await getAdminAccess();
   if (!access.ok) return <AdminUnavailable reason={access.reason} />;
-  const creators = await listAdminCreators();
+  let creators;
+  try {
+    creators = await listAdminCreators();
+  } catch (error) {
+    console.error("[admin] creator data failed", error);
+    return <AdminSetupRequired />;
+  }
 
   return (
     <PageShell eyebrow="Admin" title="Creator profiles" body="Creator profiles are represented by creator user accounts in this MVP.">

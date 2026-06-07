@@ -44,6 +44,28 @@ export function AdminUnavailable({ reason }: { reason: "signed_out" | "not_allow
   );
 }
 
+export function AdminSetupRequired() {
+  return (
+    <div className="bg-[#FAFAFA] px-4 py-16 sm:px-6">
+      <div className="mx-auto max-w-2xl rounded-3xl border border-[#F1F5F9] bg-white p-8 shadow-sm">
+        <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FFB000]">
+          Admin setup
+        </span>
+        <h1 className="mt-3 text-3xl font-black text-[#0F172A]">Admin database setup required</h1>
+        <p className="mt-3 text-sm font-medium leading-relaxed text-[#475569]">
+          The admin dashboard is isolated from the public app, but it needs the admin moderation migration before it can load moderation columns.
+        </p>
+        <div className="mt-5 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] p-4 text-sm font-semibold text-[#334155]">
+          Apply <code className="font-mono text-[#0055FF]">supabase/migrations/20260607002000_add_safe_admin_moderation.sql</code> and confirm the server has <code className="font-mono text-[#0055FF]">SUPABASE_SERVICE_ROLE_KEY</code> configured.
+        </div>
+        <p className="mt-4 text-xs font-medium leading-relaxed text-[#64748B]">
+          Public user pages, gigs, messaging, onboarding, and normal auth flows are not changed by this admin setup.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function ModerationTodo() {
   return (
     <div className="mb-6 rounded-2xl border border-[#FFB000]/30 bg-[#FFB000]/10 p-4 text-sm font-medium leading-relaxed text-[#8A5C00]">

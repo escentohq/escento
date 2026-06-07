@@ -1,5 +1,5 @@
 import { AdminActionButton } from "@/components/admin/admin-action-button";
-import { AdminNav, AdminUnavailable, DateValue, ModerationTodo, Preview, StatusCells } from "@/components/admin/admin-display";
+import { AdminNav, AdminSetupRequired, AdminUnavailable, DateValue, ModerationTodo, Preview, StatusCells } from "@/components/admin/admin-display";
 import { PageShell } from "@/components/ui/page-shell";
 import { getAdminAccess } from "@/lib/admin-auth";
 import { listAdminGigs } from "@/lib/api/admin-dashboard";
@@ -7,7 +7,13 @@ import { listAdminGigs } from "@/lib/api/admin-dashboard";
 export default async function AdminGigsPage() {
   const access = await getAdminAccess();
   if (!access.ok) return <AdminUnavailable reason={access.reason} />;
-  const gigs = await listAdminGigs();
+  let gigs;
+  try {
+    gigs = await listAdminGigs();
+  } catch (error) {
+    console.error("[admin] gig data failed", error);
+    return <AdminSetupRequired />;
+  }
 
   return (
     <PageShell eyebrow="Admin" title="Gigs" body="Review gig listings and mark moderation metadata.">

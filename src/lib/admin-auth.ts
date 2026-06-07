@@ -5,12 +5,11 @@ export type AdminAccess =
   | { ok: false; reason: "signed_out" | "not_allowed" };
 
 function adminEmailSet() {
-  return new Set(
-    (process.env.ADMIN_EMAILS ?? "")
-      .split(",")
-      .map((email) => email.trim().toLowerCase())
-      .filter(Boolean),
+  const emails = (process.env.ADMIN_EMAILS ?? "").match(
+    /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,
   );
+
+  return new Set((emails ?? []).map((email) => email.toLowerCase()));
 }
 
 export async function getAdminAccess(): Promise<AdminAccess> {

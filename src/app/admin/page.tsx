@@ -1,4 +1,4 @@
-import { AdminNav, AdminUnavailable, DateValue, ModerationTodo, Preview } from "@/components/admin/admin-display";
+import { AdminNav, AdminSetupRequired, AdminUnavailable, DateValue, ModerationTodo, Preview } from "@/components/admin/admin-display";
 import { PageShell } from "@/components/ui/page-shell";
 import { SectionCard } from "@/components/ui/section-card";
 import { getAdminAccess } from "@/lib/admin-auth";
@@ -8,7 +8,13 @@ export default async function AdminDashboardPage() {
   const access = await getAdminAccess();
   if (!access.ok) return <AdminUnavailable reason={access.reason} />;
 
-  const dashboard = await getAdminDashboardData();
+  let dashboard;
+  try {
+    dashboard = await getAdminDashboardData();
+  } catch (error) {
+    console.error("[admin] dashboard data failed", error);
+    return <AdminSetupRequired />;
+  }
   const stats = [
     ["Total users", dashboard.totalUsers],
     ["Musician profiles", dashboard.totalMusicianProfiles],
