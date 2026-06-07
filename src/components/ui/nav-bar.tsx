@@ -40,6 +40,7 @@ export function NavBar({
       <Link href="/musicians" className="whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Musicians</Link>
       <Link href="/gigs" className="whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Gigs</Link>
       {signedIn ? <MessagesLink unreadConversationCount={unreadConversationCount} /> : null}
+      <Link href="/help" className="whitespace-nowrap transition-colors hover:text-[#0055FF]">Help</Link>
     </>
   );
 
