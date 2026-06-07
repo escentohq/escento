@@ -55,6 +55,11 @@ export function ConversationThread({
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    sendCurrentMessage();
+  }
+
+  function sendCurrentMessage() {
+    if (isPending || messagingUnavailable) return;
     const nextBody = body.trim();
     if (!nextBody) {
       setError("Add a message.");
@@ -71,6 +76,15 @@ export function ConversationThread({
         setError("Message could not be sent.");
       }
     });
+  }
+
+  function handleKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    // Enter sends; Shift+Enter inserts a new line. Ignore Enter while an IME
+    // composition is active so it only confirms the candidate text.
+    if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+      event.preventDefault();
+      sendCurrentMessage();
+    }
   }
 
   return (
@@ -124,6 +138,7 @@ export function ConversationThread({
             id="message-body"
             value={body}
             onChange={(event) => setBody(event.target.value)}
+            onKeyDown={handleKeyDown}
             rows={2}
             maxLength={2000}
             placeholder="Write a message"
