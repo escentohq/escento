@@ -55,10 +55,6 @@ async function withCreatorSummaries(rawGigs: any[]): Promise<Gig[]> {
 }
 
 function toGig(raw: any, creatorSummary?: GigCreatorSummary, distance?: number | null): Gig {
-  const joinedCreator = raw.app_user
-    ? { name: raw.app_user.name ?? null, email: raw.app_user.email ?? null }
-    : undefined;
-
   return {
     id: raw.id,
     creatorId: raw.creator_id,
@@ -86,7 +82,7 @@ function toGig(raw: any, creatorSummary?: GigCreatorSummary, distance?: number |
     updatedAt: raw.updated_at,
     instruments: raw.gig_instrument?.map((x: any) => x.instrument?.name).filter(Boolean) ?? [],
     genres: raw.gig_genre?.map((x: any) => x.genre?.name).filter(Boolean) ?? [],
-    creator: creatorSummary ?? joinedCreator,
+    creator: creatorSummary,
   };
 }
 
@@ -94,7 +90,7 @@ export async function getGig(id: string): Promise<Gig | null> {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("gig")
-    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*)), app_user(name, email)")
+    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
     .eq("id", id)
     .single();
 
@@ -122,7 +118,7 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
 
   let query = supabase
     .from("gig")
-    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*)), app_user(name, email)")
+    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
     .eq("status", "OPEN")
     .order("created_at", { ascending: false });
 
@@ -137,13 +133,13 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
 
   if (filters?.instrument) {
     query = query
-      .select("*, gig_instrument!inner(instrument!inner(name)), gig_genre(*, genre(*)), app_user(name, email)")
+      .select("*, gig_instrument!inner(instrument!inner(name)), gig_genre(*, genre(*))")
       .eq("gig_instrument.instrument.name", filters.instrument);
   }
 
   if (filters?.genre) {
     query = query
-      .select("*, gig_instrument(*, instrument(*)), gig_genre!inner(genre!inner(name)), app_user(name, email)")
+      .select("*, gig_instrument(*, instrument(*)), gig_genre!inner(genre!inner(name))")
       .eq("gig_genre.genre.name", filters.genre);
   }
 
@@ -189,7 +185,7 @@ export async function listGigsByCreator(creatorId: string): Promise<Gig[]> {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("gig")
-    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*)), app_user(name, email)")
+    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
     .eq("creator_id", creatorId)
     .order("created_at", { ascending: false });
 
