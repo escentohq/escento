@@ -9,6 +9,8 @@ export type AppSession = {
     name?: string | null;
     role?: string | null;
     image?: string | null;
+    isAdmin?: boolean;
+    isSuspended?: boolean;
   };
 };
 
@@ -19,7 +21,7 @@ export const getCurrentSession = cache(async (): Promise<AppSession | null> => {
 
   const { data: appUser, error: appUserError } = await supabase
     .from("app_user")
-    .select("role, name, image")
+    .select("role, name, image, is_admin, suspended_at")
     .eq("id", user.id)
     .single();
 
@@ -35,6 +37,8 @@ export const getCurrentSession = cache(async (): Promise<AppSession | null> => {
       name: appUser?.name ?? null,
       role: appUser?.role ?? null,
       image: appUser?.image ?? null,
+      isAdmin: Boolean(appUser?.is_admin),
+      isSuspended: Boolean(appUser?.suspended_at),
     },
   };
 });
@@ -50,6 +54,7 @@ export async function requireSignedIn(callbackUrl: string): Promise<AppSession> 
 
 export async function requireUser(callbackUrl: string): Promise<AppSession> {
   const session = await requireSignedIn(callbackUrl);
+  if (session.user.isSuspended) redirect("/");
   if (!session.user.role) redirect("/onboarding/role");
   return session;
 }
@@ -60,5 +65,11 @@ export async function requireRole(
 ): Promise<AppSession> {
   const session = await requireUser(callbackUrl);
   if (session.user.role !== role) redirect("/");
+  return session;
+}
+
+export async function requireAdmin(callbackUrl: string): Promise<AppSession> {
+  const session = await requireUser(callbackUrl);
+  if (!session.user.isAdmin) redirect("/");
   return session;
 }

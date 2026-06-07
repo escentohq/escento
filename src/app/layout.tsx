@@ -50,6 +50,7 @@ export default async function RootLayout({
           musicianProfilePath={musicianProfilePath}
           isCreator={isCreator}
           unreadConversationCount={unreadConversationCount}
+          isAdmin={Boolean(session?.user?.isAdmin)}
         />
 
         <main className="flex-1">{children}</main>

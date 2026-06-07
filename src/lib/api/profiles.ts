@@ -25,6 +25,10 @@ function toProfile(raw: any, distance?: number | null): MusicianProfile {
     providerPlaceId: raw.provider_place_id,
     locationVisibility: raw.location_visibility ?? "public_region",
     isRemote: raw.is_remote,
+    isPublic: raw.is_public ?? true,
+    isVerified: raw.is_verified ?? true,
+    moderationReason: raw.moderation_reason ?? null,
+    deletedAt: raw.deleted_at ?? null,
     distanceMiles: distance ?? null,
     seekingPaid: raw.seeking_paid,
     seekingUnpaid: raw.seeking_unpaid,
@@ -84,7 +88,10 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
   let query = supabase
     .from("musician_profile")
     .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .is("deleted_at", null)
     .order("updated_at", { ascending: false });
+
+  query = query.eq("is_public", true).eq("is_verified", true);
 
   const q = filters?.q ? safeSearchPattern(filters.q) : "";
   if (q) {
@@ -222,6 +229,10 @@ export async function createProfile(
     providerPlaceId: profile.provider_place_id,
     locationVisibility: profile.location_visibility ?? "public_region",
     isRemote: profile.is_remote,
+    isPublic: profile.is_public ?? true,
+    isVerified: profile.is_verified ?? true,
+    moderationReason: profile.moderation_reason ?? null,
+    deletedAt: profile.deleted_at ?? null,
     distanceMiles: null,
     seekingPaid: profile.seeking_paid,
     seekingUnpaid: profile.seeking_unpaid,

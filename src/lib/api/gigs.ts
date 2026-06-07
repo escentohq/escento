@@ -77,6 +77,10 @@ function toGig(raw: any, creatorSummary?: GigCreatorSummary, distance?: number |
     providerPlaceId: raw.provider_place_id,
     locationVisibility: raw.location_visibility ?? "public_region",
     isRemote: raw.is_remote,
+    isPublic: raw.is_public ?? true,
+    isVerified: raw.is_verified ?? true,
+    moderationReason: raw.moderation_reason ?? null,
+    deletedAt: raw.deleted_at ?? null,
     distanceMiles: distance ?? null,
     compensationType: raw.compensation_type,
     compensationDetails: raw.compensation_details,
@@ -124,6 +128,9 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
     .from("gig")
     .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*)), app_user(name, email)")
     .eq("status", "OPEN")
+    .eq("is_public", true)
+    .eq("is_verified", true)
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
   const q = filters?.q ? safeSearchPattern(filters.q) : "";
@@ -272,6 +279,10 @@ export async function createGig(
     providerPlaceId: gig.provider_place_id,
     locationVisibility: gig.location_visibility ?? "public_region",
     isRemote: gig.is_remote,
+    isPublic: gig.is_public ?? true,
+    isVerified: gig.is_verified ?? true,
+    moderationReason: gig.moderation_reason ?? null,
+    deletedAt: gig.deleted_at ?? null,
     distanceMiles: null,
     compensationType: gig.compensation_type,
     compensationDetails: gig.compensation_details,
