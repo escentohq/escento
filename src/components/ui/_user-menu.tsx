@@ -12,6 +12,7 @@ import {
   PlusCircle,
   LogOut,
   MessageCircle,
+  HelpCircle,
 } from "lucide-react";
 import { signOutAction } from "@/app/account/actions";
 
@@ -60,10 +61,24 @@ export function UserMenu({
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <button
-          aria-label="Account menu"
-          className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-[#E2E8F0] bg-white transition-colors hover:border-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+          aria-label={
+            unreadConversationCount > 0
+              ? `Account menu, ${unreadConversationCount} unread message${unreadConversationCount === 1 ? "" : "s"}`
+              : "Account menu"
+          }
+          className="relative flex h-9 w-9 items-center justify-center rounded-full border-2 border-[#E2E8F0] bg-white transition-colors hover:border-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
         >
-          {avatarContent}
+          <span className="flex h-full w-full items-center justify-center overflow-hidden rounded-full">
+            {avatarContent}
+          </span>
+          {unreadConversationCount > 0 ? (
+            <span
+              aria-hidden
+              className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FF3366] px-1 text-[10px] font-black leading-none text-white ring-2 ring-white"
+            >
+              {unreadConversationCount > 9 ? "9+" : unreadConversationCount}
+            </span>
+          ) : null}
         </button>
       </DropdownMenu.Trigger>
 
@@ -99,16 +114,6 @@ export function UserMenu({
                   {unreadConversationCount > 9 ? "9+" : unreadConversationCount}
                 </span>
               ) : null}
-            </Link>
-          </DropdownMenu.Item>
-
-          <DropdownMenu.Item asChild>
-            <Link
-              href="/account"
-              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus:bg-[#F8FAFC] focus:outline-none cursor-pointer select-none"
-            >
-              <Settings className="h-4 w-4" />
-              Account Settings
             </Link>
           </DropdownMenu.Item>
 
@@ -156,6 +161,28 @@ export function UserMenu({
               </DropdownMenu.Item>
             </>
           )}
+
+          <DropdownMenu.Separator className="my-1.5 border-t border-[#F1F5F9]" />
+
+          <DropdownMenu.Item asChild>
+            <Link
+              href="/account"
+              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus:bg-[#F8FAFC] focus:outline-none cursor-pointer select-none"
+            >
+              <Settings className="h-4 w-4" />
+              Account Settings
+            </Link>
+          </DropdownMenu.Item>
+
+          <DropdownMenu.Item asChild>
+            <Link
+              href="/help"
+              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus:bg-[#F8FAFC] focus:outline-none cursor-pointer select-none"
+            >
+              <HelpCircle className="h-4 w-4" />
+              Help
+            </Link>
+          </DropdownMenu.Item>
 
           <DropdownMenu.Separator className="my-1.5 border-t border-[#F1F5F9]" />
 

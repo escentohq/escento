@@ -12,22 +12,6 @@ type Props = {
   unreadConversationCount?: number;
 };
 
-function MessagesLink({ unreadConversationCount = 0 }: { unreadConversationCount?: number }) {
-  return (
-    <Link href="/messages" className="relative whitespace-nowrap pr-1 transition-colors hover:text-[#0055FF]">
-      Messages
-      {unreadConversationCount > 0 ? (
-        <span
-          aria-label={`${unreadConversationCount} unread`}
-          className="absolute -right-2.5 -top-2.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FF3366] px-1 text-[10px] font-black leading-none text-white ring-2 ring-white"
-        >
-          {unreadConversationCount > 9 ? "9+" : unreadConversationCount}
-        </span>
-      ) : null}
-    </Link>
-  );
-}
-
 export function NavBar({
   signedIn,
   email,
@@ -42,8 +26,9 @@ export function NavBar({
     <>
       <Link href="/musicians" className="whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Musicians</Link>
       <Link href="/gigs" className="whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Gigs</Link>
-      {signedIn ? <MessagesLink unreadConversationCount={unreadConversationCount} /> : null}
-      <Link href="/help" className="whitespace-nowrap transition-colors hover:text-[#0055FF]">Help</Link>
+      {!signedIn ? (
+        <Link href="/help" className="whitespace-nowrap transition-colors hover:text-[#0055FF]">Help</Link>
+      ) : null}
     </>
   );
 
