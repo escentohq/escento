@@ -19,11 +19,26 @@ export const getCurrentSession = cache(async (): Promise<AppSession | null> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user?.id) return null;
 
-  const { data: appUser, error: appUserError } = await supabase
+  const adminLookup = await supabase
     .from("app_user")
     .select("role, name, image, is_admin, suspended_at")
     .eq("id", user.id)
     .single();
+  let appUser: any = adminLookup.data;
+  let appUserError = adminLookup.error;
+
+  if (appUserError && appUserError.code !== "PGRST116") {
+    const fallback = await supabase
+      .from("app_user")
+      .select("role, name, image")
+      .eq("id", user.id)
+      .single();
+
+    if (!fallback.error || fallback.error.code === "PGRST116") {
+      appUser = fallback.data;
+      appUserError = fallback.error;
+    }
+  }
 
   // Log unexpected errors (RLS violations, timeouts, etc) but ignore expected "not found"
   if (appUserError && appUserError.code !== "PGRST116") {
@@ -37,8 +52,8 @@ export const getCurrentSession = cache(async (): Promise<AppSession | null> => {
       name: appUser?.name ?? null,
       role: appUser?.role ?? null,
       image: appUser?.image ?? null,
-      isAdmin: Boolean(appUser?.is_admin),
-      isSuspended: Boolean(appUser?.suspended_at),
+      isAdmin: "is_admin" in (appUser ?? {}) ? Boolean(appUser?.is_admin) : false,
+      isSuspended: "suspended_at" in (appUser ?? {}) ? Boolean(appUser?.suspended_at) : false,
     },
   };
 });

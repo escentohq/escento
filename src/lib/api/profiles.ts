@@ -88,10 +88,7 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
   let query = supabase
     .from("musician_profile")
     .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
-    .is("deleted_at", null)
     .order("updated_at", { ascending: false });
-
-  query = query.eq("is_public", true).eq("is_verified", true);
 
   const q = filters?.q ? safeSearchPattern(filters.q) : "";
   if (q) {
@@ -114,7 +111,9 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
 
   if (error) throw error;
 
-  let profiles = (data || []).map((raw) => toProfile(raw));
+  let profiles = (data || [])
+    .map((raw) => toProfile(raw))
+    .filter((profile) => !profile.deletedAt && profile.isPublic && profile.isVerified);
   const location = filters?.location;
 
   if (location?.remoteFilter === "remote") {

@@ -128,9 +128,6 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
     .from("gig")
     .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*)), app_user(name, email)")
     .eq("status", "OPEN")
-    .eq("is_public", true)
-    .eq("is_verified", true)
-    .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
   const q = filters?.q ? safeSearchPattern(filters.q) : "";
@@ -158,7 +155,8 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
 
   if (error) throw error;
 
-  let gigs = await withCreatorSummaries(data || []);
+  let gigs = (await withCreatorSummaries(data || []))
+    .filter((gig) => !gig.deletedAt && gig.isPublic && gig.isVerified);
   const location = filters?.location;
 
   if (location?.remoteFilter === "remote") {
