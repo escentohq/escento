@@ -45,10 +45,6 @@ export default async function MusicianPublicProfilePage({
   if (!profile) notFound();
 
   const isOwnProfile = session?.user?.id === profile.userId;
-  if ((profile.deletedAt || !profile.isPublic || !profile.isVerified) && !isOwnProfile && !session?.user?.isAdmin) {
-    notFound();
-  }
-
   let relationship: MessagingRelationship | null = null;
   let blockStatus: MessagingBlockStatus | null = null;
   let messagingUnavailable = false;

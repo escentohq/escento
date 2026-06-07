@@ -13,7 +13,6 @@ import {
   LogOut,
   MessageCircle,
   HelpCircle,
-  ShieldCheck,
 } from "lucide-react";
 import { signOutAction } from "@/app/account/actions";
 
@@ -25,7 +24,6 @@ type UserMenuProps = {
   musicianProfilePath?: "/profile/create" | "/profile/edit" | null;
   isCreator?: boolean;
   unreadConversationCount?: number;
-  isAdmin?: boolean;
 };
 
 function getInitials(name: string): string {
@@ -45,7 +43,6 @@ export function UserMenu({
   musicianProfilePath,
   isCreator,
   unreadConversationCount = 0,
-  isAdmin = false,
 }: UserMenuProps) {
   const avatarContent = image ? (
     // eslint-disable-next-line @next/next/no-img-element
@@ -100,20 +97,6 @@ export function UserMenu({
               </div>
             )}
           </DropdownMenu.Label>
-
-          <DropdownMenu.Separator className="my-1.5 border-t border-[#F1F5F9]" />
-
-          {isAdmin ? (
-            <DropdownMenu.Item asChild>
-              <Link
-                href="/admin"
-                className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus:bg-[#F8FAFC] focus:outline-none cursor-pointer select-none"
-              >
-                <ShieldCheck className="h-4 w-4" />
-                Admin
-              </Link>
-            </DropdownMenu.Item>
-          ) : null}
 
           <DropdownMenu.Item asChild>
             <Link

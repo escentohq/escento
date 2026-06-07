@@ -10,7 +10,6 @@ type Props = {
   musicianProfilePath?: "/profile/create" | "/profile/edit" | null;
   isCreator?: boolean;
   unreadConversationCount?: number;
-  isAdmin?: boolean;
 };
 
 export function NavBar({
@@ -22,7 +21,6 @@ export function NavBar({
   musicianProfilePath,
   isCreator,
   unreadConversationCount = 0,
-  isAdmin = false,
 }: Props) {
   const publicLinks = (
     <>
@@ -73,7 +71,6 @@ export function NavBar({
               musicianProfilePath={musicianProfilePath}
               isCreator={isCreator}
               unreadConversationCount={unreadConversationCount}
-              isAdmin={isAdmin}
             />
           )}
         </div>

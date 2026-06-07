@@ -29,10 +29,6 @@ export interface Gig {
   providerPlaceId: string | null;
   locationVisibility: "public_region" | "private";
   isRemote: boolean;
-  isPublic: boolean;
-  isVerified: boolean;
-  moderationReason: string | null;
-  deletedAt: string | null;
   distanceMiles?: number | null;
   compensationType: "PAID" | "UNPAID" | "NEGOTIABLE";
   compensationDetails: string | null;
@@ -64,10 +60,6 @@ export interface MusicianProfile {
   providerPlaceId: string | null;
   locationVisibility: "public_region" | "private";
   isRemote: boolean;
-  isPublic: boolean;
-  isVerified: boolean;
-  moderationReason: string | null;
-  deletedAt: string | null;
   distanceMiles?: number | null;
   seekingPaid: boolean;
   seekingUnpaid: boolean;

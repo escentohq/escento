@@ -25,10 +25,6 @@ function toProfile(raw: any, distance?: number | null): MusicianProfile {
     providerPlaceId: raw.provider_place_id,
     locationVisibility: raw.location_visibility ?? "public_region",
     isRemote: raw.is_remote,
-    isPublic: raw.is_public ?? true,
-    isVerified: raw.is_verified ?? true,
-    moderationReason: raw.moderation_reason ?? null,
-    deletedAt: raw.deleted_at ?? null,
     distanceMiles: distance ?? null,
     seekingPaid: raw.seeking_paid,
     seekingUnpaid: raw.seeking_unpaid,
@@ -111,9 +107,7 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
 
   if (error) throw error;
 
-  let profiles = (data || [])
-    .map((raw) => toProfile(raw))
-    .filter((profile) => !profile.deletedAt && profile.isPublic && profile.isVerified);
+  let profiles = (data || []).map((raw) => toProfile(raw));
   const location = filters?.location;
 
   if (location?.remoteFilter === "remote") {
@@ -228,10 +222,6 @@ export async function createProfile(
     providerPlaceId: profile.provider_place_id,
     locationVisibility: profile.location_visibility ?? "public_region",
     isRemote: profile.is_remote,
-    isPublic: profile.is_public ?? true,
-    isVerified: profile.is_verified ?? true,
-    moderationReason: profile.moderation_reason ?? null,
-    deletedAt: profile.deleted_at ?? null,
     distanceMiles: null,
     seekingPaid: profile.seeking_paid,
     seekingUnpaid: profile.seeking_unpaid,

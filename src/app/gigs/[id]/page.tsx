@@ -37,9 +37,6 @@ export default async function GigPage({
   if (!gig) notFound();
 
   const isOwnGig = session?.user?.id === gig.creatorId;
-  if ((gig.deletedAt || !gig.isPublic || !gig.isVerified) && !isOwnGig && !session?.user?.isAdmin) {
-    notFound();
-  }
   const gigLocation = displayLocation(gig, "");
   let relationship: MessagingRelationship | null = null;
   let blockStatus: MessagingBlockStatus | null = null;
