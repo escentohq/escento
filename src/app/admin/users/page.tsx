@@ -1,5 +1,6 @@
 import { AdminNav, AdminSetupRequired, AdminUnavailable, DateValue, ModerationTodo, StatusCells } from "@/components/admin/admin-display";
 import { AdminActionButton } from "@/components/admin/admin-action-button";
+import { AdminDeleteUserButton } from "@/components/admin/admin-delete-user-button";
 import { PageShell } from "@/components/ui/page-shell";
 import { getAdminAccess } from "@/lib/admin-auth";
 import { listAdminUsers } from "@/lib/api/admin-dashboard";
@@ -37,6 +38,7 @@ export default async function AdminUsersPage() {
                   <div className="flex flex-wrap gap-2">
                     <AdminActionButton targetType="user" targetId={user.id} action={user.isPublic === false ? "restore" : "hide"} label={user.isPublic === false ? "Restore" : "Hide"} />
                     <AdminActionButton targetType="user" targetId={user.id} action={user.isVerified ? "unverify" : "verify"} label={user.isVerified ? "Unverify" : "Verify"} />
+                    <AdminDeleteUserButton userId={user.id} userEmail={user.email} userName={user.name} />
                   </div>
                 </td>
               </tr>
