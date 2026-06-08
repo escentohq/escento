@@ -53,15 +53,69 @@ export async function deleteAccountAction(): Promise<void> {
 
   try {
     const admin = createSupabaseAdminClient();
-    const [profiles, gigs] = await Promise.all([
+    const [profiles, gigs, participantConversations, createdConversations] = await Promise.all([
       admin.from("musician_profile").select("id").eq("user_id", userId),
       admin.from("gig").select("id").eq("creator_id", userId),
+      admin.from("conversation_participants").select("conversation_id").eq("user_id", userId),
+      admin.from("conversations").select("id").eq("created_by", userId),
     ]);
 
-    if (profiles.error || gigs.error) throw profiles.error || gigs.error;
+    if (
+      profiles.error ||
+      gigs.error ||
+      participantConversations.error ||
+      createdConversations.error
+    ) {
+      throw profiles.error ||
+        gigs.error ||
+        participantConversations.error ||
+        createdConversations.error;
+    }
 
     const profileIds = (profiles.data ?? []).map((profile) => profile.id);
     const gigIds = (gigs.data ?? []).map((gig) => gig.id);
+    const conversationIds = Array.from(
+      new Set([
+        ...(participantConversations.data ?? []).map((row) => row.conversation_id),
+        ...(createdConversations.data ?? []).map((row) => row.id),
+      ]),
+    );
+
+    if (conversationIds.length) {
+      const [messageDelete, participantDelete, conversationDelete] = await Promise.all([
+        admin.from("messages").delete().in("conversation_id", conversationIds),
+        admin.from("conversation_participants").delete().in("conversation_id", conversationIds),
+        admin.from("conversations").delete().in("id", conversationIds),
+      ]);
+
+      if (messageDelete.error || participantDelete.error || conversationDelete.error) {
+        throw messageDelete.error || participantDelete.error || conversationDelete.error;
+      }
+    }
+
+    const [
+      sentMessageDelete,
+      participantDelete,
+      requestDelete,
+      blockDelete,
+    ] = await Promise.all([
+      admin.from("messages").delete().eq("sender_id", userId),
+      admin.from("conversation_participants").delete().eq("user_id", userId),
+      admin.from("conversation_requests").delete().or(`requester_id.eq.${userId},recipient_id.eq.${userId}`),
+      admin.from("user_blocks").delete().or(`blocker_id.eq.${userId},blocked_id.eq.${userId}`),
+    ]);
+
+    if (
+      sentMessageDelete.error ||
+      participantDelete.error ||
+      requestDelete.error ||
+      blockDelete.error
+    ) {
+      throw sentMessageDelete.error ||
+        participantDelete.error ||
+        requestDelete.error ||
+        blockDelete.error;
+    }
 
     if (profileIds.length) {
       const [instrumentDelete, genreDelete] = await Promise.all([
