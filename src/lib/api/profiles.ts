@@ -88,7 +88,7 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
 
   const q = filters?.q ? safeSearchPattern(filters.q) : "";
   if (q) {
-    query = query.or(`display_name.ilike.%${q}%,bio.ilike.%${q}%,school.ilike.%${q}%`);
+    query = query.or(`display_name.ilike.%${q}%,bio.ilike.%${q}%,school.ilike.%${q}%,availability_text.ilike.%${q}%,location.ilike.%${q}%,location_display_name.ilike.%${q}%,location_city.ilike.%${q}%,location_state.ilike.%${q}%,location_country.ilike.%${q}%`);
   }
 
   if (filters?.instrument) {

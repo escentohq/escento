@@ -124,7 +124,7 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
 
   const q = filters?.q ? safeSearchPattern(filters.q) : "";
   if (q) {
-    query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%,compensation_details.ilike.%${q}%`);
+    query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%,project_type.ilike.%${q}%,compensation_details.ilike.%${q}%,location.ilike.%${q}%,location_display_name.ilike.%${q}%,location_city.ilike.%${q}%,location_state.ilike.%${q}%,location_country.ilike.%${q}%`);
   }
 
   if (filters?.projectType) {
