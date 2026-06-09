@@ -2,7 +2,11 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 
 import { adminMarkSupportConversationReadAction } from "@/app/admin/actions";
-import { AdminNav, AdminSetupRequired, AdminUnavailable } from "@/components/admin/admin-display";
+import {
+  AdminNav,
+  AdminSetupRequired,
+  AdminUnavailable,
+} from "@/components/admin/admin-display";
 import { AdminSupportMessageForm } from "@/components/admin/admin-support-message-form";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -17,7 +21,11 @@ import {
   type SupportUserSearchResult,
 } from "@/lib/api/support-account";
 
-function displayUserName(user: { name: string | null; email: string | null; id: string }) {
+function displayUserName(user: {
+  name: string | null;
+  email: string | null;
+  id: string;
+}) {
   return user.name || user.email || user.id;
 }
 
@@ -43,10 +51,11 @@ export default async function AdminSupportPage({
   const selectedUserId = params.userId?.trim() ?? "";
 
   let users: SupportUserSearchResult[] = [];
-  let supportInbox: { items: SupportInboxItem[]; needsResponseCount: number } = {
-    items: [],
-    needsResponseCount: 0,
-  };
+  let supportInbox: { items: SupportInboxItem[]; needsResponseCount: number } =
+    {
+      items: [],
+      needsResponseCount: 0,
+    };
   let conversation: SupportConversationForAdmin | null = null;
 
   try {
@@ -61,7 +70,9 @@ export default async function AdminSupportPage({
   }
 
   const selectedInboxItem = selectedUserId
-    ? supportInbox.items.find((item) => item.targetUser.id === selectedUserId) ?? null
+    ? (supportInbox.items.find(
+        (item) => item.targetUser.id === selectedUserId,
+      ) ?? null)
     : null;
 
   return (
@@ -75,7 +86,10 @@ export default async function AdminSupportPage({
       <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
         <aside className="rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm">
           <form action="/admin/support" className="mb-5">
-            <label htmlFor="support-user-search" className="text-sm font-bold text-[#0F172A]">
+            <label
+              htmlFor="support-user-search"
+              className="text-sm font-bold text-[#0F172A]"
+            >
               Search users
             </label>
             <div className="mt-2 flex gap-2">
@@ -98,7 +112,9 @@ export default async function AdminSupportPage({
 
           <div className="mb-6">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="text-sm font-black text-[#0F172A]">Support inbox</h2>
+              <h2 className="text-sm font-black text-[#0F172A]">
+                Support inbox
+              </h2>
               {supportInbox.needsResponseCount > 0 ? (
                 <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[#FF3366] px-2 text-xs font-black text-white">
                   {supportInbox.needsResponseCount}
@@ -152,7 +168,9 @@ export default async function AdminSupportPage({
           </div>
 
           <div className="space-y-2">
-            <h2 className="text-sm font-black text-[#0F172A]">Search results</h2>
+            <h2 className="text-sm font-black text-[#0F172A]">
+              Search results
+            </h2>
             {!query ? (
               <p className="rounded-2xl bg-[#F8FAFC] p-4 text-sm font-medium text-[#64748B]">
                 Search to start a support conversation with another user.
@@ -170,12 +188,22 @@ export default async function AdminSupportPage({
                     userId: user.id,
                   }).toString()}`}
                   className={`block rounded-2xl border p-4 transition-colors hover:border-[#0055FF] hover:bg-[#F8FAFC] ${
-                    selectedUserId === user.id ? "border-[#0055FF]/40 bg-[#0055FF]/5" : "border-[#F1F5F9]"
+                    selectedUserId === user.id
+                      ? "border-[#0055FF]/40 bg-[#0055FF]/5"
+                      : "border-[#F1F5F9]"
                   }`}
                 >
-                  <p className="truncate text-sm font-black text-[#0F172A]">{displayUserName(user)}</p>
-                  <p className="mt-1 truncate text-xs font-medium text-[#64748B]">{user.email || user.id}</p>
-                  {user.role ? <p className="mt-2 text-xs font-bold text-[#0055FF]">{user.role}</p> : null}
+                  <p className="truncate text-sm font-black text-[#0F172A]">
+                    {displayUserName(user)}
+                  </p>
+                  <p className="mt-1 truncate text-xs font-medium text-[#64748B]">
+                    {user.email || user.id}
+                  </p>
+                  {user.role ? (
+                    <p className="mt-2 text-xs font-bold text-[#0055FF]">
+                      {user.role}
+                    </p>
+                  ) : null}
                 </Link>
               ))
             )}
@@ -203,7 +231,8 @@ export default async function AdminSupportPage({
                       {displayUserName(conversation.targetUser)}
                     </h2>
                     <p className="mt-1 truncate text-sm font-medium text-[#64748B]">
-                      {conversation.targetUser.email || conversation.targetUser.id}
+                      {conversation.targetUser.email ||
+                        conversation.targetUser.id}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -211,7 +240,11 @@ export default async function AdminSupportPage({
                     <Chip tone="neutral">Send as Motivo</Chip>
                     {selectedInboxItem?.needsResponse ? (
                       <form action={adminMarkSupportConversationReadAction}>
-                        <input type="hidden" name="targetUserId" value={conversation.targetUser.id} />
+                        <input
+                          type="hidden"
+                          name="targetUserId"
+                          value={conversation.targetUser.id}
+                        />
                         <button
                           type="submit"
                           className="inline-flex min-h-8 items-center rounded-full border border-[#FF3366]/30 bg-[#FF3366]/10 px-3 text-xs font-black text-[#FF3366] transition-colors hover:bg-[#FF3366]/15 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
@@ -227,14 +260,17 @@ export default async function AdminSupportPage({
               <div className="max-h-155 min-h-105 space-y-4 overflow-y-auto p-5">
                 {conversation.messages.length === 0 ? (
                   <div className="rounded-3xl bg-[#F8FAFC] p-8 text-center">
-                    <p className="text-sm font-bold text-[#0F172A]">No messages yet.</p>
+                    <p className="text-sm font-bold text-[#0F172A]">
+                      No messages yet.
+                    </p>
                     <p className="mt-2 text-sm font-medium text-[#64748B]">
                       Send the first official Motivo support message.
                     </p>
                   </div>
                 ) : (
                   conversation.messages.map((message) => {
-                    const fromSupport = message.senderId === conversation.supportUser.id;
+                    const fromSupport =
+                      message.senderId === conversation.supportUser.id;
                     return (
                       <div
                         key={message.id}
@@ -248,15 +284,23 @@ export default async function AdminSupportPage({
                           }`}
                         >
                           <div className="mb-2 flex items-center gap-2">
-                            <span className={`text-xs font-black ${fromSupport ? "text-white" : "text-[#0F172A]"}`}>
-                              {fromSupport ? "Motivo" : displayUserName(conversation.targetUser)}
+                            <span
+                              className={`text-xs font-black ${fromSupport ? "text-white" : "text-[#0F172A]"}`}
+                            >
+                              {fromSupport
+                                ? "Motivo"
+                                : displayUserName(conversation.targetUser)}
                             </span>
-                            {fromSupport ? <Chip tone="blue">Official</Chip> : null}
+                            {fromSupport ? (
+                              <Chip tone="blue">Official</Chip>
+                            ) : null}
                           </div>
                           <p className="whitespace-pre-wrap text-sm font-medium leading-relaxed">
                             {message.body}
                           </p>
-                          <p className={`mt-2 font-mono text-[10px] ${fromSupport ? "text-[#CBD5E1]" : "text-[#64748B]"}`}>
+                          <p
+                            className={`mt-2 font-mono text-[10px] ${fromSupport ? "text-[#CBD5E1]" : "text-[#64748B]"}`}
+                          >
                             {formatTime(message.createdAt)}
                           </p>
                         </div>
@@ -266,7 +310,9 @@ export default async function AdminSupportPage({
                 )}
               </div>
 
-              <AdminSupportMessageForm targetUserId={conversation.targetUser.id} />
+              <AdminSupportMessageForm
+                targetUserId={conversation.targetUser.id}
+              />
             </>
           )}
         </section>

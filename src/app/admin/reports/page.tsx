@@ -1,12 +1,21 @@
 import Link from "next/link";
 
 import { adminUpdateReportStatusAction } from "@/app/admin/actions";
-import { AdminNav, AdminSetupRequired, AdminUnavailable, DateValue } from "@/components/admin/admin-display";
+import {
+  AdminNav,
+  AdminSetupRequired,
+  AdminUnavailable,
+  DateValue,
+} from "@/components/admin/admin-display";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
 import { getAdminAccess } from "@/lib/admin-auth";
-import { listAdminReports, type AdminReportRow, type ReportStatus } from "@/lib/api/reports";
+import {
+  listAdminReports,
+  type AdminReportRow,
+  type ReportStatus,
+} from "@/lib/api/reports";
 
 function statusTone(status: ReportStatus) {
   if (status === "open") return "pink";
@@ -29,7 +38,10 @@ function ReportStatusForm({
   label: string;
 }) {
   return (
-    <form action={adminUpdateReportStatusAction} className="flex min-w-45 flex-1 gap-2">
+    <form
+      action={adminUpdateReportStatusAction}
+      className="flex min-w-45 flex-1 gap-2"
+    >
       <input type="hidden" name="reportId" value={reportId} />
       <input type="hidden" name="status" value={status} />
       <label htmlFor={`${reportId}-${status}-note`} className="sr-only">
@@ -63,8 +75,8 @@ export default async function AdminReportsPage() {
     return <AdminSetupRequired />;
   }
 
-  const activeCount = reports.filter((report) =>
-    report.status === "open" || report.status === "reviewing"
+  const activeCount = reports.filter(
+    (report) => report.status === "open" || report.status === "reviewing",
   ).length;
 
   return (
@@ -80,7 +92,8 @@ export default async function AdminReportsPage() {
           {activeCount} report{activeCount === 1 ? "" : "s"} need review.
         </p>
         <p className="mt-1 text-sm font-medium text-[#64748B]">
-          Reports are private to admins. Reported users do not see who submitted them.
+          Reports are private to admins. Reported users do not see who submitted
+          them.
         </p>
       </div>
 
@@ -104,10 +117,16 @@ export default async function AdminReportsPage() {
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Chip tone={statusTone(report.status)}>{report.status}</Chip>
-                    <Chip tone="neutral">{targetTypeLabel(report.targetType)}</Chip>
+                    <Chip tone={statusTone(report.status)}>
+                      {report.status}
+                    </Chip>
+                    <Chip tone="neutral">
+                      {targetTypeLabel(report.targetType)}
+                    </Chip>
                   </div>
-                  <h2 className="mt-3 text-xl font-black text-[#0F172A]">{report.subject}</h2>
+                  <h2 className="mt-3 text-xl font-black text-[#0F172A]">
+                    {report.subject}
+                  </h2>
                   <p className="mt-2 text-sm font-medium text-[#64748B]">
                     Reported{" "}
                     <Link
@@ -135,13 +154,17 @@ export default async function AdminReportsPage() {
 
               <div className="mt-5 grid gap-4 lg:grid-cols-2">
                 <div className="rounded-2xl border border-[#F1F5F9] p-4">
-                  <h3 className="text-sm font-black text-[#0F172A]">Explanation</h3>
+                  <h3 className="text-sm font-black text-[#0F172A]">
+                    Explanation
+                  </h3>
                   <p className="mt-2 whitespace-pre-wrap text-sm font-medium leading-relaxed text-[#475569]">
                     {report.description}
                   </p>
                 </div>
                 <div className="rounded-2xl border border-[#F1F5F9] p-4">
-                  <h3 className="text-sm font-black text-[#0F172A]">Evidence</h3>
+                  <h3 className="text-sm font-black text-[#0F172A]">
+                    Evidence
+                  </h3>
                   <p className="mt-2 whitespace-pre-wrap text-sm font-medium leading-relaxed text-[#475569]">
                     {report.evidence || "No evidence provided."}
                   </p>
@@ -153,14 +176,28 @@ export default async function AdminReportsPage() {
                   <p className="text-xs font-black uppercase tracking-[0.14em] text-[#0055FF]">
                     Admin note
                   </p>
-                  <p className="mt-2 text-sm font-medium text-[#475569]">{report.adminNotes}</p>
+                  <p className="mt-2 text-sm font-medium text-[#475569]">
+                    {report.adminNotes}
+                  </p>
                 </div>
               ) : null}
 
               <div className="mt-5 flex flex-wrap gap-2">
-                <ReportStatusForm reportId={report.id} status="reviewing" label="Reviewing" />
-                <ReportStatusForm reportId={report.id} status="resolved" label="Resolve" />
-                <ReportStatusForm reportId={report.id} status="dismissed" label="Dismiss" />
+                <ReportStatusForm
+                  reportId={report.id}
+                  status="reviewing"
+                  label="Reviewing"
+                />
+                <ReportStatusForm
+                  reportId={report.id}
+                  status="resolved"
+                  label="Resolve"
+                />
+                <ReportStatusForm
+                  reportId={report.id}
+                  status="dismissed"
+                  label="Dismiss"
+                />
               </div>
             </article>
           ))}

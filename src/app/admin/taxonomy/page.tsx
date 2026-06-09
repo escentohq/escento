@@ -1,16 +1,29 @@
 import { adminAddTaxonomyTermAction } from "@/app/admin/actions";
 import { AdminDeleteTaxonomyButton } from "@/components/admin/admin-delete-taxonomy-button";
-import { AdminNav, AdminSetupRequired, AdminUnavailable } from "@/components/admin/admin-display";
+import {
+  AdminNav,
+  AdminSetupRequired,
+  AdminUnavailable,
+} from "@/components/admin/admin-display";
 import { Chip } from "@/components/ui/chip";
 import { PageShell } from "@/components/ui/page-shell";
 import { getAdminAccess } from "@/lib/admin-auth";
-import { listAdminTaxonomy, type AdminTaxonomyRow, type TaxonomyKind } from "@/lib/api/admin-taxonomy";
+import {
+  listAdminTaxonomy,
+  type AdminTaxonomyRow,
+  type TaxonomyKind,
+} from "@/lib/api/admin-taxonomy";
 
 function AddTermForm({ kind, label }: { kind: TaxonomyKind; label: string }) {
   return (
-    <form action={adminAddTaxonomyTermAction} className="flex flex-col gap-3 sm:flex-row">
+    <form
+      action={adminAddTaxonomyTermAction}
+      className="flex flex-col gap-3 sm:flex-row"
+    >
       <input type="hidden" name="kind" value={kind} />
-      <label htmlFor={`add-${kind}`} className="sr-only">Add {label}</label>
+      <label htmlFor={`add-${kind}`} className="sr-only">
+        Add {label}
+      </label>
       <input
         id={`add-${kind}`}
         name="name"
@@ -108,10 +121,18 @@ export default async function AdminTaxonomyPage() {
   }
 
   return (
-    <PageShell eyebrow="Admin" title="Taxonomy" body="Review instrument and genre terms used across Motivo.">
+    <PageShell
+      eyebrow="Admin"
+      title="Taxonomy"
+      body="Review instrument and genre terms used across Motivo."
+    >
       <AdminNav />
       <div className="grid gap-6 xl:grid-cols-2">
-        <TaxonomyTable title="Instruments" kind="instrument" rows={instruments} />
+        <TaxonomyTable
+          title="Instruments"
+          kind="instrument"
+          rows={instruments}
+        />
         <TaxonomyTable title="Genres" kind="genre" rows={genres} />
       </div>
     </PageShell>
