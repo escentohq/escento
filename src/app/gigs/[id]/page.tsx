@@ -5,6 +5,7 @@ import { BackLink } from "@/components/ui/back-link";
 import { Chip } from "@/components/ui/chip";
 import { BlockUserButton } from "@/components/messaging/block-user-button";
 import { ConnectButton } from "@/components/messaging/connect-button";
+import { ReportButton } from "@/components/reports/report-button";
 import { getGig } from "@/lib/api/gigs";
 import { getCurrentSession } from "@/lib/auth-guards";
 import {
@@ -37,6 +38,7 @@ export default async function GigPage({
   if (!gig) notFound();
 
   const isOwnGig = session?.user?.id === gig.creatorId;
+  const canReportGig = Boolean(session?.user?.role === "MUSICIAN" && !isOwnGig);
   const gigLocation = displayLocation(gig, "");
   let relationship: MessagingRelationship | null = null;
   let blockStatus: MessagingBlockStatus | null = null;
@@ -193,6 +195,16 @@ export default async function GigPage({
                 ) : null}
               </div>
             </div>
+
+            {canReportGig ? (
+              <div className="flex justify-end">
+                <ReportButton
+                  targetType="gig"
+                  targetId={gig.id}
+                  targetLabel={gig.title}
+                />
+              </div>
+            ) : null}
           </aside>
         </div>
       </div>

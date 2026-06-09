@@ -6,6 +6,7 @@ import { Chip } from "@/components/ui/chip";
 import { SectionCard } from "@/components/ui/section-card";
 import { BlockUserButton } from "@/components/messaging/block-user-button";
 import { ConnectButton } from "@/components/messaging/connect-button";
+import { ReportButton } from "@/components/reports/report-button";
 import { getProfile } from "@/lib/api/profiles";
 import { getCurrentSession } from "@/lib/auth-guards";
 import {
@@ -45,6 +46,7 @@ export default async function MusicianPublicProfilePage({
   if (!profile) notFound();
 
   const isOwnProfile = session?.user?.id === profile.userId;
+  const canReportProfile = Boolean(session?.user?.role === "CREATOR" && !isOwnProfile);
   let relationship: MessagingRelationship | null = null;
   let blockStatus: MessagingBlockStatus | null = null;
   let messagingUnavailable = false;
@@ -248,6 +250,16 @@ export default async function MusicianPublicProfilePage({
                 ) : null}
               </div>
             </div>
+            ) : null}
+
+            {canReportProfile ? (
+              <div className="flex justify-end">
+                <ReportButton
+                  targetType="musician_profile"
+                  targetId={profile.id}
+                  targetLabel={profile.displayName}
+                />
+              </div>
             ) : null}
 
             {/* Work prefs */}

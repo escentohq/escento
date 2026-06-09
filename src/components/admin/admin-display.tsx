@@ -1,14 +1,23 @@
 import Link from "next/link";
 
 import { Chip } from "@/components/ui/chip";
+import { getOpenReportCount } from "@/lib/api/reports";
 
-export function AdminNav({ supportBadgeCount = 0 }: { supportBadgeCount?: number } = {}) {
+export async function AdminNav({ supportBadgeCount = 0 }: { supportBadgeCount?: number } = {}) {
+  let reportsBadgeCount = 0;
+  try {
+    reportsBadgeCount = await getOpenReportCount();
+  } catch (error) {
+    console.error("[admin] report badge count failed", error);
+  }
+
   const links = [
     ["/admin", "Dashboard"],
     ["/admin/users", "Users"],
     ["/admin/musicians", "Musicians"],
     ["/admin/creators", "Creators"],
     ["/admin/gigs", "Gigs"],
+    ["/admin/reports", "Reports"],
     ["/admin/taxonomy", "Taxonomy"],
     ["/admin/support", "Support"],
   ] as const;
@@ -22,6 +31,11 @@ export function AdminNav({ supportBadgeCount = 0 }: { supportBadgeCount?: number
           className="relative whitespace-nowrap rounded-xl px-4 py-2 text-sm font-bold text-[#475569] transition-colors hover:bg-[#F8FAFC] hover:text-[#0055FF]"
         >
           {label}
+          {href === "/admin/reports" && reportsBadgeCount > 0 ? (
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF3366] px-1.5 text-[10px] font-black leading-none text-white">
+              {reportsBadgeCount > 99 ? "99+" : reportsBadgeCount}
+            </span>
+          ) : null}
           {href === "/admin/support" && supportBadgeCount > 0 ? (
             <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF3366] px-1.5 text-[10px] font-black leading-none text-white">
               {supportBadgeCount > 99 ? "99+" : supportBadgeCount}

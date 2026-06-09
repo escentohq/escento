@@ -18,6 +18,10 @@ import {
   markSupportConversationReadForAdmin,
   sendSupportMessageAsMotivo,
 } from "@/lib/api/support-account";
+import {
+  updateReportStatus,
+  type ReportStatus,
+} from "@/lib/api/reports";
 import { nonEmptyOrNull, normalizeTagName, strOrEmpty } from "@/lib/form-utils";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { deleteUserCompletely } from "@/lib/user-deletion";
@@ -37,6 +41,7 @@ const ACTIONS = new Set<AdminAction>([
   "clear_text",
 ]);
 const TAXONOMY_KINDS = new Set<TaxonomyKind>(["instrument", "genre"]);
+const REPORT_STATUSES = new Set<ReportStatus>(["open", "reviewing", "resolved", "dismissed"]);
 
 export async function adminModerationAction(formData: FormData) {
   const adminEmail = await requireAdminEmail();
@@ -180,4 +185,27 @@ export async function adminMarkSupportConversationReadAction(formData: FormData)
   });
 
   revalidatePath("/admin/support");
+}
+
+export async function adminUpdateReportStatusAction(formData: FormData) {
+  const adminEmail = await requireAdminEmail();
+  const session = await getCurrentSession();
+  const reportId = strOrEmpty(formData.get("reportId"));
+  const status = strOrEmpty(formData.get("status")) as ReportStatus;
+  const note = nonEmptyOrNull(formData.get("note"));
+
+  if (!reportId || !REPORT_STATUSES.has(status)) {
+    throw new Error("Invalid report moderation request.");
+  }
+
+  await updateReportStatus({
+    adminUserId: session?.user.id ?? null,
+    adminEmail,
+    reportId,
+    status,
+    note,
+  });
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/reports");
 }
