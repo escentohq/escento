@@ -14,6 +14,7 @@ import {
   deleteTaxonomyTerm,
   type TaxonomyKind,
 } from "@/lib/api/admin-taxonomy";
+import { sendSupportMessageAsMotivo } from "@/lib/api/support-account";
 import { nonEmptyOrNull, normalizeTagName, strOrEmpty } from "@/lib/form-utils";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { deleteUserCompletely } from "@/lib/user-deletion";
@@ -141,4 +142,23 @@ export async function adminDeleteTaxonomyTermAction(formData: FormData) {
 
   await deleteTaxonomyTerm(kind, id);
   revalidatePath("/admin/taxonomy");
+}
+
+export async function adminSendSupportMessageAction(formData: FormData) {
+  const adminEmail = await requireAdminEmail();
+  const targetUserId = strOrEmpty(formData.get("targetUserId"));
+  const body = strOrEmpty(formData.get("body"));
+
+  if (!targetUserId) {
+    throw new Error("Choose a user.");
+  }
+
+  await sendSupportMessageAsMotivo({
+    adminEmail,
+    targetUserId,
+    body,
+  });
+
+  revalidatePath("/admin/support");
+  revalidatePath("/messages");
 }

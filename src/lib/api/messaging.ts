@@ -2,6 +2,7 @@ import { randomUUID } from "crypto";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getMotivoSupportAccountEmail } from "@/lib/support-identity";
 import {
   queueAcceptedConnectionRequestNotification,
   queueConnectionRequestNotification,
@@ -69,9 +70,11 @@ function toUserSummary(raw: any): MessagingUserSummary | undefined {
   return {
     id: raw.id,
     email: raw.email ?? null,
-    name: raw.name ?? null,
+    name: raw.is_admin_support_account ? "Motivo" : raw.name ?? null,
     image: raw.image ?? null,
     role: raw.role ?? null,
+    isSystemAccount: raw.is_system_account ?? false,
+    isAdminSupportAccount: raw.is_admin_support_account ?? false,
   };
 }
 
@@ -153,7 +156,11 @@ async function getUserSummaries(userIds: string[]) {
   return new Map(
     (users ?? []).map((user) => {
       const profileName = profileNames.get(user.id) ?? null;
-      const name = user.role === "MUSICIAN"
+      const isAdminSupportAccount =
+        Boolean(user.email) && user.email.toLowerCase() === getMotivoSupportAccountEmail();
+      const name = isAdminSupportAccount
+        ? "Motivo"
+        : user.role === "MUSICIAN"
         ? profileName || user.name || null
         : user.name || profileName || null;
 
@@ -165,6 +172,8 @@ async function getUserSummaries(userIds: string[]) {
           name,
           image: user.image ?? null,
           role: user.role ?? null,
+          isAdminSupportAccount,
+          isSystemAccount: isAdminSupportAccount,
         },
       ];
     }),

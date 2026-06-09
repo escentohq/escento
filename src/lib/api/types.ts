@@ -9,6 +9,8 @@ export interface AppUser {
   name: string | null;
   image: string | null;
   role: "MUSICIAN" | "CREATOR" | null;
+  isSystemAccount?: boolean;
+  isAdminSupportAccount?: boolean;
 }
 
 export interface Gig {
@@ -189,6 +191,8 @@ export interface MessagingUserSummary {
   name: string | null;
   image: string | null;
   role: "MUSICIAN" | "CREATOR" | null;
+  isSystemAccount?: boolean;
+  isAdminSupportAccount?: boolean;
 }
 
 export interface ConnectionRequest {

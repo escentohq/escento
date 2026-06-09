@@ -11,10 +11,7 @@ import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { Reveal } from "@/components/ui/reveal";
 import type { ConnectionRequest, ConversationSummary } from "@/lib/api/types";
-
-function displayName(name?: string | null, email?: string | null) {
-  return name || email || "Motivo user";
-}
+import { getMessagingDisplayName, isMotivoSupportSummary } from "@/lib/support-identity";
 
 function initials(name: string) {
   return name
@@ -92,7 +89,8 @@ export default async function MessagesPage() {
         <div className="space-y-4">
           {conversations.map((conversation, index) => {
             const other = conversation.otherParticipant?.user;
-            const name = displayName(other?.name, other?.email);
+            const name = getMessagingDisplayName(other);
+            const officialSupport = isMotivoSupportSummary(other);
             const preview = conversation.lastMessage?.body ?? "No messages yet.";
             const unread = conversation.unreadCount > 0;
 
@@ -120,11 +118,21 @@ export default async function MessagesPage() {
 
                   <div className="min-w-0 flex-1">
                     <div className="flex min-w-0 items-center justify-between gap-3">
-                      <h2 className="truncate text-base font-black text-[#0F172A]">{name}</h2>
+                      <div className="flex min-w-0 items-center gap-2">
+                        <h2 className="truncate text-base font-black text-[#0F172A]">{name}</h2>
+                        {officialSupport ? (
+                          <span className="shrink-0 rounded-full bg-[#0055FF]/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.14em] text-[#0055FF]">
+                            Official
+                          </span>
+                        ) : null}
+                      </div>
                       <span className="shrink-0 font-mono text-xs text-[#64748B]">
                         {formatTime(conversation.lastMessageAt)}
                       </span>
                     </div>
+                    {officialSupport ? (
+                      <p className="mt-1 text-xs font-bold text-[#0055FF]">Official support</p>
+                    ) : null}
                     <p className={`mt-1 truncate text-sm ${unread ? "font-bold text-[#0F172A]" : "font-medium text-[#64748B]"}`}>
                       {preview}
                     </p>

@@ -9,12 +9,9 @@ import {
   getMessagingBlockStatusForUser,
   markConversationReadForUser,
 } from "@/lib/api/messaging";
+import { getMessagingDisplayName, isMotivoSupportSummary } from "@/lib/support-identity";
 import { HideConversationButton } from "./_conversation-actions";
 import { ConversationThread } from "./_conversation-thread";
-
-function displayName(name?: string | null, email?: string | null) {
-  return name || email || "Motivo user";
-}
 
 function initials(name: string) {
   return name
@@ -43,7 +40,8 @@ export default async function ConversationPage({
   await markConversationReadForUser(session.user.id, conversationId);
 
   const other = conversation.otherParticipant?.user;
-  const name = displayName(other?.name, other?.email);
+  const name = getMessagingDisplayName(other);
+  const officialSupport = isMotivoSupportSummary(other);
   const blockStatus = other
     ? await getMessagingBlockStatusForUser(session.user.id, other.id)
     : { blockedByMe: false, blockedMe: false };
@@ -77,7 +75,8 @@ export default async function ConversationPage({
                   {name}
                 </h1>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <Chip tone="blue">Direct</Chip>
+                  <Chip tone="blue">{officialSupport ? "Official support" : "Direct"}</Chip>
+                  {officialSupport ? <Chip tone="neutral">Official</Chip> : null}
                   {messagingUnavailable ? <Chip tone="pink">Blocked</Chip> : null}
                 </div>
               </div>

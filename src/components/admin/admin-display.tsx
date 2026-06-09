@@ -10,6 +10,7 @@ export function AdminNav() {
     ["/admin/creators", "Creators"],
     ["/admin/gigs", "Gigs"],
     ["/admin/taxonomy", "Taxonomy"],
+    ["/admin/support", "Support"],
   ] as const;
 
   return (
