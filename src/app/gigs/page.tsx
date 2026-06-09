@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { getCurrentSession } from "@/lib/auth-guards";
+import { requireUser } from "@/lib/auth-guards";
 import { listInstruments, listGenres } from "@/lib/api/tags";
 import { listOpenGigs } from "@/lib/api/gigs";
 import {
@@ -35,7 +35,7 @@ export default async function GigsPage({
   }));
 
   const [session, instruments, genres, gigs] = await Promise.all([
-    getCurrentSession(),
+    requireUser("/gigs"),
     listInstruments(),
     listGenres(),
     listOpenGigs({ q: locationSearch.query, projectType: safeProjectType, instruments: selectedInstruments, genres: selectedGenres, location: locationSearch }),

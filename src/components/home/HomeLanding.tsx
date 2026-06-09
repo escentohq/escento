@@ -42,7 +42,7 @@ const SCHOOLS = [
 ];
 
 const ACCOLADES = [
-  { accent: "#0055FF", text: "No account needed to browse" },
+  { accent: "#0055FF", text: "Quick sign-in to browse" },
   { accent: "#FF3366", text: "Connect through Motivo messages" },
   { accent: "#FFB000", text: "Free for student musicians" },
   { accent: "#0055FF", text: "Post a gig in under 2 minutes" },
@@ -62,8 +62,8 @@ const HERO_TAGS = [
 const VALUE_PROPS = [
   {
     icon: Users,
-    title: "Browse first.",
-    body: "Look through musicians and gigs before you commit. Sign in when you are ready to reach out.",
+    title: "Sign in, then browse.",
+    body: "Create an account in a few clicks, then look through musicians and gigs before you commit.",
     accent: "#0055FF",
     bg: "bg-[#0055FF]/15",
   },
@@ -95,7 +95,7 @@ const HOW_IT_WORKS = [
     num: "01",
     eyebrow: "Spotlight",
     title: "Browse talent.",
-    desc: "No account needed. Filter by instrument, genre, campus. Find who you need in under five minutes.",
+    desc: "Sign in quickly, filter by instrument, genre, and campus, then find who you need in under five minutes.",
     accent: "#0055FF",
     accentBg: "bg-[#0055FF]/10",
     accentText: "text-[#0055FF]",

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { getCurrentSession } from "@/lib/auth-guards";
+import { requireUser } from "@/lib/auth-guards";
 import { listInstruments, listGenres } from "@/lib/api/tags";
 import { listProfiles } from "@/lib/api/profiles";
 import { clampText, visibleTags } from "@/lib/display";
@@ -24,7 +24,7 @@ export default async function MusiciansPage({
   const selectedGenres = parseSelectedTags(genre);
 
   const [session, instruments, genres, profiles] = await Promise.all([
-    getCurrentSession(),
+    requireUser("/musicians"),
     listInstruments(),
     listGenres(),
     listProfiles({ q: locationSearch.query, instruments: selectedInstruments, genres: selectedGenres, location: locationSearch }),

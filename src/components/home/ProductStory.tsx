@@ -60,7 +60,7 @@ const STEPS: Step[] = [
     headline: "On the board.",
     support:
       "Post the gig in two minutes. Build the profile once. The noise turns into a list you can actually read.",
-    insight: "No account needed to look.",
+    insight: "Quick sign-in. Then browse the board.",
     accent: "#0055FF",
     accentText: "text-[#0055FF]",
   },
@@ -557,7 +557,7 @@ function StageCanvas({
             >
               <span className="inline-flex items-center gap-2 rounded-full border border-[#F1F5F9] bg-[#F8FAFC] px-3 py-1.5 text-[11px] font-bold text-[#64748B]">
                 <Search className="h-3 w-3" aria-hidden />
-                Browsing as guest — no account needed
+                Signed in and browsing the board
               </span>
             </motion.div>
 
