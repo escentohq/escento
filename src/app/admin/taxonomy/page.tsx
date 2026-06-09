@@ -53,7 +53,7 @@ function TaxonomyTable({
       </div>
 
       <div className="mt-5 overflow-x-auto rounded-2xl border border-[#F1F5F9]">
-        <table className="w-full min-w-[720px] text-left text-sm">
+        <table className="w-full min-w-180 text-left text-sm">
           <thead className="bg-[#F8FAFC] text-xs font-black uppercase tracking-[0.14em] text-[#64748B]">
             <tr>
               <th className="p-4">Name</th>

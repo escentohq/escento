@@ -29,7 +29,7 @@ function ReportStatusForm({
   label: string;
 }) {
   return (
-    <form action={adminUpdateReportStatusAction} className="flex min-w-[180px] flex-1 gap-2">
+    <form action={adminUpdateReportStatusAction} className="flex min-w-45 flex-1 gap-2">
       <input type="hidden" name="reportId" value={reportId} />
       <input type="hidden" name="status" value={status} />
       <label htmlFor={`${reportId}-${status}-note`} className="sr-only">

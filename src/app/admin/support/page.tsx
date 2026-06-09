@@ -224,7 +224,7 @@ export default async function AdminSupportPage({
                 </div>
               </header>
 
-              <div className="max-h-[620px] min-h-[420px] space-y-4 overflow-y-auto p-5">
+              <div className="max-h-155 min-h-105 space-y-4 overflow-y-auto p-5">
                 {conversation.messages.length === 0 ? (
                   <div className="rounded-3xl bg-[#F8FAFC] p-8 text-center">
                     <p className="text-sm font-bold text-[#0F172A]">No messages yet.</p>
