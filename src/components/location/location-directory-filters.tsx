@@ -10,6 +10,7 @@ import {
   LocationAutocompleteField,
   type LocationAutocompleteValue,
 } from "@/components/location/location-autocomplete-field";
+import { TagFilterMultiSelect } from "@/components/location/tag-filter-multi-select";
 import type { RemoteFilter } from "@/lib/location";
 
 type Option = {
@@ -32,9 +33,9 @@ type Props = {
   remote?: RemoteFilter;
   projectType?: string;
   projectTypeOptions?: readonly SelectOption[];
-  instrument?: string;
+  instrument?: string[];
   instruments: Option[];
-  genre?: string;
+  genre?: string[];
   genres: Option[];
   hasFilters: boolean;
 };
@@ -50,16 +51,16 @@ export function LocationDirectoryFilters({
   remote = "include",
   projectType = "",
   projectTypeOptions,
-  instrument = "",
+  instrument = [],
   instruments,
-  genre = "",
+  genre = [],
   genres,
   hasFilters,
 }: Props) {
   const hasAdvancedFilters = Boolean(
     projectType ||
-      instrument ||
-      genre ||
+      instrument.length ||
+      genre.length ||
       locationDisplayName ||
       radius ||
       remote !== "include",
@@ -141,21 +142,25 @@ export function LocationDirectoryFilters({
             </label>
           ) : null}
 
-          <label htmlFor="instrument" className="text-sm font-bold text-[#0F172A]">
-            Instrument
-            <Select id="instrument" name="instrument" defaultValue={instrument}>
-              <option value="">All instruments</option>
-              {instruments.map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}
-            </Select>
-          </label>
+          <TagFilterMultiSelect
+            id="instrument"
+            name="instrument"
+            label="Instrument"
+            kind="instrument"
+            options={instruments}
+            selected={instrument}
+            placeholder="Drums, saxophone, guitar"
+          />
 
-          <label htmlFor="genre" className="text-sm font-bold text-[#0F172A]">
-            Genre
-            <Select id="genre" name="genre" defaultValue={genre}>
-              <option value="">All genres</option>
-              {genres.map((item) => <option key={item.name} value={item.name}>{item.name}</option>)}
-            </Select>
-          </label>
+          <TagFilterMultiSelect
+            id="genre"
+            name="genre"
+            label="Genre"
+            kind="genre"
+            options={genres}
+            selected={genre}
+            placeholder="Jazz, hip hop, film scoring"
+          />
 
           <label htmlFor="directoryLocation" className="text-sm font-bold text-[#0F172A]">
             Location

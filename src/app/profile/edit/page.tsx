@@ -47,7 +47,6 @@ export default async function EditProfilePage() {
               ? ""
               : String(profile.yearsExperience),
           availabilityText: profile.availabilityText ?? "",
-          contactEmail: profile.contactEmail ?? "",
           instagramUrl: profile.instagramUrl ?? "",
           youtubeUrl: profile.youtubeUrl ?? "",
           spotifyUrl: profile.spotifyUrl ?? "",

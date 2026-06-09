@@ -1,6 +1,8 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { distanceMiles, type LocationSearch } from "@/lib/location";
+import { filterSearchResults } from "@/lib/search";
+import { tagMatchesQuery } from "@/lib/tag-taxonomy";
 import { ensureInstruments, ensureGenres } from "./tags";
 import type { Gig, CreateGigInput, UpdateGigInput } from "./types";
 
@@ -103,8 +105,8 @@ export async function getGig(id: string): Promise<Gig | null> {
 
 interface ListOpenGigsFilters {
   projectType?: string;
-  instrument?: string;
-  genre?: string;
+  instruments?: string[];
+  genres?: string[];
   q?: string;
   location?: LocationSearch;
 }
@@ -123,24 +125,9 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
     .order("created_at", { ascending: false });
 
   const q = filters?.q ? safeSearchPattern(filters.q) : "";
-  if (q) {
-    query = query.or(`title.ilike.%${q}%,description.ilike.%${q}%,project_type.ilike.%${q}%,compensation_details.ilike.%${q}%,location.ilike.%${q}%,location_display_name.ilike.%${q}%,location_city.ilike.%${q}%,location_state.ilike.%${q}%,location_country.ilike.%${q}%`);
-  }
 
   if (filters?.projectType) {
     query = query.eq("project_type", filters.projectType);
-  }
-
-  if (filters?.instrument) {
-    query = query
-      .select("*, gig_instrument!inner(instrument!inner(name)), gig_genre(*, genre(*))")
-      .eq("gig_instrument.instrument.name", filters.instrument);
-  }
-
-  if (filters?.genre) {
-    query = query
-      .select("*, gig_instrument(*, instrument(*)), gig_genre!inner(genre!inner(name))")
-      .eq("gig_genre.genre.name", filters.genre);
   }
 
   const { data, error } = await query;
@@ -149,6 +136,41 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
 
   let gigs = await withCreatorSummaries(data || []);
   const location = filters?.location;
+  const instrumentFilters = filters?.instruments ?? [];
+  const genreFilters = filters?.genres ?? [];
+
+  if (q) {
+    gigs = filterSearchResults(gigs, q, (gig) => [
+      gig.title,
+      gig.description,
+      gig.projectType,
+      gig.compensationDetails,
+      gig.location,
+      gig.locationDisplayName,
+      gig.locationCity,
+      gig.locationState,
+      gig.locationCountry,
+      gig.creator?.name,
+      ...(gig.instruments ?? []),
+      ...(gig.genres ?? []),
+    ]);
+  }
+
+  if (instrumentFilters.length) {
+    gigs = gigs.filter((gig) => (
+      instrumentFilters.some((selected) => (
+        (gig.instruments ?? []).some((instrument) => tagMatchesQuery("instrument", instrument, selected))
+      ))
+    ));
+  }
+
+  if (genreFilters.length) {
+    gigs = gigs.filter((gig) => (
+      genreFilters.some((selected) => (
+        (gig.genres ?? []).some((genre) => tagMatchesQuery("genre", genre, selected))
+      ))
+    ));
+  }
 
   if (location?.remoteFilter === "remote") {
     gigs = gigs.filter((gig) => gig.isRemote);

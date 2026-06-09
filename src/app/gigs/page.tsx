@@ -17,15 +17,18 @@ import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { Reveal } from "@/components/ui/reveal";
 import { LocationDirectoryFilters } from "@/components/location/location-directory-filters";
+import { parseSelectedTags } from "@/lib/tag-taxonomy";
 
 export default async function GigsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; projectType?: string; instrument?: string; genre?: string; locationDisplayName?: string; lat?: string; lng?: string; radius?: string; remote?: string }>;
+  searchParams: Promise<{ q?: string; projectType?: string; instrument?: string | string[]; genre?: string | string[]; locationDisplayName?: string; lat?: string; lng?: string; radius?: string; remote?: string }>;
 }) {
   const { q, projectType, instrument, genre, locationDisplayName, lat, lng, radius, remote } = await searchParams;
   const safeProjectType = PROJECT_TYPES.find((type) => type === projectType);
   const locationSearch = parseLocationSearch({ q, lat, lng, radius, remote });
+  const selectedInstruments = parseSelectedTags(instrument);
+  const selectedGenres = parseSelectedTags(genre);
   const projectTypeOptions = PROJECT_TYPES.map((type) => ({
     value: type,
     label: projectTypeLabel(type),
@@ -35,10 +38,10 @@ export default async function GigsPage({
     getCurrentSession(),
     listInstruments(),
     listGenres(),
-    listOpenGigs({ q: locationSearch.query, projectType: safeProjectType, instrument, genre, location: locationSearch }),
+    listOpenGigs({ q: locationSearch.query, projectType: safeProjectType, instruments: selectedInstruments, genres: selectedGenres, location: locationSearch }),
   ]);
 
-  const hasFilters = Boolean(q || safeProjectType || instrument || genre || locationDisplayName || radius || (remote && remote !== "include"));
+  const hasFilters = Boolean(q || safeProjectType || selectedInstruments.length || selectedGenres.length || locationDisplayName || radius || (remote && remote !== "include"));
   const showPostGigCta = !session?.user || session.user.role === "CREATOR";
 
   return (
@@ -61,9 +64,9 @@ export default async function GigsPage({
             remote={locationSearch.remoteFilter}
             projectType={safeProjectType}
             projectTypeOptions={projectTypeOptions}
-            instrument={instrument}
+            instrument={selectedInstruments}
             instruments={instruments}
-            genre={genre}
+            genre={selectedGenres}
             genres={genres}
             hasFilters={hasFilters}
           />

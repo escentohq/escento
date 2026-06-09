@@ -9,14 +9,13 @@ import {
   type ActionState,
   fieldError,
   formLevelMessage,
-  isValidEmail,
   isValidUrlOrEmpty,
   nonEmptyOrNull,
   parseCsv,
   parseOptionalInteger,
   strOrEmpty,
 } from "@/lib/form-utils";
-import { parseStructuredLocation, validateStructuredLocation } from "@/lib/location";
+import { parseStructuredLocation } from "@/lib/location";
 import { profileValuesFromFormData } from "@/lib/form-snapshots";
 
 function validateProfile(fd: FormData) {
@@ -31,7 +30,6 @@ function validateProfile(fd: FormData) {
   const yearsExperienceRaw = strOrEmpty(fd.get("yearsExperience"));
   const yearsExperience = parseOptionalInteger(yearsExperienceRaw);
   const availabilityText = nonEmptyOrNull(fd.get("availabilityText"));
-  const contactEmail = strOrEmpty(fd.get("contactEmail"));
   const instruments = parseCsv(fd.get("instrumentsCsv"));
   const genres = parseCsv(fd.get("genresCsv"));
   const instagramUrl = nonEmptyOrNull(fd.get("instagramUrl"));
@@ -43,14 +41,8 @@ function validateProfile(fd: FormData) {
   if (!displayName) fieldError(fieldErrors, "displayName", "Add the name creators should see.");
   if (displayName.length > 80) fieldError(fieldErrors, "displayName", "Keep the display name under 80 characters.");
   if (bio && bio.length > 1200) fieldError(fieldErrors, "bio", "Keep the bio under 1,200 characters.");
-  if (!contactEmail) fieldError(fieldErrors, "contactEmail", "Add a contact email.");
-  if (contactEmail && !isValidEmail(contactEmail)) fieldError(fieldErrors, "contactEmail", "Use a valid email address.");
-  if (!instruments.length) fieldError(fieldErrors, "instrumentsCsv", "Add at least one instrument.");
-  if (!genres.length) fieldError(fieldErrors, "genresCsv", "Add at least one genre.");
   if (yearsExperienceRaw && yearsExperience === null) fieldError(fieldErrors, "yearsExperience", "Use a whole number.");
   if (yearsExperience !== null && yearsExperience < 0) fieldError(fieldErrors, "yearsExperience", "Experience cannot be negative.");
-  if (!seekingPaid && !seekingUnpaid) fieldError(fieldErrors, "seekingPaid", "Choose at least one compensation preference.");
-  validateStructuredLocation(fieldErrors, location, isRemote);
 
   for (const [field, value] of Object.entries({
     instagramUrl,
@@ -74,7 +66,6 @@ function validateProfile(fd: FormData) {
       seekingUnpaid,
       yearsExperience,
       availabilityText,
-      contactEmail,
       instruments,
       genres,
       instagramUrl,
@@ -106,7 +97,7 @@ export async function updateMusicianProfileAction(
   }
 
   const data = parsed.data;
-  await updateProfile(
+  const updatedProfile = await updateProfile(
     profile.id,
     {
       displayName: data.displayName,
@@ -128,7 +119,7 @@ export async function updateMusicianProfileAction(
       seekingUnpaid: data.seekingUnpaid,
       yearsExperience: data.yearsExperience,
       availabilityText: data.availabilityText,
-      contactEmail: data.contactEmail,
+      contactEmail: session.user.email ?? profile.contactEmail,
       instagramUrl: data.instagramUrl,
       youtubeUrl: data.youtubeUrl,
       spotifyUrl: data.spotifyUrl,
@@ -143,5 +134,5 @@ export async function updateMusicianProfileAction(
   revalidatePath("/");
   revalidatePath("/musicians");
   revalidatePath(`/musicians/${profile.id}`);
-  redirect("/profile/edit");
+  redirect(`/musicians/${updatedProfile.id}`);
 }

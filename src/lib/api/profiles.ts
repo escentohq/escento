@@ -2,6 +2,8 @@ import { cache } from "react";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { distanceMiles, type LocationSearch } from "@/lib/location";
+import { filterSearchResults } from "@/lib/search";
+import { tagMatchesQuery } from "@/lib/tag-taxonomy";
 import { ensureInstruments, ensureGenres } from "./tags";
 import type { MusicianProfile, CreateProfileInput, UpdateProfileInput } from "./types";
 
@@ -68,8 +70,8 @@ export const getProfileByUserId = cache(async (userId: string): Promise<Musician
 });
 
 interface ListProfilesFilters {
-  instrument?: string;
-  genre?: string;
+  instruments?: string[];
+  genres?: string[];
   q?: string;
   location?: LocationSearch;
 }
@@ -87,21 +89,6 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
     .order("updated_at", { ascending: false });
 
   const q = filters?.q ? safeSearchPattern(filters.q) : "";
-  if (q) {
-    query = query.or(`display_name.ilike.%${q}%,bio.ilike.%${q}%,school.ilike.%${q}%,availability_text.ilike.%${q}%,location.ilike.%${q}%,location_display_name.ilike.%${q}%,location_city.ilike.%${q}%,location_state.ilike.%${q}%,location_country.ilike.%${q}%`);
-  }
-
-  if (filters?.instrument) {
-    query = query
-      .select("*, app_user(image), musician_instrument!inner(instrument!inner(name)), musician_genre(*, genre(*))")
-      .eq("musician_instrument.instrument.name", filters.instrument);
-  }
-
-  if (filters?.genre) {
-    query = query
-      .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre!inner(genre!inner(name))")
-      .eq("musician_genre.genre.name", filters.genre);
-  }
 
   const { data, error } = await query;
 
@@ -109,6 +96,40 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
 
   let profiles = (data || []).map((raw) => toProfile(raw));
   const location = filters?.location;
+  const instrumentFilters = filters?.instruments ?? [];
+  const genreFilters = filters?.genres ?? [];
+
+  if (q) {
+    profiles = filterSearchResults(profiles, q, (profile) => [
+      profile.displayName,
+      profile.bio,
+      profile.school,
+      profile.availabilityText,
+      profile.location,
+      profile.locationDisplayName,
+      profile.locationCity,
+      profile.locationState,
+      profile.locationCountry,
+      ...(profile.instruments ?? []),
+      ...(profile.genres ?? []),
+    ]);
+  }
+
+  if (instrumentFilters.length) {
+    profiles = profiles.filter((profile) => (
+      instrumentFilters.some((selected) => (
+        (profile.instruments ?? []).some((instrument) => tagMatchesQuery("instrument", instrument, selected))
+      ))
+    ));
+  }
+
+  if (genreFilters.length) {
+    profiles = profiles.filter((profile) => (
+      genreFilters.some((selected) => (
+        (profile.genres ?? []).some((genre) => tagMatchesQuery("genre", genre, selected))
+      ))
+    ));
+  }
 
   if (location?.remoteFilter === "remote") {
     profiles = profiles.filter((profile) => profile.isRemote);

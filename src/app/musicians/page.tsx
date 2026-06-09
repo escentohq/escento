@@ -11,23 +11,26 @@ import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { Reveal } from "@/components/ui/reveal";
 import { LocationDirectoryFilters } from "@/components/location/location-directory-filters";
+import { parseSelectedTags } from "@/lib/tag-taxonomy";
 
 export default async function MusiciansPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; instrument?: string; genre?: string; locationDisplayName?: string; lat?: string; lng?: string; radius?: string; remote?: string }>;
+  searchParams: Promise<{ q?: string; instrument?: string | string[]; genre?: string | string[]; locationDisplayName?: string; lat?: string; lng?: string; radius?: string; remote?: string }>;
 }) {
   const { q, instrument, genre, locationDisplayName, lat, lng, radius, remote } = await searchParams;
   const locationSearch = parseLocationSearch({ q, lat, lng, radius, remote });
+  const selectedInstruments = parseSelectedTags(instrument);
+  const selectedGenres = parseSelectedTags(genre);
 
   const [session, instruments, genres, profiles] = await Promise.all([
     getCurrentSession(),
     listInstruments(),
     listGenres(),
-    listProfiles({ q: locationSearch.query, instrument, genre, location: locationSearch }),
+    listProfiles({ q: locationSearch.query, instruments: selectedInstruments, genres: selectedGenres, location: locationSearch }),
   ]);
 
-  const hasFilters = Boolean(q || instrument || genre || locationDisplayName || radius || (remote && remote !== "include"));
+  const hasFilters = Boolean(q || selectedInstruments.length || selectedGenres.length || locationDisplayName || radius || (remote && remote !== "include"));
   const showCreateProfileCta = !session?.user || session.user.role === "MUSICIAN";
 
   return (
@@ -48,9 +51,9 @@ export default async function MusiciansPage({
             locationLng={lng}
             radius={radius}
             remote={locationSearch.remoteFilter}
-            instrument={instrument}
+            instrument={selectedInstruments}
             instruments={instruments}
-            genre={genre}
+            genre={selectedGenres}
             genres={genres}
             hasFilters={hasFilters}
           />

@@ -14,7 +14,7 @@ import {
 } from "@/components/location/location-autocomplete-field";
 import { useFormFieldState } from "@/hooks/use-form-field-state";
 import { boolValue, stringValue } from "@/lib/form-snapshots";
-import { countFieldErrors, isValidEmail, type ActionState } from "@/lib/form-utils";
+import { countFieldErrors, type ActionState } from "@/lib/form-utils";
 import { emptyActionState } from "@/lib/form-utils";
 
 export type ProfileFormValues = {
@@ -37,7 +37,6 @@ export type ProfileFormValues = {
   seekingUnpaid: boolean;
   yearsExperience: string;
   availabilityText: string;
-  contactEmail: string;
   instagramUrl: string;
   youtubeUrl: string;
   spotifyUrl: string;
@@ -70,7 +69,6 @@ function buildValues(initial: Partial<ProfileFormValues>): ProfileFormValues {
     seekingUnpaid: initial.seekingUnpaid ?? true,
     yearsExperience: initial.yearsExperience ?? "",
     availabilityText: initial.availabilityText ?? "",
-    contactEmail: initial.contactEmail ?? "",
     instagramUrl: initial.instagramUrl ?? "",
     youtubeUrl: initial.youtubeUrl ?? "",
     spotifyUrl: initial.spotifyUrl ?? "",
@@ -153,7 +151,6 @@ export function ProfileForm({
         seekingUnpaid: boolValue(state.values, "seekingUnpaid", current.seekingUnpaid),
         yearsExperience: stringValue(state.values, "yearsExperience", current.yearsExperience),
         availabilityText: stringValue(state.values, "availabilityText", current.availabilityText),
-        contactEmail: stringValue(state.values, "contactEmail", current.contactEmail),
         instagramUrl: stringValue(state.values, "instagramUrl", current.instagramUrl),
         youtubeUrl: stringValue(state.values, "youtubeUrl", current.youtubeUrl),
         spotifyUrl: stringValue(state.values, "spotifyUrl", current.spotifyUrl),
@@ -172,12 +169,6 @@ export function ProfileForm({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
-
-  const contactEmailFormatError =
-    values.contactEmail.length > 0 && !isValidEmail(values.contactEmail)
-      ? "Enter a valid email address."
-      : undefined;
-  const contactEmailError = errors.contactEmail ?? contactEmailFormatError;
 
   return (
     <div className="rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm md:p-8">
@@ -230,7 +221,7 @@ export function ProfileForm({
               value={values.bio}
               onChange={(event) => setValues((current) => ({ ...current, bio: event.target.value }))}
               className="min-h-36"
-              placeholder="What do you play, what projects do you like, and what should creators know before they email?"
+              placeholder="What do you play, what projects do you like, and what should creators know before they reach out?"
             />
           </FormField>
 
@@ -344,7 +335,6 @@ export function ProfileForm({
             <FormField
               id="instrumentsCsv"
               label="Instruments"
-              required
               error={errors.instrumentsCsv}
               showError={formFields.shouldShowError("instrumentsCsv", errors.instrumentsCsv)}
               onBlur={() => formFields.markTouched("instrumentsCsv")}
@@ -359,7 +349,6 @@ export function ProfileForm({
             <FormField
               id="genresCsv"
               label="Genres"
-              required
               error={errors.genresCsv}
               showError={formFields.shouldShowError("genresCsv", errors.genresCsv)}
               onBlur={() => formFields.markTouched("genresCsv")}
@@ -421,28 +410,6 @@ export function ProfileForm({
                 </FormField>
               </div>
           </div>
-        </fieldset>
-
-        <fieldset className="space-y-5">
-          <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
-            Contact
-          </legend>
-          <FormField
-            id="contactEmail"
-            label="Contact email"
-            required
-            error={contactEmailError}
-            showError={formFields.shouldShowError("contactEmail", contactEmailError)}
-            onBlur={() => formFields.markTouched("contactEmail")}
-          >
-            <Input
-              name="contactEmail"
-              type="email"
-              value={values.contactEmail}
-              onChange={(event) => setValues((current) => ({ ...current, contactEmail: event.target.value }))}
-              placeholder="maya@school.edu"
-            />
-          </FormField>
         </fieldset>
 
         <div className="flex flex-col-reverse gap-4 border-t border-[#F1F5F9] pt-6 sm:flex-row sm:items-center sm:justify-between">
