@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { AdminNavLinks } from "@/components/admin/admin-nav-links";
 import { Chip } from "@/components/ui/chip";
 import { getOpenReportCount } from "@/lib/api/reports";
 
@@ -12,39 +11,17 @@ export async function AdminNav({ supportBadgeCount = 0 }: { supportBadgeCount?: 
   }
 
   const links = [
-    ["/admin", "Dashboard"],
-    ["/admin/users", "Users"],
-    ["/admin/musicians", "Musicians"],
-    ["/admin/creators", "Creators"],
-    ["/admin/gigs", "Gigs"],
-    ["/admin/reports", "Reports"],
-    ["/admin/taxonomy", "Taxonomy"],
-    ["/admin/support", "Support"],
-  ] as const;
+    { href: "/admin", label: "Dashboard" },
+    { href: "/admin/users", label: "Users" },
+    { href: "/admin/musicians", label: "Musicians" },
+    { href: "/admin/creators", label: "Creators" },
+    { href: "/admin/gigs", label: "Gigs" },
+    { href: "/admin/reports", label: "Reports", badgeCount: reportsBadgeCount },
+    { href: "/admin/taxonomy", label: "Taxonomy" },
+    { href: "/admin/support", label: "Support", badgeCount: supportBadgeCount },
+  ];
 
-  return (
-    <div className="mb-8 flex gap-2 overflow-x-auto rounded-2xl border border-[#F1F5F9] bg-white p-2 shadow-sm">
-      {links.map(([href, label]) => (
-        <Link
-          key={href}
-          href={href}
-          className="relative whitespace-nowrap rounded-xl px-4 py-2 text-sm font-bold text-[#475569] transition-colors hover:bg-[#F8FAFC] hover:text-[#0055FF]"
-        >
-          {label}
-          {href === "/admin/reports" && reportsBadgeCount > 0 ? (
-            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF3366] px-1.5 text-[10px] font-black leading-none text-white">
-              {reportsBadgeCount > 99 ? "99+" : reportsBadgeCount}
-            </span>
-          ) : null}
-          {href === "/admin/support" && supportBadgeCount > 0 ? (
-            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF3366] px-1.5 text-[10px] font-black leading-none text-white">
-              {supportBadgeCount > 99 ? "99+" : supportBadgeCount}
-            </span>
-          ) : null}
-        </Link>
-      ))}
-    </div>
-  );
+  return <AdminNavLinks links={links} />;
 }
 
 export function AdminUnavailable({ reason }: { reason: "signed_out" | "not_allowed" }) {
