@@ -47,6 +47,7 @@ export function TagFilterMultiSelect({
   placeholder,
 }: Props) {
   const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
   const [selectedValues, setSelectedValues] = useState(() => (
     Array.from(new Set(selected.map((value) => canonicalizeTag(kind, value)).filter(Boolean)))
   ));
@@ -54,7 +55,7 @@ export function TagFilterMultiSelect({
   const normalizedQuery = normalize(query);
 
   const suggestions = useMemo<Suggestion[]>(() => {
-    if (!normalizedQuery) return allOptions.slice(0, 8);
+    if (!normalizedQuery) return [];
 
     return allOptions
       .flatMap((option) => {
@@ -74,12 +75,14 @@ export function TagFilterMultiSelect({
       !suggestions.some((option) => option.value === fallbackValue),
   );
 
+  // TODO: Add an admin taxonomy review page for approving, merging, or removing custom terms.
   function addValue(value: string) {
     const canonical = canonicalizeTag(kind, value);
     setSelectedValues((current) => (
       current.includes(canonical) ? current : [...current, canonical]
     ));
     setQuery("");
+    setOpen(false);
   }
 
   function removeValue(value: string) {
@@ -89,8 +92,60 @@ export function TagFilterMultiSelect({
   return (
     <div className="text-sm font-bold text-[#0F172A]">
       <label htmlFor={id}>{label}</label>
-      <div className="mt-2 space-y-3">
-        <div className="flex min-h-11 flex-wrap items-center gap-2 rounded-2xl border border-[#E2E8F0] bg-white px-3 py-2 focus-within:border-[#0055FF] focus-within:ring-4 focus-within:ring-[#0055FF]/10">
+      <div className="relative mt-2">
+        <div className="rounded-2xl border border-[#E2E8F0] bg-white focus-within:border-[#0055FF] focus-within:ring-4 focus-within:ring-[#0055FF]/10">
+          <Input
+            id={id}
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setOpen(true);
+            }}
+            onFocus={() => setOpen(true)}
+            onBlur={() => window.setTimeout(() => setOpen(false), 120)}
+            placeholder={placeholder}
+            className="border-0 bg-transparent shadow-none focus:ring-0"
+            autoComplete="off"
+          />
+        </div>
+
+        {open && (suggestions.length || showFallback) ? (
+          <div className="absolute z-30 mt-2 max-h-64 w-full overflow-auto rounded-2xl border border-[#E2E8F0] bg-white p-2 shadow-xl">
+            {suggestions.map((option) => {
+              const aliasMatch = option.alias ?? getTagAliasMatch(kind, query)?.alias;
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => addValue(option.value)}
+                  disabled={selectedValues.includes(option.value)}
+                  className="block w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span className="block">{option.label}</span>
+                  {aliasMatch ? (
+                    <span className="mt-0.5 block text-xs font-medium text-[#64748B]">
+                      matches: {aliasMatch}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
+            {showFallback ? (
+              <button
+                type="button"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => addValue(fallbackValue)}
+                className="block w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-[#0055FF] transition-colors hover:bg-[#F8FAFC]"
+              >
+                Search for: {query.trim()}
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+      {selectedValues.length ? (
+        <div className="mt-2 flex flex-wrap gap-2">
           {selectedValues.map((value) => (
             <span key={value} className="inline-flex items-center gap-1.5 rounded-full bg-[#F8FAFC] px-3 py-1 text-xs font-black text-[#0F172A]">
               {value}
@@ -105,56 +160,8 @@ export function TagFilterMultiSelect({
               <input type="hidden" name={name} value={value} />
             </span>
           ))}
-          <Input
-            id={id}
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={selectedValues.length ? "Add another" : placeholder}
-            className="min-w-40 flex-1 border-0 bg-transparent px-0 py-1 shadow-none focus:ring-0"
-            autoComplete="off"
-          />
         </div>
-
-        {query || suggestions.length ? (
-          <div className="rounded-2xl border border-[#E2E8F0] bg-white p-2 shadow-sm">
-            {suggestions.map((option) => {
-              const aliasMatch = option.alias ?? getTagAliasMatch(kind, query)?.alias;
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => addValue(option.value)}
-                  disabled={selectedValues.includes(option.value)}
-                  className="block w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <span className="block">{option.label}</span>
-                  {aliasMatch ? (
-                    <span className="mt-0.5 block text-xs font-medium text-[#64748B]">
-                      matches: {aliasMatch}
-                    </span>
-                  ) : option.custom ? (
-                    <span className="mt-0.5 block text-xs font-medium text-[#64748B]">
-                      custom term
-                    </span>
-                  ) : null}
-                </button>
-              );
-            })}
-            {showFallback ? (
-              <button
-                type="button"
-                onClick={() => addValue(fallbackValue)}
-                className="block w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-[#0055FF] transition-colors hover:bg-[#F8FAFC]"
-              >
-                Search for: {query.trim()}
-              </button>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
-      <p className="mt-2 text-xs font-medium text-[#64748B]">
-        TODO: Custom terms should be reviewable in a future admin taxonomy page.
-      </p>
+      ) : null}
     </div>
   );
 }
