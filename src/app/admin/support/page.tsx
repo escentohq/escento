@@ -9,8 +9,10 @@ import { PageShell } from "@/components/ui/page-shell";
 import { getAdminAccess } from "@/lib/admin-auth";
 import {
   getSupportConversationForAdmin,
+  listSupportInboxForAdmin,
   searchUsersForSupport,
   type SupportConversationForAdmin,
+  type SupportInboxItem,
   type SupportUserSearchResult,
 } from "@/lib/api/support-account";
 
@@ -40,10 +42,15 @@ export default async function AdminSupportPage({
   const selectedUserId = params.userId?.trim() ?? "";
 
   let users: SupportUserSearchResult[] = [];
+  let supportInbox: { items: SupportInboxItem[]; needsResponseCount: number } = {
+    items: [],
+    needsResponseCount: 0,
+  };
   let conversation: SupportConversationForAdmin | null = null;
 
   try {
-    users = await searchUsersForSupport(query);
+    supportInbox = await listSupportInboxForAdmin();
+    users = query ? await searchUsersForSupport(query) : [];
     if (selectedUserId) {
       conversation = await getSupportConversationForAdmin(selectedUserId);
     }
@@ -58,7 +65,7 @@ export default async function AdminSupportPage({
       title="Motivo support"
       body="Message users as the official Motivo support account. Normal user messaging rules remain unchanged."
     >
-      <AdminNav />
+      <AdminNav supportBadgeCount={supportInbox.needsResponseCount} />
 
       <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
         <aside className="rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm">
@@ -84,8 +91,66 @@ export default async function AdminSupportPage({
             </div>
           </form>
 
+          <div className="mb-6">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="text-sm font-black text-[#0F172A]">Support inbox</h2>
+              {supportInbox.needsResponseCount > 0 ? (
+                <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[#FF3366] px-2 text-xs font-black text-white">
+                  {supportInbox.needsResponseCount}
+                </span>
+              ) : null}
+            </div>
+            <div className="space-y-2">
+              {supportInbox.items.length === 0 ? (
+                <p className="rounded-2xl bg-[#F8FAFC] p-4 text-sm font-medium text-[#64748B]">
+                  No support conversations yet.
+                </p>
+              ) : (
+                supportInbox.items.map((item) => (
+                  <Link
+                    key={item.conversationId}
+                    href={`/admin/support?${new URLSearchParams({
+                      userId: item.targetUser.id,
+                    }).toString()}`}
+                    className={`block rounded-2xl border p-4 transition-colors hover:border-[#0055FF] hover:bg-[#F8FAFC] ${
+                      selectedUserId === item.targetUser.id
+                        ? "border-[#0055FF]/40 bg-[#0055FF]/5"
+                        : item.needsResponse
+                          ? "border-[#FF3366]/40 bg-[#FF3366]/5"
+                          : "border-[#F1F5F9]"
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-black text-[#0F172A]">
+                          {displayUserName(item.targetUser)}
+                        </p>
+                        <p className="mt-1 truncate text-xs font-medium text-[#64748B]">
+                          {item.lastMessage?.body ?? "No messages yet."}
+                        </p>
+                      </div>
+                      {item.needsResponse ? (
+                        <span className="mt-0.5 h-3 w-3 shrink-0 rounded-full bg-[#FF3366]" />
+                      ) : null}
+                    </div>
+                    {item.lastMessageAt ? (
+                      <p className="mt-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#94A3B8]">
+                        {formatTime(item.lastMessageAt)}
+                      </p>
+                    ) : null}
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+
           <div className="space-y-2">
-            {users.length === 0 ? (
+            <h2 className="text-sm font-black text-[#0F172A]">Search results</h2>
+            {!query ? (
+              <p className="rounded-2xl bg-[#F8FAFC] p-4 text-sm font-medium text-[#64748B]">
+                Search to start a support conversation with another user.
+              </p>
+            ) : users.length === 0 ? (
               <p className="rounded-2xl bg-[#F8FAFC] p-4 text-sm font-medium text-[#64748B]">
                 No users found.
               </p>

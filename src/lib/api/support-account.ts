@@ -23,6 +23,14 @@ export type SupportConversationForAdmin = {
   messages: MessageRecord[];
 };
 
+export type SupportInboxItem = {
+  conversationId: string;
+  targetUser: SupportUserSearchResult;
+  lastMessage: MessageRecord | null;
+  lastMessageAt: string | null;
+  needsResponse: boolean;
+};
+
 function normalizeMessageBody(value: FormDataEntryValue | string | null) {
   const body = String(value ?? "").trim();
   if (!body) throw new Error("Add a message.");
@@ -74,6 +82,10 @@ function toMessage(raw: any): MessageRecord {
         }
       : undefined,
   };
+}
+
+function uniqueValues(values: Array<string | null | undefined>) {
+  return Array.from(new Set(values.filter((value): value is string => Boolean(value))));
 }
 
 async function findAuthUserByEmail(email: string) {
@@ -205,6 +217,112 @@ export async function searchUsersForSupport(query: string): Promise<SupportUserS
   const { data, error } = await request;
   if (error) throw error;
   return (data ?? []).map(toSearchResult);
+}
+
+export async function listSupportInboxForAdmin(): Promise<{
+  items: SupportInboxItem[];
+  needsResponseCount: number;
+}> {
+  const supabase = createSupabaseAdminClient();
+  const support = await getMotivoSupportAccount();
+
+  const { data: supportParticipants, error: supportParticipantsError } = await supabase
+    .from("conversation_participants")
+    .select("conversation_id")
+    .eq("user_id", support.id);
+
+  if (supportParticipantsError) throw supportParticipantsError;
+
+  const conversationIds = uniqueValues(
+    (supportParticipants ?? []).map((participant) => participant.conversation_id),
+  );
+
+  if (!conversationIds.length) {
+    return { items: [], needsResponseCount: 0 };
+  }
+
+  const [{ data: participantRows, error: participantError }, { data: conversations, error: conversationsError }] =
+    await Promise.all([
+      supabase
+        .from("conversation_participants")
+        .select("conversation_id, user_id")
+        .in("conversation_id", conversationIds),
+      supabase
+        .from("conversations")
+        .select("id, last_message_at, updated_at")
+        .in("id", conversationIds)
+        .order("last_message_at", { ascending: false, nullsFirst: false })
+        .order("updated_at", { ascending: false }),
+    ]);
+
+  if (participantError) throw participantError;
+  if (conversationsError) throw conversationsError;
+
+  const targetUserIds = uniqueValues(
+    (participantRows ?? [])
+      .filter((participant) => participant.user_id !== support.id)
+      .map((participant) => participant.user_id),
+  );
+
+  if (!targetUserIds.length) {
+    return { items: [], needsResponseCount: 0 };
+  }
+
+  const [{ data: users, error: usersError }, { data: messages, error: messagesError }] =
+    await Promise.all([
+      supabase
+        .from("app_user")
+        .select("id, email, name, role")
+        .in("id", targetUserIds),
+      supabase
+        .from("messages")
+        .select(
+          "*, sender:app_user!messages_sender_id_fkey(id, email, name, image, role, is_system_account, is_admin_support_account)",
+        )
+        .in("conversation_id", conversationIds)
+        .is("deleted_at", null)
+        .order("created_at", { ascending: false }),
+    ]);
+
+  if (usersError) throw usersError;
+  if (messagesError) throw messagesError;
+
+  const usersById = new Map((users ?? []).map((user) => [user.id, toSearchResult(user)]));
+  const participantsByConversation = new Map<string, string>();
+  for (const participant of participantRows ?? []) {
+    if (participant.user_id !== support.id) {
+      participantsByConversation.set(participant.conversation_id, participant.user_id);
+    }
+  }
+
+  const latestMessageByConversation = new Map<string, MessageRecord>();
+  for (const message of messages ?? []) {
+    if (!latestMessageByConversation.has(message.conversation_id)) {
+      latestMessageByConversation.set(message.conversation_id, toMessage(message));
+    }
+  }
+
+  const items = (conversations ?? [])
+    .map((conversation) => {
+      const targetUserId = participantsByConversation.get(conversation.id);
+      const targetUser = targetUserId ? usersById.get(targetUserId) : undefined;
+      if (!targetUser) return null;
+
+      const lastMessage = latestMessageByConversation.get(conversation.id) ?? null;
+      return {
+        conversationId: conversation.id,
+        targetUser,
+        lastMessage,
+        lastMessageAt: conversation.last_message_at ?? conversation.updated_at ?? null,
+        needsResponse: Boolean(lastMessage && lastMessage.senderId !== support.id),
+      };
+    })
+    .filter((item): item is SupportInboxItem => Boolean(item));
+
+  return {
+    items,
+    needsResponseCount: items.filter((item) => item.needsResponse).length,
+  };
 }
 
 async function getAppUser(userId: string): Promise<SupportUserSearchResult | null> {

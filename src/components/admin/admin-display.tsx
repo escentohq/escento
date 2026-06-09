@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { Chip } from "@/components/ui/chip";
 
-export function AdminNav() {
+export function AdminNav({ supportBadgeCount = 0 }: { supportBadgeCount?: number } = {}) {
   const links = [
     ["/admin", "Dashboard"],
     ["/admin/users", "Users"],
@@ -19,9 +19,14 @@ export function AdminNav() {
         <Link
           key={href}
           href={href}
-          className="whitespace-nowrap rounded-xl px-4 py-2 text-sm font-bold text-[#475569] transition-colors hover:bg-[#F8FAFC] hover:text-[#0055FF]"
+          className="relative whitespace-nowrap rounded-xl px-4 py-2 text-sm font-bold text-[#475569] transition-colors hover:bg-[#F8FAFC] hover:text-[#0055FF]"
         >
           {label}
+          {href === "/admin/support" && supportBadgeCount > 0 ? (
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF3366] px-1.5 text-[10px] font-black leading-none text-white">
+              {supportBadgeCount > 99 ? "99+" : supportBadgeCount}
+            </span>
+          ) : null}
         </Link>
       ))}
     </div>
