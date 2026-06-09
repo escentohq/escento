@@ -55,7 +55,24 @@ export default async function SignUpPage({
               <div className="h-px flex-1 bg-[#F1F5F9]" />
             </div>
 
-            <GoogleButton callbackUrl={base} label="Sign up with Google" />
+            <div className="space-y-3">
+              <GoogleButton callbackUrl={base} label="Sign up with Google" />
+              <p className="px-2 text-center text-xs font-medium leading-relaxed text-[#64748B]">
+                By signing up with Google, you agree to Motivo&apos;s{" "}
+                <Link href="/terms" className="font-bold text-[#0055FF] underline-offset-4 hover:underline">
+                  Terms
+                </Link>
+                ,{" "}
+                <Link href="/privacy" className="font-bold text-[#0055FF] underline-offset-4 hover:underline">
+                  Privacy Policy
+                </Link>
+                , and{" "}
+                <Link href="/compliance" className="font-bold text-[#0055FF] underline-offset-4 hover:underline">
+                  Compliance Policy
+                </Link>
+                .
+              </p>
+            </div>
           </div>
         </div>
 

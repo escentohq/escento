@@ -24,6 +24,7 @@ export async function validateSignUp(
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
+  const termsAccepted = formData.get("termsAccepted") === "on";
 
   const fieldErrors: FieldErrors = {};
   if (!email) fieldError(fieldErrors, "email", "Enter your email address.");
@@ -36,6 +37,9 @@ export async function validateSignUp(
   if (password && passwordError) fieldError(fieldErrors, "password", passwordError);
   if (password !== confirmPassword) {
     fieldError(fieldErrors, "confirmPassword", "Passwords need to match.");
+  }
+  if (!termsAccepted) {
+    fieldError(fieldErrors, "termsAccepted", "Agree to the terms, privacy policy, and compliance policy to continue.");
   }
 
   if (Object.keys(fieldErrors).length) {
