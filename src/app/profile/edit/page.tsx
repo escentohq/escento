@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { PageShell } from "@/components/ui/page-shell";
 import { requireRole } from "@/lib/auth-guards";
 import { getProfileByUserId } from "@/lib/api/profiles";
+import { listGenres, listInstruments } from "@/lib/api/tags";
 import { ProfileForm } from "../_profile-form";
 import { updateMusicianProfileAction } from "./actions";
 
@@ -11,6 +12,10 @@ export default async function EditProfilePage() {
 
   const profile = await getProfileByUserId(session.user.id);
   if (!profile) redirect("/profile/create");
+  const [instruments, genres] = await Promise.all([
+    listInstruments(),
+    listGenres(),
+  ]);
 
   const instrumentsCsv = (profile.instruments || []).join(", ");
   const genresCsv = (profile.genres || []).join(", ");
@@ -56,6 +61,8 @@ export default async function EditProfilePage() {
           genresCsv,
         }}
         action={updateMusicianProfileAction}
+        instruments={instruments}
+        genres={genres}
       />
     </PageShell>
   );

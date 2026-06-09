@@ -9,7 +9,12 @@ import {
   type AdminAction,
   type AdminTargetType,
 } from "@/lib/api/admin-dashboard";
-import { nonEmptyOrNull, strOrEmpty } from "@/lib/form-utils";
+import {
+  addTaxonomyTerm,
+  deleteTaxonomyTerm,
+  type TaxonomyKind,
+} from "@/lib/api/admin-taxonomy";
+import { nonEmptyOrNull, normalizeTagName, strOrEmpty } from "@/lib/form-utils";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { deleteUserCompletely } from "@/lib/user-deletion";
 
@@ -27,6 +32,7 @@ const ACTIONS = new Set<AdminAction>([
   "unverify",
   "clear_text",
 ]);
+const TAXONOMY_KINDS = new Set<TaxonomyKind>(["instrument", "genre"]);
 
 export async function adminModerationAction(formData: FormData) {
   const adminEmail = await requireAdminEmail();
@@ -108,4 +114,31 @@ export async function adminDeleteUserAction(formData: FormData) {
   revalidatePath("/admin/musicians");
   revalidatePath("/admin/creators");
   revalidatePath("/admin/gigs");
+}
+
+export async function adminAddTaxonomyTermAction(formData: FormData) {
+  await requireAdminEmail();
+  const session = await getCurrentSession();
+  const kind = strOrEmpty(formData.get("kind")) as TaxonomyKind;
+  const name = normalizeTagName(strOrEmpty(formData.get("name")));
+
+  if (!session?.user.id || !TAXONOMY_KINDS.has(kind) || !name) {
+    throw new Error("Invalid taxonomy term.");
+  }
+
+  await addTaxonomyTerm({ kind, name, createdBy: session.user.id });
+  revalidatePath("/admin/taxonomy");
+}
+
+export async function adminDeleteTaxonomyTermAction(formData: FormData) {
+  await requireAdminEmail();
+  const kind = strOrEmpty(formData.get("kind")) as TaxonomyKind;
+  const id = strOrEmpty(formData.get("id"));
+
+  if (!TAXONOMY_KINDS.has(kind) || !id) {
+    throw new Error("Invalid taxonomy term.");
+  }
+
+  await deleteTaxonomyTerm(kind, id);
+  revalidatePath("/admin/taxonomy");
 }

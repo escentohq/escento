@@ -3,7 +3,6 @@
 import { X } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { Input } from "@/components/ui/input";
 import {
   buildTagOptions,
   canonicalizeTag,
@@ -23,6 +22,9 @@ type Props = {
   options: Option[];
   selected: string[];
   placeholder: string;
+  hiddenValueMode?: "repeated" | "csv";
+  fallbackLabel?: "Search for" | "Add";
+  hideLabel?: boolean;
 };
 
 type Suggestion = {
@@ -45,6 +47,9 @@ export function TagFilterMultiSelect({
   options,
   selected,
   placeholder,
+  hiddenValueMode = "repeated",
+  fallbackLabel = "Search for",
+  hideLabel = false,
 }: Props) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -91,10 +96,10 @@ export function TagFilterMultiSelect({
 
   return (
     <div className="text-sm font-bold text-[#0F172A]">
-      <label htmlFor={id}>{label}</label>
+      {hideLabel ? null : <label htmlFor={id}>{label}</label>}
       <div className="relative mt-2">
-        <div className="rounded-2xl border border-[#E2E8F0] bg-white focus-within:border-[#0055FF] focus-within:ring-4 focus-within:ring-[#0055FF]/10">
-          <Input
+        <div className="rounded-2xl border border-[#E2E8F0] bg-white shadow-sm focus-within:border-[#0055FF] focus-within:ring-2 focus-within:ring-[#0055FF]/20">
+          <input
             id={id}
             value={query}
             onChange={(event) => {
@@ -104,7 +109,7 @@ export function TagFilterMultiSelect({
             onFocus={() => setOpen(true)}
             onBlur={() => window.setTimeout(() => setOpen(false), 120)}
             placeholder={placeholder}
-            className="border-0 bg-transparent shadow-none focus:ring-0"
+            className="w-full rounded-2xl border-0 bg-transparent px-4 py-3 text-sm font-medium text-[#0F172A] outline-none placeholder:text-[#94A3B8]"
             autoComplete="off"
           />
         </div>
@@ -138,12 +143,15 @@ export function TagFilterMultiSelect({
                 onClick={() => addValue(fallbackValue)}
                 className="block w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-[#0055FF] transition-colors hover:bg-[#F8FAFC]"
               >
-                Search for: {query.trim()}
+                {fallbackLabel}: {query.trim()}
               </button>
             ) : null}
           </div>
         ) : null}
       </div>
+      {hiddenValueMode === "csv" ? (
+        <input type="hidden" name={name} value={selectedValues.join(", ")} />
+      ) : null}
       {selectedValues.length ? (
         <div className="mt-2 flex flex-wrap gap-2">
           {selectedValues.map((value) => (
@@ -157,7 +165,9 @@ export function TagFilterMultiSelect({
               >
                 <X className="h-3.5 w-3.5" aria-hidden />
               </button>
-              <input type="hidden" name={name} value={value} />
+              {hiddenValueMode === "repeated" ? (
+                <input type="hidden" name={name} value={value} />
+              ) : null}
             </span>
           ))}
         </div>

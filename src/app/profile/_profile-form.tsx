@@ -12,6 +12,7 @@ import {
   LocationAutocompleteField,
   type LocationAutocompleteValue,
 } from "@/components/location/location-autocomplete-field";
+import { TagFilterMultiSelect } from "@/components/location/tag-filter-multi-select";
 import { useFormFieldState } from "@/hooks/use-form-field-state";
 import { boolValue, stringValue } from "@/lib/form-snapshots";
 import { countFieldErrors, type ActionState } from "@/lib/form-utils";
@@ -47,6 +48,7 @@ export type ProfileFormValues = {
 };
 
 type Action = (state: ActionState, fd: FormData) => Promise<ActionState>;
+type TagOption = { name: string };
 
 function buildValues(initial: Partial<ProfileFormValues>): ProfileFormValues {
   return {
@@ -114,10 +116,14 @@ export function ProfileForm({
   mode,
   initial,
   action,
+  instruments,
+  genres,
 }: {
   mode: "create" | "edit";
   initial: Partial<ProfileFormValues>;
   action: Action;
+  instruments: TagOption[];
+  genres: TagOption[];
 }) {
   const [values, setValues] = useState(() => buildValues(initial));
   const formFields = useFormFieldState();
@@ -339,11 +345,17 @@ export function ProfileForm({
               showError={formFields.shouldShowError("instrumentsCsv", errors.instrumentsCsv)}
               onBlur={() => formFields.markTouched("instrumentsCsv")}
             >
-              <Input
+              <TagFilterMultiSelect
+                id="instrumentsCsv"
                 name="instrumentsCsv"
-                value={values.instrumentsCsv}
-                onChange={(event) => setValues((current) => ({ ...current, instrumentsCsv: event.target.value }))}
-                placeholder="Guitar, Vocals, Piano"
+                label="Instruments"
+                kind="instrument"
+                options={instruments}
+                selected={values.instrumentsCsv.split(",").map((value) => value.trim()).filter(Boolean)}
+                placeholder="Guitar, vocals, piano"
+                hiddenValueMode="csv"
+                fallbackLabel="Add"
+                hideLabel
               />
             </FormField>
             <FormField
@@ -353,11 +365,17 @@ export function ProfileForm({
               showError={formFields.shouldShowError("genresCsv", errors.genresCsv)}
               onBlur={() => formFields.markTouched("genresCsv")}
             >
-              <Input
+              <TagFilterMultiSelect
+                id="genresCsv"
                 name="genresCsv"
-                value={values.genresCsv}
-                onChange={(event) => setValues((current) => ({ ...current, genresCsv: event.target.value }))}
-                placeholder="Indie, Jazz, Film scoring"
+                label="Genres"
+                kind="genre"
+                options={genres}
+                selected={values.genresCsv.split(",").map((value) => value.trim()).filter(Boolean)}
+                placeholder="Indie, jazz, film scoring"
+                hiddenValueMode="csv"
+                fallbackLabel="Add"
+                hideLabel
               />
             </FormField>
           </div>

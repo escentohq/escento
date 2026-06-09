@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { PageShell } from "@/components/ui/page-shell";
 import { requireRole } from "@/lib/auth-guards";
 import { getGig } from "@/lib/api/gigs";
+import { listGenres, listInstruments } from "@/lib/api/tags";
 import { GigForm } from "../../_gig-form";
 import { updateGigAction } from "./actions";
 
@@ -22,6 +23,10 @@ export default async function EditGigPage({
 
   const gig = await getGig(id);
   if (!gig || gig.creatorId !== session.user.id) redirect("/gigs/manage");
+  const [instruments, genres] = await Promise.all([
+    listInstruments(),
+    listGenres(),
+  ]);
 
   return (
     <PageShell
@@ -57,6 +62,8 @@ export default async function EditGigPage({
         submitLabel="Save Changes"
         pendingLabel="Saving..."
         cancelHref={`/gigs/${id}`}
+        instruments={instruments}
+        genres={genres}
       />
     </PageShell>
   );

@@ -11,6 +11,7 @@ import {
   LocationAutocompleteField,
   type LocationAutocompleteValue,
 } from "@/components/location/location-autocomplete-field";
+import { TagFilterMultiSelect } from "@/components/location/tag-filter-multi-select";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useFormFieldState } from "@/hooks/use-form-field-state";
@@ -42,6 +43,7 @@ export type GigFormInitial = {
 };
 
 type Action = (state: ActionState, fd: FormData) => Promise<ActionState>;
+type TagOption = { name: string };
 
 const emptyInitial: GigFormInitial = {
   title: "",
@@ -76,12 +78,16 @@ export function GigForm({
   submitLabel,
   pendingLabel,
   cancelHref,
+  instruments,
+  genres,
 }: {
   initial?: Partial<GigFormInitial>;
   action: Action;
   submitLabel: string;
   pendingLabel: string;
   cancelHref: string;
+  instruments: TagOption[];
+  genres: TagOption[];
 }) {
   const [values, setValues] = useState(() => buildValues(initial));
   const formFields = useFormFieldState();
@@ -215,11 +221,17 @@ export function GigForm({
               showError={formFields.shouldShowError("instrumentsCsv", errors.instrumentsCsv)}
               onBlur={() => formFields.markTouched("instrumentsCsv")}
             >
-              <Input
+              <TagFilterMultiSelect
+                id="instrumentsCsv"
                 name="instrumentsCsv"
-                value={values.instrumentsCsv}
-                onChange={(event) => setValues((current) => ({ ...current, instrumentsCsv: event.target.value }))}
-                placeholder="Violin, Piano, Vocals"
+                label="Instruments needed"
+                kind="instrument"
+                options={instruments}
+                selected={values.instrumentsCsv.split(",").map((value) => value.trim()).filter(Boolean)}
+                placeholder="Violin, piano, vocals"
+                hiddenValueMode="csv"
+                fallbackLabel="Add"
+                hideLabel
               />
             </FormField>
             <FormField
@@ -229,11 +241,17 @@ export function GigForm({
               showError={formFields.shouldShowError("genresCsv", errors.genresCsv)}
               onBlur={() => formFields.markTouched("genresCsv")}
             >
-              <Input
+              <TagFilterMultiSelect
+                id="genresCsv"
                 name="genresCsv"
-                value={values.genresCsv}
-                onChange={(event) => setValues((current) => ({ ...current, genresCsv: event.target.value }))}
-                placeholder="Ambient, Jazz, Indie"
+                label="Genres preferred"
+                kind="genre"
+                options={genres}
+                selected={values.genresCsv.split(",").map((value) => value.trim()).filter(Boolean)}
+                placeholder="Ambient, jazz, indie"
+                hiddenValueMode="csv"
+                fallbackLabel="Add"
+                hideLabel
               />
             </FormField>
           </div>

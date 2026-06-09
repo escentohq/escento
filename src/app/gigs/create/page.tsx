@@ -1,10 +1,15 @@
 import { PageShell } from "@/components/ui/page-shell";
 import { requireRole } from "@/lib/auth-guards";
+import { listGenres, listInstruments } from "@/lib/api/tags";
 import { GigForm } from "../_gig-form";
 import { createGigAction } from "./actions";
 
 export default async function CreateGigPage() {
   await requireRole("CREATOR", "/gigs/create");
+  const [instruments, genres] = await Promise.all([
+    listInstruments(),
+    listGenres(),
+  ]);
 
   return (
     <PageShell
@@ -18,6 +23,8 @@ export default async function CreateGigPage() {
         submitLabel="Publish Gig"
         pendingLabel="Publishing..."
         cancelHref="/gigs"
+        instruments={instruments}
+        genres={genres}
       />
     </PageShell>
   );

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { getProfileByUserId } from "@/lib/api/profiles";
+import { listGenres, listInstruments } from "@/lib/api/tags";
 import { PageShell } from "@/components/ui/page-shell";
 import { requireRole } from "@/lib/auth-guards";
 import { ProfileForm } from "../_profile-form";
@@ -11,6 +12,10 @@ export default async function CreateProfilePage() {
 
   const existing = await getProfileByUserId(session.user.id);
   if (existing) redirect("/profile/edit");
+  const [instruments, genres] = await Promise.all([
+    listInstruments(),
+    listGenres(),
+  ]);
 
   return (
     <PageShell
@@ -23,6 +28,8 @@ export default async function CreateProfilePage() {
         mode="create"
         initial={{ isRemote: true, seekingPaid: true, seekingUnpaid: true }}
         action={createMusicianProfileAction}
+        instruments={instruments}
+        genres={genres}
       />
     </PageShell>
   );

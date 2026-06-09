@@ -9,6 +9,7 @@ export function AdminNav() {
     ["/admin/musicians", "Musicians"],
     ["/admin/creators", "Creators"],
     ["/admin/gigs", "Gigs"],
+    ["/admin/taxonomy", "Taxonomy"],
   ] as const;
 
   return (
