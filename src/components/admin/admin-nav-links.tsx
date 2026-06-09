@@ -16,7 +16,9 @@ export function AdminNavLinks({ links }: { links: AdminNavLink[] }) {
     <div className="mb-8 flex gap-2 overflow-x-auto rounded-2xl border border-[#F1F5F9] bg-white p-2 shadow-sm">
       {links.map(({ href, label, badgeCount = 0 }) => {
         const isActive =
-          href === "/admin" ? pathname === "/admin" : pathname === href || pathname.startsWith(`${href}/`);
+          href === "/admin"
+            ? pathname === "/admin"
+            : pathname === href || pathname.startsWith(`${href}/`);
 
         return (
           <Link
