@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 
+import { adminMarkSupportConversationReadAction } from "@/app/admin/actions";
 import { AdminNav, AdminSetupRequired, AdminUnavailable } from "@/components/admin/admin-display";
 import { AdminSupportMessageForm } from "@/components/admin/admin-support-message-form";
 import { Chip } from "@/components/ui/chip";
@@ -58,6 +59,10 @@ export default async function AdminSupportPage({
     console.error("[admin-support] support data failed", error);
     return <AdminSetupRequired />;
   }
+
+  const selectedInboxItem = selectedUserId
+    ? supportInbox.items.find((item) => item.targetUser.id === selectedUserId) ?? null
+    : null;
 
   return (
     <PageShell
@@ -130,7 +135,9 @@ export default async function AdminSupportPage({
                         </p>
                       </div>
                       {item.needsResponse ? (
-                        <span className="mt-0.5 h-3 w-3 shrink-0 rounded-full bg-[#FF3366]" />
+                        <span className="flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full bg-[#FF3366] px-2 text-xs font-black text-white">
+                          {item.unreadCount > 99 ? "99+" : item.unreadCount}
+                        </span>
                       ) : null}
                     </div>
                     {item.lastMessageAt ? (
@@ -202,6 +209,17 @@ export default async function AdminSupportPage({
                   <div className="flex flex-wrap gap-2">
                     <Chip tone="blue">Official</Chip>
                     <Chip tone="neutral">Send as Motivo</Chip>
+                    {selectedInboxItem?.needsResponse ? (
+                      <form action={adminMarkSupportConversationReadAction}>
+                        <input type="hidden" name="targetUserId" value={conversation.targetUser.id} />
+                        <button
+                          type="submit"
+                          className="inline-flex min-h-8 items-center rounded-full border border-[#FF3366]/30 bg-[#FF3366]/10 px-3 text-xs font-black text-[#FF3366] transition-colors hover:bg-[#FF3366]/15 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                        >
+                          Mark as read
+                        </button>
+                      </form>
+                    ) : null}
                   </div>
                 </div>
               </header>

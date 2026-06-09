@@ -14,7 +14,10 @@ import {
   deleteTaxonomyTerm,
   type TaxonomyKind,
 } from "@/lib/api/admin-taxonomy";
-import { sendSupportMessageAsMotivo } from "@/lib/api/support-account";
+import {
+  markSupportConversationReadForAdmin,
+  sendSupportMessageAsMotivo,
+} from "@/lib/api/support-account";
 import { nonEmptyOrNull, normalizeTagName, strOrEmpty } from "@/lib/form-utils";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { deleteUserCompletely } from "@/lib/user-deletion";
@@ -161,4 +164,20 @@ export async function adminSendSupportMessageAction(formData: FormData) {
 
   revalidatePath("/admin/support");
   revalidatePath("/messages");
+}
+
+export async function adminMarkSupportConversationReadAction(formData: FormData) {
+  const adminEmail = await requireAdminEmail();
+  const targetUserId = strOrEmpty(formData.get("targetUserId"));
+
+  if (!targetUserId) {
+    throw new Error("Choose a user.");
+  }
+
+  await markSupportConversationReadForAdmin({
+    adminEmail,
+    targetUserId,
+  });
+
+  revalidatePath("/admin/support");
 }

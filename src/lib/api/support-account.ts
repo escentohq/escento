@@ -29,6 +29,7 @@ export type SupportInboxItem = {
   lastMessage: MessageRecord | null;
   lastMessageAt: string | null;
   needsResponse: boolean;
+  unreadCount: number;
 };
 
 function normalizeMessageBody(value: FormDataEntryValue | string | null) {
@@ -228,7 +229,7 @@ export async function listSupportInboxForAdmin(): Promise<{
 
   const { data: supportParticipants, error: supportParticipantsError } = await supabase
     .from("conversation_participants")
-    .select("conversation_id")
+    .select("conversation_id, last_read_at")
     .eq("user_id", support.id);
 
   if (supportParticipantsError) throw supportParticipantsError;
@@ -288,6 +289,12 @@ export async function listSupportInboxForAdmin(): Promise<{
   if (messagesError) throw messagesError;
 
   const usersById = new Map((users ?? []).map((user) => [user.id, toSearchResult(user)]));
+  const supportLastReadByConversation = new Map(
+    (supportParticipants ?? []).map((participant) => [
+      participant.conversation_id,
+      participant.last_read_at ? new Date(participant.last_read_at).getTime() : 0,
+    ]),
+  );
   const participantsByConversation = new Map<string, string>();
   for (const participant of participantRows ?? []) {
     if (participant.user_id !== support.id) {
@@ -309,12 +316,20 @@ export async function listSupportInboxForAdmin(): Promise<{
       if (!targetUser) return null;
 
       const lastMessage = latestMessageByConversation.get(conversation.id) ?? null;
+      const supportLastReadAt = supportLastReadByConversation.get(conversation.id) ?? 0;
+      const unreadCount = (messages ?? []).filter((message) => {
+        if (message.conversation_id !== conversation.id) return false;
+        if (message.sender_id === support.id) return false;
+        return new Date(message.created_at).getTime() > supportLastReadAt;
+      }).length;
+
       return {
         conversationId: conversation.id,
         targetUser,
         lastMessage,
         lastMessageAt: conversation.last_message_at ?? conversation.updated_at ?? null,
-        needsResponse: Boolean(lastMessage && lastMessage.senderId !== support.id),
+        needsResponse: unreadCount > 0,
+        unreadCount,
       };
     })
     .filter((item): item is SupportInboxItem => Boolean(item));
@@ -436,6 +451,37 @@ export async function isMotivoSupportUserId(userId: string) {
   if (error && error.code !== "PGRST116") throw error;
   const email = data?.email;
   return Boolean(email) && email.toLowerCase() === getMotivoSupportAccountEmail();
+}
+
+export async function markSupportConversationReadForAdmin({
+  adminEmail,
+  targetUserId,
+}: {
+  adminEmail: string;
+  targetUserId: string;
+}) {
+  const supabase = createSupabaseAdminClient();
+  const { conversationId, support } = await getOrCreateSupportConversationForUser(targetUserId);
+
+  const { error } = await supabase
+    .from("conversation_participants")
+    .update({ last_read_at: new Date().toISOString() })
+    .eq("conversation_id", conversationId)
+    .eq("user_id", support.id);
+
+  if (error) throw error;
+
+  const { error: auditError } = await supabase.from("admin_audit_log").insert({
+    admin_user_email: adminEmail,
+    action: "mark_support_conversation_read",
+    target_type: "user",
+    target_id: targetUserId,
+    reason: `conversation:${conversationId}`,
+  });
+
+  if (auditError) {
+    console.error("[admin-support] mark read audit log failed", auditError);
+  }
 }
 
 export async function getSupportConversationForAdmin(
