@@ -6,6 +6,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getMotivoSupportAccountEmail } from "@/lib/support-identity";
 
 const SUPPORT_DISPLAY_NAME = "Motivo";
+const WELCOME_MESSAGE_BODY =
+  "Welcome to Motivo! We’re excited to have you here. If you have any questions, run into issues, or need help getting started, just reply to this message and the Motivo team will help you out.";
 
 export type SupportUserSearchResult = {
   id: string;
@@ -305,6 +307,19 @@ export async function getOrCreateSupportConversationForUser(targetUserId: string
   return { conversationId, support, targetUser };
 }
 
+export async function isMotivoSupportUserId(userId: string) {
+  const supabase = createSupabaseAdminClient();
+  const { data, error } = await supabase
+    .from("app_user")
+    .select("email")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error && error.code !== "PGRST116") throw error;
+  const email = data?.email;
+  return Boolean(email) && email.toLowerCase() === getMotivoSupportAccountEmail();
+}
+
 export async function getSupportConversationForAdmin(
   targetUserId: string,
 ): Promise<SupportConversationForAdmin> {
@@ -389,4 +404,65 @@ export async function sendSupportMessageAsMotivo({
   }
 
   return toMessage(message);
+}
+
+export async function sendWelcomeMessageFromMotivoBestEffort({
+  userId,
+  email,
+  name,
+}: {
+  userId: string;
+  email: string | null;
+  name?: string | null;
+}) {
+  try {
+    const supabase = createSupabaseAdminClient();
+    const supportEmail = getMotivoSupportAccountEmail();
+    if (email?.toLowerCase() === supportEmail) return;
+
+    const now = new Date().toISOString();
+    const { data: existingUser, error: existingUserError } = await supabase
+      .from("app_user")
+      .select("id, support_welcome_sent_at")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (existingUserError && existingUserError.code !== "PGRST116") throw existingUserError;
+
+    const appUser = existingUser;
+    if (!appUser) {
+      const insertPayload: Record<string, string | null> = { id: userId, email };
+      if (name) insertPayload.name = name;
+
+      const { data: insertedUser, error: insertError } = await supabase
+        .from("app_user")
+        .insert(insertPayload)
+        .select("id, support_welcome_sent_at")
+        .single();
+
+      if (insertError) throw insertError;
+      if (insertedUser?.support_welcome_sent_at) return;
+    }
+
+    if (appUser?.support_welcome_sent_at) return;
+
+    const { data: claimedUser, error: claimError } = await supabase
+      .from("app_user")
+      .update({ support_welcome_sent_at: now })
+      .eq("id", userId)
+      .is("support_welcome_sent_at", null)
+      .select("id")
+      .maybeSingle();
+
+    if (claimError) throw claimError;
+    if (!claimedUser) return;
+
+    await sendSupportMessageAsMotivo({
+      adminEmail: "system:welcome",
+      targetUserId: userId,
+      body: WELCOME_MESSAGE_BODY,
+    });
+  } catch (error) {
+    console.error("[support] welcome message failed", error);
+  }
 }

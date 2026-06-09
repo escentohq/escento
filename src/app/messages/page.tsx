@@ -122,7 +122,7 @@ export default async function MessagesPage() {
                         <h2 className="truncate text-base font-black text-[#0F172A]">{name}</h2>
                         {officialSupport ? (
                           <span className="shrink-0 rounded-full bg-[#0055FF]/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.14em] text-[#0055FF]">
-                            Official
+                            Official support
                           </span>
                         ) : null}
                       </div>
@@ -130,9 +130,6 @@ export default async function MessagesPage() {
                         {formatTime(conversation.lastMessageAt)}
                       </span>
                     </div>
-                    {officialSupport ? (
-                      <p className="mt-1 text-xs font-bold text-[#0055FF]">Official support</p>
-                    ) : null}
                     <p className={`mt-1 truncate text-sm ${unread ? "font-bold text-[#0F172A]" : "font-medium text-[#64748B]"}`}>
                       {preview}
                     </p>

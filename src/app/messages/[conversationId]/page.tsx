@@ -76,12 +76,11 @@ export default async function ConversationPage({
                 </h1>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Chip tone="blue">{officialSupport ? "Official support" : "Direct"}</Chip>
-                  {officialSupport ? <Chip tone="neutral">Official</Chip> : null}
                   {messagingUnavailable ? <Chip tone="pink">Blocked</Chip> : null}
                 </div>
               </div>
             </div>
-            {other ? (
+            {other && !officialSupport ? (
               <div className="flex flex-wrap gap-2">
                 <BlockUserButton
                   userId={other.id}

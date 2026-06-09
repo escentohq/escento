@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { sendWelcomeMessageFromMotivoBestEffort } from "@/lib/api/support-account";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -16,6 +17,17 @@ export async function GET(request: Request) {
 
       // Route new users (no role set) to onboarding, regardless of ?next parameter
       if (user) {
+        await sendWelcomeMessageFromMotivoBestEffort({
+          userId: user.id,
+          email: user.email ?? null,
+          name:
+            typeof user.user_metadata?.full_name === "string"
+              ? user.user_metadata.full_name
+              : typeof user.user_metadata?.name === "string"
+                ? user.user_metadata.name
+                : null,
+        });
+
         const { data: appUser } = await supabase
           .from("app_user")
           .select("role")
