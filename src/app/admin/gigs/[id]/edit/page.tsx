@@ -38,6 +38,7 @@ export default async function AdminEditGigPage({
   }
 
   if (!gig) redirect("/admin/gigs");
+  const updateAction = adminUpdateGigAction.bind(null, id);
 
   return (
     <PageShell
@@ -71,7 +72,7 @@ export default async function AdminEditGigPage({
           instrumentsCsv: gig.instruments?.join(", ") ?? "",
           genresCsv: gig.genres?.join(", ") ?? "",
         }}
-        action={(state, fd) => adminUpdateGigAction(id, state, fd)}
+        action={updateAction}
         submitLabel="Save Changes"
         pendingLabel="Saving..."
         cancelHref="/admin/gigs"

@@ -38,6 +38,7 @@ export default async function AdminEditMusicianPage({
   }
 
   if (!profile) redirect("/admin/musicians");
+  const updateAction = adminUpdateMusicianProfileAction.bind(null, id);
 
   return (
     <PageShell
@@ -77,7 +78,7 @@ export default async function AdminEditMusicianPage({
           instrumentsCsv: profile.instruments?.join(", ") ?? "",
           genresCsv: profile.genres?.join(", ") ?? "",
         }}
-        action={(state, fd) => adminUpdateMusicianProfileAction(id, state, fd)}
+        action={updateAction}
         instruments={instruments}
         genres={genres}
         cancelHref="/admin/musicians"

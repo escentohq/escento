@@ -27,6 +27,7 @@ export default async function EditGigPage({
     listInstruments(),
     listGenres(),
   ]);
+  const updateAction = updateGigAction.bind(null, id);
 
   return (
     <PageShell
@@ -59,7 +60,7 @@ export default async function EditGigPage({
           instrumentsCsv: gig.instruments?.join(", ") ?? "",
           genresCsv: gig.genres?.join(", ") ?? "",
         }}
-        action={(state, fd) => updateGigAction(id, state, fd)}
+        action={updateAction}
         submitLabel="Save Changes"
         pendingLabel="Saving..."
         cancelHref={`/gigs/${id}`}
