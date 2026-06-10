@@ -55,6 +55,7 @@ export default async function EditGigPage({
           compensationType: gig.compensationType,
           compensationDetails: gig.compensationDetails ?? "",
           deadline: gig.deadline ?? "",
+          status: gig.status,
           instrumentsCsv: gig.instruments?.join(", ") ?? "",
           genresCsv: gig.genres?.join(", ") ?? "",
         }}
@@ -64,6 +65,7 @@ export default async function EditGigPage({
         cancelHref={`/gigs/${id}`}
         instruments={instruments}
         genres={genres}
+        showStatus
       />
     </PageShell>
   );

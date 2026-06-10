@@ -119,6 +119,7 @@ export interface UpdateGigInput {
   compensationType?: "PAID" | "UNPAID" | "NEGOTIABLE";
   compensationDetails?: string | null;
   deadline?: Date | string | null;
+  status?: "OPEN" | "CLOSED";
 }
 
 export interface CreateProfileInput {

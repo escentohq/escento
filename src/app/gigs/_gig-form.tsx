@@ -16,7 +16,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useFormFieldState } from "@/hooks/use-form-field-state";
 import { boolValue, stringValue } from "@/lib/form-snapshots";
-import { COMPENSATION_TYPES, PROJECT_TYPES, compensationLabel, projectTypeLabel } from "@/lib/display";
+import { COMPENSATION_TYPES, GIG_STATUSES, PROJECT_TYPES, compensationLabel, gigStatusLabel, projectTypeLabel } from "@/lib/display";
 import { countFieldErrors, emptyActionState, type ActionState } from "@/lib/form-utils";
 
 export type GigFormInitial = {
@@ -38,6 +38,7 @@ export type GigFormInitial = {
   compensationType: string;
   compensationDetails: string;
   deadline: string;
+  status: string;
   instrumentsCsv: string;
   genresCsv: string;
 };
@@ -64,6 +65,7 @@ const emptyInitial: GigFormInitial = {
   compensationType: "",
   compensationDetails: "",
   deadline: "",
+  status: "OPEN",
   instrumentsCsv: "",
   genresCsv: "",
 };
@@ -80,6 +82,7 @@ export function GigForm({
   cancelHref,
   instruments,
   genres,
+  showStatus = false,
 }: {
   initial?: Partial<GigFormInitial>;
   action: Action;
@@ -88,6 +91,7 @@ export function GigForm({
   cancelHref: string;
   instruments: TagOption[];
   genres: TagOption[];
+  showStatus?: boolean;
 }) {
   const [values, setValues] = useState(() => buildValues(initial));
   const formFields = useFormFieldState();
@@ -121,6 +125,7 @@ export function GigForm({
         deadline: stringValue(state.values, "deadline", current.deadline),
         instrumentsCsv: stringValue(state.values, "instrumentsCsv", current.instrumentsCsv),
         genresCsv: stringValue(state.values, "genresCsv", current.genresCsv),
+        status: stringValue(state.values, "status", current.status),
       }));
     }
   }, [state.values]);
@@ -349,6 +354,34 @@ export function GigForm({
             </FormField>
           </div>
         </fieldset>
+
+        {showStatus ? (
+          <fieldset className="space-y-5">
+            <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
+              Visibility
+            </legend>
+            <FormField
+              id="status"
+              label="Gig status"
+              error={errors.status}
+              showError={formFields.shouldShowError("status", errors.status)}
+              onBlur={() => formFields.markTouched("status")}
+              hint="Closed gigs stay editable but do not appear in open gig browsing. Set back to Open to reopen it."
+            >
+              <Select
+                name="status"
+                value={values.status}
+                onChange={(event) => setValues((current) => ({ ...current, status: event.target.value }))}
+              >
+                {GIG_STATUSES.map((status) => (
+                  <option key={status} value={status}>
+                    {gigStatusLabel(status)}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
+          </fieldset>
+        ) : null}
 
         <div className="flex flex-col-reverse gap-4 border-t border-[#F1F5F9] pt-6 sm:flex-row sm:items-center sm:justify-between">
           <Link href={cancelHref} className="text-sm font-bold text-[#475569] transition-colors hover:text-[#0055FF]">

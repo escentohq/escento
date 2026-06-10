@@ -330,6 +330,7 @@ export async function updateGig(
   if (input.compensationType !== undefined) updateData.compensation_type = input.compensationType;
   if (input.compensationDetails !== undefined) updateData.compensation_details = input.compensationDetails;
   if (input.deadline !== undefined) updateData.deadline = normalizeDeadline(input.deadline);
+  if (input.status !== undefined) updateData.status = input.status;
 
   if (instrumentNames || genreNames) {
     await Promise.all([

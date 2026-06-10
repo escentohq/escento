@@ -52,6 +52,7 @@ export function gigValuesFromFormData(fd: FormData): FormValues {
     compensationType: strOrEmpty(fd.get("compensationType")),
     compensationDetails: strOrEmpty(fd.get("compensationDetails")),
     deadline: strOrEmpty(fd.get("deadline")),
+    status: strOrEmpty(fd.get("status")),
     instrumentsCsv: strOrEmpty(fd.get("instrumentsCsv")),
     genresCsv: strOrEmpty(fd.get("genresCsv")),
   };

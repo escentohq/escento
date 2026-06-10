@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 
 import { requireRole } from "@/lib/auth-guards";
 import { getGig, updateGig } from "@/lib/api/gigs";
-import { COMPENSATION_TYPES, PROJECT_TYPES } from "@/lib/display";
+import { COMPENSATION_TYPES, GIG_STATUSES, PROJECT_TYPES } from "@/lib/display";
 import {
   type ActionState,
   fieldError,
@@ -39,6 +39,7 @@ export async function updateGigAction(
   const compensationDetails = nonEmptyOrNull(fd.get("compensationDetails"));
   const deadlineRaw = strOrEmpty(fd.get("deadline"));
   const deadline = parseOptionalDate(deadlineRaw);
+  const status = pickEnum(fd.get("status"), GIG_STATUSES);
   const instruments = parseCsv(fd.get("instrumentsCsv"));
   const genres = parseCsv(fd.get("genresCsv"));
 
@@ -48,6 +49,7 @@ export async function updateGigAction(
   if (description.length > 2400) fieldError(fieldErrors, "description", "Keep the description under 2,400 characters.");
   if (!projectType) fieldError(fieldErrors, "projectType", "Choose a project type.");
   if (!compensationType) fieldError(fieldErrors, "compensationType", "Choose a compensation type.");
+  if (!status) fieldError(fieldErrors, "status", "Choose a gig status.");
   if (deadlineRaw && !deadline) fieldError(fieldErrors, "deadline", "Use a valid date.");
   validateStructuredLocation(fieldErrors, location, isRemote);
 
@@ -81,6 +83,7 @@ export async function updateGigAction(
       compensationType: compensationType!,
       compensationDetails,
       deadline,
+      status: status!,
     },
     session.user.id,
     instruments,
