@@ -118,12 +118,14 @@ export function ProfileForm({
   action,
   instruments,
   genres,
+  cancelHref = "/",
 }: {
   mode: "create" | "edit";
   initial: Partial<ProfileFormValues>;
   action: Action;
   instruments: TagOption[];
   genres: TagOption[];
+  cancelHref?: string;
 }) {
   const [values, setValues] = useState(() => buildValues(initial));
   const formFields = useFormFieldState();
@@ -431,7 +433,7 @@ export function ProfileForm({
         </fieldset>
 
         <div className="flex flex-col-reverse gap-4 border-t border-[#F1F5F9] pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <Link href="/" className="text-sm font-bold text-[#475569] transition-colors hover:text-[#0055FF]">
+          <Link href={cancelHref} className="text-sm font-bold text-[#475569] transition-colors hover:text-[#0055FF]">
             Cancel
           </Link>
           <FormSubmitButton pendingLabel={pending} className="w-full sm:w-auto">

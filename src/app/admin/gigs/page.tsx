@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { AdminActionButton } from "@/components/admin/admin-action-button";
 import {
   AdminNav,
@@ -69,6 +71,12 @@ export default async function AdminGigsPage() {
                 </td>
                 <td className="p-4">
                   <div className="flex flex-wrap gap-2">
+                    <Link
+                      href={`/admin/gigs/${gig.id}/edit`}
+                      className="inline-flex min-h-9 items-center rounded-full border border-[#E2E8F0] px-3 text-xs font-bold text-[#0F172A] transition-colors hover:border-[#0055FF] hover:text-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                    >
+                      Edit full gig
+                    </Link>
                     <AdminActionButton
                       targetType="gig"
                       targetId={gig.id}
