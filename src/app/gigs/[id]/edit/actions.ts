@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireRole } from "@/lib/auth-guards";
-import { getGig, updateGig } from "@/lib/api/gigs";
+import { getGigForCreator, updateGig } from "@/lib/api/gigs";
 import { COMPENSATION_TYPES, GIG_STATUSES, PROJECT_TYPES } from "@/lib/display";
 import {
   type ActionState,
@@ -26,8 +26,8 @@ export async function updateGigAction(
 ): Promise<ActionState> {
   const session = await requireRole("CREATOR", `/gigs/${gigId}/edit`);
 
-  const gig = await getGig(gigId);
-  if (!gig || gig.creatorId !== session.user.id) redirect("/gigs/manage");
+  const gig = await getGigForCreator(gigId, session.user.id);
+  if (!gig) redirect("/gigs/manage");
 
   const fieldErrors: Record<string, string> = {};
   const title = strOrEmpty(fd.get("title"));

@@ -2,6 +2,7 @@
 
 import { Flag, X } from "lucide-react";
 import { useActionState, useEffect, useId, useState } from "react";
+import { createPortal } from "react-dom";
 
 import {
   submitContentReport,
@@ -53,7 +54,7 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
         Report
       </button>
 
-      {open ? (
+      {open && typeof document !== "undefined" ? createPortal(
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
           <button
             type="button"
@@ -169,7 +170,8 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body,
       ) : null}
     </>
   );

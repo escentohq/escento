@@ -103,6 +103,22 @@ export async function getGig(id: string): Promise<Gig | null> {
   return gig;
 }
 
+export async function getGigForCreator(id: string, creatorId: string): Promise<Gig | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("gig")
+    .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
+    .eq("id", id)
+    .eq("creator_id", creatorId)
+    .single();
+
+  if (error && error.code !== "PGRST116") throw error;
+  if (!data) return null;
+
+  const [gig] = await withCreatorSummaries([data]);
+  return gig;
+}
+
 interface ListOpenGigsFilters {
   projectType?: string;
   instruments?: string[];
@@ -382,6 +398,16 @@ export async function closeGig(id: string): Promise<void> {
   const { error } = await supabase
     .from("gig")
     .update({ status: "CLOSED" })
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+export async function reopenGig(id: string): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("gig")
+    .update({ status: "OPEN" })
     .eq("id", id);
 
   if (error) throw error;

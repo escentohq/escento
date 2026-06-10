@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import { PageShell } from "@/components/ui/page-shell";
 import { requireRole } from "@/lib/auth-guards";
-import { getGig } from "@/lib/api/gigs";
+import { getGigForCreator } from "@/lib/api/gigs";
 import { listGenres, listInstruments } from "@/lib/api/tags";
 import { GigForm } from "../../_gig-form";
 import { updateGigAction } from "./actions";
@@ -21,8 +21,8 @@ export default async function EditGigPage({
 
   if (!isValidId(id)) redirect("/gigs/manage");
 
-  const gig = await getGig(id);
-  if (!gig || gig.creatorId !== session.user.id) redirect("/gigs/manage");
+  const gig = await getGigForCreator(id, session.user.id);
+  if (!gig) redirect("/gigs/manage");
   const [instruments, genres] = await Promise.all([
     listInstruments(),
     listGenres(),

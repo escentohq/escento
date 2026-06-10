@@ -15,6 +15,7 @@ import { PrimaryCta } from "@/components/ui/primary-cta";
 import { Reveal } from "@/components/ui/reveal";
 import { CloseGigButton } from "./CloseGigButton";
 import { DeleteGigButton } from "./DeleteGigButton";
+import { ReopenGigButton } from "./ReopenGigButton";
 
 export default async function ManageGigsPage() {
   const session = await requireRole("CREATOR", "/gigs/manage");
@@ -108,7 +109,9 @@ export default async function ManageGigsPage() {
 
                       {gig.status === "OPEN" ? (
                         <CloseGigButton gigId={gig.id} />
-                      ) : null}
+                      ) : (
+                        <ReopenGigButton gigId={gig.id} />
+                      )}
 
                       <DeleteGigButton gigId={gig.id} className="w-full" />
                     </div>

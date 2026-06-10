@@ -4,19 +4,28 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireRole } from "@/lib/auth-guards";
-import { getGig, closeGig, deleteGig } from "@/lib/api/gigs";
+import { closeGig, deleteGig, getGigForCreator, reopenGig } from "@/lib/api/gigs";
 
 async function ensureCreatorOwnsGig(gigId: string) {
   const session = await requireRole("CREATOR", "/gigs/manage");
-  const gig = await getGig(gigId);
+  const gig = await getGigForCreator(gigId, session.user.id);
 
-  if (!gig || gig.creatorId !== session.user.id) redirect("/gigs/manage");
+  if (!gig) redirect("/gigs/manage");
   return session;
 }
 
 export async function closeGigAction(gigId: string) {
   await ensureCreatorOwnsGig(gigId);
   await closeGig(gigId);
+  revalidatePath("/gigs");
+  revalidatePath("/gigs/manage");
+  revalidatePath(`/gigs/${gigId}`);
+  redirect("/gigs/manage");
+}
+
+export async function reopenGigAction(gigId: string) {
+  await ensureCreatorOwnsGig(gigId);
+  await reopenGig(gigId);
   revalidatePath("/gigs");
   revalidatePath("/gigs/manage");
   revalidatePath(`/gigs/${gigId}`);
