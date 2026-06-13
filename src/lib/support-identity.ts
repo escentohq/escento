@@ -1,6 +1,6 @@
 import type { MessagingUserSummary } from "@/lib/api/types";
 
-const DEFAULT_SUPPORT_EMAIL = "aryanandshrestha@gmail.com";
+const DEFAULT_SUPPORT_EMAIL = "support@escento.com";
 
 export function getEscentoSupportAccountEmail() {
   return (

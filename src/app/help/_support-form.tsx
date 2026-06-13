@@ -12,7 +12,7 @@ import { countFieldErrors, isValidEmail } from "@/lib/form-utils";
 import { submitHelpRequest, type HelpFormState } from "./actions";
 
 const initialState: HelpFormState = { ok: false, fieldErrors: {} };
-const fallbackEmail = "aryanandshrestha@gmail.com";
+const fallbackEmail = "support@escento.com";
 
 function stringValue(value: unknown) {
   return typeof value === "string" ? value : "";
