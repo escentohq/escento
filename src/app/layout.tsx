@@ -2,6 +2,7 @@ import "./globals.css";
 
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { getCurrentSession } from "@/lib/auth-guards";
 import { getProfileByUserId } from "@/lib/api/profiles";
@@ -57,6 +58,7 @@ export default async function RootLayout({
 
         <Footer />
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
