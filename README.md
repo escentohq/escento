@@ -1,4 +1,4 @@
-# Escento
+# Escento 🎶
 
 Platform connecting student musicians with student creators for film, podcasts, live events, games, YouTube videos, and creative projects.
 
