@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EscentoWordmark } from "./brand";
 import { UserMenu } from "./_user-menu";
 
 type Props = {
@@ -36,8 +37,12 @@ export function NavBar({
     <header className="sticky top-0 z-50 border-b border-[#F1F5F9] bg-white/80 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:py-4">
         <div className="flex min-w-0 items-center gap-8">
-          <Link href="/" className="text-base font-black tracking-tight text-[#0F172A]">
-            Escento
+          <Link
+            href="/"
+            aria-label="Escento home"
+            className="text-[#0F172A] transition-opacity hover:opacity-80"
+          >
+            <EscentoWordmark className="text-lg" />
           </Link>
           <div className="hidden items-center gap-6 text-sm font-bold text-[#475569] lg:flex">
             {publicLinks}

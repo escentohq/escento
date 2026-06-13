@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { EscentoWordmark } from "./brand";
+
 function TwitterIcon() {
   return (
     <svg
@@ -82,9 +84,7 @@ export function Footer() {
         <div className="flex flex-col items-center justify-between gap-8 md:flex-row md:gap-12">
           {/* Left: Logo + Copyright */}
           <div className="flex items-center gap-3">
-            <span className="text-lg font-black tracking-tight text-[#0F172A]">
-              Escento
-            </span>
+            <EscentoWordmark className="text-lg text-[#0F172A]" />
             <span className="text-xs font-medium text-[#94A3B8]">
               &copy; {new Date().getFullYear()}
             </span>

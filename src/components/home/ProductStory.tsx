@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { EscentoMark } from "@/components/ui/brand";
 import {
   motion,
   AnimatePresence,
@@ -419,7 +420,8 @@ function StageCanvas({
             <span className="h-2.5 w-2.5 rounded-full bg-[#FFB000]/40" />
             <span className="h-2.5 w-2.5 rounded-full bg-[#0055FF]/40" />
           </div>
-          <span className="text-sm font-black tracking-tight text-[#0F172A]">
+          <span className="flex items-center gap-1.5 text-sm font-black tracking-tight text-[#0F172A]">
+            <EscentoMark className="h-3.5 w-auto" />
             escento
           </span>
           <span className="ml-auto font-mono text-[11px] text-[#94A3B8]">
