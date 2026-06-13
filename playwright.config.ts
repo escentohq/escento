@@ -15,9 +15,10 @@ const isCI = Boolean(process.env.CI);
 const externalTarget = process.env.PLAYWRIGHT_BASE_URL;
 const baseURL = externalTarget ?? "http://localhost:3000";
 
-// Future-proof: if a Vercel Deployment Protection bypass secret is ever
-// configured (Pro plan), forward it so smoke can reach gated previews. No-op on
-// the current Hobby plan where previews are public.
+// Deployment Protection (Vercel Authentication) is enabled on this project, so
+// deployed URLs sit behind a login wall (HTTP 401). When the Protection Bypass
+// for Automation secret is provided, forward it so smoke can reach the
+// deployment. No-op (empty headers) when unset — e.g. local runs.
 const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 
 export default defineConfig({

@@ -98,9 +98,20 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run smoke against the preview deployment
-        run: npm run test:e2e
         env:
           PLAYWRIGHT_BASE_URL: ${{ needs.deploy.outputs.url }}
+          # Lets Playwright through Vercel Deployment Protection. Create it at
+          # Vercel -> Project -> Settings -> Deployment Protection -> Protection
+          # Bypass for Automation, then add it as the GitHub Actions secret
+          # VERCEL_AUTOMATION_BYPASS_SECRET. Until then, smoke is skipped (not
+          # failed) so a protected deployment does not turn the pipeline red.
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
+            echo "::warning title=Smoke skipped::Deployment Protection is on but VERCEL_AUTOMATION_BYPASS_SECRET is not set. Add the Protection Bypass for Automation secret to enable smoke tests."
+            exit 0
+          fi
+          npm run test:e2e
 
       - name: Upload Playwright report
         if: failure()

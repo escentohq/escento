@@ -97,10 +97,16 @@ jobs:
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
 
-      - name: Run smoke against the production deployment
-        run: npm run test:e2e
+      - name: Run smoke against production
         env:
-          PLAYWRIGHT_BASE_URL: ${{ needs.deploy.outputs.url }}
+          # Target the PUBLIC production alias, not the per-deployment URL the CLI
+          # returns. Vercel Deployment Protection guards generated deployment URLs
+          # (HTTP 401), but the production alias is public, so smoke needs no
+          # bypass secret here. Override the alias with the PRODUCTION_URL repo
+          # variable if it differs. `vercel deploy --prod` promotes the alias
+          # before returning, so it already points at this build.
+          PLAYWRIGHT_BASE_URL: ${{ vars.PRODUCTION_URL || 'https://escento.vercel.app' }}
+        run: npm run test:e2e
 
       - name: Upload Playwright report
         if: failure()
