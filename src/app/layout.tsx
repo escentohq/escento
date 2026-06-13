@@ -1,6 +1,7 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
 
 import { getCurrentSession } from "@/lib/auth-guards";
 import { getProfileByUserId } from "@/lib/api/profiles";
@@ -55,6 +56,7 @@ export default async function RootLayout({
         <main className="flex-1">{children}</main>
 
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
