@@ -140,3 +140,5 @@ vite.config.ts.timestamp-*
 
 # Claude Code local settings (sensitive credentials)
 .claude/settings.local.json
+.vercel
+.env*
