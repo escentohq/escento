@@ -31,10 +31,20 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      # The project is identified by VERCEL_ORG_ID + VERCEL_PROJECT_ID (job env),
-      # and the build runs on Vercel — so Preview env vars and system env vars are
-      # injected automatically from the project settings, exactly like a native
-      # Git deploy. The owner's VERCEL_TOKEN still bypasses the Hobby "commit
-      # author" block regardless of who pushed.
+      # Pull retrieves the project's env vars into .vercel/.env.preview.local.
+      # Build-time vars (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY)
+      # must be NON-sensitive in Vercel so their values come through — sensitive
+      # vars pull as empty strings and crash the prerender build.
+      - name: Pull Vercel preview environment
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Build locally, then upload the prebuilt output. A --prebuilt deploy is
+      # attributed to the TOKEN OWNER (not the commit author), which is what
+      # bypasses the Hobby plan's "commit author did not have contributing
+      # access" block. Building on Vercel (vercel deploy without --prebuilt)
+      # would re-trigger that block.
+      - name: Build project artifacts
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
       - name: Deploy to Vercel (preview)
-        run: vercel deploy --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
