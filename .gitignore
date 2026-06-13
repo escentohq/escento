@@ -142,3 +142,13 @@ vite.config.ts.timestamp-*
 .claude/settings.local.json
 .vercel
 .env*
+
+# Playwright E2E
+/playwright-report/
+/test-results/
+/playwright/.cache/
+/blob-report/
+
+# Supabase local stack
+/supabase/.temp/
+/supabase/.branches/
