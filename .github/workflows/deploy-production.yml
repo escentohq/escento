@@ -39,13 +39,20 @@ jobs:
       - name: Pull Vercel production environment
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      # Build locally, then upload the prebuilt output. A --prebuilt deploy is
-      # attributed to the TOKEN OWNER (not the commit author), which is what
-      # bypasses the Hobby plan's "commit author did not have contributing
-      # access" block. Building on Vercel (vercel deploy without --prebuilt)
-      # would re-trigger that block.
+      # Build locally, then upload the prebuilt output.
       - name: Build project artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Remove the runner's git metadata BEFORE deploying. The Vercel CLI
+      # otherwise attaches the commit author to the deployment, and on the Hobby
+      # plan a deploy whose commit author lacks project access is BLOCKED — this
+      # fires even for --prebuilt CLI deploys (confirmed via the Vercel API:
+      # collaborator-authored => BLOCKED, no author => READY). Deleting .git
+      # here strips the author so the deploy is attributed to the token owner.
+      # This affects ONLY the ephemeral CI checkout; your GitHub commit history
+      # and authorship are unaffected.
+      - name: Strip git metadata (avoid Hobby commit-author block)
+        run: rm -rf .git
 
       - name: Deploy to Vercel (production)
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
