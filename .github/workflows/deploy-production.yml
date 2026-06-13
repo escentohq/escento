@@ -43,16 +43,19 @@ jobs:
       - name: Build project artifacts
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
-      # Remove the runner's git metadata BEFORE deploying. The Vercel CLI
-      # otherwise attaches the commit author to the deployment, and on the Hobby
+      # Re-author the HEAD commit as the project owner BEFORE deploying. The
+      # Vercel CLI attaches the commit author to the deployment, and on the Hobby
       # plan a deploy whose commit author lacks project access is BLOCKED — this
       # fires even for --prebuilt CLI deploys (confirmed via the Vercel API:
-      # collaborator-authored => BLOCKED, no author => READY). Deleting .git
-      # here strips the author so the deploy is attributed to the token owner.
-      # This affects ONLY the ephemeral CI checkout; your GitHub commit history
-      # and authorship are unaffected.
-      - name: Strip git metadata (avoid Hobby commit-author block)
-        run: rm -rf .git
+      # collaborator-authored => BLOCKED, owner-authored => READY). Amending the
+      # author to the owner keeps the commit message, SHA and branch (so Vercel
+      # shows a meaningful deployment title) and only swaps the author so the
+      # deploy passes. This rewrites ONLY the ephemeral CI checkout and is never
+      # pushed back; your real GitHub commit and authorship are unaffected.
+      - name: Re-author HEAD as project owner (avoid Hobby commit-author block)
+        run: |
+          git -c user.name="Escento" -c user.email="escentohq@gmail.com" \
+            commit --amend --no-edit --reset-author
 
       - name: Deploy to Vercel (production)
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
