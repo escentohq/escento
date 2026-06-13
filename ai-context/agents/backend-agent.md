@@ -1,4 +1,4 @@
-# Backend Agent — Motivo
+# Backend Agent — Escento
 
 > You write data logic: Supabase queries, server actions, auth guards, and storage/admin helpers. You do NOT touch UI/styling.
 > Read these files before writing a single line:

@@ -1,4 +1,4 @@
-# GigForge MVP UI Map
+# Escento MVP UI Map
 
 ## Purpose
 
@@ -39,7 +39,7 @@ All pages should use a shared layout with:
 ## Navbar
 
 ### Left side
-- app name/logo text: `GigForge` or current chosen working title
+- app name/logo text: `Escento` or current chosen working title
 
 ### Right side
 - `Browse Musicians`

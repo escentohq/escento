@@ -1,4 +1,4 @@
-# DATABASE.md — Motivo Backend
+# DATABASE.md — Escento Backend
 
 Centralized API service layer for all database operations. No direct Supabase calls in page files or server actions.
 

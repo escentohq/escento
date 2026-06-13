@@ -27,7 +27,7 @@ const ease = [0.16, 1, 0.3, 1] as const;
 const STEP_COUNT = 5;
 
 // ---------------------------------------------------------------------------
-// Story data — adapted to Motivo's two-sided campus marketplace. We follow two
+// Story data — adapted to Escento's two-sided campus marketplace. We follow two
 // real mock personas (reused from the landing page proof cards) as the gap
 // between them closes: a film student who needs a composer, and a pianist who
 // needs the work.
@@ -80,7 +80,7 @@ const STEPS: Step[] = [
     headline: "One message.",
     support:
       "Send a request. They accept. The thread opens — and every reply stays in one place.",
-    insight: "Request, accept, talk. All in Motivo.",
+    insight: "Request, accept, talk. All in Escento.",
     accent: "#0055FF",
     accentText: "text-[#0055FF]",
   },
@@ -379,7 +379,7 @@ function NoiseBubble({
 }
 
 // ---------------------------------------------------------------------------
-// The product canvas. One continuous Motivo app frame whose layers evolve with
+// The product canvas. One continuous Escento app frame whose layers evolve with
 // the active step — it never hard-swaps between unrelated screens.
 // ---------------------------------------------------------------------------
 
@@ -420,10 +420,10 @@ function StageCanvas({
             <span className="h-2.5 w-2.5 rounded-full bg-[#0055FF]/40" />
           </div>
           <span className="text-sm font-black tracking-tight text-[#0F172A]">
-            motivo
+            escento
           </span>
           <span className="ml-auto font-mono text-[11px] text-[#94A3B8]">
-            motivo.app
+            escento.com
           </span>
         </div>
 
@@ -781,7 +781,7 @@ export function ProductStory() {
 
   return (
     <section
-      aria-label="How Motivo works"
+      aria-label="How Escento works"
       className="relative z-20 bg-[#FAFAFA] text-[#0F172A]"
     >
       {/* Shared intro */}

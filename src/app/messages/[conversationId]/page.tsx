@@ -9,7 +9,7 @@ import {
   getMessagingBlockStatusForUser,
   markConversationReadForUser,
 } from "@/lib/api/messaging";
-import { getMessagingDisplayName, isMotivoSupportSummary } from "@/lib/support-identity";
+import { getMessagingDisplayName, isEscentoSupportSummary } from "@/lib/support-identity";
 import { HideConversationButton } from "./_conversation-actions";
 import { ConversationThread } from "./_conversation-thread";
 
@@ -41,7 +41,7 @@ export default async function ConversationPage({
 
   const other = conversation.otherParticipant?.user;
   const name = getMessagingDisplayName(other);
-  const officialSupport = isMotivoSupportSummary(other);
+  const officialSupport = isEscentoSupportSummary(other);
   const blockStatus = other
     ? await getMessagingBlockStatusForUser(session.user.id, other.id)
     : { blockedByMe: false, blockedMe: false };

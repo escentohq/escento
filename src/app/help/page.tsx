@@ -6,7 +6,7 @@ export default function HelpPage() {
     <PageShell
       eyebrow="Support"
       title="How can we help?"
-      body="Need assistance? Reach out to the Motivo team and we'll do our best to get back to you as soon as possible."
+      body="Need assistance? Reach out to the Escento team and we'll do our best to get back to you as soon as possible."
       size="medium"
     >
       <SupportForm />

@@ -11,7 +11,7 @@ import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { Reveal } from "@/components/ui/reveal";
 import type { ConnectionRequest, ConversationSummary } from "@/lib/api/types";
-import { getMessagingDisplayName, isMotivoSupportSummary } from "@/lib/support-identity";
+import { getMessagingDisplayName, isEscentoSupportSummary } from "@/lib/support-identity";
 
 function initials(name: string) {
   return name
@@ -90,7 +90,7 @@ export default async function MessagesPage() {
           {conversations.map((conversation, index) => {
             const other = conversation.otherParticipant?.user;
             const name = getMessagingDisplayName(other);
-            const officialSupport = isMotivoSupportSummary(other);
+            const officialSupport = isEscentoSupportSummary(other);
             const preview = conversation.lastMessage?.body ?? "No messages yet.";
             const unread = conversation.unreadCount > 0;
 

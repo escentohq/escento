@@ -1,7 +1,7 @@
 # Routing, 404s, and Error States
 
 ## Feature Summary
-GigForge uses Next.js App Router conventions with route-level redirects, `notFound()`, and a global `not-found.tsx`. Server action errors currently throw and rely on framework error handling.
+Escento uses Next.js App Router conventions with route-level redirects, `notFound()`, and a global `not-found.tsx`. Server action errors currently throw and rely on framework error handling.
 
 ## Product Intent
 - Keep invalid IDs and missing records from rendering broken pages.

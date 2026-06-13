@@ -137,7 +137,7 @@ export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
             className="mt-1 h-4 w-4 shrink-0 accent-[#0055FF]"
           />
           <span>
-            I agree to Motivo&apos;s{" "}
+            I agree to Escento&apos;s{" "}
             <Link href="/terms" className="text-[#0055FF] underline-offset-4 hover:underline">
               Terms
             </Link>

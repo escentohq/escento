@@ -9,9 +9,9 @@ import { NavBar } from "@/components/ui/nav-bar";
 import { Footer } from "@/components/ui/footer";
 
 export const metadata: Metadata = {
-  title: "Motivo",
+  title: "Escento",
   description:
-    "Motivo is a platform connecting student musicians with student creators who need collaborators for creative projects.",
+    "Escento is a platform connecting student musicians with student creators who need collaborators for creative projects.",
 };
 
 export default async function RootLayout({

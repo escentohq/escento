@@ -1,4 +1,4 @@
-# DB Rebuild — GigForge Schema Reset
+# DB Rebuild — Escento Schema Reset
 
 ## Problem
 
@@ -13,7 +13,7 @@ Drop all tables + recreate with clean schema. No role DEFAULT. All FKs CASCADE D
 
 ## Steps
 
-1. Go to Supabase dashboard → GigForge project → SQL editor
+1. Go to Supabase dashboard → Escento project → SQL editor
 2. Run the SQL below (entire block as one query)
 3. Verify: Check `user` table exists, `role` column has no DEFAULT
 4. Restart Claude Code session → run `npm run dev`

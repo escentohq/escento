@@ -1,4 +1,4 @@
-# Debug Agent — Motivo
+# Debug Agent — Escento
 
 > Read-only. Diagnose only. Propose fixes. Do NOT write code unless user explicitly says "fix it".
 > Read these files before starting:

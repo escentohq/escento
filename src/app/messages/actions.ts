@@ -21,8 +21,8 @@ import {
   rejectConnectionRequestForUser,
   unblockUserForUser,
 } from "@/lib/api/messaging";
-import { isMotivoSupportSummary } from "@/lib/support-identity";
-import { isMotivoSupportUserId } from "@/lib/api/support-account";
+import { isEscentoSupportSummary } from "@/lib/support-identity";
+import { isEscentoSupportUserId } from "@/lib/api/support-account";
 
 const MESSAGES_CALLBACK_URL = "/messages";
 
@@ -103,8 +103,8 @@ export async function markConversationAsRead(conversationId: string) {
 export async function deleteConversationForMe(conversationId: string) {
   const session = await requireUser(MESSAGES_CALLBACK_URL);
   const conversation = await getConversationForUser(session.user.id, conversationId);
-  if (isMotivoSupportSummary(conversation?.otherParticipant?.user)) {
-    throw new Error("Motivo support conversations cannot be hidden.");
+  if (isEscentoSupportSummary(conversation?.otherParticipant?.user)) {
+    throw new Error("Escento support conversations cannot be hidden.");
   }
 
   await deleteConversationForUserService(session.user.id, conversationId);
@@ -114,8 +114,8 @@ export async function deleteConversationForMe(conversationId: string) {
 
 export async function blockUser(userId: string) {
   const session = await requireUser(MESSAGES_CALLBACK_URL);
-  if (await isMotivoSupportUserId(userId)) {
-    throw new Error("Motivo support cannot be blocked.");
+  if (await isEscentoSupportUserId(userId)) {
+    throw new Error("Escento support cannot be blocked.");
   }
 
   await blockUserForUser(session.user.id, userId);

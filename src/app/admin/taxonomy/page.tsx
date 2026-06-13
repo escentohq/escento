@@ -124,7 +124,7 @@ export default async function AdminTaxonomyPage() {
     <PageShell
       eyebrow="Admin"
       title="Taxonomy"
-      body="Review instrument and genre terms used across Motivo."
+      body="Review instrument and genre terms used across Escento."
     >
       <AdminNav />
       <div className="grid gap-6 xl:grid-cols-2">

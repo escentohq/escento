@@ -1,6 +1,6 @@
-# GigForge Feature Documentation Index
+# Escento Feature Documentation Index
 
-This folder breaks the current GigForge codebase into product and implementation features. Each document includes purpose, route/file ownership, representative source code, implementation behavior, and issues or improvement notes for future agents.
+This folder breaks the current Escento codebase into product and implementation features. Each document includes purpose, route/file ownership, representative source code, implementation behavior, and issues or improvement notes for future agents.
 
 ## Feature Docs
 - [00 - Data Model and Database Access](./00-data-model-and-database.md)

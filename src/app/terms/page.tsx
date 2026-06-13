@@ -2,7 +2,7 @@ import { type Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Terms of Use",
-  description: "Motivo Terms of Use - Our terms and conditions for using the platform.",
+  description: "Escento Terms of Use - Our terms and conditions for using the platform.",
 };
 
 export default function TermsPage() {

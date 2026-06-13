@@ -13,7 +13,7 @@ export default async function RoleOnboardingPage() {
     <PageShell
       eyebrow="Soundcheck"
       title="Choose your role"
-      body="Pick the side you are using today. Motivo keeps the tools focused around that choice."
+      body="Pick the side you are using today. Escento keeps the tools focused around that choice."
       size="medium"
     >
       <RoleOnboardingPicker />

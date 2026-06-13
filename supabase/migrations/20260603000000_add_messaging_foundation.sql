@@ -1,4 +1,4 @@
--- Messaging foundation for Motivo.
+-- Messaging foundation for Escento.
 -- Apply in Supabase SQL editor or through Supabase CLI.
 
 create extension if not exists pgcrypto;

@@ -1,6 +1,6 @@
-# PRODUCT.md — Motivo
+# PRODUCT.md — Escento
 
-## What Motivo is
+## What Escento is
 
 A directory + listings platform connecting **student musicians** with **student creators** (film students, podcasters, YouTubers, indie game devs, event organizers). It is intentionally **not** a social network: no feeds, no payments, no algorithmic recommendations. The MVP now uses connection requests and direct messages for the shortest possible path from *"I need someone"* to *"I found them and started the conversation."*
 

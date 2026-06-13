@@ -1,4 +1,4 @@
-# FRONTEND_ARCH.md — Motivo
+# FRONTEND_ARCH.md — Escento
 
 > How the app is wired. Read [`AGENTS.md`](./AGENTS.md) for the rules; this doc shows the patterns to apply them.
 

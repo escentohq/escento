@@ -1,7 +1,7 @@
 # Authentication and Session
 
 ## Feature Summary
-GigForge uses NextAuth v4 with GitHub and Google OAuth providers, Prisma persistence, and JWT sessions enriched with `user.id` and `user.role`. This feature lets users sign in, creates database-backed users through the Prisma adapter, and exposes role-aware session data to pages and server actions.
+Escento uses NextAuth v4 with GitHub and Google OAuth providers, Prisma persistence, and JWT sessions enriched with `user.id` and `user.role`. This feature lets users sign in, creates database-backed users through the Prisma adapter, and exposes role-aware session data to pages and server actions.
 
 ## Product Intent
 - Keep sign-in familiar and low-friction for students.

@@ -3,11 +3,11 @@ import { randomUUID } from "crypto";
 import { MESSAGE_BODY_MAX_LENGTH } from "@/lib/api/messaging";
 import type { MessageRecord, MessagingUserSummary } from "@/lib/api/types";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { getMotivoSupportAccountEmail } from "@/lib/support-identity";
+import { getEscentoSupportAccountEmail } from "@/lib/support-identity";
 
-const SUPPORT_DISPLAY_NAME = "Motivo";
+const SUPPORT_DISPLAY_NAME = "Escento";
 const WELCOME_MESSAGE_BODY =
-  "Welcome to Motivo! We’re excited to have you here. If you have any questions, run into issues, or need help getting started, just reply to this message and the Motivo team will help you out.";
+  "Welcome to Escento! We’re excited to have you here. If you have any questions, run into issues, or need help getting started, just reply to this message and the Escento team will help you out.";
 
 export type SupportUserSearchResult = {
   id: string;
@@ -101,9 +101,9 @@ async function findAuthUserByEmail(email: string) {
   return null;
 }
 
-export async function getMotivoSupportAccount(): Promise<MessagingUserSummary> {
+export async function getEscentoSupportAccount(): Promise<MessagingUserSummary> {
   const supabase = createSupabaseAdminClient();
-  const email = getMotivoSupportAccountEmail();
+  const email = getEscentoSupportAccountEmail();
 
   const { data: flaggedUser, error: flaggedError } = await supabase
     .from("app_user")
@@ -156,7 +156,7 @@ export async function getMotivoSupportAccount(): Promise<MessagingUserSummary> {
       !existingAppUser.is_admin_support_account
     ) {
       throw new Error(
-        "MOTIVO_SUPPORT_ACCOUNT_EMAIL belongs to an existing normal user. Use a dedicated support email or mark a system account explicitly.",
+        "ESCENTO_SUPPORT_ACCOUNT_EMAIL belongs to an existing normal user. Use a dedicated support email or mark a system account explicitly.",
       );
     }
   } else {
@@ -196,7 +196,7 @@ export async function getMotivoSupportAccount(): Promise<MessagingUserSummary> {
 
 export async function searchUsersForSupport(query: string): Promise<SupportUserSearchResult[]> {
   const supabase = createSupabaseAdminClient();
-  const support = await getMotivoSupportAccount();
+  const support = await getEscentoSupportAccount();
   const term = query.trim();
 
   let request = supabase
@@ -225,7 +225,7 @@ export async function listSupportInboxForAdmin(): Promise<{
   needsResponseCount: number;
 }> {
   const supabase = createSupabaseAdminClient();
-  const support = await getMotivoSupportAccount();
+  const support = await getEscentoSupportAccount();
 
   const { data: supportParticipants, error: supportParticipantsError } = await supabase
     .from("conversation_participants")
@@ -354,9 +354,9 @@ async function getAppUser(userId: string): Promise<SupportUserSearchResult | nul
 
 export async function getOrCreateSupportConversationForUser(targetUserId: string) {
   const supabase = createSupabaseAdminClient();
-  const support = await getMotivoSupportAccount();
+  const support = await getEscentoSupportAccount();
   if (targetUserId === support.id) {
-    throw new Error("Choose a user account, not the Motivo support account.");
+    throw new Error("Choose a user account, not the Escento support account.");
   }
 
   const targetUser = await getAppUser(targetUserId);
@@ -440,7 +440,7 @@ export async function getOrCreateSupportConversationForUser(targetUserId: string
   return { conversationId, support, targetUser };
 }
 
-export async function isMotivoSupportUserId(userId: string) {
+export async function isEscentoSupportUserId(userId: string) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("app_user")
@@ -450,7 +450,7 @@ export async function isMotivoSupportUserId(userId: string) {
 
   if (error && error.code !== "PGRST116") throw error;
   const email = data?.email;
-  return Boolean(email) && email.toLowerCase() === getMotivoSupportAccountEmail();
+  return Boolean(email) && email.toLowerCase() === getEscentoSupportAccountEmail();
 }
 
 export async function markSupportConversationReadForAdmin({
@@ -510,7 +510,7 @@ export async function getSupportConversationForAdmin(
   };
 }
 
-export async function sendSupportMessageAsMotivo({
+export async function sendSupportMessageAsEscento({
   adminEmail,
   targetUserId,
   body,
@@ -570,7 +570,7 @@ export async function sendSupportMessageAsMotivo({
   return toMessage(message);
 }
 
-export async function sendWelcomeMessageFromMotivoBestEffort({
+export async function sendWelcomeMessageFromEscentoBestEffort({
   userId,
   email,
   name,
@@ -581,7 +581,7 @@ export async function sendWelcomeMessageFromMotivoBestEffort({
 }) {
   try {
     const supabase = createSupabaseAdminClient();
-    const supportEmail = getMotivoSupportAccountEmail();
+    const supportEmail = getEscentoSupportAccountEmail();
     if (email?.toLowerCase() === supportEmail) return;
 
     const now = new Date().toISOString();
@@ -621,7 +621,7 @@ export async function sendWelcomeMessageFromMotivoBestEffort({
     if (claimError) throw claimError;
     if (!claimedUser) return;
 
-    await sendSupportMessageAsMotivo({
+    await sendSupportMessageAsEscento({
       adminEmail: "system:welcome",
       targetUserId: userId,
       body: WELCOME_MESSAGE_BODY,

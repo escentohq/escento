@@ -16,7 +16,7 @@ import {
 import type { ConnectionRequest } from "@/lib/api/types";
 
 function displayName(name?: string | null, email?: string | null) {
-  return name || email || "Motivo user";
+  return name || email || "Escento user";
 }
 
 function initials(name: string) {

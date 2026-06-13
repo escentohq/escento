@@ -9,7 +9,7 @@ import { listBlockedUsersForUser } from "@/lib/api/messaging";
 import type { BlockedUser } from "@/lib/api/types";
 
 function displayName(name?: string | null, email?: string | null) {
-  return name || email || "Motivo user";
+  return name || email || "Escento user";
 }
 
 export default async function BlockedUsersPage() {

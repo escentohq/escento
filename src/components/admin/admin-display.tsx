@@ -43,7 +43,7 @@ export function AdminUnavailable({
         <p className="mt-3 text-sm font-medium leading-relaxed text-[#475569]">
           {reason === "signed_out"
             ? "Sign in with an approved admin email to view this page."
-            : "Your account is not on the Motivo admin allowlist."}
+            : "Your account is not on the Escento admin allowlist."}
         </p>
       </div>
     </div>

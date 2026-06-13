@@ -1,4 +1,4 @@
-# UX_RULES.md — Motivo
+# UX_RULES.md — Escento
 
 > Interaction, state, and accessibility rules. Read [`DESIGN.md`](./DESIGN.md) first for the visual tokens these rules reference.
 

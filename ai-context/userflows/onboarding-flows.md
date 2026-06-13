@@ -18,7 +18,7 @@ Current state of two onboarding paths triggered after user signup. Documents com
 - `PageShell` (wrapper)
   - eyebrow: "Soundcheck"
   - title: "Choose your role"
-  - body: "Pick the side you are using today. Motivo keeps the tools focused around that choice."
+  - body: "Pick the side you are using today. Escento keeps the tools focused around that choice."
 
 **UI Elements**:
 - Two card buttons in 2-column grid (responsive: full width on mobile, side-by-side on md+)

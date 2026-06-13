@@ -3,7 +3,7 @@ import { type Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "Motivo Privacy Policy - Learn how we collect, use, and protect your personal information.",
+    "Escento Privacy Policy - Learn how we collect, use, and protect your personal information.",
 };
 
 export default function PrivacyPage() {
@@ -27,15 +27,15 @@ export default function PrivacyPage() {
         <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">Overview</h2>
           <p className="mb-4 text-[#475569]">
-            This Privacy Notice for Motivo (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) describes how
+            This Privacy Notice for Escento (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) describes how
             and why we might access, collect, store, use, and/or share
             (&ldquo;process&rdquo;) your personal information when you use our services,
             including when you:
           </p>
           <ul className="ml-5 list-disc space-y-2 text-[#475569]">
-            <li>Visit our website at https://motivoapp.vercel.app/</li>
+            <li>Visit our website at https://escento.com/</li>
             <li>
-              Use Motivo - a local marketplace platform that connects musicians
+              Use Escento - a local marketplace platform that connects musicians
               with clients, event organizers, and creators seeking live music
               talent for weddings, events, podcasts, films, and other projects
             </li>
@@ -52,7 +52,7 @@ export default function PrivacyPage() {
             Agreement to Privacy Policy
           </h2>
           <p className="text-[#475569]">
-            By creating an account on Motivo, using our Services, or accessing
+            By creating an account on Escento, using our Services, or accessing
             our website, you acknowledge that you have read this Privacy Policy
             and agree to be bound by its terms. If you do not agree with our
             policies and practices, please do not use our Services.
@@ -65,14 +65,14 @@ export default function PrivacyPage() {
             Product Description
           </h2>
           <p className="text-[#475569]">
-            Motivo is a local marketplace platform that connects musicians with
+            Escento is a local marketplace platform that connects musicians with
             clients, event organizers, and creators seeking live music talent
             for weddings, events, podcasts, films, and other projects. The
             platform allows musicians to create public profiles with their bio,
             instruments, genres, and portfolio links. Clients can browse
             musician profiles, post gigs, and initiate bookings. Users create
             accounts and can manage their profiles, apply to opportunities, or
-            post gigs. Motivo facilitates discovery and booking coordination
+            post gigs. Escento facilitates discovery and booking coordination
             between musicians and creators.
           </p>
         </section>
@@ -381,7 +381,7 @@ export default function PrivacyPage() {
             us at:
           </p>
           <p className="mt-4 text-[#475569]">
-            <strong>Motivo</strong>
+            <strong>Escento</strong>
             <br />
             [Your Address]
             <br />

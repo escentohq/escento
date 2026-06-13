@@ -18,7 +18,7 @@ type ReportEmailResult =
   | { ok: true }
   | { ok: false; reason: "missing_destination" | "delivery_not_configured" | "delivery_failed" };
 
-const DEFAULT_FROM = "Motivo Reports <onboarding@resend.dev>";
+const DEFAULT_FROM = "Escento Reports <onboarding@resend.dev>";
 
 function escapeHtml(value: string) {
   return value
@@ -31,7 +31,7 @@ function escapeHtml(value: string) {
 
 function formatReportText(payload: ReportEmailPayload) {
   return [
-    "A new Motivo report was submitted.",
+    "A new Escento report was submitted.",
     "",
     `Report ID: ${payload.reportId}`,
     `Target: ${payload.targetType} ${payload.targetId}`,
@@ -53,7 +53,7 @@ function formatReportText(payload: ReportEmailPayload) {
 
 function formatReportHtml(payload: ReportEmailPayload) {
   return [
-    "<p>A new Motivo report was submitted.</p>",
+    "<p>A new Escento report was submitted.</p>",
     `<p><strong>Report ID:</strong> ${escapeHtml(payload.reportId)}</p>`,
     `<p><strong>Target:</strong> ${escapeHtml(payload.targetType)} ${escapeHtml(payload.targetId)}</p>`,
     `<p><strong>Target label:</strong> ${escapeHtml(payload.targetLabel)}</p>`,
@@ -93,7 +93,7 @@ export async function sendReportEmail(payload: ReportEmailPayload): Promise<Repo
         from: process.env.SUPPORT_FROM_EMAIL || DEFAULT_FROM,
         to: destination,
         reply_to: payload.reporterEmail || destination,
-        subject: `[Motivo Report] ${payload.subject}`,
+        subject: `[Escento Report] ${payload.subject}`,
         text: formatReportText(payload),
         html: formatReportHtml(payload),
       }),

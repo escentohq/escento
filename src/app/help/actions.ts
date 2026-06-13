@@ -13,7 +13,7 @@ import {
 import { sendSupportEmail } from "@/lib/support-email";
 
 const SUPPORT_SUCCESS_MESSAGE =
-  "Thanks! Your message has been sent to the Motivo team. We'll get back to you as soon as possible.";
+  "Thanks! Your message has been sent to the Escento team. We'll get back to you as soon as possible.";
 
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const RATE_LIMIT_MAX_SUBMISSIONS = 3;

@@ -1,4 +1,4 @@
-# AGENTS.md — Motivo
+# AGENTS.md — Escento
 
 > Canonical instructions for AI coding agents (Codex, Claude Code, Cursor, Copilot, Gemini).
 > If you are an agent: **read this file first, every session.** Then load the sub-agent that matches your task.
@@ -32,7 +32,7 @@ Load the sub-agent **in addition to** this file — sub-agents scope your task, 
 Or use the CLI search script directly:
 
 ```bash
-python3 ~/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/.claude/skills/ui-ux-pro-max/scripts/search.py "<query>" --design-system -p "Motivo"
+python3 ~/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/.claude/skills/ui-ux-pro-max/scripts/search.py "<query>" --design-system -p "Escento"
 ```
 
 ### When to use it
@@ -47,7 +47,7 @@ python3 ~/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/.claude/
 
 ### Conflict resolution
 
-**Motivo's `DESIGN.md` tokens always win** over skill output. The skill supplements with UX patterns and a11y rules — it does not override brand colors, typography, or spacing defined in `DESIGN.md`.
+**Escento's `DESIGN.md` tokens always win** over skill output. The skill supplements with UX patterns and a11y rules — it does not override brand colors, typography, or spacing defined in `DESIGN.md`.
 
 ---
 

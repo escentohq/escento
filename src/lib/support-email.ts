@@ -13,9 +13,9 @@ type SupportEmailResult =
 
 // Resend's shared sender works without domain verification, but only delivers
 // to the address that owns the Resend account. Set SUPPORT_FROM_EMAIL to a
-// verified-domain sender (e.g. "Motivo Support <support@yourdomain.com>") to
+// verified-domain sender (e.g. "Escento Support <support@yourdomain.com>") to
 // deliver to any destination.
-const DEFAULT_FROM = "Motivo Support <onboarding@resend.dev>";
+const DEFAULT_FROM = "Escento Support <onboarding@resend.dev>";
 
 function formatSupportEmail(payload: SupportEmailPayload) {
   return [
@@ -81,7 +81,7 @@ export async function sendSupportEmail(payload: SupportEmailPayload): Promise<Su
         from: process.env.SUPPORT_FROM_EMAIL || DEFAULT_FROM,
         to: destination,
         reply_to: payload.email,
-        subject: `[Motivo Support] ${payload.subject}`,
+        subject: `[Escento Support] ${payload.subject}`,
         text: formatSupportEmail(payload),
         html: formatSupportEmailHtml(payload),
       }),

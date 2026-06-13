@@ -78,8 +78,8 @@ export default async function AdminSupportPage({
   return (
     <PageShell
       eyebrow="Admin"
-      title="Motivo support"
-      body="Message users as the official Motivo support account. Normal user messaging rules remain unchanged."
+      title="Escento support"
+      body="Message users as the official Escento support account. Normal user messaging rules remain unchanged."
     >
       <AdminNav supportBadgeCount={supportInbox.needsResponseCount} />
 
@@ -216,7 +216,7 @@ export default async function AdminSupportPage({
               <EmptyState
                 eyebrow="Support"
                 title="Choose a user"
-                body="Search for a user to view or start their official Motivo support conversation."
+                body="Search for a user to view or start their official Escento support conversation."
               />
             </div>
           ) : (
@@ -225,7 +225,7 @@ export default async function AdminSupportPage({
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
-                      Motivo Support
+                      Escento Support
                     </span>
                     <h2 className="mt-2 truncate text-2xl font-black text-[#0F172A]">
                       {displayUserName(conversation.targetUser)}
@@ -237,7 +237,7 @@ export default async function AdminSupportPage({
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Chip tone="blue">Official</Chip>
-                    <Chip tone="neutral">Send as Motivo</Chip>
+                    <Chip tone="neutral">Send as Escento</Chip>
                     {selectedInboxItem?.needsResponse ? (
                       <form action={adminMarkSupportConversationReadAction}>
                         <input
@@ -264,7 +264,7 @@ export default async function AdminSupportPage({
                       No messages yet.
                     </p>
                     <p className="mt-2 text-sm font-medium text-[#64748B]">
-                      Send the first official Motivo support message.
+                      Send the first official Escento support message.
                     </p>
                   </div>
                 ) : (
@@ -288,7 +288,7 @@ export default async function AdminSupportPage({
                               className={`text-xs font-black ${fromSupport ? "text-white" : "text-[#0F172A]"}`}
                             >
                               {fromSupport
-                                ? "Motivo"
+                                ? "Escento"
                                 : displayUserName(conversation.targetUser)}
                             </span>
                             {fromSupport ? (

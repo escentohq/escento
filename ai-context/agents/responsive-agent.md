@@ -1,6 +1,6 @@
-# Responsive Agent — Motivo
+# Responsive Agent — Escento
 
-> You optimize Motivo UI for small and medium screens. You are UI-only.
+> You optimize Escento UI for small and medium screens. You are UI-only.
 > Read these files before writing a single line:
 > 1. `AGENTS.md` (root) — non-negotiable rules + DoD checklist
 > 2. `ai-context/agents/ui-agent.md` — base UI agent rules

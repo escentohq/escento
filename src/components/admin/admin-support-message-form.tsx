@@ -29,7 +29,7 @@ export function AdminSupportMessageForm({ targetUserId }: { targetUserId: string
         await adminSendSupportMessageAction(formData);
         setBody("");
       } catch {
-        setError("Message could not be sent as Motivo. Confirm the support migration is applied.");
+        setError("Message could not be sent as Escento. Confirm the support migration is applied.");
       }
     });
   }
@@ -42,7 +42,7 @@ export function AdminSupportMessageForm({ targetUserId }: { targetUserId: string
         </p>
       ) : null}
       <label htmlFor="support-message-body" className="text-sm font-bold text-[#0F172A]">
-        Send as Motivo
+        Send as Escento
       </label>
       <div className="mt-2 flex flex-col gap-3 sm:flex-row">
         <Textarea

@@ -84,7 +84,7 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
               Report this {targetType === "gig" ? "gig" : "profile"}
             </h2>
             <p className="mt-3 text-sm font-medium leading-relaxed text-[#475569]">
-              Tell the Motivo team what happened. Your report is not shown publicly or sent to the reported user.
+              Tell the Escento team what happened. Your report is not shown publicly or sent to the reported user.
             </p>
             <p className="mt-3 rounded-2xl bg-[#F8FAFC] p-3 text-xs font-bold text-[#64748B]">
               Reporting: {targetLabel}
@@ -118,7 +118,7 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
                   rows={6}
                   maxLength={4000}
                   required
-                  placeholder="Share the details the Motivo team should review."
+                  placeholder="Share the details the Escento team should review."
                   className="mt-2"
                 />
               </div>

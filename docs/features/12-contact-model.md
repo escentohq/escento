@@ -1,7 +1,7 @@
 # Direct Email Contact Model
 
 ## Feature Summary
-GigForge's contact model is deliberately simple: detail pages expose `mailto:` links. There is no in-app messaging, no inbox, no notifications, and no application workflow.
+Escento's contact model is deliberately simple: detail pages expose `mailto:` links. There is no in-app messaging, no inbox, no notifications, and no application workflow.
 
 ## Product Intent
 - Minimize MVP complexity.
@@ -24,7 +24,7 @@ GigForge's contact model is deliberately simple: detail pages expose `mailto:` l
 ```tsx
 // Gig detail contact
 {gig.creator?.email ? (
-  <a href={`mailto:${gig.creator.email}?subject=${encodeURIComponent(`GigForge: ${gig.title}`)}`}>
+  <a href={`mailto:${gig.creator.email}?subject=${encodeURIComponent(`Escento: ${gig.title}`)}`}>
     Contact Creator
   </a>
 ) : null}

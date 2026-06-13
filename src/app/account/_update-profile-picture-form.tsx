@@ -17,7 +17,7 @@ type Props = {
 };
 
 function initials(name: string | null | undefined) {
-  return (name || "Motivo")
+  return (name || "Escento")
     .trim()
     .split(/\s+/)
     .slice(0, 2)

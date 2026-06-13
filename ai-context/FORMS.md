@@ -1,6 +1,6 @@
-# FORMS.md — Motivo form UX system
+# FORMS.md — Escento form UX system
 
-> Canonical reference for every form in Motivo. Agents: read this when building or migrating forms.
+> Canonical reference for every form in Escento. Agents: read this when building or migrating forms.
 > Complements [`UX_RULES.md`](./UX_RULES.md) §Forms, [`COMPONENTS.md`](./COMPONENTS.md) recipes, and [`FRONTEND_ARCH.md`](./FRONTEND_ARCH.md) §Form system.
 
 ---

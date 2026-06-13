@@ -1,4 +1,4 @@
-# AGENTS.md — Motivo
+# AGENTS.md — Escento
 
 > Canonical instructions for AI coding agents (Codex, Claude Code, Cursor, Copilot, Gemini).
 > If you are an agent: **read this file first, every session.** Then load the sub-agent that matches your task.

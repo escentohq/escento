@@ -1,6 +1,6 @@
-# GigForge — Comprehensive Rebuild Reference
+# Escento — Comprehensive Rebuild Reference
 
-> **Purpose of this document.** This is a single self-contained reference for rebuilding **GigForge** from zero. It documents the product, every screen, every form field, every database column, every server action, every styling token, every known issue, and the engineering decisions worth keeping or replacing. Read this end-to-end before changing the stack or scaffolding the project. An AI agent or new engineer should be able to recreate a functionally equivalent app — or a better one — using only this file plus the visual style guide.
+> **Purpose of this document.** This is a single self-contained reference for rebuilding **Escento** from zero. It documents the product, every screen, every form field, every database column, every server action, every styling token, every known issue, and the engineering decisions worth keeping or replacing. Read this end-to-end before changing the stack or scaffolding the project. An AI agent or new engineer should be able to recreate a functionally equivalent app — or a better one — using only this file plus the visual style guide.
 >
 > Where the current implementation has problems (security, data integrity, scalability, UX), they are flagged explicitly as **Issue** so a rebuild does not re-inherit them.
 
@@ -38,7 +38,7 @@
 
 ## 1. Product Summary
 
-GigForge is a directory + listings platform that connects **student musicians** with **student creators** (film students, podcasters, YouTubers, indie game devs, event organizers). It is intentionally not a social network: no feeds, no in-app messaging, no payments, no algorithmic recommendations. The MVP optimizes for the shortest possible path from "I need someone" to "I found them and emailed them."
+Escento is a directory + listings platform that connects **student musicians** with **student creators** (film students, podcasters, YouTubers, indie game devs, event organizers). It is intentionally not a social network: no feeds, no in-app messaging, no payments, no algorithmic recommendations. The MVP optimizes for the shortest possible path from "I need someone" to "I found them and emailed them."
 
 Two sides:
 
@@ -148,7 +148,7 @@ Notable patterns:
 - **No tests.** No Vitest/Jest/Playwright wiring.
 - **No CI.** Repo has no `.github/workflows`.
 - **`check-db.js`** is a stray utility file at repo root (verify what it does before keeping).
-- **`docker-compose.yml`** spins up local Postgres (`postgres:16`, db `gigforge`, user/pass `postgres/postgres`, port `5432`).
+- **`docker-compose.yml`** spins up local Postgres (`postgres:16`, db `escento`, user/pass `postgres/postgres`, port `5432`).
 
 ---
 
@@ -183,7 +183,7 @@ If the goal is a **major UX uplift**, consider:
 ## 7. Repository Layout
 
 ```
-gig-forge/
+escento/
 ├── check-db.js                  # Stray utility — audit before keeping
 ├── docker-compose.yml           # Local Postgres 16
 ├── eslint.config.mjs
@@ -251,7 +251,7 @@ gig-forge/
 ### Required env vars
 
 ```
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/gigforge
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/escento
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=<random>
 GITHUB_ID=<oauth client id>
@@ -555,7 +555,7 @@ Footer: Cancel link (to `/`) + Save button. Client state: `useState(saving)` tog
 - Validates id length. `notFound()` if missing.
 - Loads gig + creator (name, email) + instruments + genres.
 - Left column SectionCard: title, status badge (uses `badge-status-open` / `badge-status-closed`), project type, location/remote, comp type, description (whitespace-pre-wrap), instruments + genres chip groups, compensation details, deadline (`toLocaleDateString`).
-- Right aside SectionCard: creator name + email + `mailto:` button with subject `GigForge: <title>` URL-encoded.
+- Right aside SectionCard: creator name + email + `mailto:` button with subject `Escento: <title>` URL-encoded.
 
 ### 12.9 `/gigs/create` — Form
 

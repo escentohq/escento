@@ -1,10 +1,10 @@
 # Landing Page
 
 ## Feature Summary
-The landing page is the public marketing and routing surface for GigForge. It explains the two-sided marketplace, exposes the main discovery CTA, adapts its secondary CTA to the signed-in user's role, and uses motion-heavy visual sections to establish the brand.
+The landing page is the public marketing and routing surface for Escento. It explains the two-sided marketplace, exposes the main discovery CTA, adapts its secondary CTA to the signed-in user's role, and uses motion-heavy visual sections to establish the brand.
 
 ## Product Intent
-- Position GigForge as a campus collaboration platform.
+- Position Escento as a campus collaboration platform.
 - Let anonymous visitors browse immediately.
 - Send creators toward gig posting and musicians toward profile creation/editing.
 - Avoid social-network language; the goal is direct discovery and email contact.

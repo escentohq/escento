@@ -41,7 +41,7 @@ export async function submitContentReport(
     revalidatePath("/admin/reports");
     return {
       ok: true,
-      message: "Thanks. Your report has been sent to the Motivo team.",
+      message: "Thanks. Your report has been sent to the Escento team.",
     };
   } catch (error) {
     console.error("[reports] submit failed", error);

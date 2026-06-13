@@ -55,7 +55,7 @@ export function NavBar({ signedIn, email, role, musicianProfilePath, isCreator }
   return (
     <header className="sticky top-0 z-50 border-b border-[#F1F5F9] bg-white/80 backdrop-blur">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-base font-black tracking-tight text-[#0F172A]">GigForge</Link>
+        <Link href="/" className="text-base font-black tracking-tight text-[#0F172A]">Escento</Link>
         <div className="hidden items-center gap-6 text-sm font-bold text-[#475569] md:flex">
           <Link href="/musicians">Browse Musicians</Link>
           <Link href="/gigs">Browse Gigs</Link>

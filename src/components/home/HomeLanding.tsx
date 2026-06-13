@@ -43,7 +43,7 @@ const SCHOOLS = [
 
 const ACCOLADES = [
   { accent: "#0055FF", text: "Quick sign-in to browse" },
-  { accent: "#FF3366", text: "Connect through Motivo messages" },
+  { accent: "#FF3366", text: "Connect through Escento messages" },
   { accent: "#FFB000", text: "Free for student musicians" },
   { accent: "#0055FF", text: "Post a gig in under 2 minutes" },
   { accent: "#FF3366", text: "No algorithms. No feed." },
@@ -76,7 +76,7 @@ const VALUE_PROPS = [
   },
   {
     icon: MessageCircle,
-    title: "Message in Motivo.",
+    title: "Message in Escento.",
     body: "Send a connection request, accept the fit, then keep the conversation in one place.",
     accent: "#FFB000",
     bg: "bg-[#FFB000]/15",
@@ -105,7 +105,7 @@ const HOW_IT_WORKS = [
     num: "02",
     eyebrow: "Connect",
     title: "Send a request.",
-    desc: "Use Motivo to ask about a profile or gig. Once the request is accepted, the message thread opens.",
+    desc: "Use Escento to ask about a profile or gig. Once the request is accepted, the message thread opens.",
     accent: "#FF3366",
     accentBg: "bg-[#FF3366]/10",
     accentText: "text-[#FF3366]",
@@ -134,7 +134,7 @@ const TESTIMONIALS = [
     accentBg: "bg-[#0055FF]",
   },
   {
-    quote: "First paid gig came through Motivo. A podcaster needed live guitar. Three sessions, $300, and a credit.",
+    quote: "First paid gig came through Escento. A podcaster needed live guitar. Three sessions, $300, and a credit.",
     name: "Jordan Lee",
     role: "Guitar · Berklee",
     initials: "JL",

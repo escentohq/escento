@@ -1,4 +1,4 @@
-GigForge MVP
+Escento MVP
 
 ## Product Requirements Document (PRD)
 
@@ -6,7 +6,7 @@ GigForge MVP
 
 # 1. Product Overview
 
-GigForge is a platform that connects **student musicians** with **student creators** who need collaborators for creative projects.
+Escento is a platform that connects **student musicians** with **student creators** who need collaborators for creative projects.
 
 Examples of projects include:
 

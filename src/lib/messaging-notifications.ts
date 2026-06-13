@@ -21,7 +21,7 @@ function displayName(user?: MessagingUserSummary) {
 
 function messagePreview(body: string) {
   const compact = body.replace(/\s+/g, " ").trim();
-  if (!compact) return "Open Motivo to read it.";
+  if (!compact) return "Open Escento to read it.";
   return compact.length > 90 ? `${compact.slice(0, 89).trimEnd()}...` : compact;
 }
 
@@ -52,8 +52,8 @@ async function sendEmailNotification(payload: NotificationPayload) {
 export async function queueConnectionRequestNotification(request: ConnectionRequest) {
   await sendEmailNotification({
     to: request.recipient,
-    subject: "You have a new connection request on Motivo.",
-    text: `${displayName(request.requester)} sent you a connection request on Motivo.`,
+    subject: "You have a new connection request on Escento.",
+    text: `${displayName(request.requester)} sent you a connection request on Escento.`,
   });
 }
 
@@ -61,7 +61,7 @@ export async function queueAcceptedConnectionRequestNotification(request: Connec
   await sendEmailNotification({
     to: request.requester,
     subject: `${displayName(request.recipient)} accepted your connection request.`,
-    text: "Open Motivo to start the conversation.",
+    text: "Open Escento to start the conversation.",
   });
 }
 
@@ -78,7 +78,7 @@ export async function queueMessageNotification({
 
   await sendEmailNotification({
     to: recipient,
-    subject: `${displayName(sender)} sent you a message on Motivo.`,
+    subject: `${displayName(sender)} sent you a message on Escento.`,
     text: messagePreview(message.body),
     throttleKey: `message:${message.conversationId}:${recipient.id}`,
     throttleMs: MESSAGE_EMAIL_THROTTLE_MS,

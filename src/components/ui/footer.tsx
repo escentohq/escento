@@ -83,7 +83,7 @@ export function Footer() {
           {/* Left: Logo + Copyright */}
           <div className="flex items-center gap-3">
             <span className="text-lg font-black tracking-tight text-[#0F172A]">
-              Motivo
+              Escento
             </span>
             <span className="text-xs font-medium text-[#94A3B8]">
               &copy; {new Date().getFullYear()}
@@ -142,7 +142,7 @@ export function Footer() {
               <TwitterIcon />
             </a>
             <a
-              href="https://www.linkedin.com/company/joinmotivo"
+              href="https://www.linkedin.com/company/escento"
               target="_blank"
               rel="noopener noreferrer"
               className="text-[#94A3B8] transition-colors hover:text-[#0055FF]"

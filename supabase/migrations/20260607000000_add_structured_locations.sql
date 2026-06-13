@@ -1,4 +1,4 @@
--- Structured location fields for Motivo profiles and gigs.
+-- Structured location fields for Escento profiles and gigs.
 -- Keeps the legacy `location` text column for display fallback/backward compatibility.
 
 alter table musician_profile

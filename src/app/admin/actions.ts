@@ -16,7 +16,7 @@ import {
 } from "@/lib/api/admin-taxonomy";
 import {
   markSupportConversationReadForAdmin,
-  sendSupportMessageAsMotivo,
+  sendSupportMessageAsEscento,
 } from "@/lib/api/support-account";
 import {
   updateReportStatus,
@@ -161,7 +161,7 @@ export async function adminSendSupportMessageAction(formData: FormData) {
     throw new Error("Choose a user.");
   }
 
-  await sendSupportMessageAsMotivo({
+  await sendSupportMessageAsEscento({
     adminEmail,
     targetUserId,
     body,

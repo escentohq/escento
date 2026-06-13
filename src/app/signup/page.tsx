@@ -58,7 +58,7 @@ export default async function SignUpPage({
             <div className="space-y-3">
               <GoogleButton callbackUrl={base} label="Sign up with Google" />
               <p className="px-2 text-center text-xs font-medium leading-relaxed text-[#64748B]">
-                By signing up with Google, you agree to Motivo&apos;s{" "}
+                By signing up with Google, you agree to Escento&apos;s{" "}
                 <Link href="/terms" className="font-bold text-[#0055FF] underline-offset-4 hover:underline">
                   Terms
                 </Link>

@@ -40,7 +40,7 @@ if (!gig) notFound();
 ```tsx
 {gig.creator?.email ? (
   <a
-    href={`mailto:${gig.creator.email}?subject=${encodeURIComponent(`GigForge: ${gig.title}`)}`}
+    href={`mailto:${gig.creator.email}?subject=${encodeURIComponent(`Escento: ${gig.title}`)}`}
     className="inline-flex w-full items-center justify-center rounded-xl bg-violet-500 px-4 py-2 text-sm font-semibold text-zinc-950 shadow-sm hover:bg-violet-400"
   >
     Contact Creator
@@ -51,7 +51,7 @@ if (!gig) notFound();
 ## How It Works
 The route validates the ID by length, fetches the gig with its creator and tags, and returns 404 if missing. Unlike the directory, it does not filter out `CLOSED` gigs. This allows old manage links or shared URLs to keep working.
 
-The contact button is a `mailto:` link to the creator's account email. The subject is URL-encoded as `GigForge: <gig title>`.
+The contact button is a `mailto:` link to the creator's account email. The subject is URL-encoded as `Escento: <gig title>`.
 
 ## Implementation Details for an LLM
 Do not add messaging or applications to this page without explicit scope change. If adding richer contact behavior, preserve a direct-email fallback. Keep creator email selected explicitly instead of including the full user object.

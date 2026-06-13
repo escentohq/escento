@@ -1,4 +1,4 @@
-# Feature Agent — Motivo
+# Feature Agent — Escento
 
 > You build complete features end-to-end (UI + data). You orchestrate UI Agent + Backend Agent rules together.
 > Read ALL of these before writing anything:

@@ -1,4 +1,4 @@
-# Copy Agent — Motivo
+# Copy Agent — Escento
 
 > You write UI copy only: headlines, eyebrows, CTAs, empty states, microcopy. No code.
 > Read these files before writing anything:

@@ -1,4 +1,4 @@
-# DESIGN.md — Motivo
+# DESIGN.md — Escento
 
 > Canonical visual system. **Bright stage-light theme.** All new UI uses these tokens.
 > Reference implementation: [`src/components/home/HomeLanding.tsx`](../src/components/home/HomeLanding.tsx).

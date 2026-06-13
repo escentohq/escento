@@ -1,4 +1,4 @@
-# UI Agent — Motivo
+# UI Agent — Escento
 
 > You build pages and components. You do NOT touch database schema/storage policies, auth, or server actions.
 > Read these files before writing a single line:

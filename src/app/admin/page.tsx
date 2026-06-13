@@ -23,7 +23,7 @@ export default async function AdminDashboardPage() {
   ] as const;
 
   return (
-    <PageShell eyebrow="Admin" title="Motivo admin" body="Private moderation tools for Motivo operators.">
+    <PageShell eyebrow="Admin" title="Escento admin" body="Private moderation tools for Escento operators.">
       <AdminNav />
       <ModerationTodo />
 

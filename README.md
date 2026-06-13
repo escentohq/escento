@@ -1,4 +1,4 @@
-# Motivo
+# Escento
 
 Platform connecting student musicians with student creators for film, podcasts, live events, games, YouTube videos, and creative projects.
 
@@ -228,7 +228,7 @@ Profile pictures are stored in the public Supabase Storage bucket `profile-pictu
 1. **Clone & install:**
    ```bash
    git clone <repo>
-   cd gig-forge
+   cd escento
    npm install
    ```
 
@@ -250,7 +250,7 @@ Profile pictures are stored in the public Supabase Storage bucket `profile-pictu
 ### Database Setup
 
 1. Create PostgreSQL DB in Supabase
-2. Ensure the Motivo schema exists in Supabase (`app_user`, `musician_profile`, `gig`, tag tables, junction tables)
+2. Ensure the Escento schema exists in Supabase (`app_user`, `musician_profile`, `gig`, tag tables, junction tables)
 3. Apply SQL migrations in `supabase/migrations/` when present
 4. The app creates the `profile-pictures` Storage bucket on first profile-picture update when `SUPABASE_SERVICE_ROLE_KEY` is configured
 5. Apply `supabase/migrations/20260607000000_add_structured_locations.sql` and `supabase/migrations/20260607001000_add_location_provider_fields.sql` before using location radius search

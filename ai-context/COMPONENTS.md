@@ -1,4 +1,4 @@
-# COMPONENTS.md — Motivo
+# COMPONENTS.md — Escento
 
 > Copy-pasteable component recipes using the bright stage-light theme.
 > Tokens come from [`DESIGN.md`](./DESIGN.md); behavioral rules from [`UX_RULES.md`](./UX_RULES.md).
@@ -666,7 +666,7 @@ export function NavBar({ signedIn, email, role, musicianProfilePath, isCreator }
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-8">
           <Link href="/" className="text-base font-black tracking-tight text-[#0F172A]">
-            Motivo
+            Escento
           </Link>
           <div className="hidden items-center gap-6 text-sm font-bold text-[#475569] md:flex">
             <Link href="/musicians" className="transition-colors hover:text-[#0055FF]">Browse Musicians</Link>

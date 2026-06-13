@@ -1,9 +1,9 @@
 # Landing Page Design Doc
 
 ## Purpose
-This document describes the current production landing page for GigForge as implemented on `/`.
+This document describes the current production landing page for Escento as implemented on `/`.
 
-The goal of the landing page is to present GigForge as a high-energy social platform for student musicians and creators, while keeping the primary actions obvious:
+The goal of the landing page is to present Escento as a high-energy social platform for student musicians and creators, while keeping the primary actions obvious:
 
 - browse musicians
 - post or browse gigs
@@ -25,7 +25,7 @@ The current landing is implemented in:
 ## Product Intent
 The landing should communicate five things quickly:
 
-1. GigForge is for student musicians and student creators.
+1. Escento is for student musicians and student creators.
 2. It feels social and alive, not like a dry directory.
 3. Collaboration is the core action.
 4. Users can move into the product quickly without learning a system first.
@@ -96,7 +96,7 @@ Headline:
 
 Supporting message:
 
-- positions GigForge as a social network for student musicians and creators
+- positions Escento as a social network for student musicians and creators
 - frames discovery, booking, and campus activity as the main outcomes
 
 CTAs:
@@ -258,4 +258,4 @@ If the landing evolves further, the best extensions are:
 - align global app chrome more closely with the landing’s visual tone
 
 ## Summary
-The current landing page is a performance-driven, social-first front door for GigForge. It is designed to feel alive and memorable, while still directing visitors quickly into the two core product paths: finding musicians and posting opportunities.
+The current landing page is a performance-driven, social-first front door for Escento. It is designed to feel alive and memorable, while still directing visitors quickly into the two core product paths: finding musicians and posting opportunities.

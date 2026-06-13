@@ -1,4 +1,4 @@
-# BRAND.md — Motivo
+# BRAND.md — Escento
 
 ## Voice
 
@@ -26,7 +26,7 @@ Short. High-confidence. Active voice. Names the next action.
 | Do | Don't |
 |---|---|
 | "Find your next collaborator." | "Discover top-tier student talent on our platform." |
-| "Take the Stage." | "Welcome to Motivo — your one-stop solution for music collaboration." |
+| "Take the Stage." | "Welcome to Escento — your one-stop solution for music collaboration." |
 | "Now playing" | "Featured users" |
 | "Browse Musicians" | "Click here to view available musicians" |
 | "Post a Gig" | "Create a new gig opportunity" |
@@ -126,5 +126,5 @@ Forbidden for field errors: "ERROR", "Invalid input", "Wrong", "Failed validatio
 
 ## Meta / SEO copy (when adding `<Metadata>`)
 
-- Title pattern: `<Page> · Motivo`.
+- Title pattern: `<Page> · Escento`.
 - Description: ≤ 155 chars, ends with a period, uses the voice above. Example: *"Find student musicians for your next film, podcast, or live show. Post a gig in two minutes."*

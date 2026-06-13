@@ -1,7 +1,7 @@
 # Motion and Smooth Scroll Infrastructure
 
 ## Feature Summary
-GigForge includes several client-only motion systems: Framer Motion and GSAP on the landing page, a reusable Lenis smooth-scroll wrapper, and an optional Three.js stage-light scene. These are support features that shape the product feel rather than user data flows.
+Escento includes several client-only motion systems: Framer Motion and GSAP on the landing page, a reusable Lenis smooth-scroll wrapper, and an optional Three.js stage-light scene. These are support features that shape the product feel rather than user data flows.
 
 ## Product Intent
 - Make the landing page feel performance-inspired and alive.

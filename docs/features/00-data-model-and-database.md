@@ -1,7 +1,7 @@
 # Data Model and Database Access
 
 ## Feature Summary
-GigForge is built around a small marketplace-style schema: users choose one role, musicians publish one public profile, creators publish many gigs, and both profiles and gigs share free-form instrument and genre tags. This feature is the foundation for every route that reads or mutates data.
+Escento is built around a small marketplace-style schema: users choose one role, musicians publish one public profile, creators publish many gigs, and both profiles and gigs share free-form instrument and genre tags. This feature is the foundation for every route that reads or mutates data.
 
 ## Product Intent
 - Keep the MVP intentionally simple: direct discovery, structured listings, and email contact.
