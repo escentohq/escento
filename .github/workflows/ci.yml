@@ -1,0 +1,114 @@
+name: CI
+
+# Gates every PR and push with a static quality check and the critical write-flow
+# E2E suite. Both jobs run without any repository secrets — the write-flow job
+# spins up an ephemeral local Supabase stack — so they also protect forked PRs.
+#
+# Manual runs: Actions tab -> CI -> "Run workflow". Untick "run_write_flows" for
+# a fast lint/typecheck/build-only pass.
+on:
+  pull_request:
+  push:
+    branches-ignore: [main]
+  workflow_dispatch:
+    inputs:
+      run_write_flows:
+        description: "Run the database write-flow E2E suite (slower)"
+        type: boolean
+        default: true
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Lint, typecheck, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+        env:
+          # Non-sensitive public Supabase values come from repo Variables when
+          # present; otherwise harmless placeholders keep the prerender build
+          # from crashing on missing envs. No real secrets are needed to build.
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key' }}
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
+          ADMIN_EMAILS: admin@example.test
+          SUPPORT_EMAIL: support@example.test
+          ESCENTO_SUPPORT_ACCOUNT_EMAIL: support@example.test
+          RESEND_API_KEY: re_placeholder
+          SUPPORT_FROM_EMAIL: "Escento Support <support@example.test>"
+          GEOAPIFY_API_KEY: placeholder
+
+  write-flows:
+    name: Write-flow E2E (ephemeral Supabase)
+    runs-on: ubuntu-latest
+    # Skipped only when a manual run unticks the toggle. Always runs on PR/push.
+    if: ${{ github.event_name != 'workflow_dispatch' || inputs.run_write_flows }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase
+        run: supabase start
+
+      - name: Export local Supabase credentials
+        run: |
+          # `supabase status -o env` prints KEY="value" lines (valid shell
+          # assignments), so sourcing them is the robust way to read the values.
+          supabase status -o env > supabase.env
+          source supabase.env
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
+          } >> "$GITHUB_ENV"
+
+      - name: Run write-flow E2E
+        run: npm run test:e2e:write
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-write-report
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Dump Supabase logs on failure
+        if: failure()
+        run: supabase logs db || true
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop || true
