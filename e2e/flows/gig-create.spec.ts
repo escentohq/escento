@@ -20,7 +20,8 @@ test("creator publishes a gig that appears in the directory", async ({ page }) =
   expect(gigId).toBeTruthy();
   await expect(page.getByRole("heading", { name: title })).toBeVisible();
 
-  // Open gigs are listed in the directory.
-  await page.goto("/gigs");
+  // Open gigs are listed in the directory. Filter to this gig by title so the
+  // assertion does not depend on how many other gigs exist.
+  await page.goto(`/gigs?q=${encodeURIComponent(title)}`);
   await expect(page.getByText(title).first()).toBeVisible();
 });

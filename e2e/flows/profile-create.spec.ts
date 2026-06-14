@@ -16,7 +16,8 @@ test("musician creates a profile that appears in the directory", async ({ page }
   expect(profileId).toBeTruthy();
   await expect(page.getByRole("heading", { name: displayName })).toBeVisible();
 
-  // The new profile is discoverable in the directory.
-  await page.goto("/musicians");
+  // The new profile is discoverable in the directory. Filter to this profile by
+  // name so the assertion does not depend on how many others exist.
+  await page.goto(`/musicians?q=${encodeURIComponent(displayName)}`);
   await expect(page.getByText(displayName).first()).toBeVisible();
 });

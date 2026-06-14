@@ -67,6 +67,10 @@ const supabaseEnv = resolveLocalSupabaseEnv();
 const PORT = 3100;
 const baseURL = `http://localhost:${PORT}`;
 const isCI = Boolean(process.env.CI);
+// Local fast-iteration escape hatch: when PLAYWRIGHT_BASE_URL is set, target an
+// already-running server instead of building+starting a fresh one. CI never
+// sets this, so CI always gets a clean managed server.
+const externalTarget = process.env.PLAYWRIGHT_BASE_URL;
 
 export default defineConfig({
   testDir: "./e2e/flows",
@@ -79,27 +83,37 @@ export default defineConfig({
   timeout: 90_000,
   expect: { timeout: 15_000 },
   use: {
-    baseURL,
+    baseURL: externalTarget ?? baseURL,
     trace: "on-first-retry",
+    // The app's Reveal animations slide cards in on scroll; under load that can
+    // leave buttons "not stable" for Playwright. Reduced motion (which the app
+    // honours via useReducedMotion) makes them appear instantly and stably.
+    contextOptions: { reducedMotion: "reduce" },
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
-  webServer: {
-    // A fresh production build + start on a dedicated port (never 3000) so a
-    // running `next dev` against cloud Supabase can never be reused by accident.
-    command: `npm run build && npx next start -p ${PORT}`,
-    url: baseURL,
-    reuseExistingServer: false,
-    timeout: 300_000,
-    env: {
-      ...supabaseEnv,
-      NEXT_PUBLIC_APP_URL: baseURL,
-      // Non-secret placeholders so server boot never crashes on missing envs.
-      ADMIN_EMAILS: "admin@example.test",
-      SUPPORT_EMAIL: "support@example.test",
-      ESCENTO_SUPPORT_ACCOUNT_EMAIL: "support@example.test",
-      RESEND_API_KEY: "re_placeholder",
-      SUPPORT_FROM_EMAIL: "Escento Support <support@example.test>",
-      GEOAPIFY_API_KEY: "placeholder",
-    },
-  },
+  ...(externalTarget
+    ? {}
+    : {
+        webServer: {
+          // A fresh production build + start on a dedicated port (never 3000) so a
+          // running `next dev` against cloud Supabase can never be reused by accident.
+          command: `npm run build && npx next start -p ${PORT}`,
+          url: baseURL,
+          reuseExistingServer: false,
+          // Generous: a cold `next build` plus start can be slow on loaded CI
+          // runners or developer machines.
+          timeout: 600_000,
+          env: {
+            ...supabaseEnv,
+            NEXT_PUBLIC_APP_URL: baseURL,
+            // Non-secret placeholders so server boot never crashes on missing envs.
+            ADMIN_EMAILS: "admin@example.test",
+            SUPPORT_EMAIL: "support@example.test",
+            ESCENTO_SUPPORT_ACCOUNT_EMAIL: "support@example.test",
+            RESEND_API_KEY: "re_placeholder",
+            SUPPORT_FROM_EMAIL: "Escento Support <support@example.test>",
+            GEOAPIFY_API_KEY: "placeholder",
+          },
+        },
+      }),
 });

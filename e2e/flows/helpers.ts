@@ -1,4 +1,4 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, type Browser, type Page } from "@playwright/test";
 
 /**
  * Helpers for the write-flow E2E suite. These drive the real UI against a local
@@ -87,6 +87,44 @@ export async function createGig(
   await page.locator('select[name="projectType"]').selectOption(opts.projectType ?? "FILM");
   await page.locator('select[name="compensationType"]').selectOption(opts.compensationType ?? "PAID");
   await page.getByRole("button", { name: "Publish Gig" }).click();
-  await page.waitForURL(/\/gigs\/[^/]+$/, { timeout: 30_000 });
+  // Exclude the create page itself: the form lives at /gigs/create which also
+  // matches /gigs/<id>, so without the negative lookahead waitForURL resolves
+  // immediately and returns "create" instead of the real gig id.
+  await page.waitForURL(/\/gigs\/(?!create$)[^/]+$/, { timeout: 30_000 });
   return page.url().split("/gigs/")[1];
+}
+
+/** Open a fresh isolated browser context + page (a distinct logged-out user). */
+export async function newContextPage(browser: Browser): Promise<Page> {
+  const context = await browser.newContext();
+  return context.newPage();
+}
+
+/**
+ * A signed-in musician with no profile yet. Enough to browse and send
+ * connection requests (the requester side of messaging flows).
+ */
+export async function newMusician(browser: Browser, prefix: string): Promise<Page> {
+  const page = await newContextPage(browser);
+  await signUpAs(page, "MUSICIAN", prefix);
+  return page;
+}
+
+/** A signed-in musician with a saved public profile. Returns the page + profile id. */
+export async function newMusicianWithProfile(
+  browser: Browser,
+  prefix: string,
+  displayName: string,
+): Promise<{ page: Page; profileId: string }> {
+  const page = await newContextPage(browser);
+  await signUpAs(page, "MUSICIAN", prefix);
+  const profileId = await createMusicianProfile(page, displayName);
+  return { page, profileId };
+}
+
+/** Send a connection request to a musician from their public profile. */
+export async function sendConnectRequest(page: Page, profileId: string): Promise<void> {
+  await page.goto(`/musicians/${profileId}`);
+  await page.getByRole("button", { name: "Connect", exact: true }).click();
+  await expect(page.getByText("Pending")).toBeVisible();
 }

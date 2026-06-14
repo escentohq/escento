@@ -34,7 +34,9 @@ test("connection request, accept, and two-way messaging", async ({ browser }) =>
   // B accepts the incoming request and lands in the new conversation.
   await pageB.goto("/messages/requests");
   await pageB.getByRole("button", { name: "Accept" }).click();
-  await pageB.waitForURL(/\/messages\/[^/]+$/, { timeout: 30_000 });
+  // Exclude /messages/requests (it also matches /messages/<id>) so we wait for
+  // the real conversation route rather than resolving on the current page.
+  await pageB.waitForURL(/\/messages\/(?!requests$|blocked$)[^/]+$/, { timeout: 30_000 });
 
   // B sends the first message.
   const messageFromB = "Hello from B — automated test.";
