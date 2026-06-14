@@ -58,6 +58,23 @@ export async function signUpAs(
   return creds;
 }
 
+/** Sign in with an existing email/password and wait for the callback destination. */
+export async function signIn(
+  page: Page,
+  email: string,
+  password: string,
+  callbackUrl = "/",
+): Promise<void> {
+  await page.goto(`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+  await page.locator('input[name="email"]').fill(email);
+  await page.locator('input[name="password"]').fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.waitForURL(
+    (url) => url.pathname === callbackUrl || (callbackUrl === "/" && url.pathname === "/"),
+    { timeout: 30_000 },
+  );
+}
+
 /**
  * Create a musician profile from /profile/create. Only the display name is
  * required; isRemote defaults on, so no location/tag interaction is needed.
@@ -110,6 +127,13 @@ export async function newMusician(browser: Browser, prefix: string): Promise<Pag
   return page;
 }
 
+/** A signed-in creator account, useful for gig-ownership and permission tests. */
+export async function newCreator(browser: Browser, prefix: string): Promise<Page> {
+  const page = await newContextPage(browser);
+  await signUpAs(page, "CREATOR", prefix);
+  return page;
+}
+
 /** A signed-in musician with a saved public profile. Returns the page + profile id. */
 export async function newMusicianWithProfile(
   browser: Browser,
@@ -127,4 +151,56 @@ export async function sendConnectRequest(page: Page, profileId: string): Promise
   await page.goto(`/musicians/${profileId}`);
   await page.getByRole("button", { name: "Connect", exact: true }).click();
   await expect(page.getByText("Pending")).toBeVisible();
+}
+
+/** Sign out from the account menu and land back on the homepage. */
+export async function signOut(page: Page): Promise<void> {
+  await page.getByRole("button", { name: "Account menu" }).click();
+  await page.getByRole("button", { name: "Sign out" }).click();
+  await page.waitForURL(/\/$/, { timeout: 30_000 });
+}
+
+/**
+ * Create two musician users, send a connection request from A to B, then accept
+ * it as B. Returns both pages and the new conversation id.
+ */
+export async function acceptedConversation(
+  browser: Browser,
+  requesterPrefix: string,
+  recipientPrefix: string,
+): Promise<{ requester: Page; recipient: Page; conversationId: string; recipientProfileId: string }> {
+  const { page: recipient, profileId: recipientProfileId } = await newMusicianWithProfile(
+    browser,
+    recipientPrefix,
+    `Recipient ${Date.now().toString(36)}`,
+  );
+  const requester = await newMusician(browser, requesterPrefix);
+
+  await sendConnectRequest(requester, recipientProfileId);
+  await recipient.goto("/messages/requests");
+  await Promise.all([
+    recipient.waitForResponse((r) => r.request().method() === "POST" && r.status() < 400),
+    recipient.getByRole("button", { name: "Accept" }).click(),
+  ]);
+  await recipient.waitForURL(/\/messages\/(?!requests$|blocked$)[^/]+$/);
+
+  const conversationId = recipient.url().split("/messages/")[1];
+  return { requester, recipient, conversationId, recipientProfileId };
+}
+
+/**
+ * Create a creator and publish a gig, returning the page and new gig id.
+ */
+export async function newCreatorWithGig(
+  browser: Browser,
+  prefix: string,
+  titlePrefix = "Test Gig",
+): Promise<{ page: Page; gigId: string }> {
+  const page = await newCreator(browser, prefix);
+  const slug = Date.now().toString(36);
+  const gigId = await createGig(page, {
+    title: `${titlePrefix} ${slug}`,
+    description: `Gig description ${slug}`,
+  });
+  return { page, gigId };
 }

@@ -1,0 +1,34 @@
+import { test, expect } from "@playwright/test";
+
+import { createMusicianProfile, signUpAs } from "./helpers";
+
+test.describe("profile edit and validation", () => {
+  test("profile create validates years experience and website url", async ({ page }) => {
+    await signUpAs(page, "MUSICIAN", "profile-validate");
+
+    await page.goto("/profile/create");
+    await page.locator('input[name="displayName"]').fill("Validation Artist");
+    await page.locator('input[name="yearsExperience"]').fill("abc");
+    await page.locator('input[name="websiteUrl"]').fill("not-a-url");
+    await page.getByRole("button", { name: "Create Profile" }).click();
+
+    await expect(page.getByText("Use a whole number.")).toBeVisible();
+    await expect(page.getByText("Use a full http:// or https:// URL.")).toBeVisible();
+  });
+
+  test("musician can edit an existing profile", async ({ page }) => {
+    const originalName = `Profile Original ${Date.now().toString(36)}`;
+    const updatedName = `Profile Updated ${Date.now().toString(36)}`;
+
+    await signUpAs(page, "MUSICIAN", "profile-edit");
+    const profileId = await createMusicianProfile(page, originalName);
+
+    await page.goto("/profile/edit");
+    await page.locator('input[name="displayName"]').fill(updatedName);
+    await page.locator('input[name="yearsExperience"]').fill("7");
+    await page.getByRole("button", { name: "Save Profile" }).click();
+
+    await page.waitForURL(`/musicians/${profileId}`);
+    await expect(page.getByRole("heading", { name: updatedName })).toBeVisible();
+  });
+});
