@@ -64,6 +64,7 @@ export async function rejectConnectionRequest(requestId: string) {
   await rejectConnectionRequestForUser(session.user.id, requestId);
 
   revalidatePath("/messages");
+  revalidatePath("/messages/requests");
 }
 
 export async function cancelConnectionRequest(requestId: string) {
@@ -71,6 +72,7 @@ export async function cancelConnectionRequest(requestId: string) {
   await cancelConnectionRequestForUser(session.user.id, requestId);
 
   revalidatePath("/messages");
+  revalidatePath("/messages/requests");
 }
 
 export async function getMyConversations() {
