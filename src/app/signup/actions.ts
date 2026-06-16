@@ -9,6 +9,7 @@ import {
   type FieldErrors,
 } from "@/lib/form-utils";
 import { validatePassword } from "@/lib/password";
+import { sendWelcomeMessageFromEscentoBestEffort } from "@/lib/api/support-account";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type SignUpValidationResult = {
@@ -104,7 +105,12 @@ export async function signUpWithPasswordAction(
       };
     }
 
-    if (data.session) {
+    if (data.session && data.user) {
+      await sendWelcomeMessageFromEscentoBestEffort({
+        userId: data.user.id,
+        email: data.user.email ?? email,
+        name: name || null,
+      });
       redirect(next);
     }
 

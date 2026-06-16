@@ -9,6 +9,7 @@ import {
   isValidEmail,
   type FieldErrors,
 } from "@/lib/form-utils";
+import { sendWelcomeMessageFromEscentoBestEffort } from "@/lib/api/support-account";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type SignInState = {
@@ -40,7 +41,7 @@ export async function signInWithPasswordAction(
 
   try {
     const supabase = await createSupabaseServerClient();
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -51,6 +52,19 @@ export async function signInWithPasswordAction(
           ? "That email or password isn't right."
           : "Something went wrong. Try again.";
       return { ok: false, message };
+    }
+
+    if (data.user) {
+      await sendWelcomeMessageFromEscentoBestEffort({
+        userId: data.user.id,
+        email: data.user.email ?? email,
+        name:
+          typeof data.user.user_metadata?.full_name === "string"
+            ? data.user.user_metadata.full_name
+            : typeof data.user.user_metadata?.name === "string"
+              ? data.user.user_metadata.name
+              : null,
+      });
     }
 
     redirect(callbackUrl);

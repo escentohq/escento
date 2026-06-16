@@ -621,11 +621,20 @@ export async function sendWelcomeMessageFromEscentoBestEffort({
     if (claimError) throw claimError;
     if (!claimedUser) return;
 
-    await sendSupportMessageAsEscento({
-      adminEmail: "system:welcome",
-      targetUserId: userId,
-      body: WELCOME_MESSAGE_BODY,
-    });
+    try {
+      await sendSupportMessageAsEscento({
+        adminEmail: "system:welcome",
+        targetUserId: userId,
+        body: WELCOME_MESSAGE_BODY,
+      });
+    } catch (sendError) {
+      await supabase
+        .from("app_user")
+        .update({ support_welcome_sent_at: null })
+        .eq("id", userId)
+        .eq("support_welcome_sent_at", now);
+      throw sendError;
+    }
   } catch (error) {
     console.error("[support] welcome message failed", error);
   }
