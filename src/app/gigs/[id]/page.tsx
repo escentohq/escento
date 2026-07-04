@@ -16,7 +16,7 @@ import type {
   MessagingBlockStatus,
   MessagingRelationship,
 } from "@/lib/api/types";
-import { compensationLabel, projectTypeLabel } from "@/lib/display";
+import { compensationLabel, gigStatusLabel, projectTypeLabel } from "@/lib/display";
 import { displayLocation } from "@/lib/location";
 
 function isValidId(id: string) {
@@ -72,9 +72,14 @@ export default async function GigPage({
               />
 
               <div className="relative z-10">
-                <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
-                  Open call
-                </span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
+                    {gig.status === "OPEN" ? "Open call" : "Call filled"}
+                  </span>
+                  <Chip tone={gig.status === "OPEN" ? "blue" : "pink"}>
+                    {gigStatusLabel(gig.status)}
+                  </Chip>
+                </div>
 
                 <div className="mt-5">
                   <div className="flex flex-wrap items-center gap-2 mb-3">

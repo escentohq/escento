@@ -29,7 +29,10 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: Props) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const confirmationInputRef = useRef<HTMLInputElement>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
   const confirmationFieldId = useId();
   const titleId = useId();
   const descriptionId = useId();
@@ -42,29 +45,60 @@ export function ConfirmDialog({
   useEffect(() => {
     if (!open) return;
 
+    previouslyFocusedRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusTimer = window.setTimeout(() => {
+      if (requiresPhrase) {
+        confirmationInputRef.current?.focus();
+      } else {
+        cancelButtonRef.current?.focus();
+      }
+    }, 0);
+
+    return () => {
+      window.clearTimeout(focusTimer);
+      document.body.style.overflow = previousOverflow;
+      previouslyFocusedRef.current?.focus();
+    };
+  }, [open, requiresPhrase]);
+
+  useEffect(() => {
+    if (!open) return;
+
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape" && !pending) {
         handleCancel();
       }
+
+      if (event.key === "Tab" && dialogRef.current) {
+        const focusable = Array.from(
+          dialogRef.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), input:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+          ),
+        );
+        if (!focusable.length) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
     }
 
     document.addEventListener("keydown", onKeyDown);
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
 
     return () => {
       document.removeEventListener("keydown", onKeyDown);
-      document.body.style.overflow = previousOverflow;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- handleCancel is stable for this dialog session
   }, [open, pending]);
-
-  useEffect(() => {
-    if (!open || !requiresPhrase) return;
-
-    const timer = window.setTimeout(() => confirmationInputRef.current?.focus(), 50);
-    return () => window.clearTimeout(timer);
-  }, [open, requiresPhrase]);
 
   function handleCancel() {
     if (pending) return;
@@ -90,6 +124,7 @@ export function ConfirmDialog({
       />
 
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -136,6 +171,7 @@ export function ConfirmDialog({
 
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
+            ref={cancelButtonRef}
             type="button"
             onClick={handleCancel}
             disabled={pending}

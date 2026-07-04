@@ -32,7 +32,10 @@ test.describe("gig lifecycle", () => {
     // a long, animated list).
     const directory = `/gigs?q=${encodeURIComponent(title)}`;
     await signUpAs(page, "CREATOR", "gig-close");
-    await createGig(page, { title, description: "A gig to close and reopen in an automated test." });
+    const gigId = await createGig(page, {
+      title,
+      description: "A gig to close and reopen in an automated test.",
+    });
 
     await page.goto(directory);
     await expect(page.getByText(title).first()).toBeVisible();
@@ -42,15 +45,18 @@ test.describe("gig lifecycle", () => {
     // the action revalidates — this guarantees the status change has committed
     // before we re-check the directory.
     await page.goto("/gigs/manage");
-    await page.getByRole("button", { name: "Close Gig" }).click();
+    await page.getByRole("button", { name: "Mark Filled" }).click();
     await expect(page.getByRole("button", { name: "Reopen Gig" })).toBeVisible();
 
     await page.goto(directory);
     await expect(page.getByText(title)).toHaveCount(0);
 
+    await page.goto(`/gigs/${gigId}`);
+    await expect(page.getByText("Filled", { exact: true })).toBeVisible();
+
     await page.goto("/gigs/manage");
     await page.getByRole("button", { name: "Reopen Gig" }).click();
-    await expect(page.getByRole("button", { name: "Close Gig" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Mark Filled" })).toBeVisible();
 
     await page.goto(directory);
     await expect(page.getByText(title).first()).toBeVisible();

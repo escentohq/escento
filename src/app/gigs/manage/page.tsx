@@ -5,6 +5,7 @@ import { listGigsByCreator } from "@/lib/api/gigs";
 import {
   clampText,
   compensationLabel,
+  gigStatusLabel,
   projectTypeLabel,
   visibleTags,
 } from "@/lib/display";
@@ -60,7 +61,7 @@ export default async function ManageGigsPage() {
                           <Chip
                             tone={gig.status === "OPEN" ? "blue" : "neutral"}
                           >
-                            {gig.status}
+                            {gigStatusLabel(gig.status)}
                           </Chip>
                         </div>
                         <h2 className="mt-1 wrap-break-word text-lg font-black tracking-tight text-[#0F172A]">

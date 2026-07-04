@@ -2,7 +2,11 @@
 
 This checklist is meant for pilot users, founders, and internal QA to test every functional surface in the current Escento app before a broader pilot. It follows the current codebase behavior, not older product docs where they drift.
 
-Open this file in VS Code's Markdown preview (Cmd+Shift+V) and click a checkbox to mark a test done — the change writes straight back to this file, so the whole team can see how far the pass has gotten. Tick a box only after the tester confirms the expected result. If anything is unclear, broken, slow, confusing, ugly, or surprising, record:
+Open this file in VS Code and mark completed items in the text editor by changing
+`- [ ]` to `- [x]`. The built-in Markdown preview is useful for reading the
+checklist, but its checkboxes do not write changes back to this file. Tick a box
+only after the tester confirms the expected result. If anything is unclear,
+broken, slow, confusing, ugly, or surprising, record:
 
 - Tester name
 - Browser and device
@@ -673,9 +677,12 @@ Recommended browsers and devices:
 - [ ] **Open a valid open gig.**
   - Check: Page load.
   - Expected: Gig title, description, project type, compensation, tags, location/deadline, creator/contact panel render.
-- [ ] **Open a valid filled/closed gig by direct URL.**
-  - Check: Reachability.
-  - Expected: Page still loads even though gig is not in directory.
+- [ ] **Open a valid filled/closed gig by direct URL as its creator.**
+  - Check: Owner reachability.
+  - Expected: Page loads and displays Filled even though the gig is not in the open directory.
+- [ ] **Open that filled/closed gig URL as another user or signed out.**
+  - Check: Listing privacy after closure.
+  - Expected: The listing is not exposed; a not-found page appears.
 - [ ] **Open invalid gig ID.**
   - Check: 404.
   - Expected: Branded not-found UI appears.

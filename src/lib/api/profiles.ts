@@ -1,5 +1,6 @@
 import { cache } from "react";
 
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { distanceMiles, type LocationSearch } from "@/lib/location";
 import { filterSearchResults } from "@/lib/search";
@@ -7,11 +8,15 @@ import { tagMatchesQuery } from "@/lib/tag-taxonomy";
 import { ensureInstruments, ensureGenres } from "./tags";
 import type { MusicianProfile, CreateProfileInput, UpdateProfileInput } from "./types";
 
-function toProfile(raw: any, distance?: number | null): MusicianProfile {
+function toProfile(
+  raw: any,
+  distance?: number | null,
+  image: string | null = raw.app_user?.image ?? null,
+): MusicianProfile {
   return {
     id: raw.id,
     userId: raw.user_id,
-    image: raw.app_user?.image ?? null,
+    image,
     displayName: raw.display_name,
     bio: raw.bio,
     school: raw.school,
@@ -45,28 +50,59 @@ function toProfile(raw: any, distance?: number | null): MusicianProfile {
   };
 }
 
+async function getProfileImages(userIds: string[]) {
+  const uniqueIds = Array.from(new Set(userIds.filter(Boolean)));
+  if (!uniqueIds.length) return new Map<string, string | null>();
+
+  try {
+    const supabase = createSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from("app_user")
+      .select("id, image")
+      .in("id", uniqueIds);
+
+    if (error) throw error;
+    return new Map((data ?? []).map((user) => [user.id, user.image ?? null]));
+  } catch (error) {
+    console.error("[profiles] profile image lookup failed:", error);
+    return new Map<string, string | null>();
+  }
+}
+
+function firstError(
+  results: Array<{ error: unknown | null }>,
+): unknown | null {
+  return results.find((result) => result.error)?.error ?? null;
+}
+
 export const getProfile = cache(async (id: string): Promise<MusicianProfile | null> => {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("musician_profile")
-    .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
     .eq("id", id)
     .single();
 
   if (error && error.code !== "PGRST116") throw error;
-  return data ? toProfile(data) : null;
+  if (!data) return null;
+
+  const images = await getProfileImages([data.user_id]);
+  return toProfile(data, null, images.get(data.user_id) ?? null);
 });
 
 export const getProfileByUserId = cache(async (userId: string): Promise<MusicianProfile | null> => {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("musician_profile")
-    .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
     .eq("user_id", userId)
     .single();
 
   if (error && error.code !== "PGRST116") throw error;
-  return data ? toProfile(data) : null;
+  if (!data) return null;
+
+  const images = await getProfileImages([data.user_id]);
+  return toProfile(data, null, images.get(data.user_id) ?? null);
 });
 
 interface ListProfilesFilters {
@@ -85,7 +121,7 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
 
   let query = supabase
     .from("musician_profile")
-    .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
     .order("updated_at", { ascending: false });
 
   const q = filters?.q ? safeSearchPattern(filters.q) : "";
@@ -94,7 +130,10 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
 
   if (error) throw error;
 
-  let profiles = (data || []).map((raw) => toProfile(raw));
+  const images = await getProfileImages((data ?? []).map((raw) => raw.user_id));
+  let profiles = (data || []).map((raw) =>
+    toProfile(raw, null, images.get(raw.user_id) ?? null),
+  );
   const location = filters?.location;
   const instrumentFilters = filters?.instruments ?? [];
   const genreFilters = filters?.genres ?? [];
@@ -209,7 +248,7 @@ export async function createProfile(
 
   if (profileError) throw profileError;
 
-  await Promise.all([
+  const junctionResults = await Promise.all([
     ...instruments.map((inst) =>
       supabase.from("musician_instrument").insert({
         musician_profile_id: profile.id,
@@ -223,6 +262,8 @@ export async function createProfile(
       })
     ),
   ]);
+  const junctionError = firstError(junctionResults);
+  if (junctionError) throw junctionError;
 
   return {
     id: profile.id,
@@ -298,10 +339,12 @@ export async function updateProfile(
   if (input.websiteUrl !== undefined) updateData.website_url = input.websiteUrl;
 
   if (instrumentNames || genreNames) {
-    await Promise.all([
+    const deleteResults = await Promise.all([
       supabase.from("musician_instrument").delete().eq("musician_profile_id", id),
       supabase.from("musician_genre").delete().eq("musician_profile_id", id),
     ]);
+    const deleteError = firstError(deleteResults);
+    if (deleteError) throw deleteError;
   }
 
   const { error: updateError } = await supabase
@@ -317,7 +360,7 @@ export async function updateProfile(
       genreNames ? ensureGenres(genreNames, userId) : Promise.resolve([]),
     ]);
 
-    await Promise.all([
+    const junctionResults = await Promise.all([
       ...instruments.map((inst) =>
         supabase.from("musician_instrument").insert({
           musician_profile_id: id,
@@ -331,13 +374,17 @@ export async function updateProfile(
         })
       ),
     ]);
+    const junctionError = firstError(junctionResults);
+    if (junctionError) throw junctionError;
   }
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("musician_profile")
-    .select("*, app_user(image), musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
     .eq("id", id)
     .single();
 
-  return toProfile(data);
+  if (error) throw error;
+  const images = await getProfileImages([data.user_id]);
+  return toProfile(data, null, images.get(data.user_id) ?? null);
 }

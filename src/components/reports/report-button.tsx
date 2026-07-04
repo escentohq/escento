@@ -1,7 +1,7 @@
 "use client";
 
 import { Flag, X } from "lucide-react";
-import { useActionState, useEffect, useId, useState } from "react";
+import { useActionState, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 import {
@@ -22,6 +22,9 @@ const initialState: ReportFormState = { ok: false };
 export function ReportButton({ targetType, targetId, targetLabel }: Props) {
   const [open, setOpen] = useState(false);
   const [state, formAction, pending] = useActionState(submitContentReport, initialState);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previouslyFocusedRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
   const subjectId = useId();
   const descriptionId = useId();
@@ -29,12 +32,50 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
 
   useEffect(() => {
     if (!open) return;
+    previouslyFocusedRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    const focusTimer = window.setTimeout(() => closeButtonRef.current?.focus(), 0);
+
     return () => {
+      window.clearTimeout(focusTimer);
       document.body.style.overflow = previousOverflow;
+      previouslyFocusedRef.current?.focus();
     };
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape" && !pending) {
+        setOpen(false);
+      }
+
+      if (event.key === "Tab" && dialogRef.current) {
+        const focusable = Array.from(
+          dialogRef.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+          ),
+        );
+        if (!focusable.length) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open, pending]);
 
   useEffect(() => {
     if (state.ok) {
@@ -65,12 +106,14 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
           />
 
           <div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
             className="relative max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-[#F1F5F9] bg-white p-6 text-[#0F172A] shadow-2xl"
           >
             <button
+              ref={closeButtonRef}
               type="button"
               onClick={() => setOpen(false)}
               disabled={pending}

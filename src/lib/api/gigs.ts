@@ -12,6 +12,12 @@ type GigCreatorSummary = {
   email: string | null;
 };
 
+function firstError(
+  results: Array<{ error: unknown | null }>,
+): unknown | null {
+  return results.find((result) => result.error)?.error ?? null;
+}
+
 function normalizeDeadline(deadline: Date | string | null | undefined): string | null {
   if (!deadline) return null;
   if (typeof deadline === "string") return deadline;
@@ -273,7 +279,7 @@ export async function createGig(
 
   if (gigError) throw gigError;
 
-  await Promise.all([
+  const junctionResults = await Promise.all([
     ...instruments.map((inst) =>
       supabase.from("gig_instrument").insert({
         gig_id: gig.id,
@@ -287,6 +293,8 @@ export async function createGig(
       })
     ),
   ]);
+  const junctionError = firstError(junctionResults);
+  if (junctionError) throw junctionError;
 
   return {
     id: gig.id,
@@ -349,10 +357,12 @@ export async function updateGig(
   if (input.status !== undefined) updateData.status = input.status;
 
   if (instrumentNames || genreNames) {
-    await Promise.all([
+    const deleteResults = await Promise.all([
       supabase.from("gig_instrument").delete().eq("gig_id", id),
       supabase.from("gig_genre").delete().eq("gig_id", id),
     ]);
+    const deleteError = firstError(deleteResults);
+    if (deleteError) throw deleteError;
   }
 
   const { error: updateError } = await supabase
@@ -368,7 +378,7 @@ export async function updateGig(
       genreNames ? ensureGenres(genreNames, creatorId) : Promise.resolve([]),
     ]);
 
-    await Promise.all([
+    const junctionResults = await Promise.all([
       ...instruments.map((inst) =>
         supabase.from("gig_instrument").insert({
           gig_id: id,
@@ -382,14 +392,17 @@ export async function updateGig(
         })
       ),
     ]);
+    const junctionError = firstError(junctionResults);
+    if (junctionError) throw junctionError;
   }
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("gig")
     .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
     .eq("id", id)
     .single();
 
+  if (error) throw error;
   return toGig(data);
 }
 
