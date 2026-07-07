@@ -10,11 +10,46 @@ import { getUnreadConversationSummariesForUser } from "@/lib/api/messaging";
 import { NavBar } from "@/components/ui/nav-bar";
 import { Footer } from "@/components/ui/footer";
 
+const siteUrl = "https://www.escento.com";
+const siteDescription =
+  "Escento helps musicians get discovered for gigs, collaborations, and creative opportunities.";
+
 export const metadata: Metadata = {
   title: "Escento",
-  description:
-    "Escento is a platform connecting student musicians with student creators who need collaborators for creative projects.",
+  description: siteDescription,
+  metadataBase: new URL(siteUrl),
+  applicationName: "Escento",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
+  },
+  openGraph: {
+    title: "Escento",
+    siteName: "Escento",
+    description: siteDescription,
+    url: siteUrl,
+    type: "website",
+  },
 };
+
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Escento",
+    url: siteUrl,
+    logo: `${siteUrl}/icon.png`,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Escento",
+    url: siteUrl,
+  },
+];
 
 export default async function RootLayout({
   children,
@@ -42,6 +77,12 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+      </head>
       <body className="flex min-h-screen flex-col bg-[#FAFAFA] text-[#0F172A] antialiased">
         <NavBar
           signedIn={!!session?.user}
