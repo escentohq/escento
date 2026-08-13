@@ -1,6 +1,7 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
+import { Archivo } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -9,6 +10,12 @@ import { getProfileByUserId } from "@/lib/api/profiles";
 import { getUnreadConversationSummariesForUser } from "@/lib/api/messaging";
 import { NavBar } from "@/components/ui/nav-bar";
 import { Footer } from "@/components/ui/footer";
+
+const archivo = Archivo({
+  subsets: ["latin"],
+  variable: "--font-escento",
+  display: "swap",
+});
 
 const siteUrl = "https://www.escento.com";
 const siteDescription =
@@ -76,7 +83,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en">
+    <html lang="en" className={archivo.variable}>
       <head>
         <script
           type="application/ld+json"

@@ -18,7 +18,7 @@ export function FormSubmitButton({
     <button
       type="submit"
       disabled={pending}
-      className={`inline-flex h-14 items-center justify-center gap-2 rounded-full bg-[#0F172A] px-8 text-sm font-bold tracking-wide text-white transition-all duration-200 hover:scale-105 hover:shadow-[0_0_40px_-10px_#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 ${className}`}
+      className={`inline-flex min-h-12 items-center justify-center gap-2 border border-[#0055FF] bg-[#0055FF] px-6 py-3 text-sm font-semibold text-white transition-colors hover:border-[#0F172A] hover:bg-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
     >
       {pending ? (
         <>

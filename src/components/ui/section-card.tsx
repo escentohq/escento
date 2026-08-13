@@ -10,14 +10,14 @@ export function SectionCard({
   className?: string;
 }) {
   return (
-    <section className={`rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm ${className}`}>
+    <section className={`border-t border-[#CBD5E1] py-6 ${className}`}>
       {eyebrow ? (
-        <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#64748B]">
           {eyebrow}
         </span>
       ) : null}
       {title ? (
-        <h2 className={`${eyebrow ? "mt-3" : ""} text-2xl font-black tracking-tight text-[#0F172A]`}>
+        <h2 className={`${eyebrow ? "mt-3" : ""} text-2xl font-semibold tracking-[-0.02em] text-[#0F172A]`}>
           {title}
         </h2>
       ) : null}
@@ -25,4 +25,3 @@ export function SectionCard({
     </section>
   );
 }
-

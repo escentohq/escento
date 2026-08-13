@@ -9,9 +9,9 @@
 ```
 src/
   app/
-    layout.tsx                          # root shell — LEGACY dark, migrate to bright (see UX_RULES §Navigation)
+    layout.tsx                          # bright root shell + Archivo font + session-aware navigation
     page.tsx                            # / landing host (server) — resolves session + role → renders <HomeLanding/>
-    globals.css                         # Tailwind v4 entry + LEGACY token classes (.input-base, .btn-primary, .card)
+    globals.css                         # Tailwind v4 entry + shared foundation and exception tokens
     signin/
       page.tsx                          # Email/password sign-in form
       actions.ts                        # signInWithPasswordAction(state, fd, callbackUrl)

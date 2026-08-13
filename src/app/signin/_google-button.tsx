@@ -72,7 +72,7 @@ export function GoogleButton({
   return (
     <div className="space-y-3">
       {message ? (
-        <div className="rounded-2xl border border-[#FF3366]/20 bg-[#FF3366]/10 px-4 py-3 text-sm font-bold text-[#B42318]">
+        <div className=" border border-[#FF3366]/20 bg-[#FF3366]/10 px-4 py-3 text-sm font-bold text-[#B42318]">
           {message}
         </div>
       ) : null}
@@ -80,7 +80,7 @@ export function GoogleButton({
         type="button"
         disabled={pending}
         onClick={() => void signInWithGoogle()}
-        className="group flex min-h-14 w-full cursor-pointer items-center justify-between rounded-2xl border-2 border-[#E2E8F0] bg-white px-6 text-sm font-bold tracking-wide text-[#0F172A] transition-all hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+        className="group flex min-h-14 w-full cursor-pointer items-center justify-between  border-2 border-[#E2E8F0] bg-white px-6 text-sm font-bold tracking-wide text-[#0F172A] transition-all hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <span className="flex items-center gap-3">
           <GoogleLogo className="h-[18px] w-[18px] shrink-0" />

@@ -10,6 +10,10 @@
 > 6. `ai-context/COMPONENTS.md` — copy-paste component recipes
 > 6. `src/components/home/HomeLanding.tsx` — canonical reference. Study the animation patterns.
 
+## UI overhaul override (2026-08)
+
+Use `/musicians` and the live shared primitives as the emerging reference, not the retained landing animation patterns. Default all controls and containers to square corners; use named radius tokens only for rare overlay/media exceptions. Gradients are prohibited. Do not add reveals, page transitions, hover lifts, parallax, or scroll choreography; retain only subtle state feedback that earns its place.
+
 **Before writing any UI code, invoke the `ui-ux-pro-max` skill** (see `AGENTS.md §UI/UX Skill`). Use it to validate UX patterns, accessibility requirements, and interaction rules. DESIGN.md tokens override any conflicting skill output.
 
 ---
@@ -24,16 +28,16 @@ Build pages and components that feel cinematic. The design system is bright + bo
 
 - Page bg: `#FAFAFA`. Cards: `#FFFFFF`. Ink: `#0F172A`.
 - Accents: `#0055FF` blue / `#FF3366` pink / `#FFB000` gold.
-- `rounded-full` buttons. `rounded-3xl` cards.
+- Square buttons, controls, cards, and containers by default. Named radius-token exceptions only.
 - Zero `bg-zinc-*`, `text-zinc-*`, `violet-*`. Ever.
 
 ---
 
-## Animation stack — use all of it
+## Retained animation reference (do not apply to new overhaul UI)
 
-### 1. Framer Motion (default — use everywhere)
+### 1. Framer Motion (retained legacy examples only)
 
-Every entrance, hover, stagger. Always `easeOutExpo`:
+The examples below explain retained code only. New UI remains static unless targeted interaction feedback is necessary.
 
 ```tsx
 const ease = [0.16, 1, 0.3, 1];

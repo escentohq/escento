@@ -65,9 +65,9 @@ export default async function GigPage({
 
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="space-y-8 lg:col-span-2">
-            <div className="relative overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white p-8 shadow-sm">
+            <div className="relative overflow-hidden  border border-[#F1F5F9] bg-white p-8 shadow-sm">
               <div
-                className="pointer-events-none absolute right-0 top-0 h-56 w-56 rounded-bl-full bg-linear-to-br from-[#FF3366]/6 to-transparent"
+                className="pointer-events-none absolute right-0 top-0 h-56 w-56    "
                 aria-hidden
               />
 
@@ -134,7 +134,7 @@ export default async function GigPage({
                   </div>
                 </div>
 
-                <div className="mt-6 rounded-2xl bg-[#F8FAFC] p-5">
+                <div className="mt-6  bg-[#F8FAFC] p-5">
                   <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
                     Compensation
                   </p>
@@ -147,9 +147,9 @@ export default async function GigPage({
           </div>
 
           <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-            <div className="relative overflow-hidden rounded-3xl bg-[#0F172A] p-8 text-white shadow-sm">
+            <div className="relative overflow-hidden  bg-[#0F172A] p-8 text-white shadow-sm">
               <div
-                className="pointer-events-none absolute right-0 top-0 h-32 w-32 rounded-bl-full bg-linear-to-br from-[#FF3366]/20 to-transparent"
+                className="pointer-events-none absolute right-0 top-0 h-32 w-32    "
                 aria-hidden
               />
               <div className="relative z-10">
@@ -163,7 +163,7 @@ export default async function GigPage({
                   </p>
                 ) : null}
 
-                <div className="mt-6 rounded-2xl bg-[#1E293B] p-4">
+                <div className="mt-6  bg-[#1E293B] p-4">
                   <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748B]">
                     Posted by
                   </p>

@@ -108,7 +108,7 @@ function CallCard({ card, index, reduced }: { card: CardData; index: number; red
       <Link
         href={card.href}
         className={[
-          "relative flex flex-col gap-4 rounded-2xl p-6 shadow-md transition-shadow duration-300",
+          "relative flex flex-col gap-4  p-6 shadow-md transition-shadow duration-300",
           "focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2",
           isMusician
             ? "border border-[#F1F5F9] bg-white group-hover:shadow-[0_16px_48px_-12px_rgba(0,85,255,0.18)]"
@@ -118,19 +118,19 @@ function CallCard({ card, index, reduced }: { card: CardData; index: number; red
         {/* Top row */}
         <div className="flex items-start justify-between gap-2">
           {isMusician ? (
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-linear-to-br from-[#0055FF]/20 via-[#FF3366]/15 to-[#FFB000]/20">
+            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center     ">
               <span className="text-base font-black text-[#0F172A]">
                 {"initials" in card ? card.initials : ""}
               </span>
             </div>
           ) : (
-            <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-[#FF3366]/10">
+            <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center  bg-[#FF3366]/10">
               <Video className="h-5 w-5 text-[#FF3366]" aria-hidden />
             </span>
           )}
           <span
             className={[
-              "rounded-full px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.15em]",
+              " px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.15em]",
               isMusician
                 ? "bg-[#0055FF]/10 text-[#0055FF]"
                 : "bg-[#FF3366]/20 text-[#FF3366]",
@@ -166,7 +166,7 @@ function CallCard({ card, index, reduced }: { card: CardData; index: number; red
             <span
               key={tag}
               className={[
-                "rounded-full px-2.5 py-0.5 text-xs font-bold",
+                " px-2.5 py-0.5 text-xs font-bold",
                 isMusician
                   ? "bg-[#F1F5F9] text-[#475569]"
                   : "bg-white/5 text-[#CBD5E1]",
@@ -219,27 +219,6 @@ export function TheCallsheet() {
       aria-label="Active musicians and open gigs"
       className="relative overflow-hidden bg-[#0F172A] px-4 py-20 sm:px-6 md:py-28"
     >
-      {/* Dot-grid background */}
-      <div
-        className="pointer-events-none absolute inset-0"
-        aria-hidden
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-        }}
-      />
-
-      {/* Top glow blobs */}
-      <div
-        className="pointer-events-none absolute -top-40 left-1/4 h-80 w-80 rounded-full bg-[#0055FF]/10 blur-[80px]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -top-20 right-1/4 h-64 w-64 rounded-full bg-[#FF3366]/8 blur-[60px]"
-        aria-hidden
-      />
-
       <div className="relative mx-auto max-w-6xl">
 
         {/* Header */}
@@ -253,8 +232,8 @@ export function TheCallsheet() {
             {/* Live badge */}
             <div className="flex items-center gap-2.5">
               <span className="relative flex h-2.5 w-2.5" aria-hidden>
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#FF3366] opacity-60" />
-                <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#FF3366]" />
+                <span className="absolute inline-flex h-full w-full animate-ping  bg-[#FF3366] opacity-60" />
+                <span className="relative inline-flex h-2.5 w-2.5  bg-[#FF3366]" />
               </span>
               <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
                 The Callsheet
@@ -272,11 +251,11 @@ export function TheCallsheet() {
 
           {/* Legend pills */}
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-[#94A3B8]">
+            <span className="flex items-center gap-1.5  border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-[#94A3B8]">
               <Music className="h-3 w-3 text-[#0055FF]" aria-hidden />
               Musicians
             </span>
-            <span className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-[#94A3B8]">
+            <span className="flex items-center gap-1.5  border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-[#94A3B8]">
               <Video className="h-3 w-3 text-[#FF3366]" aria-hidden />
               Gigs
             </span>
@@ -299,14 +278,14 @@ export function TheCallsheet() {
         >
           <Link
             href="/musicians"
-            className="inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-black text-[#0F172A] transition-all duration-200 hover:bg-[#0055FF] hover:text-white focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+            className="inline-flex min-h-12 items-center gap-2  bg-white px-6 py-3 text-sm font-black text-[#0F172A] transition-all duration-200 hover:bg-[#0055FF] hover:text-white focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
           >
             <Music className="h-4 w-4" aria-hidden />
             Browse all musicians
           </Link>
           <Link
             href="/gigs"
-            className="inline-flex min-h-12 items-center gap-2 rounded-full border border-white/20 bg-transparent px-6 py-3 text-sm font-black text-white transition-all duration-200 hover:border-[#FF3366] hover:text-[#FF3366] focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+            className="inline-flex min-h-12 items-center gap-2  border border-white/20 bg-transparent px-6 py-3 text-sm font-black text-white transition-all duration-200 hover:border-[#FF3366] hover:text-[#FF3366] focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
           >
             <Video className="h-4 w-4" aria-hidden />
             Browse all gigs

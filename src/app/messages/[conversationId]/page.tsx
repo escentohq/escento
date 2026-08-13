@@ -54,10 +54,10 @@ export default async function ConversationPage({
           <BackLink href="/messages">Back to messages</BackLink>
         </div>
 
-        <header className="mb-6 rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm">
+        <header className="mb-6  border border-[#F1F5F9] bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-4">
-              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-[#F1F5F9]">
+              <div className="media-avatar h-12 w-12 shrink-0 overflow-hidden bg-[#F1F5F9]">
                 {other?.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={other.image} alt="" className="h-full w-full object-cover" />

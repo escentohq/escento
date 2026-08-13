@@ -3,6 +3,10 @@
 > Canonical instructions for AI coding agents (Codex, Claude Code, Cursor, Copilot, Gemini).
 > If you are an agent: **read this file first, every session.** Then load the sub-agent that matches your task.
 
+## UI overhaul directive (2026-08)
+
+This directive overrides older visual examples elsewhere in the docs. Use Archivo through `next/font`. Application controls and containers are square by default; any radius is a rare, named token exception. Do not use gradients anywhere in `src`. Prefer static presentation and add only targeted state transitions needed for interaction feedback—no routine reveals or page transitions. Paper and ink dominate; blue is primary, with coral and amber used sparingly. Treat `/musicians` as the emerging canonical marketplace surface.
+
 ---
 
 ## Sub-agents (pick one per session)
@@ -54,11 +58,7 @@ Load the sub-agent **in addition to** this file — sub-agents scope your task, 
 | OAuth | GitHub, Google | — |
 | Lint | ESLint + `eslint-config-next` | `^9.35.0` |
 
-**Approved animation stack priority:**
-1. **Framer Motion** — default for entrances, hover, page transitions, stagger
-2. **GSAP ScrollTrigger** — scroll-pinned sequences, timeline scrubbing, parallax beyond framer's capability
-3. **R3F + Drei** — 3D hero moments, floating objects, environment lighting on any page
-4. **Lenis** — smooth scroll inertia on all pages (wrap root layout)
+The animation packages remain installed for retained legacy work, but new UI should not add routine entrance, reveal, page-transition, or scroll-driven animation. Use a subtle CSS state transition only when interaction feedback needs it.
 
 Do not add: date pickers, form libraries (react-hook-form, formik), state managers (zustand, redux), fetch libraries (react-query, swr), or UI kits (shadcn bulk install, MUI, Chakra).
 
@@ -92,20 +92,12 @@ const session = await requireRole("CREATOR", request.nextUrl.pathname);
 
 ### 5. Bright stage-light theme — no dark zinc
 **Rule.** Use tokens in [`DESIGN.md`](./DESIGN.md): `#FAFAFA` page, `#0F172A` ink, `#0055FF`/`#FF3366`/`#FFB000` accents. Do **not** introduce `bg-zinc-950`, `text-zinc-100`, `border-zinc-800`, `violet-500`, or any class from the legacy dark shell into new code.
-**Why.** Canonical theme is the landing-page bright cinematic style. The dark shell in `src/app/layout.tsx` + `src/app/globals.css` is **legacy** and being phased out.
+**Why.** The current root shell and shared tokens establish the bright foundation; the remaining routes are being migrated onto it.
 **Do.** `className="bg-white text-[#0F172A] border border-[#F1F5F9]"`.
 **Don't.** `className="bg-zinc-950 text-zinc-100"`.
 
-### 6. Motion: layered animation stack
-**Rule.** Use the right tool for the job — but always in this priority order:
-1. **Framer Motion** for entrances, hover lifts, stagger reveals, page transitions.
-2. **GSAP ScrollTrigger** for scroll-pinned timelines, scrubbed sequences, or parallax that framer can't do cleanly.
-3. **R3F + Drei** for 3D hero accents on any page — floating geometry, environment glow, particle fields. Every R3F `<Canvas>` must be `pointer-events-none`, `aria-hidden="true"`, and wrapped in a `Suspense` with a fallback.
-4. **Lenis** wraps the root layout for smooth scroll inertia. Import via `@studio-freight/react-lenis`.
-
-**Why.** Layering these tools correctly = cinematic feel without jank. Wrong tool = animation fighting itself.
-**Do.** GSAP + framer can coexist when GSAP owns scroll-driven transforms and framer owns entrance/exit.
-**Don't.** Use GSAP and framer on the same element. Don't add R3F to a card grid — 3D is for heroes and focal moments only.
+### 6. Motion: static by default
+**Rule.** Do not add page transitions, entrance reveals, hover lifts, parallax, or scroll choreography during the overhaul. Use a subtle targeted transition only when an interactive state needs feedback. Installed animation packages support retained legacy code; they are not a requirement for new work.
 
 ### 7. Icons: `lucide-react` only
 **Rule.** `import { ArrowRight, Sparkles, PlayCircle } from "lucide-react"`. No emoji as UI, no inline SVG paths copied from Figma/Heroicons, no other icon packs.
@@ -126,14 +118,9 @@ const session = await requireRole("CREATOR", request.nextUrl.pathname);
 
 ---
 
-## Migration notice (read carefully)
+## UI foundation notice
 
-**`src/app/layout.tsx` and `src/app/globals.css` are LEGACY.** They use the dark zinc theme that predates the bright stage-light design system. New work must:
-
-- Apply bright theme tokens (see [`DESIGN.md`](./DESIGN.md)) to any new page or component.
-- Avoid editing legacy classes in `globals.css` (`.input-base`, `.btn-primary`, `.card`, etc.) — they're dark-theme presets that will be replaced.
-- When touching `layout.tsx` or `globals.css`, propose the bright migration as part of the change (see [`UX_RULES.md`](./UX_RULES.md) §NavBar and [`COMPONENTS.md`](./COMPONENTS.md) §NavBar for the target spec).
-- Reference implementation for the canonical theme: `src/components/home/HomeLanding.tsx`. **Read it before writing any new UI.**
+`src/app/layout.tsx` loads Archivo and `src/app/globals.css` owns the approved shared foundation tokens. Extend those tokens deliberately; keep application surfaces square, use no gradients, and use `/musicians` plus the live shared primitives as the emerging reference.
 
 ---
 
@@ -180,11 +167,11 @@ const session = await requireRole("CREATOR", request.nextUrl.pathname);
 
 | File | Why |
 |---|---|
-| `src/components/home/HomeLanding.tsx` | Canonical bright-theme reference. Copy patterns from here. |
+| `src/components/home/HomeLanding.tsx` | Retained landing implementation; do not copy its legacy motion patterns. |
 | `src/components/home/StageLightsScene.tsx` | Only file allowed to import `@react-three/*` and `three`. |
 | `src/app/page.tsx` | Server-side session + role resolution pattern. |
-| `src/app/layout.tsx` | LEGACY dark shell — read so you know what to migrate away from. |
-| `src/app/globals.css` | LEGACY token classes — do not extend. |
+| `src/app/layout.tsx` | Root shell and Archivo font setup. |
+| `src/app/globals.css` | Shared foundation tokens and named corner exceptions. |
 | `src/lib/supabase/server.ts` | Supabase server client factory. |
 | `src/lib/auth-guards.ts` | Auth helpers: `requireRole()`, `getCurrentSession()`, role guards. |
 | `src/lib/supabase/admin.ts` | Server-only service-role client for auth admin + profile-picture storage. |

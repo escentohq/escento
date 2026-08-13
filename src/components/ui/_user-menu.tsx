@@ -46,13 +46,13 @@ export function UserMenu({
 }: UserMenuProps) {
   const avatarContent = image ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={image} alt="" className="h-full w-full rounded-full object-cover" />
+    <img src={image} alt="" className="media-avatar h-full w-full object-cover" />
   ) : name ? (
-    <div className="flex h-full w-full items-center justify-center rounded-full bg-[#0055FF] text-xs font-bold text-white">
+    <div className="media-avatar flex h-full w-full items-center justify-center bg-[#0055FF] text-xs font-bold text-white">
       {getInitials(name)}
     </div>
   ) : (
-    <div className="flex h-full w-full items-center justify-center rounded-full bg-[#F1F5F9]">
+    <div className="media-avatar flex h-full w-full items-center justify-center bg-[#F1F5F9]">
       <User className="h-5 w-5 text-[#475569]" />
     </div>
   );
@@ -66,15 +66,15 @@ export function UserMenu({
               ? `Account menu, ${unreadConversationCount} unread message${unreadConversationCount === 1 ? "" : "s"}`
               : "Account menu"
           }
-          className="relative flex h-9 w-9 items-center justify-center rounded-full border-2 border-[#E2E8F0] bg-white transition-colors hover:border-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+          className="media-avatar relative flex h-9 w-9 items-center justify-center border border-[#CBD5E1] bg-white transition-colors hover:border-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
         >
-          <span className="flex h-full w-full items-center justify-center overflow-hidden rounded-full">
+          <span className="media-avatar flex h-full w-full items-center justify-center overflow-hidden">
             {avatarContent}
           </span>
           {unreadConversationCount > 0 ? (
             <span
               aria-hidden
-              className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FF3366] px-1 text-[10px] font-black leading-none text-white ring-2 ring-white"
+              className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center bg-[#FF3366] px-1 text-[10px] font-bold leading-none text-white ring-2 ring-white"
             >
               {unreadConversationCount > 9 ? "9+" : unreadConversationCount}
             </span>
@@ -86,13 +86,13 @@ export function UserMenu({
         <DropdownMenu.Content
           align="end"
           sideOffset={8}
-          className="z-50 min-w-[220px] rounded-2xl border border-[#F1F5F9] bg-white p-1.5 shadow-xl shadow-[#0F172A]/8 animate-in fade-in slide-in-from-top-2"
+          className="surface-overlay z-50 min-w-[220px] border border-[#0F172A] bg-white p-1.5 shadow-[4px_4px_0_#0F172A]"
         >
           <DropdownMenu.Label className="flex flex-col gap-1 px-3 py-2">
             {name && <div className="text-sm font-bold text-[#0F172A]">{name}</div>}
             <div className="text-xs text-[#475569]">{email}</div>
             {role && (
-              <div className="inline-flex w-fit rounded-full bg-[#F8FAFC] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#64748B]">
+              <div className="inline-flex w-fit border border-[#CBD5E1] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#64748B]">
                 {role.toLowerCase()}
               </div>
             )}
@@ -101,14 +101,14 @@ export function UserMenu({
           <DropdownMenu.Item asChild>
             <Link
               href="/messages"
-              className="flex items-center justify-between gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus:bg-[#F8FAFC] focus:outline-none cursor-pointer select-none"
+              className="flex cursor-pointer select-none items-center justify-between gap-2.5 px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:bg-[#F1F5F9] focus:bg-[#F1F5F9] focus:outline-none"
             >
               <span className="flex items-center gap-2.5">
                 <MessageCircle className="h-4 w-4" />
                 Messages
               </span>
               {unreadConversationCount > 0 ? (
-                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#FF3366] px-1 text-[10px] font-black leading-none text-white">
+                <span className="flex h-5 min-w-5 items-center justify-center bg-[#FF3366] px-1 text-[10px] font-bold leading-none text-white">
                   {unreadConversationCount > 9 ? "9+" : unreadConversationCount}
                 </span>
               ) : null}
@@ -119,7 +119,7 @@ export function UserMenu({
             <DropdownMenu.Item asChild>
               <Link
                 href={musicianProfilePath}
-                className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus:bg-[#F8FAFC] focus:outline-none cursor-pointer select-none"
+                className="flex cursor-pointer select-none items-center gap-2.5 px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:bg-[#F1F5F9] focus:bg-[#F1F5F9] focus:outline-none"
               >
                 {musicianProfilePath === "/profile/create" ? (
                   <>
@@ -141,7 +141,7 @@ export function UserMenu({
               <DropdownMenu.Item asChild>
                 <Link
                   href="/gigs/manage"
-                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus:bg-[#F8FAFC] focus:outline-none cursor-pointer select-none"
+                  className="flex cursor-pointer select-none items-center gap-2.5 px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:bg-[#F1F5F9] focus:bg-[#F1F5F9] focus:outline-none"
                 >
                   <LayoutList className="h-4 w-4" />
                   Manage Gigs
@@ -151,7 +151,7 @@ export function UserMenu({
               <DropdownMenu.Item asChild>
                 <Link
                   href="/gigs/create"
-                  className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus:bg-[#F8FAFC] focus:outline-none cursor-pointer select-none"
+                  className="flex cursor-pointer select-none items-center gap-2.5 px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:bg-[#F1F5F9] focus:bg-[#F1F5F9] focus:outline-none"
                 >
                   <PlusCircle className="h-4 w-4" />
                   Post a Gig
@@ -165,7 +165,7 @@ export function UserMenu({
           <DropdownMenu.Item asChild>
             <Link
               href="/account"
-              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus:bg-[#F8FAFC] focus:outline-none cursor-pointer select-none"
+              className="flex cursor-pointer select-none items-center gap-2.5 px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:bg-[#F1F5F9] focus:bg-[#F1F5F9] focus:outline-none"
             >
               <Settings className="h-4 w-4" />
               Account Settings
@@ -175,7 +175,7 @@ export function UserMenu({
           <DropdownMenu.Item asChild>
             <Link
               href="/help"
-              className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus:bg-[#F8FAFC] focus:outline-none cursor-pointer select-none"
+              className="flex cursor-pointer select-none items-center gap-2.5 px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:bg-[#F1F5F9] focus:bg-[#F1F5F9] focus:outline-none"
             >
               <HelpCircle className="h-4 w-4" />
               Help
@@ -202,7 +202,7 @@ function SignOutButton() {
       type="submit"
       form="sign-out-form"
       disabled={pending}
-      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-bold text-[#FF3366] transition-colors hover:bg-[#FF3366]/10 focus:bg-[#FF3366]/10 focus:outline-none cursor-pointer select-none disabled:opacity-60 disabled:cursor-wait"
+      className="flex w-full cursor-pointer select-none items-center gap-2.5 px-3 py-2 text-sm font-semibold text-[#FF3366] transition-colors hover:bg-[#FF3366]/10 focus:bg-[#FF3366]/10 focus:outline-none disabled:cursor-wait disabled:opacity-60"
     >
       <LogOut className="h-4 w-4" />
       {pending ? "Signing out…" : "Sign out"}

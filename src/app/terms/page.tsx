@@ -21,8 +21,8 @@ export default function TermsPage() {
         </div>
 
         {/* Placeholder */}
-        <section className="rounded-2xl bg-white p-6 shadow-sm">
-          <div className="rounded-lg border-2 border-dashed border-[#E2E8F0] p-8 text-center">
+        <section className=" bg-white p-6 shadow-sm">
+          <div className=" border-2 border-dashed border-[#E2E8F0] p-8 text-center">
             <p className="text-[#94A3B8]">Terms of Use content coming soon.</p>
             <p className="mt-2 text-sm text-[#CBD5E1]">Replace this section with your terms HTML</p>
           </div>

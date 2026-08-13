@@ -57,7 +57,7 @@ export function AdminSupportMessageForm({ targetUserId }: { targetUserId: string
         <button
           type="submit"
           disabled={isPending}
-          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#0F172A] px-5 text-sm font-bold text-white transition-colors hover:bg-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
+          className="inline-flex min-h-12 items-center justify-center gap-2  bg-[#0F172A] px-5 text-sm font-bold text-white transition-colors hover:bg-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
         >
           <Send className="h-4 w-4" aria-hidden />
           {isPending ? "Sending..." : "Send"}

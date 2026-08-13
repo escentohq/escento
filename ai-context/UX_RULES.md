@@ -2,6 +2,10 @@
 
 > Interaction, state, and accessibility rules. Read [`DESIGN.md`](./DESIGN.md) first for the visual tokens these rules reference.
 
+## UI overhaul override (2026-08)
+
+Square controls are the default: no pill CTAs, rounded cards, or decorative corner treatments. Primary actions are solid blue, secondary actions are square outlined controls, and arrows/icons appear only when they clarify meaning. Do not add gradients or routine animation. Loading, empty, and error states should use stable layout, rules, and plain surfaces rather than pulsing card placeholders or animated reveals.
+
 ---
 
 ## CTAs
@@ -137,16 +141,16 @@ export default function Error({ reset }: { error: Error; reset: () => void }) {
 
 ---
 
-## Navigation (current legacy → target)
+## Navigation
 
-The navbar in `src/app/layout.tsx` uses the **legacy dark zinc** shell. Target spec for the bright migration:
+The shared navbar uses the bright foundation. Preserve these current rules:
 
-- Container: `bg-white/80 backdrop-blur border-b border-[#F1F5F9]`.
+- Container: solid white with a slate bottom rule; no blur.
 - Wordmark: `text-[#0F172A] font-bold tracking-tight`.
 - Nav links: `text-[#475569] hover:text-[#0055FF] transition-colors text-sm font-bold`.
-- Sign-in button: secondary pill style (white bg, ink border, ink text).
-- Signed-in chip: `border border-[#F1F5F9] bg-white rounded-full px-3 py-1.5 text-xs` with a `#0055FF` dot indicator.
-- Sticky on scroll: `sticky top-0 z-50` with backdrop blur.
+- Sign-in button: square secondary style (white bg, ink border, ink text).
+- Signed-in avatar is a centralized circular media exception; menu surfaces use the named overlay token.
+- Sticky on scroll: `sticky top-0 z-50` on a solid surface.
 
 See [`COMPONENTS.md`](./COMPONENTS.md) §NavBar for the full snippet.
 

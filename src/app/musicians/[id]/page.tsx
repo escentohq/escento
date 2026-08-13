@@ -86,9 +86,9 @@ export default async function MusicianPublicProfilePage({
           <div className="space-y-8 lg:col-span-2">
 
             {/* Cinematic profile header */}
-            <div className="relative overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white p-8 shadow-sm">
+            <div className="relative overflow-hidden  border border-[#F1F5F9] bg-white p-8 shadow-sm">
               <div
-                className="pointer-events-none absolute right-0 top-0 h-56 w-56 rounded-bl-full bg-linear-to-br from-[#0055FF]/6 to-transparent"
+                className="pointer-events-none absolute right-0 top-0 h-56 w-56    "
                 aria-hidden
               />
 
@@ -100,7 +100,7 @@ export default async function MusicianPublicProfilePage({
                 </div>
 
                 <div className="mt-5 flex flex-wrap items-center gap-5">
-                  <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-to-br from-[#0055FF]/25 via-[#FF3366]/20 to-[#FFB000]/25 text-xl font-black text-[#0F172A] ring-4 ring-[#F1F5F9]">
+                  <div className="media-avatar flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden bg-[#E2E8F0] text-xl font-bold text-[#0F172A] ring-4 ring-[#F1F5F9]">
                     {profile.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -169,7 +169,7 @@ export default async function MusicianPublicProfilePage({
                 </div>
 
                 <div className="mt-6 grid gap-4 md:grid-cols-2">
-                  <div className="rounded-2xl bg-[#F8FAFC] p-5">
+                  <div className=" bg-[#F8FAFC] p-5">
                     <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
                       Availability
                     </p>
@@ -177,7 +177,7 @@ export default async function MusicianPublicProfilePage({
                       {profile.availabilityText || "Not specified"}
                     </p>
                   </div>
-                  <div className="rounded-2xl bg-[#F8FAFC] p-5">
+                  <div className=" bg-[#F8FAFC] p-5">
                     <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
                       Work style
                     </p>
@@ -203,7 +203,7 @@ export default async function MusicianPublicProfilePage({
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex min-h-16 cursor-pointer items-center justify-between gap-4 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] px-4 text-sm font-bold text-[#0F172A] transition-all duration-200 hover:border-[#0055FF] hover:text-[#0055FF] hover:shadow-sm focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                        className="flex min-h-16 cursor-pointer items-center justify-between gap-4  border border-[#F1F5F9] bg-[#F8FAFC] px-4 text-sm font-bold text-[#0F172A] transition-all duration-200 hover:border-[#0055FF] hover:text-[#0055FF] hover:shadow-sm focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
                       >
                         <span>{link.label}</span>
                         <ExternalLink className="h-4 w-4 flex-shrink-0" aria-hidden />
@@ -219,9 +219,9 @@ export default async function MusicianPublicProfilePage({
           <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
             {/* Contact card — dark */}
             {!isOwnProfile ? (
-            <div className="relative overflow-hidden rounded-3xl bg-[#0F172A] p-8 text-white shadow-sm">
+            <div className="relative overflow-hidden  bg-[#0F172A] p-8 text-white shadow-sm">
               <div
-                className="pointer-events-none absolute right-0 top-0 h-32 w-32 rounded-bl-full bg-linear-to-br from-[#0055FF]/20 to-transparent"
+                className="pointer-events-none absolute right-0 top-0 h-32 w-32    "
                 aria-hidden
               />
               <div className="relative z-10">

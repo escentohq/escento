@@ -44,7 +44,7 @@ export function AdminDeleteTaxonomyButton({ id, name, kind, usageCount }: Props)
         type="button"
         onClick={submit}
         disabled={isPending}
-        className="inline-flex min-h-9 items-center rounded-full border border-[#FF3366]/40 px-3 text-xs font-bold text-[#FF3366] transition-colors hover:bg-[#FF3366]/10 disabled:opacity-50"
+        className="inline-flex min-h-9 items-center  border border-[#FF3366]/40 px-3 text-xs font-bold text-[#FF3366] transition-colors hover:bg-[#FF3366]/10 disabled:opacity-50"
       >
         {isPending ? "Removing..." : "Remove"}
       </button>

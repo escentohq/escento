@@ -4,6 +4,10 @@
 > Tokens come from [`DESIGN.md`](./DESIGN.md); behavioral rules from [`UX_RULES.md`](./UX_RULES.md).
 > Place all primitives in `src/components/ui/`. Feature components live in `src/components/<feature>/`.
 
+## UI overhaul override (2026-08)
+
+The live components in `src/components/ui/` now supersede the older copy-paste recipes below. They use Archivo, square flat controls and surfaces, solid color, restrained weights, and static presentation. Do not copy any older recipe containing `rounded-*`, a gradient, hover lift/glow, or reveal animation. Radius exceptions must use the named CSS utilities in `globals.css`.
+
 ---
 
 ## Index

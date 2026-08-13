@@ -3,13 +3,25 @@
 > Canonical visual system. **Bright stage-light theme.** All new UI uses these tokens.
 > Reference implementation: [`src/components/home/HomeLanding.tsx`](../src/components/home/HomeLanding.tsx).
 
+## UI overhaul override (2026-08)
+
+This section supersedes conflicting recipes below while those sections are incrementally revised.
+
+- Typography: Archivo via `next/font`; use bold display type selectively, not blanket `font-black`.
+- Shape: controls and containers use `0px` radius by default. Rare overlay/media exceptions come from the centralized tokens in `src/app/globals.css`, not scattered `rounded-*` utilities.
+- Color: `#FAFAFA` and `#0F172A` dominate. `#0055FF` is the primary action color; `#FF3366` and `#FFB000` are sparse signals.
+- Composition: flat editorial rows, rules, alignment, whitespace, and content hierarchy replace floating card grids.
+- Gradients: prohibited everywhere in `src`, including marketing surfaces.
+- Motion: no routine reveals, page transitions, hover lifts, parallax, or scroll choreography. Use only subtle targeted state transitions when an interaction needs feedback.
+- Reference direction: `/musicians` is the future canonical marketplace surface. `HomeLanding.tsx` is retained code, not the target system reference during the overhaul.
+
 ---
 
 ## Theme intent
 
 Performance-inspired, bright, cinematic. The product is for student musicians and creators — it should feel like a tour poster, not a SaaS dashboard. Three stage-light accents (blue / pink / gold) sit on an off-white field with deep slate ink. Black-weight headlines anchor sections; mono eyebrows label them.
 
-The **dark zinc shell** in `src/app/layout.tsx` + `src/app/globals.css` is legacy. Do not extend it. Do not use any `zinc-*` or `violet-*` Tailwind class.
+The root shell and global tokens now use the bright foundation. Do not use any `zinc-*` or `violet-*` Tailwind class.
 
 ---
 

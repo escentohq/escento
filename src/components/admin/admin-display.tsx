@@ -33,7 +33,7 @@ export function AdminUnavailable({
 }) {
   return (
     <div className="bg-[#FAFAFA] px-4 py-16 sm:px-6">
-      <div className="mx-auto max-w-xl rounded-3xl border border-[#F1F5F9] bg-white p-8 text-center shadow-sm">
+      <div className="mx-auto max-w-xl  border border-[#F1F5F9] bg-white p-8 text-center shadow-sm">
         <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
           Admin
         </span>
@@ -53,7 +53,7 @@ export function AdminUnavailable({
 export function AdminSetupRequired() {
   return (
     <div className="bg-[#FAFAFA] px-4 py-16 sm:px-6">
-      <div className="mx-auto max-w-2xl rounded-3xl border border-[#F1F5F9] bg-white p-8 shadow-sm">
+      <div className="mx-auto max-w-2xl  border border-[#F1F5F9] bg-white p-8 shadow-sm">
         <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FFB000]">
           Admin setup
         </span>
@@ -64,7 +64,7 @@ export function AdminSetupRequired() {
           The admin dashboard is isolated from the public app, but it needs the
           admin moderation migration before it can load moderation columns.
         </p>
-        <div className="mt-5 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] p-4 text-sm font-semibold text-[#334155]">
+        <div className="mt-5  border border-[#F1F5F9] bg-[#F8FAFC] p-4 text-sm font-semibold text-[#334155]">
           Apply{" "}
           <code className="font-mono text-[#0055FF]">
             supabase/migrations/20260607002000_add_safe_admin_moderation.sql
@@ -86,7 +86,7 @@ export function AdminSetupRequired() {
 
 export function ModerationTodo() {
   return (
-    <div className="mb-6 rounded-2xl border border-[#FFB000]/30 bg-[#FFB000]/10 p-4 text-sm font-medium leading-relaxed text-[#8A5C00]">
+    <div className="mb-6  border border-[#FFB000]/30 bg-[#FFB000]/10 p-4 text-sm font-medium leading-relaxed text-[#8A5C00]">
       TODO: Public directory queries are intentionally unchanged for safety.
       Hide/restore writes admin metadata only until public filtering is
       explicitly added later.

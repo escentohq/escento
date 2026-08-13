@@ -84,7 +84,7 @@ export default async function AdminSupportPage({
       <AdminNav supportBadgeCount={supportInbox.needsResponseCount} />
 
       <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
-        <aside className="rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm">
+        <aside className=" border border-[#F1F5F9] bg-white p-5 shadow-sm">
           <form action="/admin/support" className="mb-5">
             <label
               htmlFor="support-user-search"
@@ -98,11 +98,11 @@ export default async function AdminSupportPage({
                 name="q"
                 defaultValue={query}
                 placeholder="Name, email, or user ID"
-                className="min-h-11 min-w-0 flex-1 rounded-2xl border border-[#E2E8F0] bg-white px-4 text-sm font-medium text-[#0F172A] shadow-sm focus:border-[#0055FF] focus:outline-none focus:ring-2 focus:ring-[#0055FF]/20"
+                className="min-h-11 min-w-0 flex-1  border border-[#E2E8F0] bg-white px-4 text-sm font-medium text-[#0F172A] shadow-sm focus:border-[#0055FF] focus:outline-none focus:ring-2 focus:ring-[#0055FF]/20"
               />
               <button
                 type="submit"
-                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0F172A] text-white transition-colors hover:bg-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center  bg-[#0F172A] text-white transition-colors hover:bg-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
                 aria-label="Search support users"
               >
                 <Search className="h-4 w-4" aria-hidden />
@@ -116,14 +116,14 @@ export default async function AdminSupportPage({
                 Support inbox
               </h2>
               {supportInbox.needsResponseCount > 0 ? (
-                <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[#FF3366] px-2 text-xs font-black text-white">
+                <span className="flex h-6 min-w-6 items-center justify-center  bg-[#FF3366] px-2 text-xs font-black text-white">
                   {supportInbox.needsResponseCount}
                 </span>
               ) : null}
             </div>
             <div className="space-y-2">
               {supportInbox.items.length === 0 ? (
-                <p className="rounded-2xl bg-[#F8FAFC] p-4 text-sm font-medium text-[#64748B]">
+                <p className=" bg-[#F8FAFC] p-4 text-sm font-medium text-[#64748B]">
                   No support conversations yet.
                 </p>
               ) : (
@@ -133,7 +133,7 @@ export default async function AdminSupportPage({
                     href={`/admin/support?${new URLSearchParams({
                       userId: item.targetUser.id,
                     }).toString()}`}
-                    className={`block rounded-2xl border p-4 transition-colors hover:border-[#0055FF] hover:bg-[#F8FAFC] ${
+                    className={`block  border p-4 transition-colors hover:border-[#0055FF] hover:bg-[#F8FAFC] ${
                       selectedUserId === item.targetUser.id
                         ? "border-[#0055FF]/40 bg-[#0055FF]/5"
                         : item.needsResponse
@@ -151,7 +151,7 @@ export default async function AdminSupportPage({
                         </p>
                       </div>
                       {item.needsResponse ? (
-                        <span className="flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full bg-[#FF3366] px-2 text-xs font-black text-white">
+                        <span className="flex h-6 min-w-6 shrink-0 items-center justify-center  bg-[#FF3366] px-2 text-xs font-black text-white">
                           {item.unreadCount > 99 ? "99+" : item.unreadCount}
                         </span>
                       ) : null}
@@ -172,11 +172,11 @@ export default async function AdminSupportPage({
               Search results
             </h2>
             {!query ? (
-              <p className="rounded-2xl bg-[#F8FAFC] p-4 text-sm font-medium text-[#64748B]">
+              <p className=" bg-[#F8FAFC] p-4 text-sm font-medium text-[#64748B]">
                 Search to start a support conversation with another user.
               </p>
             ) : users.length === 0 ? (
-              <p className="rounded-2xl bg-[#F8FAFC] p-4 text-sm font-medium text-[#64748B]">
+              <p className=" bg-[#F8FAFC] p-4 text-sm font-medium text-[#64748B]">
                 No users found.
               </p>
             ) : (
@@ -187,7 +187,7 @@ export default async function AdminSupportPage({
                     ...(query ? { q: query } : {}),
                     userId: user.id,
                   }).toString()}`}
-                  className={`block rounded-2xl border p-4 transition-colors hover:border-[#0055FF] hover:bg-[#F8FAFC] ${
+                  className={`block  border p-4 transition-colors hover:border-[#0055FF] hover:bg-[#F8FAFC] ${
                     selectedUserId === user.id
                       ? "border-[#0055FF]/40 bg-[#0055FF]/5"
                       : "border-[#F1F5F9]"
@@ -210,7 +210,7 @@ export default async function AdminSupportPage({
           </div>
         </aside>
 
-        <section className="min-w-0 rounded-3xl border border-[#F1F5F9] bg-white shadow-sm">
+        <section className="min-w-0  border border-[#F1F5F9] bg-white shadow-sm">
           {!conversation ? (
             <div className="p-6">
               <EmptyState
@@ -247,7 +247,7 @@ export default async function AdminSupportPage({
                         />
                         <button
                           type="submit"
-                          className="inline-flex min-h-8 items-center rounded-full border border-[#FF3366]/30 bg-[#FF3366]/10 px-3 text-xs font-black text-[#FF3366] transition-colors hover:bg-[#FF3366]/15 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                          className="inline-flex min-h-8 items-center  border border-[#FF3366]/30 bg-[#FF3366]/10 px-3 text-xs font-black text-[#FF3366] transition-colors hover:bg-[#FF3366]/15 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
                         >
                           Mark as read
                         </button>
@@ -259,7 +259,7 @@ export default async function AdminSupportPage({
 
               <div className="max-h-155 min-h-105 space-y-4 overflow-y-auto p-5">
                 {conversation.messages.length === 0 ? (
-                  <div className="rounded-3xl bg-[#F8FAFC] p-8 text-center">
+                  <div className=" bg-[#F8FAFC] p-8 text-center">
                     <p className="text-sm font-bold text-[#0F172A]">
                       No messages yet.
                     </p>
@@ -277,7 +277,7 @@ export default async function AdminSupportPage({
                         className={`flex ${fromSupport ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-[82%] rounded-3xl px-4 py-3 ${
+                          className={`max-w-[82%]  px-4 py-3 ${
                             fromSupport
                               ? "bg-[#0F172A] text-white"
                               : "border border-[#F1F5F9] bg-[#F8FAFC] text-[#0F172A]"

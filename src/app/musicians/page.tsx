@@ -41,7 +41,7 @@ export default async function MusiciansPage({
       action={showCreateProfileCta ? <PrimaryCta href="/profile/create">Create Profile</PrimaryCta> : null}
     >
       <Reveal>
-        <div className="rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm md:p-6">
+        <div className=" border border-[#F1F5F9] bg-white p-5 shadow-sm md:p-6">
           <LocationDirectoryFilters
             action="/musicians"
             clearHref="/musicians"
@@ -86,16 +86,16 @@ export default async function MusiciansPage({
                 <Reveal key={profile.id} delay={Math.min(index, 6) * 0.04}>
                   <Link
                     href={`/musicians/${profile.id}`}
-                    className="group relative flex h-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl hover:shadow-[#0055FF]/10 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                    className="group relative flex h-full min-w-0 cursor-pointer flex-col overflow-hidden  border border-[#F1F5F9] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl hover:shadow-[#0055FF]/10 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
                   >
                     <div
-                      className="pointer-events-none absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-linear-to-br from-[#0055FF]/6 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                      className="pointer-events-none absolute right-0 top-0 h-24 w-24     opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                       aria-hidden
                     />
 
                     <div className="relative z-10 flex min-w-0 items-start justify-between gap-4">
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-to-br from-[#0055FF]/15 via-[#FF3366]/10 to-[#FFB000]/15 text-sm font-black text-[#0F172A]">
+                        <div className="media-avatar flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden bg-[#E2E8F0] text-sm font-bold text-[#0F172A]">
                           {profile.image ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img

@@ -90,9 +90,9 @@ export default async function MessageRequestsPage() {
 
               return (
                 <Reveal key={request.id} delay={Math.min(index, 6) * 0.04}>
-                  <article className="rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm">
+                  <article className=" border border-[#F1F5F9] bg-white p-6 shadow-sm">
                     <div className="flex gap-4">
-                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-[#F1F5F9]">
+                      <div className="media-avatar h-12 w-12 shrink-0 overflow-hidden bg-[#F1F5F9]">
                         {user?.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={user.image} alt="" className="h-full w-full object-cover" />
@@ -150,7 +150,7 @@ export default async function MessageRequestsPage() {
 
               return (
                 <Reveal key={request.id} delay={Math.min(index, 6) * 0.04}>
-                  <article className="rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm">
+                  <article className=" border border-[#F1F5F9] bg-white p-6 shadow-sm">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
                         <h3 className="break-words text-lg font-black text-[#0F172A]">{name}</h3>

@@ -65,7 +65,7 @@ function Chip({ children, variant = "blue" }: { children: React.ReactNode; varia
         ? "bg-[#FF3366]/10 text-[#FF3366]"
         : "bg-[#FF3366]/20 text-[#FF3366]";
   return (
-    <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${cls}`}>
+    <span className={` px-3 py-1 text-xs font-bold uppercase tracking-wider ${cls}`}>
       {children}
     </span>
   );
@@ -75,18 +75,18 @@ function Chip({ children, variant = "blue" }: { children: React.ReactNode; varia
 
 function MusicianFace() {
   return (
-    <div className="absolute inset-0 flex flex-col rounded-3xl border border-[#F1F5F9] bg-white p-6 md:p-8" style={{ backfaceVisibility: "hidden" }}>
+    <div className="absolute inset-0 flex flex-col  border border-[#F1F5F9] bg-white p-6 md:p-8" style={{ backfaceVisibility: "hidden" }}>
       {/* Top strip */}
       <div className="flex items-center justify-between">
         <Eyebrow>On stage</Eyebrow>
-        <span className="rounded-full bg-[#0055FF]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0055FF]">
+        <span className=" bg-[#0055FF]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0055FF]">
           Available
         </span>
       </div>
 
       {/* Avatar + name */}
       <div className="mt-5 flex items-center gap-4">
-        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-linear-to-br from-[#0055FF]/20 via-[#FF3366]/15 to-[#FFB000]/20">
+        <div className="flex h-16 w-16 flex-shrink-0 items-center justify-center     ">
           <span className="text-xl font-black text-[#0F172A]">{MUSICIAN.initials}</span>
         </div>
         <div>
@@ -132,16 +132,16 @@ function MusicianFace() {
 function GigFace() {
   return (
     <div
-      className="absolute inset-0 flex flex-col rounded-3xl bg-[#0F172A] p-6 md:p-8"
+      className="absolute inset-0 flex flex-col  bg-[#0F172A] p-6 md:p-8"
       style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
     >
       {/* Corner glow */}
-      <div className="absolute right-0 top-0 h-32 w-32 rounded-bl-full bg-linear-to-br from-[#FF3366]/20 to-transparent" aria-hidden="true" />
+      <div className="absolute right-0 top-0 h-32 w-32    " aria-hidden="true" />
 
       {/* Top strip */}
       <div className="relative z-10 flex items-center justify-between">
         <Eyebrow color="text-[#FF3366]">Backstage</Eyebrow>
-        <span className="rounded-full bg-[#0055FF]/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0055FF]">
+        <span className=" bg-[#0055FF]/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0055FF]">
           Open
         </span>
       </div>
@@ -160,7 +160,7 @@ function GigFace() {
       {/* Detail grid */}
       <div className="relative z-10 mt-5 grid grid-cols-2 gap-3">
         {GIG.details.map(({ icon: Icon, label, value }) => (
-          <div key={label} className="rounded-2xl bg-[#1E293B] p-3">
+          <div key={label} className=" bg-[#1E293B] p-3">
             <Icon className="h-4 w-4 text-[#94A3B8]" aria-hidden="true" />
             <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-[#94A3B8]">{label}</p>
             <p className="text-sm font-bold text-white">{value}</p>
@@ -264,18 +264,18 @@ export function StageFlip() {
 
             {/* Toggle */}
             <div className="space-y-3">
-              <div className="inline-flex items-center gap-1 rounded-full border border-[#F1F5F9] bg-white p-1 shadow-sm">
+              <div className="inline-flex items-center gap-1  border border-[#F1F5F9] bg-white p-1 shadow-sm">
                 {(["musician", "gig"] as Side[]).map((s) => (
                   <button
                     key={s}
                     onClick={() => setSide(s)}
-                    className="relative h-11 rounded-full px-6 text-sm font-bold tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                    className="relative h-11  px-6 text-sm font-bold tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
                     style={{ color: side === s ? "white" : "#475569" }}
                   >
                     {side === s && (
                       <motion.div
                         layoutId="stage-flip-thumb"
-                        className="absolute inset-0 rounded-full bg-[#0F172A]"
+                        className="absolute inset-0  bg-[#0F172A]"
                         transition={{ type: "spring", stiffness: 400, damping: 30 }}
                       />
                     )}
@@ -308,7 +308,7 @@ export function StageFlip() {
                 onClick={flip}
                 aria-pressed={side === "gig"}
                 aria-label={cardLabel}
-                className="w-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0055FF] focus-visible:ring-offset-4 rounded-3xl"
+                className="w-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0055FF] focus-visible:ring-offset-4 "
               >
                 <motion.div
                   className="relative aspect-[5/6] w-full md:aspect-[4/5]"

@@ -30,7 +30,7 @@ export default async function AdminCreatorsPage() {
     >
       <AdminNav />
       <ModerationTodo />
-      <div className="overflow-x-auto rounded-3xl border border-[#F1F5F9] bg-white shadow-sm">
+      <div className="overflow-x-auto  border border-[#F1F5F9] bg-white shadow-sm">
         <table className="w-full min-w-230 text-left text-sm">
           <thead className="bg-[#F8FAFC] text-xs font-black uppercase tracking-[0.14em] text-[#64748B]">
             <tr>

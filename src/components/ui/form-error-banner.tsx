@@ -24,7 +24,7 @@ export function FormErrorBanner({
   return (
     <div
       role={variant === "error" ? "alert" : "status"}
-      className={`rounded-2xl border px-4 py-3 text-sm font-bold transition-opacity duration-200 ${variantClass[variant]}`}
+      className={`border-l-4 px-4 py-3 text-sm font-semibold ${variantClass[variant]}`}
     >
       <p>{message}</p>
       {showScrollLink ? (

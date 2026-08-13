@@ -13,6 +13,10 @@
 > 8. `src/components/home/HomeLanding.tsx` — canonical design reference
 > 9. `ai-context/DATABASE.md` and current Supabase tables/storage — data model
 
+## UI overhaul override (2026-08)
+
+The older full-animation expectations below are suspended. New feature UI is square, flat, Archivo-led, and gradient-free. Do not add reveal/page/scroll animation; use only targeted interaction feedback. Use live shared primitives and the `/musicians` direction as the visual reference.
+
 **Before writing any UI code, invoke the `ui-ux-pro-max` skill** (see `AGENTS.md §UI/UX Skill`). DESIGN.md tokens override any conflicting skill output.
 
 ---
@@ -33,15 +37,9 @@ Implement a complete route: page + loading + error + empty state + server action
 8. Run DoD checklist from `AGENTS.md`
 9. `npm run lint` + `npm run build`
 
-## Animation expectations
+## Motion expectations
 
-Every new page must use the full animation stack from `ai-context/agents/ui-agent.md`:
-- **Framer Motion** — all entrances, hover, stagger. Default choice.
-- **GSAP ScrollTrigger** — scroll-pinned sections, scrubbed timelines.
-- **R3F + Drei** — 3D hero accent if the page has a focal hero moment.
-- **Lenis** — smooth scroll (already on root, no per-page work needed).
-
-A page with only Tailwind transitions is not done. Every section gets a scroll-reveal minimum.
+Static presentation is the default during the overhaul. Add only subtle targeted state transitions that provide necessary interaction feedback.
 
 ---
 

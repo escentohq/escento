@@ -29,7 +29,7 @@ export default async function AdminDashboardPage() {
 
       <div className="grid gap-4 md:grid-cols-4">
         {stats.map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-[#F1F5F9] bg-white p-5 shadow-sm">
+          <div key={label} className=" border border-[#F1F5F9] bg-white p-5 shadow-sm">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#64748B]">{label}</p>
             <p className="mt-3 text-3xl font-black text-[#0F172A]">{value}</p>
           </div>
@@ -40,7 +40,7 @@ export default async function AdminDashboardPage() {
         <SectionCard eyebrow="Recent" title="Profiles">
           <div className="space-y-4">
             {dashboard.recentProfiles.map((profile) => (
-              <div key={profile.id} className="rounded-2xl border border-[#F1F5F9] p-4">
+              <div key={profile.id} className=" border border-[#F1F5F9] p-4">
                 <div className="flex justify-between gap-4">
                   <div>
                     <p className="font-black text-[#0F172A]">{profile.displayName}</p>
@@ -57,7 +57,7 @@ export default async function AdminDashboardPage() {
         <SectionCard eyebrow="Recent" title="Gigs">
           <div className="space-y-4">
             {dashboard.recentGigs.map((gig) => (
-              <div key={gig.id} className="rounded-2xl border border-[#F1F5F9] p-4">
+              <div key={gig.id} className=" border border-[#F1F5F9] p-4">
                 <div className="flex justify-between gap-4">
                   <div>
                     <p className="font-black text-[#0F172A]">{gig.title}</p>

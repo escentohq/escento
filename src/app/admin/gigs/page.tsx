@@ -33,7 +33,7 @@ export default async function AdminGigsPage() {
     >
       <AdminNav />
       <ModerationTodo />
-      <div className="overflow-x-auto rounded-3xl border border-[#F1F5F9] bg-white shadow-sm">
+      <div className="overflow-x-auto  border border-[#F1F5F9] bg-white shadow-sm">
         <table className="w-full min-w-270 text-left text-sm">
           <thead className="bg-[#F8FAFC] text-xs font-black uppercase tracking-[0.14em] text-[#64748B]">
             <tr>
@@ -73,7 +73,7 @@ export default async function AdminGigsPage() {
                   <div className="flex flex-wrap gap-2">
                     <Link
                       href={`/admin/gigs/${gig.id}/edit`}
-                      className="inline-flex min-h-9 items-center rounded-full border border-[#E2E8F0] px-3 text-xs font-bold text-[#0F172A] transition-colors hover:border-[#0055FF] hover:text-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                      className="inline-flex min-h-9 items-center  border border-[#E2E8F0] px-3 text-xs font-bold text-[#0F172A] transition-colors hover:border-[#0055FF] hover:text-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
                     >
                       Edit full gig
                     </Link>

@@ -118,7 +118,7 @@ export function ConfirmDialog({
       <button
         type="button"
         aria-label="Close dialog"
-        className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-[#0F172A]/50"
         onClick={handleCancel}
         disabled={pending}
       />
@@ -129,19 +129,19 @@ export function ConfirmDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="relative w-full max-w-md rounded-3xl border border-[#F1F5F9] bg-white p-6 text-[#0F172A] shadow-2xl"
+        className="surface-overlay relative w-full max-w-md border border-[#0F172A] bg-white p-6 text-[#0F172A] shadow-[8px_8px_0_#0F172A]"
       >
         <button
           type="button"
           onClick={handleCancel}
           disabled={pending}
           aria-label="Close"
-          className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full text-[#64748B] transition-colors hover:bg-[#F1F5F9] hover:text-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:opacity-50"
+          className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center text-[#64748B] transition-colors hover:bg-[#F1F5F9] hover:text-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:opacity-50"
         >
           <X className="h-5 w-5" aria-hidden />
         </button>
 
-        <h2 id={titleId} className="pr-10 text-xl font-black tracking-tight">
+        <h2 id={titleId} className="pr-10 text-xl font-semibold tracking-[-0.02em]">
           {title}
         </h2>
         <p id={descriptionId} className="mt-3 text-sm font-medium leading-relaxed text-[#475569]">
@@ -175,7 +175,7 @@ export function ConfirmDialog({
             type="button"
             onClick={handleCancel}
             disabled={pending}
-            className="inline-flex h-12 items-center justify-center rounded-full border-2 border-[#E2E8F0] px-6 text-sm font-bold text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:opacity-50"
+            className="inline-flex h-12 items-center justify-center border border-[#0F172A] px-6 text-sm font-semibold text-[#0F172A] transition-colors hover:bg-[#0F172A] hover:text-white focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:opacity-50"
           >
             {cancelLabel}
           </button>
@@ -183,7 +183,7 @@ export function ConfirmDialog({
             type="button"
             onClick={handleConfirm}
             disabled={confirmDisabled}
-            className="inline-flex h-12 items-center justify-center rounded-full border-2 border-[#FF3366] bg-white px-6 text-sm font-bold text-[#FF3366] transition-colors hover:bg-[#FF3366]/10 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-12 items-center justify-center border border-[#FF3366] bg-[#FF3366] px-6 text-sm font-semibold text-white transition-colors hover:border-[#0F172A] hover:bg-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {pending ? "Working…" : confirmLabel}
           </button>

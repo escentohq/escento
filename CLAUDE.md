@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Read `AGENTS.md` before any work.** It contains the 10 non-negotiable rules, the full tech stack, the Definition of Done checklist, and which sub-agent file to load per task type. This file is the complement — architecture detail that requires reading across multiple files to understand.
 
-Reference implementation for all new UI: `src/components/home/HomeLanding.tsx`.
+During the UI overhaul, use the shared primitives and `/musicians` direction as the reference. `HomeLanding.tsx` is retained code, not the canonical target.
 
 ---
 
@@ -60,7 +60,7 @@ For actions bound with a pre-existing ID (e.g., edit flows): `updateGigAction.bi
 
 ### Layout and theme migration state
 
-`src/app/layout.tsx` and `src/app/globals.css` are **legacy dark-zinc shell** — they exist but are being phased out. Do not add new classes to `globals.css` (`.input-base`, `.btn-primary`, `.card` are dark-theme presets). All new pages use inline Tailwind with bright theme tokens directly. The legacy shell co-exists with the bright landing page because the landing page (`src/components/home/HomeLanding.tsx`) applies its own full-bleed styles that override the shell.
+`src/app/layout.tsx` now loads Archivo and `src/app/globals.css` owns the small set of shared foundation tokens. Controls and containers are square by default, gradients are prohibited in `src`, and named radius utilities are reserved for concrete overlay/media exceptions.
 
 ### Route co-location conventions
 
@@ -73,9 +73,9 @@ Inside `src/app/**`, only Next.js segment files are routes. Client forms and UI 
 
 Feature components shared across routes live in `src/components/<feature>/`. Global UI primitives live in `src/components/ui/`.
 
-### Animation stack usage
+### Motion usage
 
-Framer Motion is default for all entrance/hover/transition animations. The `<Reveal>` component (`src/components/ui/reveal.tsx`) wraps any block that should fade+lift in on scroll — use it instead of writing `whileInView` directly. GSAP ScrollTrigger is only for scroll-pinned timelines. R3F (`@react-three/fiber`) is restricted to `src/components/home/StageLightsScene.tsx` — no other file may import from `@react-three/*` or `three`. `useReducedMotion()` is required for any non-trivial animation.
+Do not add routine entrance, reveal, page-transition, hover-lift, or scroll-driven animation during the overhaul. `<Reveal>` is currently a static compatibility wrapper. Use subtle targeted state transitions only where interaction feedback needs them.
 
 ### Supabase Realtime
 

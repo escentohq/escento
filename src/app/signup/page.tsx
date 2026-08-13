@@ -39,9 +39,9 @@ export default async function SignUpPage({
           </p>
         </header>
 
-        <div className="relative overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm sm:p-8">
+        <div className="relative overflow-hidden  border border-[#F1F5F9] bg-white p-6 shadow-sm sm:p-8">
           <div
-            className="pointer-events-none absolute right-0 top-0 h-40 w-40 rounded-bl-full bg-linear-to-br from-[#FF3366]/5 to-transparent"
+            className="pointer-events-none absolute right-0 top-0 h-40 w-40    "
             aria-hidden
           />
           <div className="relative z-10 space-y-6">

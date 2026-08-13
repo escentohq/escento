@@ -173,7 +173,7 @@ function StepCopy({
 
       <div className="mt-7 flex items-start gap-3">
         <span
-          className="mt-1 h-5 w-1 flex-shrink-0 rounded-full"
+          className="mt-1 h-5 w-1 flex-shrink-0 "
           style={{ backgroundColor: step.accent }}
           aria-hidden
         />
@@ -224,7 +224,7 @@ function Tag({
       : "bg-[#0055FF]/10 text-[#0055FF]";
   return (
     <span
-      className={`rounded-full px-2.5 py-1 text-[11px] font-bold leading-none transition-colors duration-500 ${cls}`}
+      className={` px-2.5 py-1 text-[11px] font-bold leading-none transition-colors duration-500 ${cls}`}
     >
       {label}
     </span>
@@ -233,10 +233,10 @@ function Tag({
 
 function GigCard({ highlight, filled }: { highlight: boolean; filled: boolean }) {
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-[#F1F5F9] bg-white p-3 shadow-sm">
+    <div className="flex h-full flex-col  border border-[#F1F5F9] bg-white p-3 shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-[#1E293B]">
+          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center  bg-[#1E293B]">
             <Film className="h-4 w-4 text-[#FF3366]" aria-hidden />
           </span>
           <div className="min-w-0">
@@ -249,7 +249,7 @@ function GigCard({ highlight, filled }: { highlight: boolean; filled: boolean })
           </div>
         </div>
         <span
-          className={`flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-colors duration-500 ${
+          className={`flex-shrink-0  px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-colors duration-500 ${
             filled
               ? "bg-[#FF3366]/10 text-[#FF3366]"
               : "bg-[#0055FF]/10 text-[#0055FF]"
@@ -266,7 +266,7 @@ function GigCard({ highlight, filled }: { highlight: boolean; filled: boolean })
       <div className="mt-auto flex flex-wrap gap-1.5 pt-3">
         <Tag label="Strings" matched lit={highlight} />
         <Tag label="Piano" matched lit={highlight} />
-        <span className="rounded-full bg-[#FFB000]/10 px-2.5 py-1 text-[11px] font-bold leading-none text-[#FFB000]">
+        <span className=" bg-[#FFB000]/10 px-2.5 py-1 text-[11px] font-bold leading-none text-[#FFB000]">
           Paid
         </span>
       </div>
@@ -282,10 +282,10 @@ function ProfileCard({
   booked: boolean;
 }) {
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-[#F1F5F9] bg-white p-3 shadow-sm">
+    <div className="flex h-full flex-col  border border-[#F1F5F9] bg-white p-3 shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-linear-to-br from-[#0055FF]/20 via-[#FF3366]/15 to-[#FFB000]/20 text-[10px] font-black text-[#0F172A]">
+          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center      text-[10px] font-black text-[#0F172A]">
             MR
           </span>
           <div className="min-w-0">
@@ -298,7 +298,7 @@ function ProfileCard({
           </div>
         </div>
         <span
-          className={`flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-colors duration-500 ${
+          className={`flex-shrink-0  px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-colors duration-500 ${
             booked
               ? "bg-[#FFB000]/10 text-[#FFB000]"
               : "bg-[#0055FF]/10 text-[#0055FF]"
@@ -345,10 +345,10 @@ function Bubble({
       className={`flex ${isLeft ? "justify-start" : "justify-end"}`}
     >
       <span
-        className={`max-w-[85%] rounded-2xl px-3 py-2 text-[11px] font-medium leading-snug ${
+        className={`max-w-[85%]  px-3 py-2 text-[11px] font-medium leading-snug ${
           isLeft
-            ? "rounded-bl-sm bg-[#F1F5F9] text-[#475569]"
-            : "rounded-br-sm bg-[#0055FF] text-white"
+            ? " bg-[#F1F5F9] text-[#475569]"
+            : " bg-[#0055FF] text-white"
         }`}
       >
         {children}
@@ -372,7 +372,7 @@ function NoiseBubble({
       : "border-[#F1F5F9] bg-[#F8FAFC] text-[#94A3B8]";
   return (
     <span
-      className={`absolute inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold ${toneCls} ${className}`}
+      className={`absolute inline-flex items-center gap-1.5  border px-3 py-1.5 text-[11px] font-bold ${toneCls} ${className}`}
     >
       {children}
     </span>
@@ -402,23 +402,14 @@ function StageCanvas({
 
   return (
     <div className="relative mx-auto w-full max-w-[560px]" aria-hidden>
-      {/* Behind-frame glow, tinted by the active step */}
-      <motion.div
-        aria-hidden
-        initial={false}
-        animate={{ backgroundColor: STEPS[active].accent }}
-        transition={t}
-        className="absolute left-1/2 top-1/2 -z-10 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.12] blur-[90px]"
-      />
-
       {/* App frame */}
-      <div className="relative overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white shadow-xl shadow-[#0055FF]/5">
+      <div className="relative overflow-hidden  border border-[#F1F5F9] bg-white shadow-xl shadow-[#0055FF]/5">
         {/* Top bar */}
         <div className="flex items-center gap-3 border-b border-[#F1F5F9] px-4 py-3">
           <div className="flex gap-1.5" aria-hidden>
-            <span className="h-2.5 w-2.5 rounded-full bg-[#FF3366]/40" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#FFB000]/40" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#0055FF]/40" />
+            <span className="h-2.5 w-2.5  bg-[#FF3366]/40" />
+            <span className="h-2.5 w-2.5  bg-[#FFB000]/40" />
+            <span className="h-2.5 w-2.5  bg-[#0055FF]/40" />
           </div>
           <span className="flex items-center gap-1.5 text-sm font-black tracking-tight text-[#0F172A]">
             <EscentoMark className="h-3.5 w-auto" />
@@ -466,15 +457,6 @@ function StageCanvas({
             />
           </svg>
 
-          {/* Spotlight glow for the fit */}
-          <motion.div
-            aria-hidden
-            initial={false}
-            animate={{ opacity: active === 2 ? 0.7 : 0 }}
-            transition={t}
-            className="absolute left-1/2 top-[74%] h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#FF3366]/20 blur-[50px]"
-          />
-
           {/* Step 0 — the noise of word of mouth */}
           <motion.div
             aria-hidden
@@ -495,7 +477,7 @@ function StageCanvas({
             >
               Rough cut due · 3 weeks
             </NoiseBubble>
-            <span className="absolute bottom-8 right-4 inline-flex flex-col gap-1 rounded-2xl border border-dashed border-[#E2E8F0] bg-white/60 px-3 py-2">
+            <span className="absolute bottom-8 right-4 inline-flex flex-col gap-1  border border-dashed border-[#E2E8F0] bg-white/60 px-3 py-2">
               <span className="text-[11px] font-bold text-[#94A3B8]">
                 Maya Reyes
               </span>
@@ -523,7 +505,7 @@ function StageCanvas({
             ].map((f) => (
               <span
                 key={f.k}
-                className={`whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors duration-500 ${
+                className={`whitespace-nowrap  border px-2.5 py-1 text-[11px] font-bold transition-colors duration-500 ${
                   highlight
                     ? "border-[#FF3366]/30 bg-[#FF3366]/10 text-[#FF3366]"
                     : "border-[#F1F5F9] bg-[#F8FAFC] text-[#64748B]"
@@ -557,7 +539,7 @@ function StageCanvas({
               transition={t}
               className="absolute inset-0 flex items-center justify-center"
             >
-              <span className="inline-flex items-center gap-2 rounded-full border border-[#F1F5F9] bg-[#F8FAFC] px-3 py-1.5 text-[11px] font-bold text-[#64748B]">
+              <span className="inline-flex items-center gap-2  border border-[#F1F5F9] bg-[#F8FAFC] px-3 py-1.5 text-[11px] font-bold text-[#64748B]">
                 <Search className="h-3 w-3" aria-hidden />
                 Signed in and browsing the board
               </span>
@@ -570,7 +552,7 @@ function StageCanvas({
               transition={t}
               className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-center"
             >
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FF3366] px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-white">
+              <span className="inline-flex items-center gap-1.5  bg-[#FF3366] px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-white">
                 <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
                 Matched
               </span>
@@ -578,7 +560,7 @@ function StageCanvas({
                 {SHARED_TAGS.map((tg) => (
                   <span
                     key={tg}
-                    className="rounded-full bg-[#FF3366]/10 px-2.5 py-1 text-[11px] font-bold text-[#FF3366]"
+                    className=" bg-[#FF3366]/10 px-2.5 py-1 text-[11px] font-bold text-[#FF3366]"
                   >
                     {tg}
                   </span>
@@ -615,14 +597,14 @@ function StageCanvas({
               transition={t}
               className="absolute inset-0 flex flex-col justify-center gap-2.5"
             >
-              <div className="flex items-center gap-2 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] px-3 py-2">
+              <div className="flex items-center gap-2  border border-[#F1F5F9] bg-[#F8FAFC] px-3 py-2">
                 <Star className="h-4 w-4 flex-shrink-0 text-[#FFB000]" aria-hidden />
                 <span className="text-[12px] font-bold leading-tight text-[#0F172A]">
                   Original score — student short (dir. A. Park)
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <div className="rounded-2xl border border-[#F1F5F9] bg-white p-2.5 text-center">
+                <div className=" border border-[#F1F5F9] bg-white p-2.5 text-center">
                   <p className="text-xl font-black tracking-tight text-[#0055FF]">
                     <CountUp to={2} gate={countGate} />
                   </p>
@@ -630,7 +612,7 @@ function StageCanvas({
                     Days to reply
                   </p>
                 </div>
-                <div className="rounded-2xl border border-[#F1F5F9] bg-white p-2.5 text-center">
+                <div className=" border border-[#F1F5F9] bg-white p-2.5 text-center">
                   <p className="text-xl font-black tracking-tight text-[#FFB000]">
                     <CountUp to={200} prefix="$" gate={countGate} />
                   </p>
@@ -638,7 +620,7 @@ function StageCanvas({
                     Plus credit
                   </p>
                 </div>
-                <div className="rounded-2xl border border-[#F1F5F9] bg-white p-2.5 text-center">
+                <div className=" border border-[#F1F5F9] bg-white p-2.5 text-center">
                   <p className="text-xl font-black tracking-tight text-[#FF3366]">
                     <CountUp to={1} gate={countGate} />
                   </p>
@@ -704,10 +686,10 @@ function PinnedStory() {
               {STEPS.map((s, i) => (
                 <span
                   key={s.id}
-                  className="h-1 flex-1 overflow-hidden rounded-full bg-[#F1F5F9]"
+                  className="h-1 flex-1 overflow-hidden  bg-[#F1F5F9]"
                 >
                   <motion.span
-                    className="block h-full rounded-full"
+                    className="block h-full "
                     style={{ backgroundColor: s.accent, originX: 0 }}
                     initial={false}
                     animate={{ scaleX: i <= active ? 1 : 0 }}

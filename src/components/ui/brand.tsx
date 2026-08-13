@@ -9,7 +9,8 @@ import type { SVGProps } from "react";
  * The mark is drawn with `currentColor`, so callers control color by setting
  * the surrounding text color (e.g. `text-[#0F172A]` on light, `text-white`
  * on dark). Reference: `Elegant Black and White 'Escento' Logo.svg`, rebuilt
- * as a crisp, recolorable vector with softened (rounded) corners.
+ * as a crisp, recolorable brand vector. This custom logo geometry is exempt
+ * from the application surface-corner rules.
  */
 
 const MARK_VIEWBOX = "10 9 471 423";
