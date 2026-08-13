@@ -36,7 +36,7 @@ export default async function SignInPage({
             Sign in
           </h1>
           <p className="mt-3 text-base font-medium leading-relaxed text-[#475569]">
-            Use your email and password, or continue with Google.
+            Continue with Google, or use your email and password.
           </p>
         </header>
 
@@ -51,17 +51,17 @@ export default async function SignInPage({
                 Something went wrong finishing sign-in. Try again.
               </div>
             ) : null}
-            <SignInForm callbackUrl={base} />
+            <GoogleButton callbackUrl={base} />
 
             <div className="flex items-center gap-4">
               <div className="h-px flex-1 bg-[#F1F5F9]" />
               <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
-                Or
+                Or continue with email
               </span>
               <div className="h-px flex-1 bg-[#F1F5F9]" />
             </div>
 
-            <GoogleButton callbackUrl={base} />
+            <SignInForm callbackUrl={base} />
           </div>
         </div>
 

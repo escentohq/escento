@@ -35,7 +35,7 @@ export default async function SignUpPage({
             Create account
           </h1>
           <p className="mt-3 text-base font-medium leading-relaxed text-[#475569]">
-            Start with email and password, or continue with Google.
+            Continue with Google, or start with email and password.
           </p>
         </header>
 
@@ -45,16 +45,6 @@ export default async function SignUpPage({
             aria-hidden
           />
           <div className="relative z-10 space-y-6">
-            <SignUpForm callbackUrl={base} />
-
-            <div className="flex items-center gap-4">
-              <div className="h-px flex-1 bg-[#F1F5F9]" />
-              <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
-                Or
-              </span>
-              <div className="h-px flex-1 bg-[#F1F5F9]" />
-            </div>
-
             <div className="space-y-3">
               <GoogleButton callbackUrl={base} label="Sign up with Google" />
               <p className="px-2 text-center text-xs font-medium leading-relaxed text-[#64748B]">
@@ -73,6 +63,16 @@ export default async function SignUpPage({
                 .
               </p>
             </div>
+
+            <div className="flex items-center gap-4">
+              <div className="h-px flex-1 bg-[#F1F5F9]" />
+              <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+                Or continue with email
+              </span>
+              <div className="h-px flex-1 bg-[#F1F5F9]" />
+            </div>
+
+            <SignUpForm callbackUrl={base} />
           </div>
         </div>
 
