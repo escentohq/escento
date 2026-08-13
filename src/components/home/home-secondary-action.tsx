@@ -27,5 +27,5 @@ export function HomeSecondaryAction() {
         ? "Create Profile"
         : "Sign In";
 
-  return <SecondaryCta href={href} className="w-full sm:w-auto">{label}</SecondaryCta>;
+  return <SecondaryCta href={href} prefetch={false} className="w-full sm:w-auto">{label}</SecondaryCta>;
 }

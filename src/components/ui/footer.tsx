@@ -17,12 +17,14 @@ export function Footer() {
           <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-sm font-medium text-[#475569]">
             <Link
               href="/musicians"
+              prefetch={false}
               className="transition-colors hover:text-[#0055FF]"
             >
               Musicians
             </Link>
             <Link
               href="/gigs"
+              prefetch={false}
               className="transition-colors hover:text-[#0055FF]"
             >
               Gigs

@@ -39,6 +39,7 @@ export function ConnectButton({
     return (
       <Link
         href={`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+        prefetch={false}
         className="mt-5 flex w-full cursor-pointer items-center justify-between bg-brand px-5 py-3 text-control text-white transition-colors hover:bg-white hover:text-ink focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
       >
         <span>Sign in to Connect</span>

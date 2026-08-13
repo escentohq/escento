@@ -35,7 +35,7 @@ export default async function MusiciansPage({
       eyebrow="Directory"
       title="Musicians"
       body="Filter by instrument, genre, and location. Open a profile when the work fits."
-      action={<PrimaryCta href="/profile/create">Create Profile</PrimaryCta>}
+      action={<PrimaryCta href="/profile/create" prefetch={false}>Create Profile</PrimaryCta>}
     >
         <div className="border-y border-rule py-5 md:py-6">
           <LocationDirectoryFilters
@@ -67,7 +67,7 @@ export default async function MusiciansPage({
                   Clear filters
                 </Link>
               ) : (
-                <PrimaryCta href="/profile/create">Create Profile</PrimaryCta>
+                <PrimaryCta href="/profile/create" prefetch={false}>Create Profile</PrimaryCta>
               )
             }
           />
@@ -81,6 +81,7 @@ export default async function MusiciansPage({
                   <Link
                     key={profile.id}
                     href={`/musicians/${profile.id}`}
+                    prefetch={false}
                     className="group grid min-w-0 cursor-pointer gap-5 bg-surface px-1 py-6 transition-colors hover:bg-[#F8FAFC] focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)_auto] md:items-start md:px-4"
                   >
                     <div className="flex min-w-0 items-start justify-between gap-4 md:justify-start">

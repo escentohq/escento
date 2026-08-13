@@ -45,7 +45,7 @@ export default async function GigsPage({
       eyebrow="Open calls"
       title="Gigs"
       body="Find projects hiring musicians for film, podcasts, games, and live work."
-      action={<PrimaryCta href="/gigs/create">Post a Gig</PrimaryCta>}
+      action={<PrimaryCta href="/gigs/create" prefetch={false}>Post a Gig</PrimaryCta>}
     >
         <div className="border-y border-rule py-5 md:py-6">
           <LocationDirectoryFilters
@@ -77,7 +77,7 @@ export default async function GigsPage({
               hasFilters ? (
                 <Link href="/gigs" className="control-secondary">Clear filters</Link>
               ) : (
-                <PrimaryCta href="/gigs/create">Post a Gig</PrimaryCta>
+                <PrimaryCta href="/gigs/create" prefetch={false}>Post a Gig</PrimaryCta>
               )
             }
           />
@@ -91,6 +91,7 @@ export default async function GigsPage({
                   <Link
                     key={gig.id}
                     href={`/gigs/${gig.id}`}
+                    prefetch={false}
                     className="group grid min-w-0 cursor-pointer gap-5 bg-surface px-1 py-6 transition-colors hover:bg-[#F8FAFC] focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1.35fr)_auto] md:px-4"
                   >
                     <div className="flex min-w-0 items-start justify-between gap-4">

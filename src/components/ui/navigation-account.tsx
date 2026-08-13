@@ -45,12 +45,14 @@ export function NavigationAccount() {
     <div className="flex min-w-[9rem] items-center justify-end gap-2 sm:min-w-[12.5rem] sm:gap-3">
       <Link
         href="/signin"
+        prefetch={false}
         className="inline-flex min-h-11 items-center border border-ink bg-surface px-4 py-2 text-xs font-semibold text-ink transition-colors hover:bg-ink hover:text-white focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2"
       >
         Sign in
       </Link>
       <Link
         href="/signup"
+        prefetch={false}
         className="hidden min-h-11 items-center border border-brand bg-brand px-4 py-2 text-xs font-semibold text-white transition-colors hover:border-ink hover:bg-ink focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 sm:inline-flex"
       >
         Sign up
