@@ -96,71 +96,9 @@ export function ScrollSection() {
 
 **Rule:** GSAP owns scroll-driven transforms. Framer owns entrances. Never apply both to the same element.
 
-### 3. R3F + Drei (3D hero accents — any page)
+Prefer the shared [`Reveal`](../../../src/components/ui/reveal.tsx) wrapper over hand-written `whileInView`.
 
-Use for: floating geometry behind a hero, particle fields, environment glow, abstract 3D brand moments.
-
-```tsx
-"use client";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, Environment, Preload } from "@react-three/drei";
-import { Suspense, useRef } from "react";
-import * as THREE from "three";
-
-function FloatingSphere() {
-  const mesh = useRef<THREE.Mesh>(null);
-  useFrame((state) => {
-    if (mesh.current) mesh.current.rotation.y = state.clock.elapsedTime * 0.3;
-  });
-  return (
-    <Float speed={2} rotationIntensity={0.4} floatIntensity={0.6}>
-      <mesh ref={mesh}>
-        <icosahedronGeometry args={[1, 1]} />
-        <meshStandardMaterial color="#0055FF" roughness={0.1} metalness={0.8} />
-      </mesh>
-    </Float>
-  );
-}
-
-export function HeroScene() {
-  return (
-    <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-      <Canvas camera={{ position: [0, 0, 5], fov: 45 }} gl={{ antialias: true, alpha: true }}>
-        <Suspense fallback={null}>
-          <ambientLight intensity={0.5} />
-          <pointLight position={[10, 10, 10]} color="#0055FF" intensity={2} />
-          <FloatingSphere />
-          <Environment preset="city" />
-          <Preload all />
-        </Suspense>
-      </Canvas>
-    </div>
-  );
-}
-```
-
-**Rules:**
-- Always `pointer-events-none` + `aria-hidden="true"` + `Suspense` fallback
-- 3D is for hero moments and focal accents only — not card grids, not navbars
-- Dynamic import with `ssr: false` when used inside a Server Component page:
-  ```tsx
-  const HeroScene = dynamic(() => import("./_hero-scene"), { ssr: false });
-  ```
-
-### 4. Lenis smooth scroll
-
-Wrap root layout once. Never call per-page.
-
-```tsx
-// src/components/SmoothScroll.tsx
-"use client";
-import { ReactLenis } from "@studio-freight/react-lenis";
-export function SmoothScroll({ children }: { children: React.ReactNode }) {
-  return <ReactLenis root options={{ lerp: 0.1, duration: 1.4, smoothWheel: true }}>{children}</ReactLenis>;
-}
-```
-
-Add to `src/app/layout.tsx` once the legacy shell is migrated.
+There is no 3D or smooth-scroll layer. Do not import `three`, `@react-three/*`, or `lenis`. Re-adding either needs approval per `AGENTS.md`.
 
 ---
 
@@ -170,9 +108,8 @@ Add to `src/app/layout.tsx` once the legacy shell is migrated.
 - `error.tsx` — branded error with back link
 - Empty state — eyebrow + one sentence + one CTA
 - One primary CTA max
-- Scroll-reveal on every section (framer `whileInView`)
+- Scroll-reveal on every section (`<Reveal>` or framer `whileInView`)
 - `useReducedMotion()` guard on all non-trivial animations
-- 3D accent on hero if the page warrants a focal moment
 
 ---
 
@@ -201,7 +138,6 @@ export default function Loading() {
 
 - UI primitives → `src/components/ui/`
 - Feature components → `src/components/<feature>/`
-- 3D scenes → `src/components/<feature>/<Name>Scene.tsx`
 - Co-located route helpers → `src/app/<route>/_<name>.tsx`
 
 ---
@@ -211,7 +147,6 @@ export default function Loading() {
 - Add `"use client"` to `page.tsx` — extract animated parts into child client components
 - Touch `src/app/layout.tsx` or `src/app/globals.css` legacy classes
 - Apply GSAP and framer motion to the same element
-- Put R3F `<Canvas>` in a card grid or navigation
 - Add new dependencies not in `AGENTS.md` stack snapshot
 
 ---
