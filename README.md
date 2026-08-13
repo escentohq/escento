@@ -304,7 +304,7 @@ Underscore prefix (`_`) opts out of routing — use for co-located forms and hel
 
 ## Contributing
 
-1. Read `ai-context/AGENTS.md` for conventions
+1. Read `AGENTS.md` for conventions
 2. Create feature branch from `main`
 3. Follow commit style: `feat(scope): description`
 4. `npm run lint && npm run build` must pass
@@ -312,11 +312,11 @@ Underscore prefix (`_`) opts out of routing — use for co-located forms and hel
 
 ## Resources
 
-- **API docs:** `ai-context/DATABASE.md` (all service layer functions)
-- **Design system:** `ai-context/DESIGN.md` (colors, tokens, motion)
-- **UX rules:** `ai-context/UX_RULES.md` (forms, loading states, accessibility)
-- **Architecture:** `ai-context/FRONTEND_ARCH.md` (patterns, auth, data fetching)
-- **Components:** `ai-context/COMPONENTS.md` (reusable UI recipes)
+- **API docs:** `docs/ai-context/DATABASE.md` (all service layer functions)
+- **Design system:** `docs/ai-context/DESIGN.md` (colors, tokens, motion)
+- **UX rules:** `docs/ai-context/UX_RULES.md` (forms, loading states, accessibility)
+- **Architecture:** `docs/ai-context/FRONTEND_ARCH.md` (patterns, auth, data fetching)
+- **Components:** `docs/ai-context/COMPONENTS.md` (reusable UI recipes)
 
 ## License
 

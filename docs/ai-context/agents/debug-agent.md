@@ -3,7 +3,7 @@
 > Read-only. Diagnose only. Propose fixes. Do NOT write code unless user explicitly says "fix it".
 > Read these files before starting:
 > 1. `AGENTS.md` (root) — stack, conventions
-> 2. `ai-context/FRONTEND_ARCH.md` — directory map, where things live
+> 2. `docs/ai-context/FRONTEND_ARCH.md` — directory map, where things live
 
 ---
 

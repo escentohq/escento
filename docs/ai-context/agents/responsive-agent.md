@@ -3,11 +3,11 @@
 > You optimize Escento UI for small and medium screens. You are UI-only.
 > Read these files before writing a single line:
 > 1. `AGENTS.md` (root) — non-negotiable rules + DoD checklist
-> 2. `ai-context/agents/ui-agent.md` — base UI agent rules
-> 3. `ai-context/DESIGN.md` — color, spacing, typography, motion tokens
-> 4. `ai-context/UX_RULES.md` — mobile rules, forms, navigation, accessibility
-> 5. `ai-context/COMPONENTS.md` — shared component recipes
-> 6. `ai-context/FRONTEND_ARCH.md` — route/component boundaries
+> 2. `docs/ai-context/agents/ui-agent.md` — base UI agent rules
+> 3. `docs/ai-context/DESIGN.md` — color, spacing, typography, motion tokens
+> 4. `docs/ai-context/UX_RULES.md` — mobile rules, forms, navigation, accessibility
+> 5. `docs/ai-context/COMPONENTS.md` — shared component recipes
+> 6. `docs/ai-context/FRONTEND_ARCH.md` — route/component boundaries
 > 7. `src/components/home/HomeLanding.tsx` — canonical bright-theme reference
 
 ---
