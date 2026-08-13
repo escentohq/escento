@@ -12,10 +12,10 @@ Square controls are the default: no pill CTAs, rounded cards, or decorative corn
 
 ### Primary
 
-- Shape: pill (`rounded-full`), height `h-14`, pad `px-8`.
-- Background: `#0F172A` (ink). Text: white. Font: `text-sm font-bold tracking-wide`.
-- Hover: scale `1.05`, blue glow shadow `0_0_40px_-10px_#0055FF`, gradient overlay `from-[#0055FF] to-[#FF3366]` fades in.
-- Icon: `ArrowRight` on the right; translates `+1` on hover.
+- Shape: square, minimum height `min-h-12`, pad `px-6 py-3`.
+- Background: `#0055FF`. Text: white. Font: `text-control`.
+- Hover: a solid ink or darker-blue state only. No scale, glow, or gradient.
+- Icon: include a Lucide icon only when it clarifies the action.
 - Always above the fold on hero / detail / form pages.
 
 **Rule.** There is exactly **one** primary CTA per page. Anything else is secondary or ghost.
@@ -23,7 +23,7 @@ Square controls are the default: no pill CTAs, rounded cards, or decorative corn
 
 ### Secondary
 
-- Same pill shape and dimensions.
+- Same square shape and dimensions.
 - Background: `white`. Border: `border-2 border-[#E2E8F0]`. Text: `#0F172A`.
 - Hover: border darkens to `#0F172A`. No glow.
 - Icon: `Plus` on left for "create" actions, none otherwise.
@@ -69,13 +69,13 @@ Full system: [`FORMS.md`](./FORMS.md). Summary:
 **Rule.** Every async route segment has a `loading.tsx` that renders a skeleton.
 **Why.** Without it, the app freezes during DB fetches with no visual feedback. None exist today — flagged as required for new routes.
 
-Skeleton recipe:
+Static skeleton recipe:
 
 ```tsx
-<div className="animate-pulse space-y-4">
-  <div className="h-8 w-1/3 rounded-full bg-[#F1F5F9]" />
-  <div className="h-4 w-2/3 rounded-full bg-[#F1F5F9]" />
-  <div className="h-64 rounded-3xl bg-[#F8FAFC]" />
+<div className="space-y-4">
+  <div className="h-8 w-1/3 bg-rule" />
+  <div className="h-4 w-2/3 bg-rule" />
+  <div className="h-64 border-y border-rule bg-surface" />
 </div>
 ```
 
@@ -85,10 +85,10 @@ Mirror the page's layout structure (eyebrow → headline → grid).
 
 ## Empty states
 
-**Pattern:** card-styled block, eyebrow, one sentence, one CTA.
+**Pattern:** rule-separated block, eyebrow, one sentence, one CTA.
 
 ```tsx
-<div className="rounded-3xl border border-[#F1F5F9] bg-white p-12 text-center">
+<div className="border-y border-rule bg-surface py-12 text-center">
   <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
     Nothing yet
   </span>
@@ -114,7 +114,7 @@ Copy comes from [`BRAND.md`](./BRAND.md) §Empty-state copy patterns.
 "use client";
 export default function Error({ reset }: { error: Error; reset: () => void }) {
   return (
-    <div className="mx-auto max-w-2xl rounded-3xl border border-[#F1F5F9] bg-white p-12 text-center">
+    <div className="mx-auto max-w-2xl border-y border-rule bg-surface py-12 text-center">
       <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
         Something broke
       </span>
@@ -127,14 +127,14 @@ export default function Error({ reset }: { error: Error; reset: () => void }) {
 
 ---
 
-## Status badges
+## Status labels
 
-- Shape: `rounded-full px-3 py-1`.
-- Text: `text-xs font-bold uppercase tracking-wider`.
+- Shape: square inline metadata, optionally with a left accent rule.
+- Text: `text-meta uppercase tracking-wider`.
 - Colors from [`DESIGN.md`](./DESIGN.md) §Status mapping.
 
 ```tsx
-<span className="rounded-full bg-[#0055FF]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0055FF]">
+<span className="border-l-2 border-brand pl-2 text-meta uppercase tracking-wider text-brand">
   Open
 </span>
 ```
@@ -156,14 +156,13 @@ See [`COMPONENTS.md`](./COMPONENTS.md) §NavBar for the full snippet.
 
 ---
 
-## Directory pages (filters + grid)
+## Directory pages (filters + editorial list)
 
-- Filter row at top: `rounded-3xl border border-[#F1F5F9] bg-white p-6` containing 3–4 column `<form method="GET">`.
+- Filter row at top: square `border-y border-rule bg-surface py-6` containing a responsive `<form method="GET">`.
 - Selects use `<datalist>` autocomplete (not raw `<select>` with 1000+ options — flagged perf issue).
 - Apply button is primary; Clear is a ghost text link beside it.
-- Result grid: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8`.
-- Each card: `rounded-3xl border border-[#F1F5F9] bg-white p-6 hover:shadow-xl hover:shadow-[#0055FF]/10`.
-- Card content order: identity → meta (chip row) → clamped bio/description → `View →`.
+- Results are stacked, `divide-y` editorial rows with responsive metadata columns.
+- Row content order: identity → concise metadata → clamped bio/description → clear text action.
 - Chip caps: show first 3 instruments and first 3 genres. Display `+N more` if more exist (do not silently hide — current code does, flagged).
 
 ---
@@ -179,7 +178,7 @@ See [`COMPONENTS.md`](./COMPONENTS.md) §NavBar for the full snippet.
 
 ## Confirmation patterns
 
-- **Destructive actions** (`deleteGig`): `window.confirm("Delete this gig?")` then `useTransition` to call the server action.
+- **Destructive actions** (`deleteGig`): use `ConfirmDialog`, then `useTransition` to call the server action.
 - **State changes that are reversible** (mark filled): no confirm.
 - Never use browser `alert()` for non-destructive feedback. Use inline state + `useTransition` instead.
 

@@ -137,7 +137,7 @@ Current state of two onboarding paths triggered after user signup. Documents com
 
 **Form UI**:
 - Error banner at top (if validation fails): "Tighten the set before saving." (styled in #FF3366 red)
-- Card container: rounded-3xl, border #F1F5F9, white bg, shadow
+- Form container: square, border-y #F1F5F9, white background, no shadow
 - Fields organized in sections with fieldset + legend pattern
 - Submit button: `FormSubmitButton`
   - Submit label: (context-dependent, but "Create Profile" implied)
@@ -299,7 +299,7 @@ Current state of two onboarding paths triggered after user signup. Documents com
 
 **Form UI**:
 - Error banner at top (if validation fails): "Tighten the set before publishing."
-- Card container: rounded-3xl, border #F1F5F9, white bg, shadow
+- Form container: square, border-y #F1F5F9, white background, no shadow
 - Fields organized in sections with fieldset + legend pattern
 - Submit button: `FormSubmitButton`
   - Submit label: "Publish Gig"

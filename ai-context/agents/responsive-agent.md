@@ -8,7 +8,7 @@
 > 4. `ai-context/UX_RULES.md` — mobile rules, forms, navigation, accessibility
 > 5. `ai-context/COMPONENTS.md` — shared component recipes
 > 6. `ai-context/FRONTEND_ARCH.md` — route/component boundaries
-> 7. `src/components/home/HomeLanding.tsx` — canonical bright-theme reference
+> 7. `src/app/musicians/page.tsx` — canonical marketplace reference
 
 ---
 
@@ -84,7 +84,8 @@ Use browser screenshots or responsive viewport testing when available. Do not re
 
 - Use the bright stage-light system: `#FAFAFA`, `#FFFFFF`, `#0F172A`, `#0055FF`, `#FF3366`, `#FFB000`.
 - Do not introduce `zinc-*`, `violet-*`, dark-mode surfaces, or new palettes.
-- Keep buttons `rounded-full`, cards `rounded-3xl`, chips `rounded-full`.
+- Keep application buttons, cards, and metadata treatments square. Preserve named radius
+  exceptions only for true avatars, status dots, and overlays that need a slight compositional edge.
 - Use `lucide-react` icons only.
 - Keep one primary CTA per page.
 - Prefer single-column mobile layouts and two-column medium layouts only when content has enough room.

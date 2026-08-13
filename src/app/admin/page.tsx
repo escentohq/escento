@@ -27,23 +27,23 @@ export default async function AdminDashboardPage() {
       <AdminNav />
       <ModerationTodo />
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <dl className="grid border-y border-rule md:grid-cols-4 md:divide-x md:divide-rule">
         {stats.map(([label, value]) => (
-          <div key={label} className="rounded-2xl border border-[#F1F5F9] bg-white p-5 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#64748B]">{label}</p>
-            <p className="mt-3 text-3xl font-black text-[#0F172A]">{value}</p>
+          <div key={label} className="py-5 md:px-5">
+            <dt className="text-meta uppercase text-muted">{label}</dt>
+            <dd className="mt-3 text-section-heading text-ink">{value}</dd>
           </div>
         ))}
-      </div>
+      </dl>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
         <SectionCard eyebrow="Recent" title="Profiles">
-          <div className="space-y-4">
+          <div className="divide-y divide-rule border-y border-rule">
             {dashboard.recentProfiles.map((profile) => (
-              <div key={profile.id} className="rounded-2xl border border-[#F1F5F9] p-4">
+              <div key={profile.id} className="py-4">
                 <div className="flex justify-between gap-4">
                   <div>
-                    <p className="font-black text-[#0F172A]">{profile.displayName}</p>
+                    <p className="font-semibold text-ink">{profile.displayName}</p>
                     <p className="mt-1 text-xs text-[#64748B]">{profile.email || profile.userId}</p>
                   </div>
                   <span className="text-xs font-bold text-[#64748B]"><DateValue value={profile.createdAt} /></span>
@@ -55,12 +55,12 @@ export default async function AdminDashboardPage() {
         </SectionCard>
 
         <SectionCard eyebrow="Recent" title="Gigs">
-          <div className="space-y-4">
+          <div className="divide-y divide-rule border-y border-rule">
             {dashboard.recentGigs.map((gig) => (
-              <div key={gig.id} className="rounded-2xl border border-[#F1F5F9] p-4">
+              <div key={gig.id} className="py-4">
                 <div className="flex justify-between gap-4">
                   <div>
-                    <p className="font-black text-[#0F172A]">{gig.title}</p>
+                    <p className="font-semibold text-ink">{gig.title}</p>
                     <p className="mt-1 text-xs text-[#64748B]">{gig.creatorEmail || gig.creatorId}</p>
                   </div>
                   <span className="text-xs font-bold text-[#64748B]"><DateValue value={gig.createdAt} /></span>

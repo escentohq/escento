@@ -97,7 +97,7 @@ function CheckboxField({
   return (
     <label
       htmlFor={id}
-      className="flex min-h-14 items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-white px-4 text-sm font-bold text-[#0F172A]"
+      className="flex min-h-12 items-center gap-3 border border-rule bg-surface px-3 text-control text-ink"
     >
       <input
         id={id}
@@ -179,7 +179,7 @@ export function ProfileForm({
   }, [state]);
 
   return (
-    <div className="rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm md:p-8">
+    <div className="border-y border-rule py-6 md:py-8">
       {state.message && fieldErrorCount >= 2 ? (
         <div className="mb-6">
           <FormErrorBanner

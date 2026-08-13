@@ -5,12 +5,11 @@ export default function HelpPage() {
   return (
     <PageShell
       eyebrow="Support"
-      title="How can we help?"
-      body="Need assistance? Reach out to the Escento team and we'll do our best to get back to you as soon as possible."
+      title="Contact support"
+      body="Tell us what went wrong and include the account or listing details we need to investigate."
       size="medium"
     >
       <SupportForm />
     </PageShell>
   );
 }
-

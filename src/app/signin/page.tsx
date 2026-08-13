@@ -26,24 +26,24 @@ export default async function SignInPage({
   const authError = error === "auth";
 
   return (
-    <div className="bg-[#FAFAFA] px-4 py-16 sm:px-6 md:py-24">
-      <div className="mx-auto w-full max-w-md">
-        <header className="mb-8">
-          <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
-            Soundcheck
+    <div className="bg-paper px-4 py-12 sm:px-6 md:py-20 lg:px-8">
+      <div className="mx-auto grid w-full max-w-5xl gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(22rem,1fr)] lg:gap-20">
+        <header className="border-t-4 border-brand pt-6">
+          <span className="text-meta uppercase text-brand">
+            Account access
           </span>
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-[#0F172A]">
+          <h1 className="mt-3 text-page-title text-ink">
             Sign in
           </h1>
-          <p className="mt-3 text-base font-medium leading-relaxed text-[#475569]">
+          <p className="mt-4 max-w-md text-body text-muted">
             Continue with Google, or use your email and password.
           </p>
         </header>
 
-        <div className="relative overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm sm:p-8">
-          <div className="relative z-10 space-y-6">
+        <div className="border-y border-rule py-6 sm:py-8">
+          <div className="space-y-6">
             {authError ? (
-              <div className="rounded-2xl border border-[#FF3366]/20 bg-[#FF3366]/10 px-4 py-3 text-sm font-bold text-[#B42318]">
+              <div className="border-l-4 border-coral px-4 py-3 text-secondary font-semibold text-[#B42318]">
                 Something went wrong finishing sign-in. Try again.
               </div>
             ) : null}
@@ -61,7 +61,8 @@ export default async function SignInPage({
           </div>
         </div>
 
-        <p className="mt-6 text-center text-sm font-bold text-[#475569]">
+        <div className="lg:col-start-2">
+        <p className="mt-6 text-secondary text-muted">
           New here?{" "}
           <Link
             href={signupHref}
@@ -71,7 +72,7 @@ export default async function SignInPage({
           </Link>
         </p>
 
-        <p className="mt-3 text-center text-sm font-bold text-[#475569]">
+        <p className="mt-3 text-secondary text-muted">
           Forgot your password?{" "}
           <Link
             href="/forgot-password"
@@ -80,6 +81,7 @@ export default async function SignInPage({
             Reset it
           </Link>
         </p>
+        </div>
       </div>
     </div>
   );

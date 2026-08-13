@@ -66,7 +66,7 @@ export function EscentoWordmark({ className, markClassName }: EscentoWordmarkPro
       role="img"
       aria-label="Escento"
       className={cx(
-        "inline-flex items-baseline font-black leading-none tracking-tight",
+        "inline-flex items-baseline font-bold leading-none tracking-tight",
         className,
       )}
     >

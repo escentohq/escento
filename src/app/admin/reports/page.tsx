@@ -51,11 +51,11 @@ function ReportStatusForm({
         id={`${reportId}-${status}-note`}
         name="note"
         placeholder="Optional note"
-        className="min-h-10 min-w-0 flex-1 rounded-full border border-[#E2E8F0] bg-white px-3 text-xs font-medium text-[#0F172A] shadow-sm focus:border-[#0055FF] focus:outline-none focus:ring-2 focus:ring-[#0055FF]/20"
+        className="min-h-10 min-w-0 flex-1 border border-rule bg-surface px-3 text-secondary text-ink focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/15"
       />
       <button
         type="submit"
-        className="inline-flex min-h-10 shrink-0 items-center rounded-full border border-[#E2E8F0] px-3 text-xs font-black text-[#0F172A] transition-colors hover:border-[#0055FF] hover:text-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+        className="inline-flex min-h-10 shrink-0 items-center border border-rule px-3 text-control text-ink transition-colors hover:border-brand hover:text-brand focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2"
       >
         {label}
       </button>
@@ -87,7 +87,7 @@ export default async function AdminReportsPage() {
     >
       <AdminNav />
 
-      <div className="mb-6 rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm">
+      <div className="mb-6 border-y border-rule py-5">
         <p className="text-sm font-bold text-[#0F172A]">
           {activeCount} report{activeCount === 1 ? "" : "s"} need review.
         </p>
@@ -104,14 +104,14 @@ export default async function AdminReportsPage() {
           body="New user reports will appear here and send an email notification."
         />
       ) : (
-        <div className="space-y-5">
+        <div className="divide-y divide-rule border-y border-rule">
           {reports.map((report) => (
             <article
               key={report.id}
-              className={`rounded-3xl border bg-white p-5 shadow-sm ${
+              className={`py-6 ${
                 report.status === "open" || report.status === "reviewing"
-                  ? "border-[#FF3366]/30"
-                  : "border-[#F1F5F9]"
+                  ? "border-l-4 border-coral pl-5"
+                  : ""
               }`}
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -124,7 +124,7 @@ export default async function AdminReportsPage() {
                       {targetTypeLabel(report.targetType)}
                     </Chip>
                   </div>
-                  <h2 className="mt-3 text-xl font-black text-[#0F172A]">
+                  <h2 className="mt-3 text-item-heading text-ink">
                     {report.subject}
                   </h2>
                   <p className="mt-2 text-sm font-medium text-[#64748B]">
@@ -141,8 +141,8 @@ export default async function AdminReportsPage() {
                   </p>
                 </div>
 
-                <div className="rounded-2xl bg-[#F8FAFC] p-4 text-sm">
-                  <p className="font-black text-[#0F172A]">Reporter</p>
+                <div className="border-l border-rule pl-4 text-secondary">
+                  <p className="font-semibold text-ink">Reporter</p>
                   <p className="mt-1 font-medium text-[#475569]">
                     {report.reporterName || "Unnamed"}
                   </p>
@@ -153,16 +153,16 @@ export default async function AdminReportsPage() {
               </div>
 
               <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                <div className="rounded-2xl border border-[#F1F5F9] p-4">
-                  <h3 className="text-sm font-black text-[#0F172A]">
+                <div className="border-t border-rule pt-4">
+                  <h3 className="text-control text-ink">
                     Explanation
                   </h3>
                   <p className="mt-2 whitespace-pre-wrap text-sm font-medium leading-relaxed text-[#475569]">
                     {report.description}
                   </p>
                 </div>
-                <div className="rounded-2xl border border-[#F1F5F9] p-4">
-                  <h3 className="text-sm font-black text-[#0F172A]">
+                <div className="border-t border-rule pt-4">
+                  <h3 className="text-control text-ink">
                     Evidence
                   </h3>
                   <p className="mt-2 whitespace-pre-wrap text-sm font-medium leading-relaxed text-[#475569]">
@@ -172,8 +172,8 @@ export default async function AdminReportsPage() {
               </div>
 
               {report.adminNotes ? (
-                <div className="mt-4 rounded-2xl bg-[#0055FF]/5 p-4">
-                  <p className="text-xs font-black uppercase tracking-[0.14em] text-[#0055FF]">
+                <div className="mt-4 border-l-4 border-brand px-4 py-3">
+                  <p className="text-meta uppercase text-brand">
                     Admin note
                   </p>
                   <p className="mt-2 text-sm font-medium text-[#475569]">

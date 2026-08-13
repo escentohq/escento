@@ -42,7 +42,7 @@ export default async function BlockedUsersPage() {
           eyebrow="Clear"
           title="No blocked users."
           body="Blocked people will show up here."
-          cta={<Link href="/messages" className="btn-secondary">Back to Messages</Link>}
+          cta={<Link href="/messages" className="control-secondary">Back to Messages</Link>}
         />
       ) : (
         <div className="space-y-4">
@@ -51,9 +51,9 @@ export default async function BlockedUsersPage() {
             const name = displayName(user?.name, user?.email);
             return (
               <Reveal key={block.id} delay={Math.min(index, 6) * 0.04}>
-                <div className="flex items-center justify-between gap-4 rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between gap-4 border-y border-rule py-5">
                   <div className="min-w-0">
-                    <h2 className="truncate text-base font-black text-[#0F172A]">{name}</h2>
+                    <h2 className="truncate text-body font-semibold text-ink">{name}</h2>
                     {user?.role ? (
                       <p className="mt-1 font-mono text-xs uppercase tracking-[0.15em] text-[#64748B]">
                         {user.role.toLowerCase()}

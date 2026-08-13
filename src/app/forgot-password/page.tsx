@@ -6,23 +6,23 @@ export const metadata: Metadata = { title: "Forgot Password" };
 
 export default async function ForgotPasswordPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-[#FAFAFA]">
-      <div className="w-full max-w-md">
-        <div className="mb-12">
-          <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
+    <div className="bg-paper px-6 py-16">
+      <div className="mx-auto w-full max-w-2xl border-y border-rule py-10">
+        <div className="mb-10">
+          <span className="text-meta uppercase text-brand">
             Password reset
           </span>
-          <h1 className="mt-4 text-4xl md:text-5xl font-black tracking-tight text-[#0F172A]">
-            Get back in.
+          <h1 className="mt-4 text-page-title text-ink">
+            Reset your password
           </h1>
-          <p className="mt-4 text-base font-medium leading-relaxed text-[#475569]">
+          <p className="mt-4 text-body text-muted">
             Enter your email and we&apos;ll send a link to reset your password.
           </p>
         </div>
 
         <ForgotPasswordForm />
 
-        <div className="mt-8 text-center">
+        <div className="mt-8">
           <p className="text-sm text-[#475569]">
             Remember your password?{" "}
             <Link href="/signin" className="font-bold text-[#0055FF] hover:text-[#0F172A] transition-colors">

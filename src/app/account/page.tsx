@@ -10,7 +10,7 @@ export default async function AccountPage() {
   const session = await requireSignedIn("/account");
 
   return (
-    <PageShell size="narrow" eyebrow="Backstage" title="Your Account">
+    <PageShell size="narrow" eyebrow="Settings" title="Your account">
       <div className="space-y-8">
         <SectionCard eyebrow="Profile" title="Your Account">
           <div className="space-y-6">
@@ -31,7 +31,7 @@ export default async function AccountPage() {
                 disabled
                 readOnly
                 value={session.user.email ?? ""}
-                className="mt-2 w-full rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5 text-sm text-[#475569] disabled:cursor-not-allowed"
+                className="mt-2 min-h-11 w-full border border-rule bg-[#F8FAFC] px-3 py-2.5 text-secondary text-muted disabled:cursor-not-allowed"
               />
               <p className="mt-2 text-xs text-[#64748B]">
                 Email is managed by your sign-in provider.

@@ -97,10 +97,10 @@ body {
 }
 
 /* Shared route-level actions. Component primitives own all other control styles. */
-.btn-primary {
+.control-primary {
   @apply inline-flex min-h-12 min-w-0 items-center justify-center gap-2 border border-brand bg-brand px-6 py-3 text-center text-control text-white transition-colors hover:border-ink hover:bg-ink focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60;
 }
 
-.btn-secondary {
+.control-secondary {
   @apply inline-flex min-h-12 min-w-0 items-center justify-center gap-2 border border-ink bg-transparent px-6 py-3 text-center text-control text-ink transition-colors hover:bg-ink hover:text-white focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60;
 }

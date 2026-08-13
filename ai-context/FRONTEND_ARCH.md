@@ -53,8 +53,7 @@ src/
   middleware.ts                         # JWT refresh via supabase.auth.getUser()
   components/
     home/
-      HomeLanding.tsx                   # canonical bright-theme reference — READ FIRST
-      StageLightsScene.tsx              # only file allowed to import @react-three/* and three
+      HomeLanding.tsx                   # static editorial public landing
   types/                                # ambient types
 ```
 

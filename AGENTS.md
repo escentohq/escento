@@ -167,8 +167,8 @@ const session = await requireRole("CREATOR", request.nextUrl.pathname);
 
 | File | Why |
 |---|---|
-| `src/components/home/HomeLanding.tsx` | Retained landing implementation; do not copy its legacy motion patterns. |
-| `src/components/home/StageLightsScene.tsx` | Only file allowed to import `@react-three/*` and `three`. |
+| `src/app/musicians/page.tsx` | Canonical marketplace composition and result-row reference. |
+| `src/components/home/HomeLanding.tsx` | Static editorial public landing composition. |
 | `src/app/page.tsx` | Server-side session + role resolution pattern. |
 | `src/app/layout.tsx` | Root shell and Archivo font setup. |
 | `src/app/globals.css` | Shared foundation tokens and named corner exceptions. |

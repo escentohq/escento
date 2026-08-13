@@ -31,9 +31,9 @@ export default async function AdminUsersPage() {
     >
       <AdminNav />
       <ModerationTodo />
-      <div className="overflow-x-auto rounded-3xl border border-[#F1F5F9] bg-white shadow-sm">
+      <div className="overflow-x-auto border-y border-rule bg-surface">
         <table className="w-full min-w-235 text-left text-sm">
-          <thead className="bg-[#F8FAFC] text-xs font-black uppercase tracking-[0.14em] text-[#64748B]">
+          <thead className="bg-[#F8FAFC] text-meta uppercase text-muted">
             <tr>
               <th className="p-4">ID</th>
               <th className="p-4">Name</th>

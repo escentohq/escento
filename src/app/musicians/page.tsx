@@ -9,7 +9,6 @@ import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
-import { Reveal } from "@/components/ui/reveal";
 import { LocationDirectoryFilters } from "@/components/location/location-directory-filters";
 import { parseSelectedTags } from "@/lib/tag-taxonomy";
 
@@ -35,13 +34,12 @@ export default async function MusiciansPage({
 
   return (
     <PageShell
-      eyebrow="Now playing"
-      title="Browse Musicians"
-      body="Find student musicians by sound, instrument, and availability. Browse first. Send a request when the fit is right."
+      eyebrow="Directory"
+      title="Musicians"
+      body="Filter by instrument, genre, and location. Open a profile when the work fits."
       action={showCreateProfileCta ? <PrimaryCta href="/profile/create">Create Profile</PrimaryCta> : null}
     >
-      <Reveal>
-        <div className="rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm md:p-6">
+        <div className="border-y border-rule py-5 md:py-6">
           <LocationDirectoryFilters
             action="/musicians"
             clearHref="/musicians"
@@ -58,7 +56,6 @@ export default async function MusiciansPage({
             hasFilters={hasFilters}
           />
         </div>
-      </Reveal>
 
       <section className="mt-10">
         {profiles.length === 0 ? (
@@ -68,7 +65,7 @@ export default async function MusiciansPage({
             body={hasFilters ? "Change the filters and run it back." : "Create the first musician profile and start the room."}
             cta={
               hasFilters ? (
-                <Link href="/musicians" className="btn-secondary">
+                <Link href="/musicians" className="control-secondary">
                   Clear filters
                 </Link>
               ) : showCreateProfileCta ? (
@@ -77,21 +74,20 @@ export default async function MusiciansPage({
             }
           />
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {profiles.map((profile, index) => {
+          <div className="divide-y divide-rule border-y border-rule">
+            {profiles.map((profile) => {
               const instrumentTags = visibleTags(profile.instruments ?? []);
               const genreTags = visibleTags(profile.genres ?? []);
 
               return (
-                <Reveal key={profile.id} delay={Math.min(index, 6) * 0.04}>
                   <Link
+                    key={profile.id}
                     href={`/musicians/${profile.id}`}
-                    className="group relative flex h-full min-w-0 cursor-pointer flex-col overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl hover:shadow-[#0055FF]/10 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                    className="group grid min-w-0 cursor-pointer gap-5 bg-surface px-1 py-6 transition-colors hover:bg-[#F8FAFC] focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)_auto] md:items-start md:px-4"
                   >
-
-                    <div className="relative z-10 flex min-w-0 items-start justify-between gap-4">
+                    <div className="flex min-w-0 items-start justify-between gap-4 md:justify-start">
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#E2E8F0] text-sm font-bold text-[#0F172A]">
+                        <div className="media-avatar flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden bg-[#E2E8F0] text-sm font-semibold text-ink">
                           {profile.image ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -104,10 +100,10 @@ export default async function MusiciansPage({
                           )}
                         </div>
                         <div className="min-w-0">
-                          <h2 className="break-words text-lg font-black tracking-tight text-[#0F172A] transition-colors group-hover:text-[#0055FF]">
+                          <h2 className="break-words text-item-heading text-ink transition-colors group-hover:text-brand">
                             {profile.displayName}
                           </h2>
-                          <p className="mt-0.5 font-mono text-xs text-[#64748B]">
+                          <p className="mt-1 text-meta uppercase text-muted">
                             {displayLocation(profile)}
                             {profile.distanceMiles !== null && profile.distanceMiles !== undefined
                               ? ` · ${Math.round(profile.distanceMiles)} mi`
@@ -115,18 +111,19 @@ export default async function MusiciansPage({
                           </p>
                         </div>
                       </div>
-                      <div className="flex shrink-0 flex-col items-end gap-1.5">
+                      <div className="flex shrink-0 flex-col items-end gap-1.5 md:hidden">
                         <Chip tone={profile.isRemote ? "blue" : "neutral"}>
                           {profile.isRemote ? "Remote" : "In person"}
                         </Chip>
                       </div>
                     </div>
 
-                    <p className="relative z-10 mt-5 text-sm font-medium leading-relaxed text-[#475569]">
+                    <div className="min-w-0">
+                    <p className="text-secondary text-muted">
                       {profile.bio ? clampText(profile.bio, 150) : "No bio yet."}
                     </p>
 
-                    <div className="relative z-10 mt-5 space-y-2">
+                    <div className="mt-4 space-y-2">
                       <div className="flex flex-wrap gap-2">
                         {instrumentTags.shown.map((name) => (
                           <Chip key={`${profile.id}-i-${name}`} tone="blue">{name}</Chip>
@@ -140,12 +137,15 @@ export default async function MusiciansPage({
                         {genreTags.hiddenCount ? <Chip>+{genreTags.hiddenCount} more</Chip> : null}
                       </div>
                     </div>
+                    </div>
 
-                    <div className="relative z-10 mt-auto pt-6 text-sm font-black text-[#0055FF] transition-colors group-hover:text-[#0044DD]">
-                      View Profile →
+                    <div className="hidden min-w-24 text-right md:block">
+                      <Chip tone={profile.isRemote ? "blue" : "neutral"}>
+                        {profile.isRemote ? "Remote" : "In person"}
+                      </Chip>
+                      <span className="mt-5 block text-control text-brand">View profile</span>
                     </div>
                   </Link>
-                </Reveal>
               );
             })}
           </div>

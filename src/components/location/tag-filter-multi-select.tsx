@@ -95,10 +95,10 @@ export function TagFilterMultiSelect({
   }
 
   return (
-    <div className="text-sm font-bold text-[#0F172A]">
+    <div className="text-control text-ink">
       {hideLabel ? null : <label htmlFor={id}>{label}</label>}
       <div className="relative mt-2">
-        <div className="rounded-2xl border border-[#E2E8F0] bg-white shadow-sm focus-within:border-[#0055FF] focus-within:ring-2 focus-within:ring-[#0055FF]/20">
+        <div className="border border-rule bg-surface focus-within:border-brand focus-within:ring-2 focus-within:ring-brand/15">
           <input
             id={id}
             value={query}
@@ -109,13 +109,13 @@ export function TagFilterMultiSelect({
             onFocus={() => setOpen(true)}
             onBlur={() => window.setTimeout(() => setOpen(false), 120)}
             placeholder={placeholder}
-            className="w-full rounded-2xl border-0 bg-transparent px-4 py-3 text-sm font-medium text-[#0F172A] outline-none placeholder:text-[#94A3B8]"
+            className="min-h-11 w-full border-0 bg-transparent px-3 py-2.5 text-body text-ink outline-none placeholder:text-[#94A3B8]"
             autoComplete="off"
           />
         </div>
 
         {open && (suggestions.length || showFallback) ? (
-          <div className="absolute z-30 mt-2 max-h-64 w-full overflow-auto rounded-2xl border border-[#E2E8F0] bg-white p-2 shadow-xl">
+          <div className="surface-overlay absolute z-30 mt-2 max-h-64 w-full overflow-auto border border-ink bg-surface p-1">
             {suggestions.map((option) => {
               const aliasMatch = option.alias ?? getTagAliasMatch(kind, query)?.alias;
               return (
@@ -125,7 +125,7 @@ export function TagFilterMultiSelect({
                   onMouseDown={(event) => event.preventDefault()}
                   onClick={() => addValue(option.value)}
                   disabled={selectedValues.includes(option.value)}
-                  className="block w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="block w-full px-3 py-2 text-left text-control text-ink transition-colors hover:bg-[#F8FAFC] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <span className="block">{option.label}</span>
                   {aliasMatch ? (
@@ -141,7 +141,7 @@ export function TagFilterMultiSelect({
                 type="button"
                 onMouseDown={(event) => event.preventDefault()}
                 onClick={() => addValue(fallbackValue)}
-                className="block w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-[#0055FF] transition-colors hover:bg-[#F8FAFC]"
+                className="block w-full px-3 py-2 text-left text-control text-brand transition-colors hover:bg-[#F8FAFC]"
               >
                 {fallbackLabel}: {query.trim()}
               </button>
@@ -155,12 +155,12 @@ export function TagFilterMultiSelect({
       {selectedValues.length ? (
         <div className="mt-2 flex flex-wrap gap-2">
           {selectedValues.map((value) => (
-            <span key={value} className="inline-flex items-center gap-1.5 rounded-full bg-[#F8FAFC] px-3 py-1 text-xs font-black text-[#0F172A]">
+            <span key={value} className="inline-flex items-center gap-1.5 border border-rule px-2 py-1 text-meta text-ink">
               {value}
               <button
                 type="button"
                 onClick={() => removeValue(value)}
-                className="rounded-full text-[#64748B] transition-colors hover:text-[#FF3366] focus-visible:outline-2 focus-visible:outline-[#0055FF]"
+                className="text-muted transition-colors hover:text-coral focus-visible:outline-2 focus-visible:outline-brand"
                 aria-label={`Remove ${value}`}
               >
                 <X className="h-3.5 w-3.5" aria-hidden />

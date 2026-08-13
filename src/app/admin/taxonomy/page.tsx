@@ -28,11 +28,11 @@ function AddTermForm({ kind, label }: { kind: TaxonomyKind; label: string }) {
         id={`add-${kind}`}
         name="name"
         placeholder={`Add ${label}`}
-        className="min-h-11 flex-1 rounded-2xl border border-[#E2E8F0] bg-white px-4 text-sm font-semibold text-[#0F172A] outline-none focus:border-[#0055FF] focus:ring-4 focus:ring-[#0055FF]/10"
+        className="min-h-11 flex-1 border border-rule bg-surface px-3 text-body font-semibold text-ink outline-none focus:border-brand focus:ring-2 focus:ring-brand/15"
       />
       <button
         type="submit"
-        className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#0F172A] px-5 text-sm font-bold text-white transition-colors hover:bg-[#0055FF]"
+        className="control-primary min-h-11 px-5"
       >
         Add
       </button>
@@ -50,10 +50,10 @@ function TaxonomyTable({
   rows: AdminTaxonomyRow[];
 }) {
   return (
-    <section className="rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm">
+    <section className="border-t border-rule py-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-black text-[#0F172A]">{title}</h2>
+          <h2 className="text-item-heading text-ink">{title}</h2>
           <p className="mt-1 text-sm font-medium text-[#64748B]">
             Review, add, or remove terms used by profiles and gigs.
           </p>
@@ -65,9 +65,9 @@ function TaxonomyTable({
         <AddTermForm kind={kind} label={kind} />
       </div>
 
-      <div className="mt-5 overflow-x-auto rounded-2xl border border-[#F1F5F9]">
+      <div className="mt-5 overflow-x-auto border-y border-rule">
         <table className="w-full min-w-180 text-left text-sm">
-          <thead className="bg-[#F8FAFC] text-xs font-black uppercase tracking-[0.14em] text-[#64748B]">
+          <thead className="bg-[#F8FAFC] text-meta uppercase text-muted">
             <tr>
               <th className="p-4">Name</th>
               <th className="p-4">Type</th>

@@ -158,7 +158,7 @@ Older route-level recipes are being migrated incrementally. New work must:
 - Apply bright theme tokens (see [`DESIGN.md`](./DESIGN.md)) to any new page or component.
 - Reuse the square shared classes in `globals.css` and the live UI primitives.
 - Keep `layout.tsx` and `globals.css` aligned with the foundation system.
-- Treat `HomeLanding.tsx` as retained code, not the target reference.
+- Use `/musicians` for marketplace composition and the rebuilt `HomeLanding.tsx` for static public composition.
 
 ---
 
@@ -204,8 +204,8 @@ Older route-level recipes are being migrated incrementally. New work must:
 
 | File | Why |
 |---|---|
-| `src/components/home/HomeLanding.tsx` | Retained landing implementation; do not copy its legacy motion patterns. |
-| `src/components/home/StageLightsScene.tsx` | Only file allowed to import `@react-three/*` and `three`. |
+| `src/app/musicians/page.tsx` | Canonical marketplace composition and result-row reference. |
+| `src/components/home/HomeLanding.tsx` | Static editorial public landing composition. |
 | `src/app/page.tsx` | Server-side session + role resolution pattern. |
 | `src/app/layout.tsx` | Root shell and Archivo font setup. |
 | `src/app/globals.css` | Shared foundation tokens and named corner exceptions. |

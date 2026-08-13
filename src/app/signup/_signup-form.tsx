@@ -123,7 +123,7 @@ export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
       <div>
         <label
           htmlFor="termsAccepted"
-          className="flex items-start gap-3 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3 text-sm font-bold leading-relaxed text-[#0F172A]"
+          className="flex items-start gap-3 border-y border-rule py-3 text-secondary font-semibold text-ink"
         >
           <input
             id="termsAccepted"
