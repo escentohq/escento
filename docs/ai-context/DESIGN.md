@@ -223,7 +223,7 @@ focus:outline-none focus:ring-2 focus:ring-[#0055FF]/20 focus:border-[#0055FF]
 
 ## Motion tokens
 
-**Library:** `framer-motion` for app-wide motion. `@react-three/fiber` only inside `src/components/home/`.
+**Library:** `framer-motion` for app-wide motion. `gsap` + ScrollTrigger only for scroll-pinned sequences that Framer cannot do cleanly.
 
 ### Easings
 
@@ -304,26 +304,7 @@ When `prefersReducedMotion` is `true`: drop parallax, drop hover lift, keep fade
 
 - Spring physics (`type: "spring"`) — feels arcade. Use `easeOutExpo`.
 - More than 6 elements doing `whileInView` simultaneously — chunk with `staggerChildren` instead.
-- Looping animations outside the R3F scene (no infinite pulses, no spinning logos).
-
----
-
-## 3D / R3F policy
-
-**Allowed in exactly one place:** `src/components/home/StageLightsScene.tsx`.
-
-Allowed imports inside that file:
-- `@react-three/fiber` — `Canvas`, `useFrame`, `useThree`
-- `@react-three/drei` — `Environment`, `Float`, `Preload`
-- `three` (as namespace `THREE`)
-
-**Anywhere else:** importing `@react-three/*` or `three` is a rule violation. If a design asks for a 3D accent on another page, stop and re-scope.
-
-The scene is `pointer-events-none` and decorative. It must:
-- not block interaction
-- remain non-interactive from a keyboard perspective
-- be wrapped with `aria-hidden="true"`
-- degrade gracefully if WebGL is unavailable (Drei's `Preload` + fallback)
+- Looping animations (no infinite pulses, no spinning logos).
 
 ---
 
@@ -436,4 +417,3 @@ Decorative icons need `aria-hidden`. Icon-only buttons need `aria-label`.
 - Mono eyebrows
 - `rounded-full` buttons, `rounded-3xl` cards
 - `easeOutExpo` entrance easing
-- R3F scene confined to the landing hero
