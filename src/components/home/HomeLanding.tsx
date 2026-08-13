@@ -129,7 +129,7 @@ export function HomeLanding({
               </Link>
             </div>
 
-            <div className={`grid flex-1 ${leadProfile?.image ? "md:grid-cols-[minmax(0,0.9fr)_minmax(11rem,0.7fr)]" : ""}`}>
+            <div className={`grid flex-1 items-center ${leadProfile?.image ? "md:grid-cols-[minmax(0,1fr)_8rem]" : ""}`}>
               <div className="flex items-center px-6 py-10 md:px-8">
                 <p className="text-[clamp(2.75rem,5vw,4.75rem)] font-semibold uppercase leading-[0.88] tracking-[-0.05em] text-white">
                   {leadTaxonomy.length ? (
@@ -143,7 +143,7 @@ export function HomeLanding({
                 <div
                   aria-hidden="true"
                   style={{ backgroundImage: `url(${leadProfile.image})` }}
-                  className="h-64 w-full bg-brand bg-cover bg-center md:h-full md:min-h-[330px]"
+                  className="mb-8 mr-6 h-28 w-28 justify-self-end border-4 border-white bg-brand bg-cover bg-center md:mb-0 md:mr-8 md:h-32 md:w-32"
                 />
               ) : null}
             </div>
