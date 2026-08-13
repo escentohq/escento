@@ -20,9 +20,10 @@ This section supersedes conflicting recipes below while those sections are incre
 ## Theme intent
 
 Performance-inspired, bright, and editorial. The product is for student musicians and creators—it
-should feel closer to a well-set music publication than a SaaS dashboard. Blue, coral, and amber
-sit sparingly on an off-white field with deep slate ink. Strong Archivo headlines anchor sections;
-compact uppercase metadata labels support them.
+should feel closer to a well-set music publication than a SaaS dashboard. Strong Archivo headlines,
+asymmetric composition, real marketplace content, and musician imagery carry identity before color
+does. Blue is allowed at meaningful scale on landing and detail surfaces; coral and amber remain
+specific signals rather than a multicolor theme.
 
 The root shell and global tokens now use the bright foundation. Do not use any `zinc-*` or `violet-*` Tailwind class.
 
@@ -30,7 +31,8 @@ The root shell and global tokens now use the bright foundation. Do not use any `
 
 ## Color tokens
 
-Every color in the system. Use these exact hex values — do not approximate, do not introduce variants.
+The live tokens are defined in `src/app/globals.css`. Use those names rather than scattering raw
+values through components.
 
 ### Surfaces (light)
 
@@ -67,7 +69,12 @@ Every color in the system. Use these exact hex values — do not approximate, do
 | Pink | `#FF3366` | Cultural heat | Destructive or exceptional secondary accent |
 | Gold | `#FFB000` | Stage, performance | Tertiary accent used sparingly |
 
-**Use sparingly.** Paper and ink dominate. Each section gets at most one accent, and gradients are prohibited.
+State and subtle-surface variants are centralized alongside the base colors: blue hover `#0047D6`,
+blue pressed `#0039AD`, blue subtle `#EFF6FF`, coral subtle `#FFF1F4`, and amber subtle `#FFF7E0`.
+
+**Use deliberately.** Product-heavy pages remain 80–90% neutral. Public, profile, and detail pages
+may use one large blue field; coral is an occasional editorial/destructive signal, and amber denotes
+compensation or warning. Do not make all three accents compete in one section. Gradients are prohibited.
 
 ### Status mapping
 
@@ -127,6 +134,17 @@ Vertical rhythm is large. Sections breathe.
 
 Narrower containers for forms: `max-w-3xl`. For auth + onboarding: `max-w-md` to `max-w-xl`.
 
+## Page-level composition
+
+- Landing: one substantial, content-led blue focal field in the first viewport; live profile imagery
+  and listing data are preferred to decorative graphics or fake browser mockups.
+- Directories and product screens: dense rule-separated rows on neutral surfaces. A restrained blue
+  title rail or active state is enough; scanability wins over spectacle.
+- Musician and gig details: a blue identity header may carry more personality. Profile imagery stays
+  editorial and square in the feature field; circular media remains appropriate in compact result rows.
+- Compensation may use an amber rule and subtle amber surface because the color has semantic meaning.
+- Vary section proportion and alignment instead of repeating heading/paragraph/grid compositions.
+
 ---
 
 ## Radius
@@ -142,6 +160,12 @@ overlay radius where it improves composition.
 Application surfaces are flat. Use rules, contrast, spacing, and solid color instead of card or
 control shadows. An overlay may earn a restrained shadow only when separation from content cannot
 be established cleanly with a border.
+
+## Interaction
+
+Interactive color feedback uses the centralized fast duration (`140ms`) or the equivalent
+`duration-150` utility. Target only relevant properties such as color, background, border, or opacity.
+No hover lift, scaling, reveals, page transitions, or scroll choreography.
 
 ---
 

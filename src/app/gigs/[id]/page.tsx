@@ -65,23 +65,22 @@ export default async function GigPage({
 
         <div className="grid gap-12 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
           <div className="min-w-0 space-y-8">
-            <div className="border-y border-rule py-8">
-
-              <div className="relative z-10">
+            <section>
+              <div className="bg-brand px-6 py-8 text-white md:px-8 md:py-10">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-meta uppercase text-brand">
+                  <span className="text-meta uppercase text-on-brand-muted">
                     {gig.status === "OPEN" ? "Open call" : "Call filled"}
                   </span>
                 </div>
 
                 <div className="mt-5">
-                  <p className="mb-3 text-meta uppercase text-muted">
+                  <p className="mb-3 text-meta uppercase text-on-brand-muted">
                     {projectTypeLabel(gig.projectType)} · {compensationLabel(gig.compensationType)}
                   </p>
-                  <h1 className="text-page-title text-ink">
+                  <h1 className="text-page-title text-white">
                     {gig.title}
                   </h1>
-                  <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-secondary text-muted">
+                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-secondary text-on-brand-muted">
                     {gigLocation && (
                       <span className="inline-flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5" aria-hidden />
@@ -97,11 +96,13 @@ export default async function GigPage({
                   </div>
                 </div>
 
-                <p className="mt-8 max-w-3xl whitespace-pre-wrap text-body text-muted">
+                <p className="mt-8 max-w-3xl whitespace-pre-wrap text-body text-on-brand-muted">
                   {gig.description}
                 </p>
+              </div>
 
-                <div className="mt-8 grid gap-6 md:grid-cols-2">
+              <div className="border-y border-rule py-8">
+                <div className="grid gap-6 md:grid-cols-2">
                   <div>
                     <h2 className="text-meta uppercase text-muted">
                       Instruments
@@ -124,33 +125,33 @@ export default async function GigPage({
                   </div>
                 </div>
 
-                <div className="mt-8 border-y border-rule py-5">
-                  <p className="text-meta uppercase text-muted">
-                    Compensation
+                <div className="mt-8 border-l-4 border-amber bg-amber-subtle px-5 py-5">
+                  <p className="text-meta uppercase text-ink">
+                    Compensation · {compensationLabel(gig.compensationType)}
                   </p>
                   <p className="mt-2 text-body font-semibold text-ink">
                     {gig.compensationDetails || "See project details above"}
                   </p>
                 </div>
               </div>
-            </div>
+            </section>
           </div>
 
           <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
             <div className="border-t-4 border-brand bg-ink p-6 text-white">
               <div className="relative z-10">
-                <span className="text-meta uppercase text-[#94A3B8]">
+                <span className="text-meta uppercase text-on-ink-muted">
                   Contact
                 </span>
                 <h2 className="mt-3 text-section-heading">Contact the creator</h2>
                 {!isOwnGig ? (
-                  <p className="mt-3 text-secondary text-[#CBD5E1]">
+                  <p className="mt-3 text-secondary text-on-ink-body">
                     Send a request about this gig. If accepted, a message thread opens.
                   </p>
                 ) : null}
 
-                <div className="mt-6 border-y border-[#334155] py-4">
-                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748B]">
+                <div className="mt-6 border-y border-ink-muted py-4">
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-on-ink-muted">
                     Posted by
                   </p>
                   <p className="mt-2 text-sm font-bold text-white">

@@ -12,13 +12,30 @@
   --color-paper: var(--escento-paper);
   --color-surface: var(--escento-surface);
   --color-ink: var(--escento-ink);
+  --color-ink-muted: var(--escento-ink-muted);
   --color-muted: var(--escento-muted);
   --color-rule: var(--escento-rule);
   --color-brand: var(--escento-blue);
+  --color-brand-hover: var(--escento-blue-hover);
+  --color-brand-pressed: var(--escento-blue-pressed);
+  --color-brand-subtle: var(--escento-blue-subtle);
   --color-coral: var(--escento-coral);
+  --color-coral-subtle: var(--escento-coral-subtle);
   --color-amber: var(--escento-amber);
+  --color-amber-subtle: var(--escento-amber-subtle);
+  --color-text-primary: var(--escento-ink);
+  --color-text-secondary: var(--escento-muted);
+  --color-text-muted: var(--escento-meta);
+  --color-surface-secondary: var(--escento-surface-secondary);
+  --color-border-subtle: var(--escento-border-subtle);
+  --color-border-strong: var(--escento-border-strong);
+  --color-on-brand-muted: var(--escento-on-brand-muted);
+  --color-on-ink-body: var(--escento-on-ink-body);
+  --color-on-ink-muted: var(--escento-on-ink-muted);
+  --color-amber-ink: var(--escento-amber-ink);
+  --color-error: var(--escento-error);
 
-  --text-display: clamp(3.5rem, 8vw, 7.5rem);
+  --text-display: clamp(3.25rem, 7vw, 6.5rem);
   --text-display--line-height: 0.94;
   --text-display--letter-spacing: -0.045em;
   --text-display--font-weight: 700;
@@ -53,13 +70,29 @@
   --escento-paper: #fafafa;
   --escento-surface: #ffffff;
   --escento-ink: #0f172a;
+  --escento-ink-muted: #334155;
   --escento-muted: #475569;
   --escento-rule: #e2e8f0;
   --escento-blue: #0055ff;
+  --escento-blue-hover: #0047d6;
+  --escento-blue-pressed: #0039ad;
+  --escento-blue-subtle: #eff6ff;
   --escento-coral: #ff3366;
+  --escento-coral-subtle: #fff1f4;
   --escento-amber: #ffb000;
+  --escento-amber-subtle: #fff7e0;
+  --escento-meta: #64748b;
+  --escento-surface-secondary: #f8fafc;
+  --escento-border-subtle: #f1f5f9;
+  --escento-border-strong: #cbd5e1;
+  --escento-on-brand-muted: #dbeafe;
+  --escento-on-ink-body: #cbd5e1;
+  --escento-on-ink-muted: #94a3b8;
+  --escento-amber-ink: #7a5200;
+  --escento-error: #b42318;
   --escento-overlay-radius: 2px;
   --escento-round-media: 999px;
+  --escento-transition-fast: 140ms;
 }
 
 html,
@@ -96,9 +129,11 @@ body {
 
 /* Shared route-level actions. Component primitives own all other control styles. */
 .control-primary {
-  @apply inline-flex min-h-12 min-w-0 items-center justify-center gap-2 border border-brand bg-brand px-6 py-3 text-center text-control text-white transition-colors hover:border-ink hover:bg-ink focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60;
+  @apply inline-flex min-h-12 min-w-0 items-center justify-center gap-2 border border-brand bg-brand px-6 py-3 text-center text-control text-white transition-colors hover:border-brand-hover hover:bg-brand-hover active:border-brand-pressed active:bg-brand-pressed focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60;
+  transition-duration: var(--escento-transition-fast);
 }
 
 .control-secondary {
   @apply inline-flex min-h-12 min-w-0 items-center justify-center gap-2 border border-ink bg-transparent px-6 py-3 text-center text-control text-ink transition-colors hover:bg-ink hover:text-white focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:pointer-events-none disabled:opacity-60;
+  transition-duration: var(--escento-transition-fast);
 }
