@@ -2,10 +2,15 @@ import { redirect } from "next/navigation";
 
 import { HomeLanding } from "@/components/home/HomeLanding";
 import { getCurrentSession } from "@/lib/auth-guards";
-import { getProfileByUserId } from "@/lib/api/profiles";
+import { getProfileByUserId, listProfiles } from "@/lib/api/profiles";
+import { listOpenGigs } from "@/lib/api/gigs";
 
 export default async function Home() {
-  const session = await getCurrentSession();
+  const [session, featuredProfiles, featuredGigs] = await Promise.all([
+    getCurrentSession(),
+    listProfiles(),
+    listOpenGigs(),
+  ]);
 
   if (session?.user?.id && !session.user.role) {
     redirect("/onboarding/role");
@@ -43,7 +48,8 @@ export default async function Home() {
       secondaryHref={secondaryHref}
       secondaryLabel={secondaryLabel}
       signedInLabel={signedInLabel}
+      featuredProfiles={featuredProfiles.slice(0, 8)}
+      featuredGigs={featuredGigs.slice(0, 2)}
     />
   );
 }
-

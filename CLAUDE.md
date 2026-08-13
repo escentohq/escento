@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Read `AGENTS.md` before any work.** It contains the 10 non-negotiable rules, the full tech stack, the Definition of Done checklist, and which sub-agent file to load per task type. This file is the complement — architecture detail that requires reading across multiple files to understand.
 
-During the UI overhaul, use the shared primitives and `/musicians` direction as the reference. `HomeLanding.tsx` is retained code, not the canonical target.
+During UI work, use `/musicians` as the canonical product/marketplace reference and
+`HomeLanding.tsx` as the canonical public/editorial reference. Preserve the flat square system while
+allowing real imagery, asymmetric composition, and one deliberate large-scale blue moment on public
+and detail surfaces. Coral and amber remain sparse, semantic accents; gradients and decorative motion
+remain prohibited.
 
 ---
 

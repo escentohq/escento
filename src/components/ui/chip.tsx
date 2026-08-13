@@ -1,10 +1,10 @@
 type ChipTone = "blue" | "pink" | "gold" | "neutral";
 
 const toneClass: Record<ChipTone, string> = {
-  blue: "border-[#0055FF] text-[#0055FF]",
-  pink: "border-[#FF3366] text-[#FF3366]",
-  gold: "border-[#FFB000] text-[#7A5200]",
-  neutral: "border-[#CBD5E1] text-[#475569]",
+  blue: "border-brand text-brand",
+  pink: "border-coral text-coral",
+  gold: "border-amber text-amber-ink",
+  neutral: "border-border-strong text-muted",
 };
 
 export function Chip({

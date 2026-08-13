@@ -85,22 +85,18 @@ export default async function MusicianPublicProfilePage({
           {/* ── Main column ── */}
           <div className="min-w-0 space-y-8">
 
-            <div className="border-y border-rule py-8">
+            <section className="bg-brand px-6 py-8 text-white md:px-8 md:py-10">
+                <span className="text-meta uppercase text-on-brand-muted">
+                  Musician profile
+                </span>
 
-              <div className="relative z-10">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-meta uppercase text-brand">
-                    Musician profile
-                  </span>
-                </div>
-
-                <div className="mt-5 flex flex-wrap items-center gap-5">
-                  <div className="media-avatar flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden bg-[#E2E8F0] text-item-heading text-ink">
+                <div className="mt-6 grid gap-6 sm:grid-cols-[9rem_minmax(0,1fr)] sm:items-end">
+                  <div className="flex h-36 w-36 flex-shrink-0 items-center justify-center overflow-hidden bg-brand-subtle text-3xl font-semibold text-brand">
                     {profile.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={profile.image}
-                        alt=""
+                        alt={`${profile.displayName}, musician on Escento`}
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -108,10 +104,10 @@ export default async function MusicianPublicProfilePage({
                     )}
                   </div>
                   <div className="min-w-0">
-                    <h1 className="text-page-title text-ink">
+                    <h1 className="text-page-title text-white">
                       {profile.displayName}
                     </h1>
-                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-secondary text-muted">
+                    <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-secondary text-on-brand-muted">
                       {profileLocation && (
                         <span className="inline-flex items-center gap-1.5">
                           <MapPin className="h-3.5 w-3.5" aria-hidden />
@@ -135,12 +131,14 @@ export default async function MusicianPublicProfilePage({
                 </div>
 
                 {profile.bio && (
-                  <p className="mt-8 max-w-3xl whitespace-pre-wrap text-body text-muted">
+                  <p className="mt-8 max-w-3xl whitespace-pre-wrap text-body text-on-brand-muted">
                     {profile.bio}
                   </p>
                 )}
+            </section>
 
-                <div className="mt-8 grid gap-6 md:grid-cols-2">
+            <section className="border-y border-rule py-8">
+                <div className="grid gap-6 md:grid-cols-2">
                   <div>
                     <h2 className="text-meta uppercase text-muted">
                       Instruments
@@ -163,7 +161,7 @@ export default async function MusicianPublicProfilePage({
                   </div>
                 </div>
 
-                <div className="mt-8 grid border-y border-rule md:grid-cols-2 md:divide-x md:divide-rule">
+                <div className="mt-8 grid border-t border-rule md:grid-cols-2 md:divide-x md:divide-rule">
                   <div className="py-5 md:pr-6">
                     <p className="text-meta uppercase text-muted">
                       Availability
@@ -185,8 +183,7 @@ export default async function MusicianPublicProfilePage({
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
+            </section>
 
             {/* Portfolio links */}
             {links.length > 0 && (
@@ -215,11 +212,11 @@ export default async function MusicianPublicProfilePage({
             {!isOwnProfile ? (
             <div className="border-t-4 border-brand bg-ink p-6 text-white">
               <div className="relative z-10">
-                <span className="text-meta uppercase text-[#94A3B8]">
+                <span className="text-meta uppercase text-on-ink-muted">
                   Contact
                 </span>
                 <h2 className="mt-3 text-section-heading">Message this musician</h2>
-                <p className="mt-3 text-secondary text-[#CBD5E1]">
+                <p className="mt-3 text-secondary text-on-ink-body">
                   Send a request. If they accept, a message thread opens.
                 </p>
 
