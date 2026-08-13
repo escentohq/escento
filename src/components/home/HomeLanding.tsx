@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { SecondaryCta } from "@/components/ui/secondary-cta";
 import type { Gig, MusicianProfile } from "@/lib/api/types";
-import { clampText, compensationLabel, projectTypeLabel } from "@/lib/display";
+import { compensationLabel, projectTypeLabel } from "@/lib/display";
 import { displayLocation } from "@/lib/location";
 
 type HomeLandingProps = {
@@ -22,8 +22,11 @@ type PreviewRow = {
   detail: string;
   image: string | null;
   action: string;
-  accent: "blue" | "amber";
 };
+
+function firstSentence(value: string) {
+  return value.trim().match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim() || value.trim();
+}
 
 function profileRow(profile: MusicianProfile): PreviewRow {
   const taxonomy = [...(profile.instruments ?? []), ...(profile.genres ?? [])]
@@ -35,12 +38,13 @@ function profileRow(profile: MusicianProfile): PreviewRow {
     type: "Musician",
     title: profile.displayName,
     meta: [taxonomy, displayLocation(profile, "Location open")].filter(Boolean).join(" · "),
-    detail: profile.bio
-      ? clampText(profile.bio, 110)
-      : profile.availabilityText || "Profile ready for project conversations.",
+    detail: [
+      profile.availabilityText,
+      profile.school,
+      profile.isRemote ? "Remote-friendly" : "In-person work",
+    ].filter(Boolean).join(" · "),
     image: profile.image,
     action: "View profile",
-    accent: "blue",
   };
 }
 
@@ -54,10 +58,9 @@ function gigRow(gig: Gig): PreviewRow {
       compensationLabel(gig.compensationType),
       displayLocation(gig, gig.isRemote ? "Remote" : "Location open"),
     ].join(" · "),
-    detail: clampText(gig.description, 110),
+    detail: firstSentence(gig.description),
     image: null,
     action: "View gig",
-    accent: "amber",
   };
 }
 
@@ -117,7 +120,7 @@ export function HomeLanding({
 
           <aside className="flex min-h-[540px] flex-col bg-brand text-white lg:min-h-0">
             <div className="flex items-center justify-between border-b border-white/30 px-6 py-5 md:px-8">
-              <p className="text-meta uppercase text-white">Live directory</p>
+              <p className="text-sm font-semibold text-white">Live directory</p>
               <Link
                 href="/musicians"
                 className="text-control text-white underline-offset-4 transition-colors duration-150 hover:text-on-brand-muted hover:underline"
@@ -126,10 +129,9 @@ export function HomeLanding({
               </Link>
             </div>
 
-            <div className="grid flex-1 gap-8 px-6 py-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:px-8">
-              <div>
-                <p className="text-meta uppercase text-on-brand-muted">Sound in the room</p>
-                <p className="mt-5 text-[clamp(2.75rem,5vw,4.75rem)] font-semibold uppercase leading-[0.88] tracking-[-0.05em] text-white">
+            <div className={`grid flex-1 ${leadProfile?.image ? "md:grid-cols-[minmax(0,0.9fr)_minmax(11rem,0.7fr)]" : ""}`}>
+              <div className="flex items-center px-6 py-10 md:px-8">
+                <p className="text-[clamp(2.75rem,5vw,4.75rem)] font-semibold uppercase leading-[0.88] tracking-[-0.05em] text-white">
                   {leadTaxonomy.length ? (
                     leadTaxonomy.map((name) => <span key={name} className="block">{name}</span>)
                   ) : (
@@ -138,14 +140,11 @@ export function HomeLanding({
                 </p>
               </div>
               {leadProfile?.image ? (
-                <div className="h-28 w-28 overflow-hidden border-4 border-white">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={leadProfile.image}
-                    alt={`${leadProfile.displayName}, musician on Escento`}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
+                <div
+                  aria-hidden="true"
+                  style={{ backgroundImage: `url(${leadProfile.image})` }}
+                  className="h-64 w-full bg-brand bg-cover bg-center md:h-full md:min-h-[330px]"
+                />
               ) : null}
             </div>
 
@@ -155,7 +154,7 @@ export function HomeLanding({
                   href={`/musicians/${leadProfile.id}`}
                   className="group block focus-visible:outline-white"
                 >
-                  <p className="text-meta uppercase text-on-brand-muted">
+                  <p className="text-sm font-medium text-on-brand-muted">
                     {leadProfile.instruments?.slice(0, 2).join(" · ") || "Musician profile"}
                   </p>
                   <div className="mt-2 flex items-end justify-between gap-6">
@@ -192,8 +191,7 @@ export function HomeLanding({
         <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8">
           <div className="grid gap-5 border-b border-rule py-10 md:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] md:items-end">
             <div>
-              <p className="text-meta uppercase text-brand">Now playing</p>
-              <h2 className="mt-3 text-section-heading">People and projects in the room</h2>
+              <h2 className="text-section-heading">People and projects in the room</h2>
             </div>
             <p className="text-secondary text-muted md:text-right">
               Live profiles and open calls. Enough detail to know what deserves a closer look.
@@ -202,31 +200,38 @@ export function HomeLanding({
 
           {previewRows.length ? (
             <div className="divide-y divide-rule">
-              {previewRows.map((row) => (
+              {previewRows.map((row, index) => (
                 <Link
                   key={`${row.type}-${row.title}`}
                   href={row.href}
-                  className="group grid gap-4 py-6 transition-colors duration-150 hover:bg-surface-secondary focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 md:grid-cols-[5rem_minmax(0,1fr)_minmax(18rem,0.8fr)_7rem] md:items-center md:px-3"
+                  className={`group grid gap-x-5 gap-y-4 py-8 transition-colors duration-150 hover:bg-surface-secondary focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 md:grid-cols-[7.5rem_minmax(0,1.1fr)_minmax(18rem,0.8fr)] md:items-center md:px-4 ${row.image ? "grid-cols-[6.5rem_minmax(0,1fr)]" : "grid-cols-[2.5rem_minmax(0,1fr)]"}`}
                 >
-                  <div className="flex h-16 w-16 items-center justify-center overflow-hidden bg-surface-secondary">
+                  <div className={`flex items-center justify-center overflow-hidden ${row.image ? "h-24 w-24" : "h-full min-h-24 w-10 md:w-24"}`}>
                     {row.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={row.image} alt="" className="h-full w-full object-cover" />
+                      <div
+                        aria-hidden="true"
+                        style={{ backgroundImage: `url(${row.image})` }}
+                        className="h-full w-full bg-surface-secondary bg-cover bg-center"
+                      />
                     ) : (
-                      <span className={`border-l-4 pl-3 text-meta uppercase ${row.accent === "amber" ? "border-amber text-ink" : "border-brand text-brand"}`}>
-                        Open
-                      </span>
+                      <div className="flex h-full w-full items-end border-l-4 border-amber pb-1 pl-2 md:pl-4">
+                        <span className="text-xl font-semibold tracking-tight text-ink md:text-3xl">0{index + 1}</span>
+                      </div>
                     )}
                   </div>
                   <div className="min-w-0">
                     <p className="text-meta uppercase text-muted">{row.type}</p>
-                    <h3 className="mt-1 text-item-heading transition-colors duration-150 group-hover:text-brand">
+                    <h3 className="mt-2 text-2xl font-semibold leading-tight tracking-tight transition-colors duration-150 group-hover:text-brand">
                       {row.title}
                     </h3>
                     <p className="mt-2 text-secondary text-muted">{row.meta}</p>
                   </div>
-                  <p className="text-secondary text-muted">{row.detail}</p>
-                  <span className="text-control text-brand md:text-right">{row.action}</span>
+                  <div className="col-start-2 md:col-start-auto">
+                    {row.detail ? <p className="text-secondary text-muted">{row.detail}</p> : null}
+                    <span className="mt-4 inline-block text-control text-brand underline-offset-4 group-hover:underline">
+                      {row.action}
+                    </span>
+                  </div>
                 </Link>
               ))}
             </div>
@@ -266,10 +271,7 @@ export function HomeLanding({
       <section className="bg-ink text-white">
         <div className="mx-auto max-w-[1280px] px-4 py-20 sm:px-6 md:py-24 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-end">
-            <div>
-              <p className="text-meta uppercase text-on-brand-muted">From listing to conversation</p>
-              <h2 className="mt-4 text-page-title">Three moves. No feed.</h2>
-            </div>
+            <h2 className="text-page-title">Three moves. No feed.</h2>
             <p className="max-w-2xl text-lg leading-relaxed text-on-ink-body lg:justify-self-end">
               Escento keeps the path short: find specific work, make a direct request, then talk through the project.
             </p>
@@ -281,9 +283,9 @@ export function HomeLanding({
               <h3 className="mt-8 text-item-heading">Search the directory</h3>
               <p className="mt-3 text-secondary text-on-ink-body">Filter people or open calls using the details that matter to the work.</p>
             </li>
-            <li className="border-t-4 border-coral py-8 md:border-l md:border-t-4 md:border-l-ink-muted md:px-10">
-              <span className="text-7xl font-semibold tracking-tight text-coral">02</span>
-              <h3 className="mt-6 text-item-heading">Send a request</h3>
+            <li className="border-t border-ink-muted py-8 md:border-l md:border-t-0 md:px-10">
+              <span className="text-5xl font-semibold tracking-tight text-white">02</span>
+              <h3 className="mt-8 text-item-heading">Send a request</h3>
               <p className="mt-3 max-w-sm text-secondary text-on-ink-body">Name the project and why the match makes sense. The recipient chooses whether to connect.</p>
             </li>
             <li className="border-t border-ink-muted py-8 md:border-t-0 md:pl-8">
