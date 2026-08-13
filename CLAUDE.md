@@ -4,49 +4,65 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Read `AGENTS.md` before any work.** It contains the 10 non-negotiable rules, the full tech stack, the Definition of Done checklist, and which sub-agent file to load per task type. This file is the complement — architecture detail that requires reading across multiple files to understand.
 
-Use `/musicians` as the canonical application design reference replacing the former landing-led
-baseline. The rebuilt `HomeLanding.tsx` is a static public composition, not the template for every
-product route.
+During the UI overhaul, use the shared primitives and `/musicians` direction as the reference. `HomeLanding.tsx` is retained code, not the canonical target.
 
 ---
 
 ## Commands
 
 ```bash
-npm run dev       # dev server at localhost:3000
-npm run build     # production build (must pass before done)
-npm run lint      # ESLint (must pass before done)
+npm run dev             # dev server at localhost:3000
+npm run build           # production build (must pass before done)
+npm run lint            # ESLint (must pass before done)
+npm run typecheck       # tsc --noEmit (must pass before done)
+npm run test:e2e        # Playwright read-only suite
+npm run test:e2e:write  # write-flow suite (needs a local Supabase stack)
 ```
 
-Playwright smoke and write-flow suites live in `e2e/`. Write-flow tests require the guarded local
-Supabase setup in `playwright.write.config.ts`; never point them at hosted Supabase. Visual work is
-also verified manually in the browser, followed by `lint` and `build`.
+There are no unit tests — Playwright E2E under `e2e/` is the only automated suite. The write-flow suite uses the guarded local Supabase setup in `playwright.write.config.ts`; never point it at hosted Supabase. Verification is `lint` + `typecheck` + `build`, plus manual browser checks for UI work.
+
+---
+
+## Repo layout
+
+```
+AGENTS.md CLAUDE.md README.md   entry-point docs (root holds no other Markdown)
+middleware.ts                   root-level, NOT src/ — see Auth below
+docs/
+  ai-context/                   agent-facing specs (DESIGN, BRAND, FORMS, …)
+    agents/                     per-task sub-agent briefs
+    userflows/
+  features/                     numbered feature specs
+  research/                     market/outreach research
+  assets/                       source design assets (not served — no public/ dir)
+e2e/                            Playwright specs
+src/{app,components,lib,hooks}/
+supabase/{migrations,migrations_archive}/
+```
+
+All documentation lives under `docs/`. Do not add new Markdown to the repo root.
 
 ---
 
 ## Architecture
 
-### Auth → App User sync (multi-file to understand)
+### Auth → App User merge
 
-Supabase Auth and the app's own `app_user` table are two separate identity stores. Auth guards read
-the current Supabase user, then load the matching application role/name/image record. The session
-shape throughout the app is:
+Supabase Auth and the app's own `app_user` table are two separate identity stores, merged on read (not by a sync/upsert step). It all lives in `src/lib/auth-guards.ts`:
+
+`getCurrentSession()` is wrapped in React's `cache()`, so it runs at most once per request. It calls `supabase.auth.getUser()`, then selects `role, name, image` from `app_user` by `id`. A `PGRST116` (no rows) error is expected and ignored — it just means the auth user has no `app_user` row yet, which surfaces as `role: null`. Any other error is logged and the session still returns. The shape is always:
 
 ```ts
-{ user: { id, email, role, name, image } }  // id = app user id (TEXT), not Supabase UUID
+{ user: { id, email, role, name, image } }  // id = the Supabase auth user id, reused as the app_user TEXT id
 ```
 
-Auth guards (`src/lib/auth-guards.ts`) layer on top: `getCurrentSession` → `requireSignedIn` →
-`requireUser` (has a role) → `requireRole("MUSICIAN"|"CREATOR", callbackUrl)`. Protected pages and
-actions use the guard appropriate to their trust boundary.
+The guards layer on top, each delegating to the previous: `getCurrentSession()` → `requireSignedIn(callbackUrl)` (redirects to `/signin?callbackUrl=…`) → `requireUser(callbackUrl)` (redirects to `/onboarding/role` if no role) → `requireRole("MUSICIAN"|"CREATOR", callbackUrl)` (redirects to `/` on role mismatch). Every protected page and server action calls one of these.
 
-`middleware.ts` only refreshes the Supabase cookie and blocks `/onboarding/*` for unauthenticated users. All other route-level auth is enforced at the page or action level, not in middleware.
+`middleware.ts` lives at the **project root, not `src/`** — Next.js resolves the root file, so a `src/middleware.ts` would be silently dead. It bails out early if the Supabase env vars are missing, refreshes the Supabase cookie inside a `try/catch` (a deleted account 403s here and must not 500 the request), and blocks `/onboarding/*` for unauthenticated users. All other route-level auth is enforced at the page or action level, not in middleware.
 
 ### Service layer (`src/lib/api/`)
 
-Product data access is concentrated in this directory. Established auth and Supabase helpers may
-query session/account data directly where documented. Service files follow the same normalization
-pattern:
+Product data access is concentrated here — no direct Supabase calls for product data outside this directory. The established auth and Supabase helpers (`auth-guards.ts`, `supabase/`) are the documented exception and may query session/account data directly. The files are `profiles.ts`, `gigs.ts`, `messaging.ts`, `tags.ts`, `reports.ts`, `support-account.ts`, `admin-dashboard.ts`, `admin-edits.ts`, `admin-taxonomy.ts`, and shared `types.ts`. Each follows the same pattern:
 
 - Private `toX(raw)` normalizer converts Postgres snake_case → TypeScript camelCase and flattens junction arrays (e.g., `gig_instrument` rows → `instruments: string[]`).
 - All functions call `await createSupabaseServerClient()` at the top — never cached, never a module singleton.
@@ -87,12 +103,14 @@ Feature components shared across routes live in `src/components/<feature>/`. Glo
 
 Do not add routine entrance, reveal, page-transition, hover-lift, or scroll-driven animation during the overhaul. `<Reveal>` is currently a static compatibility wrapper. Use subtle targeted state transitions only where interaction feedback needs them.
 
+There is no 3D or smooth-scroll layer: `three`/`@react-three/*` and `lenis` were removed once their only consumers (`StageLightsScene.tsx`, `SmoothScroll.tsx`) proved unreferenced. Re-introducing either needs approval per `AGENTS.md` §Things to ask about before doing.
+
 ### Supabase Realtime
 
 Not currently used in the codebase. The browser client (`src/lib/supabase/client.ts` → `createSupabaseBrowserClient()`) is available for client components that need it. Any table that should broadcast Realtime events needs `ALTER PUBLICATION supabase_realtime ADD TABLE "tablename"` in a migration.
 
 ### Database schema
 
-Source of truth: Supabase dashboard SQL editor. Schema documentation in `DB_REBUILD.md`. Apply schema changes directly via Supabase dashboard or MCP. No RLS — auth enforced server-side. IDs are `TEXT` (not `uuid` type). All FK constraints use `ON DELETE CASCADE`.
+Source of truth: Supabase dashboard SQL editor. Schema documentation in `docs/DB_REBUILD.md`. Apply schema changes directly via Supabase dashboard or MCP. No RLS — auth enforced server-side. IDs are `TEXT` (not `uuid` type). All FK constraints use `ON DELETE CASCADE`.
 
 Service layer (`src/lib/api/`) makes all DB calls — never direct queries outside this directory.

@@ -38,8 +38,6 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "src/app/mockups/**",
-    "src/components/mockups/**"
+    "node_modules"
   ]
 }

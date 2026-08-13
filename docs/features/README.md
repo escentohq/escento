@@ -18,8 +18,8 @@ This folder breaks the current Escento codebase into product and implementation 
 - [12 - Direct Email Contact Model](./12-contact-model.md)
 - [13 - Shared Tags and Filtering](./13-feature-shared-tags-and-filtering.md)
 - [14 - Routing, 404s, and Error States](./14-routing-and-error-states.md)
-- [15 - Motion and Smooth Scroll Infrastructure](./15-motion-and-smooth-scroll-infrastructure.md)
+- [15 - Motion Infrastructure](./15-motion-and-smooth-scroll-infrastructure.md)
 
 ## Coverage Notes
-The production app currently has no `src/app/mockups` folder on this branch, so mockup routes are not documented here. The feature docs cover the current app routes, Prisma model, NextAuth setup, server actions, global shell, shared UI primitives, landing animation system, and support infrastructure present in the repository.
+The feature docs cover the current app routes, Supabase data layer, auth guards, server actions, global shell, shared UI primitives, landing animation system, and support infrastructure present in the repository.
 

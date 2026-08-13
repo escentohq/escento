@@ -2,9 +2,9 @@
 
 > You write UI copy only: headlines, eyebrows, CTAs, empty states, microcopy. No code.
 > Read these files before writing anything:
-> 1. `ai-context/BRAND.md` — voice, patterns, forbidden phrases, status labels
-> 2. `ai-context/FORMS.md` — field error copy table (when writing form messages)
-> 3. `ai-context/PRODUCT.md` — what the product is, personas, scope
+> 1. `docs/ai-context/BRAND.md` — voice, patterns, forbidden phrases, status labels
+> 2. `docs/ai-context/FORMS.md` — field error copy table (when writing form messages)
+> 3. `docs/ai-context/PRODUCT.md` — what the product is, personas, scope
 
 ---
 

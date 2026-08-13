@@ -50,7 +50,6 @@ Platform connecting student musicians with student creators for film, podcasts, 
 - **Animations:** Framer Motion, GSAP + ScrollTrigger
 - **UI Primitives:** Radix UI (`@radix-ui/react-*` for dropdowns, dialogs, etc.)
 - **Icons:** Lucide React
-- **3D (hero only):** React Three Fiber + Drei
 
 ### Backend
 - **Auth:** Supabase (email/password + JWT in httpOnly cookies)
@@ -118,13 +117,13 @@ src/
 │   │   └── admin.ts            # Server-only service-role client
 │   ├── auth-guards.ts          # Session checks + redirects
 │   ├── password.ts             # Password validation
-│   ├── form-utils.ts           # CSV parsing, validation
-│   └── middleware.ts           # JWT refresh
+│   └── form-utils.ts           # CSV parsing, validation
 │
 ├── components/
 │   ├── home/
 │   │   ├── HomeLanding.tsx     # Landing page hero (bright theme)
-│   │   └── StageLightsScene.tsx # 3D scene (R3F, only file allowed)
+│   │   ├── ProductStory.tsx
+│   │   └── TheCallsheet.tsx
 │   ├── ui/
 │   │   ├── nav-bar.tsx         # Top navigation
 │   │   ├── _user-menu.tsx      # Profile avatar dropdown
@@ -136,11 +135,12 @@ src/
 │   │   ├── section-card.tsx    # Card component
 │   │   └── [other UI primitives]
 │   └── auth/
-│       ├── sign-out-button.tsx
 │       └── password-field.tsx
 │
 └── types/                       # Ambient types
 ```
+
+`middleware.ts` lives at the **project root**, not under `src/`. Next.js would ignore a copy in `src/`.
 
 ## Database Schema
 
@@ -304,7 +304,7 @@ Underscore prefix (`_`) opts out of routing — use for co-located forms and hel
 
 ## Contributing
 
-1. Read `ai-context/AGENTS.md` for conventions
+1. Read `AGENTS.md` for conventions
 2. Create feature branch from `main`
 3. Follow commit style: `feat(scope): description`
 4. `npm run lint && npm run build` must pass
@@ -312,11 +312,11 @@ Underscore prefix (`_`) opts out of routing — use for co-located forms and hel
 
 ## Resources
 
-- **API docs:** `ai-context/DATABASE.md` (all service layer functions)
-- **Design system:** `ai-context/DESIGN.md` (colors, tokens, motion)
-- **UX rules:** `ai-context/UX_RULES.md` (forms, loading states, accessibility)
-- **Architecture:** `ai-context/FRONTEND_ARCH.md` (patterns, auth, data fetching)
-- **Components:** `ai-context/COMPONENTS.md` (reusable UI recipes)
+- **API docs:** `docs/ai-context/DATABASE.md` (all service layer functions)
+- **Design system:** `docs/ai-context/DESIGN.md` (colors, tokens, motion)
+- **UX rules:** `docs/ai-context/UX_RULES.md` (forms, loading states, accessibility)
+- **Architecture:** `docs/ai-context/FRONTEND_ARCH.md` (patterns, auth, data fetching)
+- **Components:** `docs/ai-context/COMPONENTS.md` (reusable UI recipes)
 
 ## License
 

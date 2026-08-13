@@ -25,7 +25,6 @@ abstractions.
 | `PageShell` | `src/components/ui/page-shell.tsx` | Shared route width, header, and optional action alignment |
 | `SectionCard` | `src/components/ui/section-card.tsx` | Rule-separated subsection; despite the historical name, it is not a card |
 | `Chip` | `src/components/ui/chip.tsx` | Compact outlined metadata; neutral by default |
-| `StatusBadge` | `src/components/ui/status-badge.tsx` | Semantic open/closed state only |
 | `BackLink` | `src/components/ui/back-link.tsx` | Route-level return navigation |
 | `EmptyState` | `src/components/ui/empty-state.tsx` | Rule-separated empty state with an optional CTA |
 | `PageLoading` | `src/components/ui/page-loading.tsx` | Static route skeleton matching list composition |
@@ -107,4 +106,4 @@ Do not introduce Tailwind `rounded-*` utilities or ad hoc shadow classes.
 5. Verify the rendered route at desktop, intermediate, and mobile widths.
 6. Run the forbidden-pattern searches, `npm run lint`, and `npm run build`.
 
-*Cross-references: [`DESIGN.md`](./DESIGN.md) · [`UX_RULES.md`](./UX_RULES.md) · [`AGENTS.md`](./AGENTS.md)*
+*Cross-references: [`DESIGN.md`](./DESIGN.md) · [`UX_RULES.md`](./UX_RULES.md) · [`AGENTS.md`](../../AGENTS.md)*

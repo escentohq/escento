@@ -1,6 +1,6 @@
 # FRONTEND_ARCH.md — Escento
 
-> How the app is wired. Read [`AGENTS.md`](./AGENTS.md) for the rules; this doc shows the patterns to apply them.
+> How the app is wired. Read [`AGENTS.md`](../../AGENTS.md) for the rules; this doc shows the patterns to apply them.
 
 ---
 
@@ -417,4 +417,4 @@ From `docs/REBUILD.md` §18:
 
 ---
 
-*Cross-refs:* [`DATABASE.md`](./DATABASE.md) for API layer · [`AGENTS.md`](./AGENTS.md) for rules · [`COMPONENTS.md`](./COMPONENTS.md) for UI snippets · [`PRODUCT.md`](./PRODUCT.md) for scope.
+*Cross-refs:* [`DATABASE.md`](./DATABASE.md) for API layer · [`AGENTS.md`](../../AGENTS.md) for rules · [`COMPONENTS.md`](./COMPONENTS.md) for UI snippets · [`PRODUCT.md`](./PRODUCT.md) for scope.

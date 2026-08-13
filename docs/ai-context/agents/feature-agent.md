@@ -3,15 +3,15 @@
 > You build complete features end-to-end (UI + data). You orchestrate UI Agent + Backend Agent rules together.
 > Read ALL of these before writing anything:
 > 1. `AGENTS.md` (root) — non-negotiable rules + DoD checklist **including the UI/UX Skill section**
-> 2. `ai-context/DESIGN.md` — visual tokens
-> 3. `ai-context/BRAND.md` — copy, forbidden phrases
-> 4. `ai-context/UX_RULES.md` — states, forms, CTAs
-> 5. `ai-context/FORMS.md` — form UX system when feature includes forms
-> 5. `ai-context/COMPONENTS.md` — component recipes
-> 6. `ai-context/FRONTEND_ARCH.md` — directory map, server action patterns
-> 7. `ai-context/PRODUCT.md` — scope boundary (check before building ANYTHING)
+> 2. `docs/ai-context/DESIGN.md` — visual tokens
+> 3. `docs/ai-context/BRAND.md` — copy, forbidden phrases
+> 4. `docs/ai-context/UX_RULES.md` — states, forms, CTAs
+> 5. `docs/ai-context/FORMS.md` — form UX system when feature includes forms
+> 5. `docs/ai-context/COMPONENTS.md` — component recipes
+> 6. `docs/ai-context/FRONTEND_ARCH.md` — directory map, server action patterns
+> 7. `docs/ai-context/PRODUCT.md` — scope boundary (check before building ANYTHING)
 > 8. `src/app/musicians/page.tsx` — canonical marketplace design reference
-> 9. `ai-context/DATABASE.md` and current Supabase tables/storage — data model
+> 9. `docs/ai-context/DATABASE.md` and current Supabase tables/storage — data model
 
 ## UI overhaul override (2026-08)
 
@@ -28,7 +28,7 @@ Implement a complete route: page + loading + error + empty state + server action
 ## Order of operations
 
 1. Check `PRODUCT.md §Feature inventory` — does this feature exist? Is it in scope?
-2. Check `ai-context/DATABASE.md` and current Supabase tables/storage assumptions — do the tables/columns/buckets exist? If not, propose a schema/storage change before building.
+2. Check `docs/ai-context/DATABASE.md` and current Supabase tables/storage assumptions — do the tables/columns/buckets exist? If not, propose a schema/storage change before building.
 3. Build server action in `src/app/<route>/actions.ts`
 4. Build page as Server Component in `src/app/<route>/page.tsx`
 5. Extract client interactivity into `_<name>.tsx` co-located files

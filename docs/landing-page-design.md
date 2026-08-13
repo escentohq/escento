@@ -9,18 +9,19 @@ The goal of the landing page is to present Escento as a high-energy social platf
 - post or browse gigs
 - signal that the network is active and culturally alive
 
-The page is intentionally more expressive than the rest of the app. It uses cinematic motion and a Three.js background to make the landing memorable, while still routing users directly into the product.
+The page is intentionally more expressive than the rest of the app. It uses cinematic motion to make the landing memorable, while still routing users directly into the product.
 
 ## Source Of Truth
 The current landing is implemented in:
 
 - `src/app/page.tsx`
 - `src/components/home/HomeLanding.tsx`
-- `src/components/home/StageLightsScene.tsx`
+- `src/components/home/ProductStory.tsx`
+- `src/components/home/TheCallsheet.tsx`
 
 `src/app/page.tsx` owns the server-side session and role logic.
 `src/components/home/HomeLanding.tsx` owns the visual landing composition.
-`src/components/home/StageLightsScene.tsx` owns the Three.js stage-lighting background.
+`ProductStory` and `TheCallsheet` are the two major client sections below the hero.
 
 ## Product Intent
 The landing should communicate five things quickly:
@@ -50,7 +51,6 @@ Core characteristics:
 - bright off-white page background
 - strong stage-light color accents
 - big headline with gradient emphasis
-- floating atmospheric Three.js scene behind the hero
 - rounded cards and soft shadows for the lower sections
 
 ### Color System
@@ -72,13 +72,11 @@ Design intent:
 These three accents are used sparingly enough that the page still feels controlled.
 
 ## Page Structure
-The landing is organized into three major sections plus the background scene:
+The landing is organized into three major sections:
 
 1. Hero
-2. How it works
-3. Featured talent
-
-The Three.js stage scene sits behind the hero and establishes the mood before any interaction.
+2. How it works (`ProductStory`)
+3. Featured talent (`TheCallsheet`)
 
 ## Hero Section
 The hero is the identity layer of the page.
@@ -121,28 +119,6 @@ When a user is signed in, the hero shows a small state pill:
 - otherwise email
 
 This is intentionally lightweight and does not compete with the main hero.
-
-## Three.js Background
-The stage atmosphere is implemented in `src/components/home/StageLightsScene.tsx`.
-
-### Scene Contents
-- additive glowing spheres for ambient color bleed
-- animated light-beam cylinders
-- instanced floating particles
-- subtle group rotation driven by cursor position
-- grain overlay on top of the canvas for texture
-
-### Motion Behavior
-- light beams oscillate over time
-- particles drift continuously in 3D space
-- the full scene tilts toward pointer movement
-- the scene remains non-interactive from an input perspective so CTAs stay usable
-
-### Technical Notes
-- built with `@react-three/fiber`
-- uses `@react-three/drei` for `Environment`, `Float`, and `Preload`
-- uses additive blending and transparent materials for the light language
-- the scene is decorative but meaningful: it communicates “performance” and “live culture”
 
 ## How It Works Section
 This is the explanation layer.
@@ -226,7 +202,6 @@ This allows the home page to feel like a branded experience while the rest of th
 ## Accessibility And Usability Notes
 - primary actions are always visible above the fold
 - supporting sections keep strong color contrast against their backgrounds
-- decorative 3D scene does not block interaction
 - CTA labels remain direct and product-oriented
 - server-side logic ensures onboarding redirect still happens before landing access for incomplete users
 
@@ -242,7 +217,6 @@ When editing this landing later:
 ## What Should Stay Stable
 These elements define the current landing identity and should only change with intent:
 
-- stage-light background concept
 - `Take the Stage.` headline framing
 - bright off-white base with blue/pink/gold spotlight accents
 - dual CTA structure
@@ -254,7 +228,6 @@ If the landing evolves further, the best extensions are:
 
 - replace static example cards with real highlighted data
 - connect hero messaging to current gig or musician counts
-- add reduced-motion-specific tuning to the Three.js scene if needed
 - align global app chrome more closely with the landing’s visual tone
 
 ## Summary

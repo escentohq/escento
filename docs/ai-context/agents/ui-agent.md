@@ -3,11 +3,11 @@
 > You build pages and components. You do NOT touch database schema/storage policies, auth, or server actions.
 > Read these files before writing a single line:
 > 1. `AGENTS.md` (root) — non-negotiable rules + DoD checklist **including the UI/UX Skill section**
-> 2. `ai-context/DESIGN.md` — every color, spacing, motion token
-> 3. `ai-context/BRAND.md` — copy, eyebrows, forbidden phrases
-> 4. `ai-context/UX_RULES.md` — loading/empty/error states, form rules, CTA rules
-> 5. `ai-context/FORMS.md` — form UX system (when building forms)
-> 6. `ai-context/COMPONENTS.md` — copy-paste component recipes
+> 2. `docs/ai-context/DESIGN.md` — every color, spacing, motion token
+> 3. `docs/ai-context/BRAND.md` — copy, eyebrows, forbidden phrases
+> 4. `docs/ai-context/UX_RULES.md` — loading/empty/error states, form rules, CTA rules
+> 5. `docs/ai-context/FORMS.md` — form UX system (when building forms)
+> 6. `docs/ai-context/COMPONENTS.md` — copy-paste component recipes
 > 6. `src/app/musicians/page.tsx` — canonical marketplace composition
 
 ## UI overhaul override (2026-08)

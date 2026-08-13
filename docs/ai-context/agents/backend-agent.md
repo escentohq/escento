@@ -3,8 +3,8 @@
 > You write data logic: Supabase queries, server actions, auth guards, and storage/admin helpers. You do NOT touch UI/styling.
 > Read these files before writing a single line:
 > 1. `AGENTS.md` (root) — non-negotiable rules + DoD checklist
-> 2. `ai-context/FRONTEND_ARCH.md` — full directory map, patterns, server action conventions
-> 3. `ai-context/FORMS.md` — ActionState contract for form actions
+> 2. `docs/ai-context/FRONTEND_ARCH.md` — full directory map, patterns, server action conventions
+> 3. `docs/ai-context/FORMS.md` — ActionState contract for form actions
 > 4. `src/lib/auth-guards.ts` — session + role helpers
 > 5. `src/lib/supabase/server.ts` — cookie-aware Supabase server client
 > 6. `src/lib/supabase/admin.ts` — server-only service-role client
