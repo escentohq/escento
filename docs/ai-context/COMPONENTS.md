@@ -19,7 +19,6 @@ The live components in `src/components/ui/` now supersede the older copy-paste r
 - [`<Card>`](#card-light) · `src/components/ui/card.tsx`
 - [`<DarkCard>`](#dark-feature-card) · `src/components/ui/dark-card.tsx`
 - [`<Chip>`](#chip) · `src/components/ui/chip.tsx`
-- [`<StatusBadge>`](#statusbadge) · `src/components/ui/status-badge.tsx`
 - [`<AvatarInitials>`](#avatarinitials) · `src/components/ui/avatar-initials.tsx`
 - [`<Input>` / `<Textarea>` / `<Select>`](#form-inputs) · `src/components/ui/input.tsx` (etc.)
 - [`<FilterBar>`](#filterbar) · `src/components/ui/filter-bar.tsx`
@@ -236,23 +235,6 @@ export function Chip({
       {children}
     </span>
   );
-}
-```
-
----
-
-## `<StatusBadge>`
-
-Specialized chip for gig/musician status.
-
-```tsx
-// src/components/ui/status-badge.tsx
-import { Chip } from "./chip";
-
-export function StatusBadge({ status }: { status: "OPEN" | "CLOSED" | "AVAILABLE" }) {
-  if (status === "CLOSED") return <Chip variant="pink">Filled</Chip>;
-  if (status === "AVAILABLE") return <Chip variant="blue">Available</Chip>;
-  return <Chip variant="blue">Open</Chip>;
 }
 ```
 
@@ -818,4 +800,4 @@ When asked to build a new page, instantiate primitives in this order:
 
 ---
 
-*Cross-refs:* [`DESIGN.md`](./DESIGN.md) tokens · [`UX_RULES.md`](./UX_RULES.md) behaviors · [`AGENTS.md`](./AGENTS.md) rules.
+*Cross-refs:* [`DESIGN.md`](./DESIGN.md) tokens · [`UX_RULES.md`](./UX_RULES.md) behaviors · [`AGENTS.md`](../../AGENTS.md) rules.
