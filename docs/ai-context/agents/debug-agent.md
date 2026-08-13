@@ -23,7 +23,6 @@
 - `redirect()` called outside Server Component — import from `next/navigation` not `next/router`
 - `loading.tsx` missing — route hangs with no feedback
 - Dark zinc classes on new components — legacy `globals.css` bleed
-- R3F imports outside `src/components/home/` — bundle blows up
 
 ## Output format
 
