@@ -1,6 +1,6 @@
 # FRONTEND_ARCH.md — Escento
 
-> How the app is wired. Read [`AGENTS.md`](./AGENTS.md) for the rules; this doc shows the patterns to apply them.
+> How the app is wired. Read [`AGENTS.md`](../../AGENTS.md) for the rules; this doc shows the patterns to apply them.
 
 ---
 
@@ -50,12 +50,14 @@ src/
       admin.ts                          # server-only service-role client for auth admin/storage
     auth-guards.ts                      # getCurrentSession, requireSignedIn, requireUser, requireRole
     password.ts                         # validatePassword helper
-  middleware.ts                         # JWT refresh via supabase.auth.getUser()
   components/
     home/
       HomeLanding.tsx                   # canonical bright-theme reference — READ FIRST
-      StageLightsScene.tsx              # only file allowed to import @react-three/* and three
+      ProductStory.tsx
+      TheCallsheet.tsx
   types/                                # ambient types
+
+middleware.ts (project root, not src/)  # JWT refresh + /onboarding/* guard
 ```
 
 **Conventions:**
@@ -75,7 +77,7 @@ Every `page.tsx` and `layout.tsx` is a Server Component. They:
 - compose data and render JSX
 - redirect with `redirect()` from `next/navigation` when auth/role fails
 
-Add `"use client"` **only** for files that need browser-only APIs: `useState`, `useEffect`, `useTransition`, `useFormState`, framer-motion, R3F, event handlers like `onClick`.
+Add `"use client"` **only** for files that need browser-only APIs: `useState`, `useEffect`, `useTransition`, `useFormState`, framer-motion, event handlers like `onClick`.
 
 ```tsx
 // app/gigs/page.tsx — Server Component
@@ -214,7 +216,7 @@ export default async function CreateGigPage() {
 
 ### Middleware
 
-`src/middleware.ts` calls `supabase.auth.getUser()` on every request to refresh the JWT. This is required by `@supabase/ssr` to keep tokens fresh (~1 hour expiry). **Per-page checks are the trust boundary.** When adding a new gated route, do NOT rely on middleware — re-check in the page and in every action.
+Root `middleware.ts` (not `src/`) calls `supabase.auth.getUser()` on every request to refresh the JWT, bails out if the Supabase env vars are missing, and redirects signed-out users away from `/onboarding/*`. This is required by `@supabase/ssr` to keep tokens fresh (~1 hour expiry). **Per-page checks are the trust boundary.** When adding a new gated route, do NOT rely on middleware — re-check in the page and in every action.
 
 ### `session.user` shape
 
@@ -418,4 +420,4 @@ From `docs/REBUILD.md` §18:
 
 ---
 
-*Cross-refs:* [`DATABASE.md`](./DATABASE.md) for API layer · [`AGENTS.md`](./AGENTS.md) for rules · [`COMPONENTS.md`](./COMPONENTS.md) for UI snippets · [`PRODUCT.md`](./PRODUCT.md) for scope.
+*Cross-refs:* [`DATABASE.md`](./DATABASE.md) for API layer · [`AGENTS.md`](../../AGENTS.md) for rules · [`COMPONENTS.md`](./COMPONENTS.md) for UI snippets · [`PRODUCT.md`](./PRODUCT.md) for scope.
