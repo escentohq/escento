@@ -19,7 +19,7 @@ npm run test:e2e        # Playwright read-only suite
 npm run test:e2e:write  # write-flow suite (needs a local Supabase stack)
 ```
 
-There are no unit tests — Playwright E2E under `e2e/` is the only automated suite. Verification is `lint` + `typecheck` + `build`, plus manual browser checks for UI work.
+There are no unit tests — Playwright E2E under `e2e/` is the only automated suite. The write-flow suite uses the guarded local Supabase setup in `playwright.write.config.ts`; never point it at hosted Supabase. Verification is `lint` + `typecheck` + `build`, plus manual browser checks for UI work.
 
 ---
 
@@ -62,7 +62,7 @@ The guards layer on top, each delegating to the previous: `getCurrentSession()` 
 
 ### Service layer (`src/lib/api/`)
 
-No direct Supabase calls outside this directory. The files are `profiles.ts`, `gigs.ts`, `messaging.ts`, `tags.ts`, `reports.ts`, `support-account.ts`, `admin-dashboard.ts`, `admin-edits.ts`, `admin-taxonomy.ts`, and shared `types.ts`. Each follows the same pattern:
+Product data access is concentrated here — no direct Supabase calls for product data outside this directory. The established auth and Supabase helpers (`auth-guards.ts`, `supabase/`) are the documented exception and may query session/account data directly. The files are `profiles.ts`, `gigs.ts`, `messaging.ts`, `tags.ts`, `reports.ts`, `support-account.ts`, `admin-dashboard.ts`, `admin-edits.ts`, `admin-taxonomy.ts`, and shared `types.ts`. Each follows the same pattern:
 
 - Private `toX(raw)` normalizer converts Postgres snake_case → TypeScript camelCase and flattens junction arrays (e.g., `gig_instrument` rows → `instruments: string[]`).
 - All functions call `await createSupabaseServerClient()` at the top — never cached, never a module singleton.
