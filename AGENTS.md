@@ -26,12 +26,12 @@ Load the sub-agent **in addition to** this file — sub-agents scope your task, 
 ## Read order
 
 1. **AGENTS.md** (this file) — rules, stack, DoD, conventions
-2. [`PRODUCT.md`](./PRODUCT.md) — product scope and what NOT to build
-3. [`BRAND.md`](./BRAND.md) — voice, copy patterns, forbidden phrases
-4. [`DESIGN.md`](./DESIGN.md) — color, type, spacing, motion tokens
-5. [`UX_RULES.md`](./UX_RULES.md) — interactions, loading/empty/error, a11y
-6. [`FRONTEND_ARCH.md`](./FRONTEND_ARCH.md) — Next.js, server actions, Supabase, auth
-7. [`COMPONENTS.md`](./COMPONENTS.md) — copy-pasteable component recipes
+2. [`PRODUCT.md`](./ai-context/PRODUCT.md) — product scope and what NOT to build
+3. [`BRAND.md`](./ai-context/BRAND.md) — voice, copy patterns, forbidden phrases
+4. [`DESIGN.md`](./ai-context/DESIGN.md) — color, type, spacing, motion tokens
+5. [`UX_RULES.md`](./ai-context/UX_RULES.md) — interactions, loading/empty/error, a11y
+6. [`FRONTEND_ARCH.md`](./ai-context/FRONTEND_ARCH.md) — Next.js, server actions, Supabase, auth
+7. [`COMPONENTS.md`](./ai-context/COMPONENTS.md) — live component index and composition rules
 8. [`FORMS.md`](./ai-context/FORMS.md) — form UX system (when touching forms)
 
 ---

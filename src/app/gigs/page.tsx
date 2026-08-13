@@ -124,11 +124,11 @@ export default async function GigsPage({
 
                     <div className="mt-4 space-y-2">
                       <div className="flex flex-wrap gap-2">
-                        {instrumentTags.shown.map((name) => <Chip key={`${gig.id}-i-${name}`} tone="blue">{name}</Chip>)}
+                        {instrumentTags.shown.map((name) => <Chip key={`${gig.id}-i-${name}`}>{name}</Chip>)}
                         {instrumentTags.hiddenCount ? <Chip>+{instrumentTags.hiddenCount} more</Chip> : null}
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        {genreTags.shown.map((name) => <Chip key={`${gig.id}-g-${name}`} tone="pink">{name}</Chip>)}
+                        {genreTags.shown.map((name) => <Chip key={`${gig.id}-g-${name}`}>{name}</Chip>)}
                         {genreTags.hiddenCount ? <Chip>+{genreTags.hiddenCount} more</Chip> : null}
                       </div>
                     </div>

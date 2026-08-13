@@ -16,7 +16,7 @@ import type {
   MessagingBlockStatus,
   MessagingRelationship,
 } from "@/lib/api/types";
-import { compensationLabel, gigStatusLabel, projectTypeLabel } from "@/lib/display";
+import { compensationLabel, projectTypeLabel } from "@/lib/display";
 import { displayLocation } from "@/lib/location";
 
 function isValidId(id: string) {
@@ -64,7 +64,7 @@ export default async function GigPage({
         </div>
 
         <div className="grid gap-12 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
-          <div className="space-y-8 lg:col-span-2">
+          <div className="min-w-0 space-y-8">
             <div className="border-y border-rule py-8">
 
               <div className="relative z-10">
@@ -72,18 +72,12 @@ export default async function GigPage({
                   <span className="text-meta uppercase text-brand">
                     {gig.status === "OPEN" ? "Open call" : "Call filled"}
                   </span>
-                  <Chip tone={gig.status === "OPEN" ? "blue" : "pink"}>
-                    {gigStatusLabel(gig.status)}
-                  </Chip>
                 </div>
 
                 <div className="mt-5">
-                  <div className="flex flex-wrap items-center gap-2 mb-3">
-                    <span className="text-meta uppercase text-muted">
-                      {projectTypeLabel(gig.projectType)}
-                    </span>
-                    <Chip tone="gold">{compensationLabel(gig.compensationType)}</Chip>
-                  </div>
+                  <p className="mb-3 text-meta uppercase text-muted">
+                    {projectTypeLabel(gig.projectType)} · {compensationLabel(gig.compensationType)}
+                  </p>
                   <h1 className="text-page-title text-ink">
                     {gig.title}
                   </h1>
@@ -114,7 +108,7 @@ export default async function GigPage({
                     </h2>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {gig.instruments?.length
-                        ? gig.instruments.map((name) => <Chip key={name} tone="blue">{name}</Chip>)
+                        ? gig.instruments.map((name) => <Chip key={name}>{name}</Chip>)
                         : <Chip>No instruments specified</Chip>}
                     </div>
                   </div>
@@ -124,7 +118,7 @@ export default async function GigPage({
                     </h2>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {gig.genres?.length
-                        ? gig.genres.map((name) => <Chip key={name} tone="pink">{name}</Chip>)
+                        ? gig.genres.map((name) => <Chip key={name}>{name}</Chip>)
                         : <Chip>No genres specified</Chip>}
                     </div>
                   </div>
@@ -146,7 +140,7 @@ export default async function GigPage({
             <div className="border-t-4 border-brand bg-ink p-6 text-white">
               <div className="relative z-10">
                 <span className="text-meta uppercase text-[#94A3B8]">
-                  Posted by
+                  Contact
                 </span>
                 <h2 className="mt-3 text-section-heading">Contact the creator</h2>
                 {!isOwnGig ? (

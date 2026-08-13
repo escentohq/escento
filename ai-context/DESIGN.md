@@ -19,7 +19,10 @@ This section supersedes conflicting recipes below while those sections are incre
 
 ## Theme intent
 
-Performance-inspired, bright, cinematic. The product is for student musicians and creators — it should feel like a tour poster, not a SaaS dashboard. Three stage-light accents (blue / pink / gold) sit on an off-white field with deep slate ink. Black-weight headlines anchor sections; mono eyebrows label them.
+Performance-inspired, bright, and editorial. The product is for student musicians and creators—it
+should feel closer to a well-set music publication than a SaaS dashboard. Blue, coral, and amber
+sit sparingly on an off-white field with deep slate ink. Strong Archivo headlines anchor sections;
+compact uppercase metadata labels support them.
 
 The root shell and global tokens now use the bright foundation. Do not use any `zinc-*` or `violet-*` Tailwind class.
 
@@ -66,22 +69,14 @@ Every color in the system. Use these exact hex values — do not approximate, do
 
 **Use sparingly.** Paper and ink dominate. Each section gets at most one accent, and gradients are prohibited.
 
-### Accent tints
-
-- `bg-[#0055FF]/10` — soft blue pill background (status: open, available)
-- `bg-[#0055FF]/5` — hover shadow tint
-- `bg-[#FF3366]/10` — pink pill background
-- `bg-[#FF3366]/20` — pink pill bg on dark cards
-- `bg-[#FFB000]/10` — gold pill background
-
 ### Status mapping
 
-| State | Background | Text |
+| State | Treatment |
 |---|---|---|
-| Gig `OPEN` | `bg-[#0055FF]/10` | `text-[#0055FF]` |
-| Gig `CLOSED` (display: "Filled") | `bg-[#FF3366]/10` | `text-[#FF3366]` |
-| Musician `Available` | `bg-[#0055FF]/10` | `text-[#0055FF]` |
-| `Paid` | `bg-[#FFB000]/10` | `text-[#FFB000]` (dark variant: `#FFB000` on `#1E293B`) |
+| Gig `OPEN` | Blue outline and text |
+| Gig `CLOSED` (display: "Filled") | Coral outline and text |
+| Musician `Available` | Blue outline and text |
+| `Paid` | Amber outline with dark amber text |
 
 ---
 
@@ -210,13 +205,8 @@ If a future feature earns expressive motion, scope and approve it separately and
 
 ## 3D / R3F policy
 
-The previous stage-light scene was removed during the static editorial redesign. Do not add new R3F/Three surfaces without explicit scope approval.
-
-The scene is `pointer-events-none` and decorative. It must:
-- not block interaction
-- remain non-interactive from a keyboard perspective
-- be wrapped with `aria-hidden="true"`
-- degrade gracefully if WebGL is unavailable (Drei's `Preload` + fallback)
+The previous stage-light scene was removed during the static editorial redesign. Do not add a new
+R3F/Three surface without explicit scope approval.
 
 ---
 
@@ -231,11 +221,6 @@ spacing, and imagery to establish hierarchy.
 
 ### Card
 
-❌ **Don't** (legacy dark-zinc):
-```tsx
-<div className="rounded-2xl border border-zinc-800 bg-zinc-950/50 p-6">
-```
-
 ✅ **Do** (bright stage-light):
 ```tsx
 <section className="border-y border-rule bg-surface py-8">
@@ -245,11 +230,6 @@ spacing, and imagery to establish hierarchy.
 
 ### Chip
 
-❌ **Don't**:
-```tsx
-<span className="rounded-full bg-violet-500/10 px-2 py-1 text-xs text-violet-300">Jazz</span>
-```
-
 ✅ **Do**:
 ```tsx
 <span className="border-l-2 border-brand pl-2 text-meta uppercase tracking-wider text-brand">
@@ -258,13 +238,6 @@ spacing, and imagery to establish hierarchy.
 ```
 
 ### Primary CTA
-
-❌ **Don't**:
-```tsx
-<button className="rounded-xl bg-violet-500 px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-violet-400">
-  Browse
-</button>
-```
 
 ✅ **Do** (matches landing hero):
 ```tsx
@@ -314,8 +287,8 @@ Decorative icons need `aria-hidden`. Icon-only buttons need `aria-label`.
 
 - The bright off-white base + slate ink palette
 - Three accents: blue / pink / gold
-- Black-weight tracking-tight headlines
-- Mono eyebrows
-- `rounded-full` buttons, `rounded-3xl` cards
-- `easeOutExpo` entrance easing
-- R3F scene confined to the landing hero
+- Archivo typography with restrained bold display headings
+- Compact uppercase metadata labels
+- Square, flat application controls and containers
+- Static presentation with targeted interaction-state feedback only
+- `/musicians` as the canonical marketplace reference

@@ -25,10 +25,10 @@ export function NavBar({
 }: Props) {
   const publicLinks = (
     <>
-      <Link href="/musicians" className="whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Musicians</Link>
-      <Link href="/gigs" className="whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Gigs</Link>
+      <Link href="/musicians" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Musicians</Link>
+      <Link href="/gigs" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Gigs</Link>
       {!signedIn ? (
-        <Link href="/help" className="whitespace-nowrap transition-colors hover:text-[#0055FF]">Help</Link>
+        <Link href="/help" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Help</Link>
       ) : null}
     </>
   );
@@ -81,7 +81,7 @@ export function NavBar({
         </div>
       </nav>
       <div className="border-t border-[#CBD5E1] lg:hidden">
-        <div className="mx-auto flex max-w-[1280px] gap-5 overflow-x-auto px-4 py-3 text-sm font-semibold text-[#475569] sm:px-6">
+        <div className="mx-auto flex max-w-[1280px] gap-5 overflow-x-auto px-4 text-sm font-semibold text-[#475569] sm:px-6">
           {publicLinks}
         </div>
       </div>

@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Read `AGENTS.md` before any work.** It contains the 10 non-negotiable rules, the full tech stack, the Definition of Done checklist, and which sub-agent file to load per task type. This file is the complement — architecture detail that requires reading across multiple files to understand.
 
-Use `/musicians` as the canonical marketplace reference and the rebuilt `HomeLanding.tsx` as the static editorial public reference.
+Use `/musicians` as the canonical application design reference replacing the former landing-led
+baseline. The rebuilt `HomeLanding.tsx` is a static public composition, not the template for every
+product route.
 
 ---
 
@@ -16,7 +18,9 @@ npm run build     # production build (must pass before done)
 npm run lint      # ESLint (must pass before done)
 ```
 
-No test runner is configured. Verification is manual (browser) + `lint` + `build`.
+Playwright smoke and write-flow suites live in `e2e/`. Write-flow tests require the guarded local
+Supabase setup in `playwright.write.config.ts`; never point them at hosted Supabase. Visual work is
+also verified manually in the browser, followed by `lint` and `build`.
 
 ---
 
@@ -24,19 +28,25 @@ No test runner is configured. Verification is manual (browser) + `lint` + `build
 
 ### Auth → App User sync (multi-file to understand)
 
-Supabase Auth and the app's own `user` table are two separate identity stores. Every request that touches an auth guard calls `syncAppUserFromAuth` (`src/lib/auth/sync-app-user.ts`), which upserts the Supabase JWT identity into the `user` table and returns the merged record. The session shape throughout the app is always:
+Supabase Auth and the app's own `app_user` table are two separate identity stores. Auth guards read
+the current Supabase user, then load the matching application role/name/image record. The session
+shape throughout the app is:
 
 ```ts
 { user: { id, email, role, name, image } }  // id = app user id (TEXT), not Supabase UUID
 ```
 
-Auth guards (`src/lib/auth-guards.ts`) layer on top: `getCurrentSession` → `requireSignedIn` → `requireUser` (has a role) → `requireRole("MUSICIAN"|"CREATOR", callbackUrl)`. Every protected page and server action calls one of these.
+Auth guards (`src/lib/auth-guards.ts`) layer on top: `getCurrentSession` → `requireSignedIn` →
+`requireUser` (has a role) → `requireRole("MUSICIAN"|"CREATOR", callbackUrl)`. Protected pages and
+actions use the guard appropriate to their trust boundary.
 
 `middleware.ts` only refreshes the Supabase cookie and blocks `/onboarding/*` for unauthenticated users. All other route-level auth is enforced at the page or action level, not in middleware.
 
 ### Service layer (`src/lib/api/`)
 
-No direct Supabase calls outside this directory. Each file (`users.ts`, `profiles.ts`, `gigs.ts`, `tags.ts`) follows the same pattern:
+Product data access is concentrated in this directory. Established auth and Supabase helpers may
+query session/account data directly where documented. Service files follow the same normalization
+pattern:
 
 - Private `toX(raw)` normalizer converts Postgres snake_case → TypeScript camelCase and flattens junction arrays (e.g., `gig_instrument` rows → `instruments: string[]`).
 - All functions call `await createSupabaseServerClient()` at the top — never cached, never a module singleton.

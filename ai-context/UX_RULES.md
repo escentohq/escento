@@ -200,8 +200,9 @@ See [`COMPONENTS.md`](./COMPONENTS.md) §NavBar for the full snippet.
 - **Labels.** Every input has a `<label htmlFor>` pointing to the input's `id`. No exceptions.
 - **Focus rings.** Every interactive element has a visible focus state. See [`DESIGN.md`](./DESIGN.md) §Focus ring.
 - **`aria-label` on icon-only controls.** Back arrows, close buttons, social link icons.
-- **`aria-hidden`** on decorative icons (when text label sits beside them) and on the R3F stage scene.
-- **Reduced motion.** Wrap framer-motion with `useReducedMotion()`. Reduce parallax + hover-lift to fades.
+- **`aria-hidden`** on decorative icons when a text label already communicates the meaning.
+- **Reduced motion.** The current UI is static. Any separately approved future motion must respect
+  `prefers-reduced-motion`.
 - **Contrast.** Body text uses `#475569` on `#FAFAFA` (passes AA at 16px). `#64748B` is for meta only — never for primary paragraph body.
 
 ### Color contrast — known values

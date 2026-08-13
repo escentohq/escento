@@ -83,7 +83,7 @@ export default async function MusicianPublicProfilePage({
 
         <div className="grid gap-12 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
           {/* ── Main column ── */}
-          <div className="space-y-8 lg:col-span-2">
+          <div className="min-w-0 space-y-8">
 
             <div className="border-y border-rule py-8">
 
@@ -147,7 +147,7 @@ export default async function MusicianPublicProfilePage({
                     </h2>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {profile.instruments?.length
-                        ? profile.instruments.map((name) => <Chip key={name} tone="blue">{name}</Chip>)
+                        ? profile.instruments.map((name) => <Chip key={name}>{name}</Chip>)
                         : <Chip>No instruments listed</Chip>}
                     </div>
                   </div>
@@ -157,7 +157,7 @@ export default async function MusicianPublicProfilePage({
                     </h2>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {profile.genres?.length
-                        ? profile.genres.map((name) => <Chip key={name} tone="pink">{name}</Chip>)
+                        ? profile.genres.map((name) => <Chip key={name}>{name}</Chip>)
                         : <Chip>No genres listed</Chip>}
                     </div>
                   </div>
@@ -252,16 +252,6 @@ export default async function MusicianPublicProfilePage({
               </div>
             ) : null}
 
-            {/* Work prefs */}
-            <SectionCard eyebrow="Soundcheck" title="Work preferences">
-              <div className="flex flex-wrap gap-2">
-                <Chip tone={profile.isRemote ? "blue" : "neutral"}>
-                  {profile.isRemote ? "Remote-friendly" : "In person"}
-                </Chip>
-                {profile.seekingPaid && <Chip tone="gold">Paid</Chip>}
-                {profile.seekingUnpaid && <Chip tone="pink">Unpaid + Credit</Chip>}
-              </div>
-            </SectionCard>
           </aside>
         </div>
       </div>

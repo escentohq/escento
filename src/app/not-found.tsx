@@ -8,6 +8,7 @@ export default function NotFound() {
         <EmptyState
           eyebrow="404 Error"
           title="Lost in the mix."
+          headingLevel="h1"
           body="The page you're looking for doesn't exist, has been moved, or hasn't been built yet."
           cta={
             <PrimaryCta href="/">

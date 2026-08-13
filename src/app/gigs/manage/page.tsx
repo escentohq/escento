@@ -57,7 +57,7 @@ export default async function ManageGigsPage() {
                             {gigStatusLabel(gig.status)}
                           </Chip>
                         </div>
-                        <h2 className="mt-2 wrap-break-word text-item-heading text-ink">
+                        <h2 className="mt-2 break-words text-item-heading text-ink">
                           {gig.title}
                         </h2>
                       </div>
@@ -74,7 +74,7 @@ export default async function ManageGigsPage() {
                     <div className="mt-4 space-y-2">
                       <div className="flex flex-wrap gap-2">
                         {instrumentTags.shown.map((name) => (
-                          <Chip key={`${gig.id}-i-${name}`} tone="blue">
+                          <Chip key={`${gig.id}-i-${name}`}>
                             {name}
                           </Chip>
                         ))}
@@ -84,7 +84,7 @@ export default async function ManageGigsPage() {
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {genreTags.shown.map((name) => (
-                          <Chip key={`${gig.id}-g-${name}`} tone="pink">
+                          <Chip key={`${gig.id}-g-${name}`}>
                             {name}
                           </Chip>
                         ))}

@@ -126,13 +126,13 @@ export default async function MusiciansPage({
                     <div className="mt-4 space-y-2">
                       <div className="flex flex-wrap gap-2">
                         {instrumentTags.shown.map((name) => (
-                          <Chip key={`${profile.id}-i-${name}`} tone="blue">{name}</Chip>
+                          <Chip key={`${profile.id}-i-${name}`}>{name}</Chip>
                         ))}
                         {instrumentTags.hiddenCount ? <Chip>+{instrumentTags.hiddenCount} more</Chip> : null}
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {genreTags.shown.map((name) => (
-                          <Chip key={`${profile.id}-g-${name}`} tone="pink">{name}</Chip>
+                          <Chip key={`${profile.id}-g-${name}`}>{name}</Chip>
                         ))}
                         {genreTags.hiddenCount ? <Chip>+{genreTags.hiddenCount} more</Chip> : null}
                       </div>
