@@ -174,8 +174,8 @@ Top bar: other party's name + avatar, gig title chip, back link
 
 Message area (`_message-list.tsx` — client):
 - Loads `initialMessages` from server, subscribes to Supabase Realtime on mount
-- Own messages: right-aligned, `bg-[#0F172A] text-white rounded-2xl`
-- Received: left-aligned, `bg-white border border-[#F1F5F9] text-[#0F172A] rounded-2xl`
+- Own messages: right-aligned, square `bg-[#0F172A] text-white` with a contrasting edge
+- Received: left-aligned, square `bg-white border border-[#F1F5F9] text-[#0F172A]`
 - Auto-scrolls to bottom on new message
 - De-duplicates via `id` check before appending (server action revalidation races with Realtime)
 
@@ -226,7 +226,7 @@ Fetches `listConversationsForUser` for sidebar list. Sidebar items show last mes
 <Link href="/messages/requests" className="relative ...">
   Messages
   {totalCount > 0 && (
-    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#FF3366] text-[9px] font-bold text-white">
+    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center bg-[#FF3366] text-[9px] font-bold text-white">
       {totalCount > 9 ? "9+" : totalCount}
     </span>
   )}

@@ -9,7 +9,6 @@ import {
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
-import { Reveal } from "@/components/ui/reveal";
 import type { ConnectionRequest, ConversationSummary } from "@/lib/api/types";
 import { getMessagingDisplayName, isEscentoSupportSummary } from "@/lib/support-identity";
 
@@ -53,9 +52,9 @@ export default async function MessagesPage() {
 
   return (
     <PageShell
-      eyebrow="Backstage"
+      eyebrow="Inbox"
       title="Messages"
-      body="Your accepted conversations. Requests live one door over."
+      body="Accepted connections appear here. New introductions stay in requests until you respond."
       action={
         <PrimaryCta
           href="/messages/requests"
@@ -67,7 +66,7 @@ export default async function MessagesPage() {
       }
     >
       <div className="mb-6 flex flex-wrap gap-3">
-        <Link href="/messages/blocked" className="btn-secondary min-h-11 px-5 text-xs">
+        <Link href="/messages/blocked" className="control-secondary min-h-11 px-5 text-xs">
           Blocked Users
         </Link>
       </div>
@@ -86,8 +85,8 @@ export default async function MessagesPage() {
           cta={<PrimaryCta href="/musicians">Browse Musicians</PrimaryCta>}
         />
       ) : (
-        <div className="space-y-4">
-          {conversations.map((conversation, index) => {
+        <div className="divide-y divide-rule border-y border-rule">
+          {conversations.map((conversation) => {
             const other = conversation.otherParticipant?.user;
             const name = getMessagingDisplayName(other);
             const officialSupport = isEscentoSupportSummary(other);
@@ -95,33 +94,31 @@ export default async function MessagesPage() {
             const unread = conversation.unreadCount > 0;
 
             return (
-              <Reveal key={conversation.id} delay={Math.min(index, 6) * 0.04}>
                 <Link
+                  key={conversation.id}
                   href={`/messages/${conversation.id}`}
-                  className={`group flex min-w-0 items-center gap-4 rounded-3xl border bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#0055FF]/10 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 ${
-                    unread ? "border-[#0055FF]/30" : "border-[#F1F5F9]"
-                  }`}
+                  className={`group flex min-w-0 items-center gap-4 px-1 py-5 transition-colors hover:bg-[#F8FAFC] focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 ${unread ? "border-l-4 border-brand pl-3" : "md:px-4"}`}
                 >
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-[#F1F5F9]">
+                  <div className="media-avatar relative h-12 w-12 shrink-0 overflow-hidden bg-[#F1F5F9]">
                     {other?.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={other.image} alt="" className="h-full w-full object-cover" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-[#0055FF]/10 text-sm font-black text-[#0055FF]">
+                      <div className="flex h-full w-full items-center justify-center bg-[#0055FF]/10 text-control text-brand">
                         {initials(name)}
                       </div>
                     )}
                     {unread ? (
-                      <span className="absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-white bg-[#FF3366]" />
+                      <span className="status-dot absolute right-0 top-0 h-3 w-3 border-2 border-white bg-coral" />
                     ) : null}
                   </div>
 
                   <div className="min-w-0 flex-1">
                     <div className="flex min-w-0 items-center justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-2">
-                        <h2 className="truncate text-base font-black text-[#0F172A]">{name}</h2>
+                        <h2 className="truncate text-body font-semibold text-ink">{name}</h2>
                         {officialSupport ? (
-                          <span className="shrink-0 rounded-full bg-[#0055FF]/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.14em] text-[#0055FF]">
+                          <span className="shrink-0 border border-brand px-2 py-0.5 text-meta uppercase text-brand">
                             Official support
                           </span>
                         ) : null}
@@ -136,12 +133,11 @@ export default async function MessagesPage() {
                   </div>
 
                   {unread ? (
-                    <span className="hidden rounded-full bg-[#FF3366]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#FF3366] sm:inline-flex">
+                    <span className="hidden border border-coral px-2 py-1 text-meta text-coral sm:inline-flex">
                       {conversation.unreadCount}
                     </span>
                   ) : null}
                 </Link>
-              </Reveal>
             );
           })}
         </div>

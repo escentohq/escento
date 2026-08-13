@@ -1,7 +1,6 @@
 "use client";
 
 import { Check, Circle } from "lucide-react";
-import { useReducedMotion } from "framer-motion";
 
 import { getPasswordStrength, type PasswordStrengthLabel } from "@/lib/password";
 
@@ -10,7 +9,7 @@ const STRENGTH_COLORS: Record<PasswordStrengthLabel, string> = {
   Weak: "#FF3366",
   Fair: "#FFB000",
   Good: "#0055FF",
-  Strong: "#16A34A",
+  Strong: "#0055FF",
 };
 
 type Props = {
@@ -18,10 +17,8 @@ type Props = {
 };
 
 export function PasswordStrengthIndicator({ password }: Props) {
-  const reducedMotion = useReducedMotion();
   const { score, label, requirements } = getPasswordStrength(password);
   const activeColor = STRENGTH_COLORS[label];
-  const transitionClass = reducedMotion ? "" : "transition-all duration-300";
 
   return (
     <div className="mt-3 space-y-3" role="status" aria-live="polite">
@@ -34,10 +31,10 @@ export function PasswordStrengthIndicator({ password }: Props) {
             {[1, 2, 3, 4].map((segment) => (
               <div
                 key={segment}
-                className={`h-1.5 flex-1 rounded-full bg-[#E2E8F0] ${transitionClass}`}
+                className="h-1.5 flex-1 bg-[#E2E8F0]"
               >
                 <div
-                  className={`h-full rounded-full ${transitionClass}`}
+                  className="h-full"
                   style={{
                     width: score >= segment ? "100%" : "0%",
                     backgroundColor: score >= segment ? activeColor : "transparent",

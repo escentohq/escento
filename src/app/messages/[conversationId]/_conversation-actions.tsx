@@ -30,7 +30,7 @@ export function HideConversationButton({ conversationId }: { conversationId: str
         type="button"
         onClick={hideConversation}
         disabled={isPending}
-        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border-2 border-[#E2E8F0] px-4 text-xs font-bold text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
+        className="inline-flex min-h-10 items-center justify-center gap-2 border border-rule px-4 text-control text-ink transition-colors hover:border-ink focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
       >
         <Trash2 className="h-4 w-4" aria-hidden />
         {isPending ? "Hiding..." : "Hide"}

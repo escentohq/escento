@@ -13,7 +13,7 @@ export function RouteError({ reset }: { reset: () => void }) {
         <p className="mt-3 leading-relaxed text-[#475569]">
           Try again. If it keeps happening, the route needs a closer look.
         </p>
-        <button type="button" onClick={reset} className="btn-primary mt-6">
+        <button type="button" onClick={reset} className="control-primary mt-6">
           Try again
         </button>
       </div>

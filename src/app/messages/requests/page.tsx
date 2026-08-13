@@ -8,7 +8,6 @@ import {
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
-import { Reveal } from "@/components/ui/reveal";
 import {
   CancelRequestButton,
   IncomingRequestActions,
@@ -57,9 +56,9 @@ export default async function MessageRequestsPage() {
 
   return (
     <PageShell
-      eyebrow="Soundcheck"
-      title="Connection Requests"
-      body="Accept a request to open a conversation. Pending outgoing requests stay here until they move."
+      eyebrow="Introductions"
+      title="Connection requests"
+      body="Accept to open a conversation, or decline without starting a thread."
     >
       {messagingUnavailable ? (
         <EmptyState
@@ -74,7 +73,7 @@ export default async function MessageRequestsPage() {
             <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
               Incoming
             </span>
-            <h2 className="mt-2 text-2xl font-black tracking-tight">Waiting on you</h2>
+            <h2 className="mt-2 text-section-heading">Waiting on you</h2>
           </div>
 
           {pendingIncoming.length === 0 ? (
@@ -84,27 +83,27 @@ export default async function MessageRequestsPage() {
               body="New connection requests will land here."
             />
           ) : (
-            pendingIncoming.map((request, index) => {
+            <div className="divide-y divide-rule border-y border-rule">
+            {pendingIncoming.map((request) => {
               const user = request.requester;
               const name = displayName(user?.name, user?.email);
 
               return (
-                <Reveal key={request.id} delay={Math.min(index, 6) * 0.04}>
-                  <article className="rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm">
+                  <article key={request.id} className="py-6">
                     <div className="flex gap-4">
-                      <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-[#F1F5F9]">
+                      <div className="media-avatar h-12 w-12 shrink-0 overflow-hidden bg-[#F1F5F9]">
                         {user?.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={user.image} alt="" className="h-full w-full object-cover" />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-[#0055FF]/10 text-sm font-black text-[#0055FF]">
+                          <div className="flex h-full w-full items-center justify-center bg-[#0055FF]/10 text-control text-brand">
                             {initials(name)}
                           </div>
                         )}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="break-words text-lg font-black text-[#0F172A]">{name}</h3>
+                          <h3 className="break-words text-item-heading text-ink">{name}</h3>
                           <Chip tone="neutral">{roleLabel(user?.role)}</Chip>
                         </div>
                         {request.introMessage ? (
@@ -122,9 +121,9 @@ export default async function MessageRequestsPage() {
                       </div>
                     </div>
                   </article>
-                </Reveal>
               );
-            })
+            })}
+            </div>
           )}
         </section>
 
@@ -133,7 +132,7 @@ export default async function MessageRequestsPage() {
             <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
               Outgoing
             </span>
-            <h2 className="mt-2 text-2xl font-black tracking-tight">Sent requests</h2>
+            <h2 className="mt-2 text-section-heading">Sent requests</h2>
           </div>
 
           {outgoing.length === 0 ? (
@@ -141,19 +140,19 @@ export default async function MessageRequestsPage() {
               eyebrow="No sends"
               title="You have not reached out yet."
               body="Open a profile and send a connection request."
-              cta={<Link href="/musicians" className="btn-secondary">Browse Musicians</Link>}
+              cta={<Link href="/musicians" className="control-secondary">Browse Musicians</Link>}
             />
           ) : (
-            outgoing.map((request, index) => {
+            <div className="divide-y divide-rule border-y border-rule">
+            {outgoing.map((request) => {
               const user = request.recipient;
               const name = displayName(user?.name, user?.email);
 
               return (
-                <Reveal key={request.id} delay={Math.min(index, 6) * 0.04}>
-                  <article className="rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm">
+                  <article key={request.id} className="py-6">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
-                        <h3 className="break-words text-lg font-black text-[#0F172A]">{name}</h3>
+                        <h3 className="break-words text-item-heading text-ink">{name}</h3>
                         <div className="mt-2">
                           <Chip tone={statusTone(request.status)}>
                             {request.status}
@@ -165,9 +164,9 @@ export default async function MessageRequestsPage() {
                       ) : null}
                     </div>
                   </article>
-                </Reveal>
               );
-            })
+            })}
+            </div>
           )}
         </section>
       </div>

@@ -44,7 +44,7 @@ export function AdminDeleteUserButton({ userId, userEmail, userName }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex min-h-9 items-center rounded-full border border-[#FF3366]/40 px-3 text-xs font-bold text-[#FF3366] transition-colors hover:bg-[#FF3366]/10 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+        className="inline-flex min-h-9 items-center border border-coral px-3 text-control text-coral transition-colors hover:bg-coral hover:text-white focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2"
       >
         Delete account
       </button>
@@ -58,11 +58,11 @@ export function AdminDeleteUserButton({ userId, userEmail, userName }: Props) {
             onClick={() => setOpen(false)}
             disabled={isPending}
           />
-          <div role="dialog" aria-modal="true" className="relative w-full max-w-lg rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-2xl">
+          <div role="dialog" aria-modal="true" className="surface-overlay relative w-full max-w-lg border border-ink bg-surface p-6">
             <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
               Permanent delete
             </span>
-            <h2 className="mt-2 text-xl font-black text-[#0F172A]">Delete this account?</h2>
+            <h2 className="mt-2 text-item-heading text-ink">Delete this account?</h2>
             <p className="mt-3 text-sm font-medium leading-relaxed text-[#475569]">
               This permanently deletes the auth user, app account, profiles, gigs, messages, requests, blocks, and profile picture files for <span className="font-bold text-[#0F172A]">{displayName}</span>. This cannot be undone.
             </p>
@@ -83,7 +83,7 @@ export function AdminDeleteUserButton({ userId, userEmail, userName }: Props) {
                 id={`delete-confirm-${userId}`}
                 value={confirmation}
                 onChange={(event) => setConfirmation(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-[#E2E8F0] bg-white px-4 py-2.5 text-sm font-semibold text-[#0F172A] outline-none transition-colors focus:border-[#0055FF] focus:ring-4 focus:ring-[#0055FF]/10"
+                className="mt-2 min-h-11 w-full border border-rule bg-surface px-3 py-2.5 text-body text-ink outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/15"
                 autoComplete="off"
               />
             </label>
@@ -95,7 +95,7 @@ export function AdminDeleteUserButton({ userId, userEmail, userName }: Props) {
                 type="button"
                 onClick={() => setOpen(false)}
                 disabled={isPending}
-                className="inline-flex min-h-11 items-center justify-center rounded-full border-2 border-[#E2E8F0] px-5 text-sm font-bold text-[#0F172A] disabled:opacity-50"
+                className="control-secondary min-h-11 px-5 disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -103,7 +103,7 @@ export function AdminDeleteUserButton({ userId, userEmail, userName }: Props) {
                 type="button"
                 onClick={submit}
                 disabled={isPending || confirmation !== "DELETE"}
-                className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#FF3366] px-5 text-sm font-bold text-white transition-colors hover:bg-[#D92D57] disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-11 items-center justify-center border border-coral bg-coral px-5 text-control text-white transition-colors hover:border-ink hover:bg-ink disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isPending ? "Deleting..." : "Permanently delete"}
               </button>

@@ -33,9 +33,9 @@ export default async function AdminMusiciansPage() {
     >
       <AdminNav />
       <ModerationTodo />
-      <div className="overflow-x-auto rounded-3xl border border-[#F1F5F9] bg-white shadow-sm">
+      <div className="overflow-x-auto border-y border-rule bg-surface">
         <table className="w-full min-w-260 text-left text-sm">
-          <thead className="bg-[#F8FAFC] text-xs font-black uppercase tracking-[0.14em] text-[#64748B]">
+          <thead className="bg-[#F8FAFC] text-meta uppercase text-muted">
             <tr>
               <th className="p-4">ID</th>
               <th className="p-4">Name</th>
@@ -75,7 +75,7 @@ export default async function AdminMusiciansPage() {
                   <div className="flex flex-wrap gap-2">
                     <Link
                       href={`/admin/musicians/${profile.id}/edit`}
-                      className="inline-flex min-h-9 items-center rounded-full border border-[#E2E8F0] px-3 text-xs font-bold text-[#0F172A] transition-colors hover:border-[#0055FF] hover:text-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                      className="inline-flex min-h-9 items-center border border-rule px-3 text-control text-ink transition-colors hover:border-brand hover:text-brand focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2"
                     >
                       Edit full profile
                     </Link>

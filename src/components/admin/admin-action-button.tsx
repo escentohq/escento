@@ -55,7 +55,7 @@ export function AdminActionButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`inline-flex min-h-9 items-center rounded-full border px-3 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 ${
+        className={`inline-flex min-h-9 items-center border px-3 text-control transition-colors focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 ${
           tone === "danger"
             ? "border-[#FF3366]/40 text-[#FF3366] hover:bg-[#FF3366]/10"
             : "border-[#E2E8F0] text-[#0F172A] hover:border-[#0055FF] hover:text-[#0055FF]"
@@ -73,8 +73,8 @@ export function AdminActionButton({
             onClick={() => setOpen(false)}
             disabled={isPending}
           />
-          <div role="dialog" aria-modal="true" className="relative w-full max-w-lg rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-2xl">
-            <h2 className="text-xl font-black text-[#0F172A]">{label}</h2>
+          <div role="dialog" aria-modal="true" className="surface-overlay relative w-full max-w-lg border border-ink bg-surface p-6">
+            <h2 className="text-item-heading text-ink">{label}</h2>
             <p className="mt-2 text-sm font-medium leading-relaxed text-[#475569]">
               Confirm this admin action. It is isolated to admin metadata and will be logged.
             </p>
@@ -108,7 +108,7 @@ export function AdminActionButton({
                 type="button"
                 onClick={() => setOpen(false)}
                 disabled={isPending}
-                className="inline-flex min-h-11 items-center justify-center rounded-full border-2 border-[#E2E8F0] px-5 text-sm font-bold text-[#0F172A] disabled:opacity-50"
+                className="control-secondary min-h-11 px-5 disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -116,7 +116,7 @@ export function AdminActionButton({
                 type="button"
                 onClick={submit}
                 disabled={isPending}
-                className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#0F172A] px-5 text-sm font-bold text-white transition-colors hover:bg-[#0055FF] disabled:opacity-50"
+                className="control-primary min-h-11 px-5 disabled:opacity-50"
               >
                 {isPending ? "Working..." : "Confirm"}
               </button>

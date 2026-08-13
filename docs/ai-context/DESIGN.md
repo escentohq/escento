@@ -1,7 +1,7 @@
 # DESIGN.md — Escento
 
 > Canonical visual system. **Bright stage-light theme.** All new UI uses these tokens.
-> Reference implementation: [`src/components/home/HomeLanding.tsx`](../src/components/home/HomeLanding.tsx).
+> References: [`src/app/musicians/page.tsx`](../src/app/musicians/page.tsx) for marketplace UI and [`src/components/home/HomeLanding.tsx`](../src/components/home/HomeLanding.tsx) for public editorial UI.
 
 ## UI overhaul override (2026-08)
 
@@ -13,13 +13,16 @@ This section supersedes conflicting recipes below while those sections are incre
 - Composition: flat editorial rows, rules, alignment, whitespace, and content hierarchy replace floating card grids.
 - Gradients: prohibited everywhere in `src`, including marketing surfaces.
 - Motion: no routine reveals, page transitions, hover lifts, parallax, or scroll choreography. Use only subtle targeted state transitions when an interaction needs feedback.
-- Reference direction: `/musicians` is the future canonical marketplace surface. `HomeLanding.tsx` is retained code, not the target system reference during the overhaul.
+- Reference direction: `/musicians` is the canonical marketplace surface. The rebuilt `HomeLanding.tsx` is the static public reference.
 
 ---
 
 ## Theme intent
 
-Performance-inspired, bright, cinematic. The product is for student musicians and creators — it should feel like a tour poster, not a SaaS dashboard. Three stage-light accents (blue / pink / gold) sit on an off-white field with deep slate ink. Black-weight headlines anchor sections; mono eyebrows label them.
+Performance-inspired, bright, and editorial. The product is for student musicians and creators—it
+should feel closer to a well-set music publication than a SaaS dashboard. Blue, coral, and amber
+sit sparingly on an off-white field with deep slate ink. Strong Archivo headlines anchor sections;
+compact uppercase metadata labels support them.
 
 The root shell and global tokens now use the bright foundation. Do not use any `zinc-*` or `violet-*` Tailwind class.
 
@@ -60,58 +63,40 @@ Every color in the system. Use these exact hex values — do not approximate, do
 
 | Token | Hex | Personality | Primary use |
 |---|---|---|---|
-| Blue | `#0055FF` | Momentum, clarity | Primary accent, hover glow, links, status `open` |
-| Pink | `#FF3366` | Cultural heat | Secondary accent, status pills on dark cards |
-| Gold | `#FFB000` | Stage, performance | Tertiary accent, gradient terminus |
+| Blue | `#0055FF` | Momentum, clarity | Primary controls, links, status `open` |
+| Pink | `#FF3366` | Cultural heat | Destructive or exceptional secondary accent |
+| Gold | `#FFB000` | Stage, performance | Tertiary accent used sparingly |
 
-**Use sparingly.** Each section gets at most one dominant accent. The full gradient (`blue → pink → gold`) appears at most **once per page** — reserve it for the marquee headline word or the hero badge.
-
-### Accent tints
-
-- `bg-[#0055FF]/10` — soft blue pill background (status: open, available)
-- `bg-[#0055FF]/5` — hover shadow tint
-- `bg-[#FF3366]/10` — pink pill background
-- `bg-[#FF3366]/20` — pink pill bg on dark cards
-- `bg-[#FFB000]/10` — gold pill background
+**Use sparingly.** Paper and ink dominate. Each section gets at most one accent, and gradients are prohibited.
 
 ### Status mapping
 
-| State | Background | Text |
+| State | Treatment |
 |---|---|---|
-| Gig `OPEN` | `bg-[#0055FF]/10` | `text-[#0055FF]` |
-| Gig `CLOSED` (display: "Filled") | `bg-[#FF3366]/10` | `text-[#FF3366]` |
-| Musician `Available` | `bg-[#0055FF]/10` | `text-[#0055FF]` |
-| `Paid` | `bg-[#FFB000]/10` | `text-[#FFB000]` (dark variant: `#FFB000` on `#1E293B`) |
+| Gig `OPEN` | Blue outline and text |
+| Gig `CLOSED` (display: "Filled") | Coral outline and text |
+| Musician `Available` | Blue outline and text |
+| `Paid` | Amber outline with dark amber text |
 
 ---
 
 ## Typography
 
-System font stack (Tailwind default). Black-weight display, medium body, monospace eyebrows.
+Archivo is loaded through `next/font`. Display type is bold but restrained; body and metadata use
+the centralized typography utilities in `globals.css`.
 
 ### Scale
 
 | Role | Classes |
 |---|---|
-| Hero H1 | `text-6xl md:text-8xl font-black tracking-tighter leading-[0.95]` |
-| Section H2 | `text-4xl md:text-5xl font-black tracking-tight` |
-| Sub-section H3 | `text-2xl font-bold` |
-| Card title | `text-lg font-bold leading-tight` |
-| Body | `text-base font-medium leading-relaxed text-[#475569]` (md: `text-lg`) |
-| Body small | `text-sm font-medium text-[#475569]` |
-| Eyebrow | `font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]` |
-| Meta | `text-sm font-mono text-[#64748B]` |
-| Button label | `text-sm font-bold tracking-wide` |
-
-### Headline gradient (use once per page)
-
-```tsx
-<span className="bg-linear-to-r from-[#0055FF] via-[#FF3366] to-[#FFB000] bg-clip-text text-transparent">
-  Stage.
-</span>
-```
-
-The gradient applies to **one word**, not the entire headline.
+| Hero H1 | `text-display` |
+| Page H1 | `text-page-title` |
+| Section H2 | `text-section-heading` |
+| Item title | `text-item-heading` |
+| Body | `text-body` |
+| Body small | `text-secondary` |
+| Eyebrow / metadata | `text-meta uppercase tracking-[0.18em]` |
+| Button label | `text-control` |
 
 ### Selection
 
@@ -146,32 +131,17 @@ Narrower containers for forms: `max-w-3xl`. For auth + onboarding: `max-w-md` to
 
 ## Radius
 
-| Element | Value |
-|---|---|
-| Card | `rounded-3xl` |
-| Inner card / section-card | `rounded-2xl` |
-| Input / select / textarea | `rounded-2xl` |
-| Button (CTA) | `rounded-full` |
-| Chip / badge / status pill | `rounded-full` |
-| Avatar | `rounded-full` |
-| Icon tile (square) | `rounded-2xl` |
-
-Never `rounded-md` or `rounded-lg` — too tight for this scale.
+Application controls and containers use `0px`. Do not scatter Tailwind `rounded-*` utilities.
+The approved named exceptions in `globals.css` are true circular avatars/status dots and a slight
+overlay radius where it improves composition.
 
 ---
 
 ## Shadow
 
-Cards are flat at rest. Lift comes on hover only.
-
-```
-shadow-sm                            # default card
-hover:shadow-xl hover:shadow-[#0055FF]/10   # blue-tinted lift (default cards)
-hover:shadow-2xl hover:shadow-[#FF3366]/20  # pink-tinted lift (dark feature cards)
-hover:shadow-[0_0_40px_-10px_#0055FF]       # CTA glow on the dark pill button
-```
-
-Never use raw `shadow-md`/`shadow-lg` without an accent tint — they look generic.
+Application surfaces are flat. Use rules, contrast, spacing, and solid color instead of card or
+control shadows. An overlay may earn a restrained shadow only when separation from content cannot
+be established cleanly with a border.
 
 ---
 
@@ -223,100 +193,27 @@ focus:outline-none focus:ring-2 focus:ring-[#0055FF]/20 focus:border-[#0055FF]
 
 ## Motion tokens
 
-**Library:** `framer-motion` for app-wide motion. `gsap` + ScrollTrigger only for scroll-pinned sequences that Framer cannot do cleanly.
+The current application is intentionally static. Do not add page transitions, entrance reveals,
+scroll choreography, parallax, hover lifts, scale effects, or looping decoration. Routine controls
+may use a targeted color or opacity transition when it materially clarifies interaction state;
+avoid blanket `transition-all`.
 
-### Easings
-
-```ts
-const easeOutExpo = [0.16, 1, 0.3, 1] as const;  // canonical entrance easing
-```
-
-Use `easeOutExpo` on every hero / section entrance. Never the default `"easeInOut"`.
-
-### Durations
-
-| Use | Duration |
-|---|---|
-| Hero element entrance | `0.8` |
-| Card / section reveal | `0.6` |
-| Small fade (pills, helper text) | `0.5` |
-| Hover transitions (color, shadow) | `0.3` (Tailwind `transition-all duration-300`) |
-
-### Stagger
-
-Hero rows stagger by `0.1s` (badge → headline → subtext → CTAs → state pill).
-Grid card reveals stagger by `0.1s` per index.
-
-```tsx
-transition={{ duration: 0.8, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-```
-
-### Patterns
-
-**Hero entrance** (`HomeLanding.tsx` reference):
-
-```tsx
-<motion.h1
-  initial={{ opacity: 0, y: 30 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
->
-```
-
-**Scroll-reveal** for non-hero sections:
-
-```tsx
-<motion.div
-  initial={{ opacity: 0, y: 40 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  viewport={{ once: true, margin: "-100px" }}
-  transition={{ duration: 0.6 }}
->
-```
-
-**Hover lift** for cards:
-
-```tsx
-<motion.div whileHover={{ y: -8 }} className="transition-all duration-300">
-```
-
-**Hero parallax** (landing only):
-
-```tsx
-const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-const heroY = useTransform(scrollYProgress, [0, 1], [0, 260]);
-const heroOpacity = useTransform(scrollYProgress, [0, 0.45], [1, 0]);
-```
-
-### Reduced motion (required)
-
-Wrap non-trivial animations:
-
-```tsx
-import { useReducedMotion } from "framer-motion";
-const prefersReducedMotion = useReducedMotion();
-const initial = prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 30 };
-```
-
-When `prefersReducedMotion` is `true`: drop parallax, drop hover lift, keep fades only.
-
-### Avoid
-
-- Spring physics (`type: "spring"`) — feels arcade. Use `easeOutExpo`.
-- More than 6 elements doing `whileInView` simultaneously — chunk with `staggerChildren` instead.
-- Looping animations (no infinite pulses, no spinning logos).
+If a future feature earns expressive motion, scope and approve it separately and preserve
+`prefers-reduced-motion` behavior.
 
 ---
 
-## Gradient recipes
+## 3D / R3F policy
 
-| Recipe | Use |
-|---|---|
-| `bg-linear-to-r from-[#0055FF] via-[#FF3366] to-[#FFB000]` | Headline emphasis, CTA hover overlay |
-| `bg-linear-to-br from-[#0055FF]/10 to-transparent` | Card corner glow on hover |
-| `bg-linear-to-br from-[#FF3366]/20 to-transparent` | Dark card corner glow |
+The previous stage-light scene was removed during the static editorial redesign. Do not add a new
+R3F/Three surface without explicit scope approval.
 
-Always linear or br (top-left → bottom-right). No radial. No conic.
+---
+
+## Gradients
+
+Gradients are not part of the current design system. Use solid brand colors, rules, typography,
+spacing, and imagery to establish hierarchy.
 
 ---
 
@@ -324,51 +221,32 @@ Always linear or br (top-left → bottom-right). No radial. No conic.
 
 ### Card
 
-❌ **Don't** (legacy dark-zinc):
-```tsx
-<div className="rounded-2xl border border-zinc-800 bg-zinc-950/50 p-6">
-```
-
 ✅ **Do** (bright stage-light):
 ```tsx
-<motion.div
-  whileHover={{ y: -8 }}
-  className="rounded-3xl border border-[#F1F5F9] bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-[#0055FF]/10"
->
+<section className="border-y border-rule bg-surface py-8">
+  {/* editorial content */}
+</section>
 ```
 
 ### Chip
 
-❌ **Don't**:
-```tsx
-<span className="rounded-full bg-violet-500/10 px-2 py-1 text-xs text-violet-300">Jazz</span>
-```
-
 ✅ **Do**:
 ```tsx
-<span className="rounded-full bg-[#0055FF]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0055FF]">
+<span className="border-l-2 border-brand pl-2 text-meta uppercase tracking-wider text-brand">
   Jazz
 </span>
 ```
 
 ### Primary CTA
 
-❌ **Don't**:
-```tsx
-<button className="rounded-xl bg-violet-500 px-4 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-violet-400">
-  Browse
-</button>
-```
-
 ✅ **Do** (matches landing hero):
 ```tsx
 <Link
   href="/musicians"
-  className="group relative flex h-14 items-center justify-center gap-2 overflow-hidden rounded-full bg-[#0F172A] px-8 text-sm font-bold tracking-wide text-white transition-all hover:scale-105 hover:shadow-[0_0_40px_-10px_#0055FF]"
+  className="inline-flex min-h-12 items-center justify-center gap-2 border border-ink bg-ink px-6 py-3 text-control text-white hover:bg-brand"
 >
-  <span className="relative z-10">Browse Musicians</span>
-  <ArrowRight className="relative z-10 h-4 w-4 transition-transform group-hover:translate-x-1" />
-  <div className="absolute inset-0 bg-linear-to-r from-[#0055FF] to-[#FF3366] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+  Browse musicians
+  <ArrowRight className="h-4 w-4" aria-hidden="true" />
 </Link>
 ```
 
@@ -381,16 +259,12 @@ Always linear or br (top-left → bottom-right). No radial. No conic.
 </span>
 ```
 
-### Dark "featured" card recipe
+### Dark featured section
 
 ```tsx
-<motion.div
-  whileHover={{ y: -8 }}
-  className="group relative overflow-hidden rounded-3xl bg-[#0F172A] p-8 text-white shadow-sm transition-all duration-300 hover:shadow-2xl hover:shadow-[#FF3366]/20"
->
-  <div className="absolute right-0 top-0 h-32 w-32 rounded-bl-full bg-linear-to-br from-[#FF3366]/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+<section className="bg-ink px-6 py-16 text-white">
   {/* content */}
-</motion.div>
+</section>
 ```
 
 ---
@@ -403,7 +277,7 @@ Always linear or br (top-left → bottom-right). No radial. No conic.
 |---|---|
 | Button icon | `h-4 w-4` |
 | Card icon | `h-6 w-6` to `h-8 w-8` |
-| Decorative section icon | `h-12 w-12` inside a `rounded-2xl` tile |
+| Decorative section icon | `h-8 w-8`; use sparingly and without a decorative tile |
 
 Decorative icons need `aria-hidden`. Icon-only buttons need `aria-label`.
 
@@ -413,7 +287,8 @@ Decorative icons need `aria-hidden`. Icon-only buttons need `aria-label`.
 
 - The bright off-white base + slate ink palette
 - Three accents: blue / pink / gold
-- Black-weight tracking-tight headlines
-- Mono eyebrows
-- `rounded-full` buttons, `rounded-3xl` cards
-- `easeOutExpo` entrance easing
+- Archivo typography with restrained bold display headings
+- Compact uppercase metadata labels
+- Square, flat application controls and containers
+- Static presentation with targeted interaction-state feedback only
+- `/musicians` as the canonical marketplace reference

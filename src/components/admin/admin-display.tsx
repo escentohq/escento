@@ -33,11 +33,11 @@ export function AdminUnavailable({
 }) {
   return (
     <div className="bg-[#FAFAFA] px-4 py-16 sm:px-6">
-      <div className="mx-auto max-w-xl rounded-3xl border border-[#F1F5F9] bg-white p-8 text-center shadow-sm">
+      <div className="mx-auto max-w-xl border-y border-rule py-8">
         <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
           Admin
         </span>
-        <h1 className="mt-3 text-3xl font-black text-[#0F172A]">
+        <h1 className="mt-3 text-page-title text-ink">
           Not authorized
         </h1>
         <p className="mt-3 text-sm font-medium leading-relaxed text-[#475569]">
@@ -53,18 +53,18 @@ export function AdminUnavailable({
 export function AdminSetupRequired() {
   return (
     <div className="bg-[#FAFAFA] px-4 py-16 sm:px-6">
-      <div className="mx-auto max-w-2xl rounded-3xl border border-[#F1F5F9] bg-white p-8 shadow-sm">
+      <div className="mx-auto max-w-2xl border-y border-rule py-8">
         <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FFB000]">
           Admin setup
         </span>
-        <h1 className="mt-3 text-3xl font-black text-[#0F172A]">
+        <h1 className="mt-3 text-page-title text-ink">
           Admin database setup required
         </h1>
         <p className="mt-3 text-sm font-medium leading-relaxed text-[#475569]">
           The admin dashboard is isolated from the public app, but it needs the
           admin moderation migration before it can load moderation columns.
         </p>
-        <div className="mt-5 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] p-4 text-sm font-semibold text-[#334155]">
+        <div className="mt-5 border-y border-rule py-4 text-secondary font-semibold text-[#334155]">
           Apply{" "}
           <code className="font-mono text-[#0055FF]">
             supabase/migrations/20260607002000_add_safe_admin_moderation.sql
@@ -86,7 +86,7 @@ export function AdminSetupRequired() {
 
 export function ModerationTodo() {
   return (
-    <div className="mb-6 rounded-2xl border border-[#FFB000]/30 bg-[#FFB000]/10 p-4 text-sm font-medium leading-relaxed text-[#8A5C00]">
+    <div className="mb-6 border-l-4 border-amber px-4 py-3 text-secondary text-[#7A5200]">
       TODO: Public directory queries are intentionally unchanged for safety.
       Hide/restore writes admin metadata only until public filtering is
       explicitly added later.

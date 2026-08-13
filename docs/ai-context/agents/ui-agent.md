@@ -8,7 +8,7 @@
 > 4. `docs/ai-context/UX_RULES.md` — loading/empty/error states, form rules, CTA rules
 > 5. `docs/ai-context/FORMS.md` — form UX system (when building forms)
 > 6. `docs/ai-context/COMPONENTS.md` — copy-paste component recipes
-> 6. `src/components/home/HomeLanding.tsx` — canonical reference. Study the animation patterns.
+> 6. `src/app/musicians/page.tsx` — canonical marketplace composition
 
 ## UI overhaul override (2026-08)
 
@@ -20,7 +20,8 @@ Use `/musicians` and the live shared primitives as the emerging reference, not t
 
 ## Your job
 
-Build pages and components that feel cinematic. The design system is bright + bold. The motion should match: purposeful, smooth, stage-lit.
+Build bright, editorial pages and components with strong typographic hierarchy, useful rules,
+and restrained solid-color accents.
 
 ---
 
@@ -33,83 +34,20 @@ Build pages and components that feel cinematic. The design system is bright + bo
 
 ---
 
-## Retained animation reference (do not apply to new overhaul UI)
+## Motion and 3D
 
-### 1. Framer Motion (retained legacy examples only)
-
-The examples below explain retained code only. New UI remains static unless targeted interaction feedback is necessary.
-
-```tsx
-const ease = [0.16, 1, 0.3, 1];
-
-// Entrance
-<motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease }} />
-
-// Scroll reveal
-<motion.div initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.6, ease }} />
-
-// Stagger grid
-<motion.div variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }} initial="hidden" whileInView="show">
-  {items.map(i => <motion.div key={i.id} variants={{ hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0 } }} />)}
-</motion.div>
-
-// Hover lift
-<motion.div whileHover={{ y: -8, scale: 1.02 }} transition={{ duration: 0.3, ease }} />
-```
-
-Always guard with `useReducedMotion()`:
-```tsx
-const reduced = useReducedMotion();
-const initial = reduced ? { opacity: 0 } : { opacity: 0, y: 40 };
-```
-
-### 2. GSAP + ScrollTrigger (scroll-pinned sequences)
-
-Use when you need: scroll scrubbing, pinned sections, text reveals character-by-character, counter animations.
-
-```tsx
-"use client";
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-gsap.registerPlugin(ScrollTrigger);
-
-export function ScrollSection() {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(".reveal-item",
-        { opacity: 0, y: 60 },
-        {
-          opacity: 1, y: 0, stagger: 0.15, duration: 0.9, ease: "expo.out",
-          scrollTrigger: { trigger: ref.current, start: "top 75%", end: "bottom 25%", toggleActions: "play none none reverse" }
-        }
-      );
-    }, ref);
-    return () => ctx.revert();
-  }, []);
-
-  return <div ref={ref}>{/* children with className="reveal-item" */}</div>;
-}
-```
-
-**Rule:** GSAP owns scroll-driven transforms. Framer owns entrances. Never apply both to the same element.
-
-Prefer the shared [`Reveal`](../../../src/components/ui/reveal.tsx) wrapper over hand-written `whileInView`.
-
-There is no 3D or smooth-scroll layer. Do not import `three`, `@react-three/*`, or `lenis`. Re-adding either needs approval per `AGENTS.md`.
+The current UI is static by design. Do not add Framer Motion entrances, GSAP scroll behavior,
+Lenis smooth scrolling, R3F scenes, parallax, hover lifts, or page transitions without explicit
+scope approval. Targeted color or opacity feedback is acceptable for interactive state.
 
 ---
 
 ## Every new page needs
 
-- `loading.tsx` — animated skeleton mirroring page layout
+- `loading.tsx` — static skeleton mirroring page layout
 - `error.tsx` — branded error with back link
 - Empty state — eyebrow + one sentence + one CTA
 - One primary CTA max
-- Scroll-reveal on every section (`<Reveal>` or framer `whileInView`)
-- `useReducedMotion()` guard on all non-trivial animations
 
 ---
 
@@ -119,12 +57,12 @@ There is no 3D or smooth-scroll layer. Do not import `three`, `@react-three/*`, 
 // loading.tsx
 export default function Loading() {
   return (
-    <div className="max-w-6xl mx-auto px-6 py-28 animate-pulse space-y-8">
-      <div className="h-3 w-24 rounded-full bg-[#F1F5F9]" />
-      <div className="h-10 w-1/2 rounded-full bg-[#F1F5F9]" />
+    <div className="mx-auto max-w-6xl space-y-8 px-6 py-28">
+      <div className="h-3 w-24 bg-rule" />
+      <div className="h-10 w-1/2 bg-rule" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-64 rounded-3xl bg-[#F8FAFC]" />
+          <div key={i} className="h-64 border-y border-rule bg-surface" />
         ))}
       </div>
     </div>
@@ -144,9 +82,9 @@ export default function Loading() {
 
 ## Do not
 
-- Add `"use client"` to `page.tsx` — extract animated parts into child client components
+- Add `"use client"` to `page.tsx` — extract interactive parts into child client components
 - Touch `src/app/layout.tsx` or `src/app/globals.css` legacy classes
-- Apply GSAP and framer motion to the same element
+- Add decorative motion or 3D without explicit approval
 - Add new dependencies not in `AGENTS.md` stack snapshot
 
 ---

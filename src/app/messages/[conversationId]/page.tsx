@@ -54,24 +54,24 @@ export default async function ConversationPage({
           <BackLink href="/messages">Back to messages</BackLink>
         </div>
 
-        <header className="mb-6 rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm">
+        <header className="mb-6 border-y border-rule py-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-4">
-              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-[#F1F5F9]">
+              <div className="media-avatar h-12 w-12 shrink-0 overflow-hidden bg-[#F1F5F9]">
                 {other?.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={other.image} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-[#0055FF]/10 text-sm font-black text-[#0055FF]">
+                  <div className="flex h-full w-full items-center justify-center bg-[#0055FF]/10 text-control text-brand">
                     {initials(name)}
                   </div>
                 )}
               </div>
               <div className="min-w-0">
-                <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+                <span className="text-meta uppercase text-muted">
                   Conversation
                 </span>
-                <h1 className="mt-1 truncate text-2xl font-black tracking-tight text-[#0F172A]">
+                <h1 className="mt-1 truncate text-section-heading text-ink">
                   {name}
                 </h1>
                 <div className="mt-2 flex flex-wrap gap-2">

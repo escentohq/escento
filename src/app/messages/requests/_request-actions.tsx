@@ -46,7 +46,7 @@ export function IncomingRequestActions({ requestId }: { requestId: string }) {
           type="button"
           onClick={runAccept}
           disabled={isPending}
-          className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#0F172A] px-5 text-sm font-bold text-white transition-all hover:bg-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
+          className="control-primary min-h-11 px-5 disabled:cursor-wait"
         >
           Accept
         </button>
@@ -54,7 +54,7 @@ export function IncomingRequestActions({ requestId }: { requestId: string }) {
           type="button"
           onClick={runReject}
           disabled={isPending}
-          className="inline-flex min-h-11 items-center justify-center rounded-full border-2 border-[#FF3366] px-5 text-sm font-bold text-[#FF3366] transition-colors hover:bg-[#FF3366]/10 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
+          className="inline-flex min-h-11 items-center justify-center border border-coral px-5 text-control text-coral transition-colors hover:bg-coral hover:text-white focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
         >
           Reject
         </button>
@@ -87,7 +87,7 @@ export function CancelRequestButton({ requestId }: { requestId: string }) {
         type="button"
         onClick={runCancel}
         disabled={isPending}
-        className="inline-flex min-h-10 items-center justify-center rounded-full border border-[#E2E8F0] px-4 text-xs font-bold text-[#475569] transition-colors hover:border-[#0F172A] hover:text-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
+        className="inline-flex min-h-10 items-center justify-center border border-rule px-4 text-control text-muted transition-colors hover:border-ink hover:text-ink focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
       >
         Cancel
       </button>

@@ -16,7 +16,7 @@ import type {
   MessagingBlockStatus,
   MessagingRelationship,
 } from "@/lib/api/types";
-import { compensationLabel, gigStatusLabel, projectTypeLabel } from "@/lib/display";
+import { compensationLabel, projectTypeLabel } from "@/lib/display";
 import { displayLocation } from "@/lib/location";
 
 function isValidId(id: string) {
@@ -57,37 +57,31 @@ export default async function GigPage({
   }
 
   return (
-    <div className="bg-[#FAFAFA] px-4 py-12 sm:px-6 md:py-16 lg:py-24">
-      <div className="mx-auto w-full max-w-6xl">
+    <div className="bg-paper px-4 py-10 sm:px-6 md:py-14 lg:px-8 lg:py-16">
+      <div className="mx-auto w-full max-w-[1280px]">
         <div className="mb-8">
           <BackLink href="/gigs">Back to gigs</BackLink>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-3">
-          <div className="space-y-8 lg:col-span-2">
-            <div className="relative overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white p-8 shadow-sm">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
+          <div className="min-w-0 space-y-8">
+            <div className="border-y border-rule py-8">
 
               <div className="relative z-10">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
+                  <span className="text-meta uppercase text-brand">
                     {gig.status === "OPEN" ? "Open call" : "Call filled"}
                   </span>
-                  <Chip tone={gig.status === "OPEN" ? "blue" : "pink"}>
-                    {gigStatusLabel(gig.status)}
-                  </Chip>
                 </div>
 
                 <div className="mt-5">
-                  <div className="flex flex-wrap items-center gap-2 mb-3">
-                    <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748B]">
-                      {projectTypeLabel(gig.projectType)}
-                    </span>
-                    <Chip tone="gold">{compensationLabel(gig.compensationType)}</Chip>
-                  </div>
-                  <h1 className="text-4xl font-black tracking-tight text-[#0F172A] md:text-5xl">
+                  <p className="mb-3 text-meta uppercase text-muted">
+                    {projectTypeLabel(gig.projectType)} · {compensationLabel(gig.compensationType)}
+                  </p>
+                  <h1 className="text-page-title text-ink">
                     {gig.title}
                   </h1>
-                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-[#64748B]">
+                  <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-secondary text-muted">
                     {gigLocation && (
                       <span className="inline-flex items-center gap-1.5">
                         <MapPin className="h-3.5 w-3.5" aria-hidden />
@@ -103,38 +97,38 @@ export default async function GigPage({
                   </div>
                 </div>
 
-                <p className="mt-7 whitespace-pre-wrap text-base font-medium leading-relaxed text-[#475569]">
+                <p className="mt-8 max-w-3xl whitespace-pre-wrap text-body text-muted">
                   {gig.description}
                 </p>
 
                 <div className="mt-8 grid gap-6 md:grid-cols-2">
                   <div>
-                    <h2 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+                    <h2 className="text-meta uppercase text-muted">
                       Instruments
                     </h2>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {gig.instruments?.length
-                        ? gig.instruments.map((name) => <Chip key={name} tone="blue">{name}</Chip>)
+                        ? gig.instruments.map((name) => <Chip key={name}>{name}</Chip>)
                         : <Chip>No instruments specified</Chip>}
                     </div>
                   </div>
                   <div>
-                    <h2 className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+                    <h2 className="text-meta uppercase text-muted">
                       Genres
                     </h2>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {gig.genres?.length
-                        ? gig.genres.map((name) => <Chip key={name} tone="pink">{name}</Chip>)
+                        ? gig.genres.map((name) => <Chip key={name}>{name}</Chip>)
                         : <Chip>No genres specified</Chip>}
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-6 rounded-2xl bg-[#F8FAFC] p-5">
-                  <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+                <div className="mt-8 border-y border-rule py-5">
+                  <p className="text-meta uppercase text-muted">
                     Compensation
                   </p>
-                  <p className="mt-2 text-sm font-bold text-[#0F172A]">
+                  <p className="mt-2 text-body font-semibold text-ink">
                     {gig.compensationDetails || "See project details above"}
                   </p>
                 </div>
@@ -143,19 +137,19 @@ export default async function GigPage({
           </div>
 
           <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-            <div className="relative overflow-hidden rounded-3xl bg-[#0F172A] p-8 text-white shadow-sm">
+            <div className="border-t-4 border-brand bg-ink p-6 text-white">
               <div className="relative z-10">
-                <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
-                  Details
+                <span className="text-meta uppercase text-[#94A3B8]">
+                  Contact
                 </span>
-                <h2 className="mt-3 text-2xl font-black tracking-tight">About</h2>
+                <h2 className="mt-3 text-section-heading">Contact the creator</h2>
                 {!isOwnGig ? (
-                  <p className="mt-3 text-sm font-medium leading-relaxed text-[#94A3B8]">
-                    Interested in this project? Reach out to the creator directly.
+                  <p className="mt-3 text-secondary text-[#CBD5E1]">
+                    Send a request about this gig. If accepted, a message thread opens.
                   </p>
                 ) : null}
 
-                <div className="mt-6 rounded-2xl bg-[#1E293B] p-4">
+                <div className="mt-6 border-y border-[#334155] py-4">
                   <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-[#64748B]">
                     Posted by
                   </p>

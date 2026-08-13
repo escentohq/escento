@@ -10,7 +10,7 @@
 > 5. `docs/ai-context/COMPONENTS.md` — component recipes
 > 6. `docs/ai-context/FRONTEND_ARCH.md` — directory map, server action patterns
 > 7. `docs/ai-context/PRODUCT.md` — scope boundary (check before building ANYTHING)
-> 8. `src/components/home/HomeLanding.tsx` — canonical design reference
+> 8. `src/app/musicians/page.tsx` — canonical marketplace design reference
 > 9. `docs/ai-context/DATABASE.md` and current Supabase tables/storage — data model
 
 ## UI overhaul override (2026-08)

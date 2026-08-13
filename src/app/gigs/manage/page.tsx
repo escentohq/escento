@@ -13,7 +13,6 @@ import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
-import { Reveal } from "@/components/ui/reveal";
 import { CloseGigButton } from "./CloseGigButton";
 import { DeleteGigButton } from "./DeleteGigButton";
 import { ReopenGigButton } from "./ReopenGigButton";
@@ -25,9 +24,9 @@ export default async function ManageGigsPage() {
 
   return (
     <PageShell
-      eyebrow="Stage management"
-      title="Manage Gigs"
-      body="Track your open projects, close them when the role is filled, or take them down."
+      eyebrow="Your listings"
+      title="Manage gigs"
+      body="Edit open calls, mark filled roles, or remove old listings."
       action={<PrimaryCta href="/gigs/create">Post a New Gig</PrimaryCta>}
     >
       <section>
@@ -39,19 +38,17 @@ export default async function ManageGigsPage() {
             cta={<PrimaryCta href="/gigs/create">Post a Gig</PrimaryCta>}
           />
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {gigs.map((gig, index) => {
+          <div className="divide-y divide-rule border-y border-rule">
+            {gigs.map((gig) => {
               const instrumentTags = visibleTags(gig.instruments ?? []);
               const genreTags = visibleTags(gig.genres ?? []);
 
               return (
-                <Reveal key={gig.id} delay={Math.min(index, 6) * 0.04}>
-                  <div className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm transition-all duration-300 hover:border-transparent hover:shadow-xl hover:shadow-[#FF3366]/8">
-
-                    <div className="relative z-10 flex min-w-0 items-start justify-between gap-4">
+                  <div key={gig.id} className="grid min-w-0 gap-5 bg-surface py-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)_auto] md:items-start md:px-4">
+                    <div className="flex min-w-0 items-start justify-between gap-4">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-mono text-[10px] font-bold uppercase tracking-[0.15em] text-[#64748B]">
+                          <span className="text-meta uppercase text-muted">
                             {projectTypeLabel(gig.projectType)}
                           </span>
                           <Chip
@@ -60,7 +57,7 @@ export default async function ManageGigsPage() {
                             {gigStatusLabel(gig.status)}
                           </Chip>
                         </div>
-                        <h2 className="mt-1 wrap-break-word text-lg font-black tracking-tight text-[#0F172A]">
+                        <h2 className="mt-2 break-words text-item-heading text-ink">
                           {gig.title}
                         </h2>
                       </div>
@@ -69,14 +66,15 @@ export default async function ManageGigsPage() {
                       </Chip>
                     </div>
 
-                    <p className="relative z-10 mt-4 text-sm font-medium leading-relaxed text-[#475569]">
+                    <div>
+                    <p className="text-secondary text-muted">
                       {clampText(gig.description, 160)}
                     </p>
 
-                    <div className="relative z-10 mt-5 space-y-2">
+                    <div className="mt-4 space-y-2">
                       <div className="flex flex-wrap gap-2">
                         {instrumentTags.shown.map((name) => (
-                          <Chip key={`${gig.id}-i-${name}`} tone="blue">
+                          <Chip key={`${gig.id}-i-${name}`}>
                             {name}
                           </Chip>
                         ))}
@@ -86,7 +84,7 @@ export default async function ManageGigsPage() {
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {genreTags.shown.map((name) => (
-                          <Chip key={`${gig.id}-g-${name}`} tone="pink">
+                          <Chip key={`${gig.id}-g-${name}`}>
                             {name}
                           </Chip>
                         ))}
@@ -95,11 +93,12 @@ export default async function ManageGigsPage() {
                         ) : null}
                       </div>
                     </div>
+                    </div>
 
-                    <div className="relative z-10 mt-auto space-y-3 pt-6">
+                    <div className="flex flex-wrap gap-2 md:max-w-44 md:flex-col">
                       <Link
                         href={`/gigs/${gig.id}/edit`}
-                        className="inline-flex w-full cursor-pointer items-center justify-center rounded-2xl border border-[#0055FF] px-4 py-2.5 text-sm font-bold text-[#0055FF] transition-all duration-200 hover:bg-[#0055FF] hover:text-white focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                        className="control-secondary min-h-11 flex-1 px-4 py-2 md:w-full"
                       >
                         Edit
                       </Link>
@@ -113,7 +112,6 @@ export default async function ManageGigsPage() {
                       <DeleteGigButton gigId={gig.id} className="w-full" />
                     </div>
                   </div>
-                </Reveal>
               );
             })}
           </div>

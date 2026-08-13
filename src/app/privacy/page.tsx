@@ -8,31 +8,31 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#FAFAFA] px-6 py-12">
+    <div className="min-h-screen bg-paper px-6 py-12">
       <div className="mx-auto max-w-4xl">
         {/* Header */}
         <div className="mb-12">
-          <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
+          <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-brand">
             Legal
           </span>
-          <h1 className="mt-4 text-5xl font-black tracking-tight text-[#0F172A]">
+          <h1 className="mt-4 text-page-title text-ink">
             Privacy Policy
           </h1>
-          <p className="mt-4 text-sm text-[#94A3B8]">
+          <p className="mt-4 text-sm text-muted">
             Last updated: May 20, 2026
           </p>
         </div>
 
         {/* Overview */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">Overview</h2>
-          <p className="mb-4 text-[#475569]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">Overview</h2>
+          <p className="mb-4 text-muted">
             This Privacy Notice for Escento (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) describes how
             and why we might access, collect, store, use, and/or share
             (&ldquo;process&rdquo;) your personal information when you use our services,
             including when you:
           </p>
-          <ul className="ml-5 list-disc space-y-2 text-[#475569]">
+          <ul className="ml-5 list-disc space-y-2 text-muted">
             <li>Visit our website at https://escento.com/</li>
             <li>
               Use Escento - a local marketplace platform that connects musicians
@@ -47,11 +47,11 @@ export default function PrivacyPage() {
         </section>
 
         {/* Agreement to Privacy Policy */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             Agreement to Privacy Policy
           </h2>
-          <p className="text-[#475569]">
+          <p className="text-muted">
             By creating an account on Escento, using our Services, or accessing
             our website, you acknowledge that you have read this Privacy Policy
             and agree to be bound by its terms. If you do not agree with our
@@ -60,11 +60,11 @@ export default function PrivacyPage() {
         </section>
 
         {/* Product Description */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             Product Description
           </h2>
-          <p className="text-[#475569]">
+          <p className="text-muted">
             Escento is a local marketplace platform that connects musicians with
             clients, event organizers, and creators seeking live music talent
             for weddings, events, podcasts, films, and other projects. The
@@ -78,20 +78,20 @@ export default function PrivacyPage() {
         </section>
 
         {/* What Information Do We Collect */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             What Information Do We Collect?
           </h2>
 
-          <h3 className="mb-3 mt-6 text-lg font-bold text-[#0F172A]">
+          <h3 className="mb-3 mt-6 text-item-heading text-ink">
             Personal Information You Disclose
           </h3>
-          <p className="mb-4 text-[#475569]">
+          <p className="mb-4 text-muted">
             We collect personal information that you voluntarily provide to us
             when you register on the Services. The personal information we
             collect may include:
           </p>
-          <ul className="ml-5 list-disc space-y-2 text-[#475569]">
+          <ul className="ml-5 list-disc space-y-2 text-muted">
             <li>Names</li>
             <li>Phone numbers</li>
             <li>Email addresses</li>
@@ -102,39 +102,39 @@ export default function PrivacyPage() {
             <li>Contact or authentication data</li>
           </ul>
 
-          <h3 className="mb-3 mt-6 text-lg font-bold text-[#0F172A]">
+          <h3 className="mb-3 mt-6 text-item-heading text-ink">
             Sensitive Information
           </h3>
-          <p className="mb-4 text-[#475569]">
+          <p className="mb-4 text-muted">
             When necessary, with your consent or as otherwise permitted by
             applicable law, we process student data and account login
             information.
           </p>
 
-          <h3 className="mb-3 mt-6 text-lg font-bold text-[#0F172A]">
+          <h3 className="mb-3 mt-6 text-item-heading text-ink">
             Payment Data
           </h3>
-          <p className="mb-4 text-[#475569]">
+          <p className="mb-4 text-muted">
             We may collect data necessary to process your payment if you choose
             to make purchases, such as your payment instrument number and
             security code. All payment data is handled and stored by Stripe. You
             may find their privacy notice at:{" "}
             <a
               href="https://stripe.com/privacy"
-              className="text-[#0055FF] hover:underline"
+              className="text-brand hover:underline"
             >
               https://stripe.com/privacy
             </a>
           </p>
 
-          <h3 className="mb-3 mt-6 text-lg font-bold text-[#0F172A]">
+          <h3 className="mb-3 mt-6 text-item-heading text-ink">
             Information Automatically Collected
           </h3>
-          <p className="mb-4 text-[#475569]">
+          <p className="mb-4 text-muted">
             Some information is collected automatically when you visit our
             Services, such as:
           </p>
-          <ul className="ml-5 list-disc space-y-2 text-[#475569]">
+          <ul className="ml-5 list-disc space-y-2 text-muted">
             <li>IP address and browser characteristics</li>
             <li>Operating system and language preferences</li>
             <li>Device information and location data</li>
@@ -143,12 +143,12 @@ export default function PrivacyPage() {
         </section>
 
         {/* How Do We Process */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             How Do We Process Your Information?
           </h2>
-          <p className="mb-4 text-[#475569]">We process your information to:</p>
-          <ul className="ml-5 list-disc space-y-2 text-[#475569]">
+          <p className="mb-4 text-muted">We process your information to:</p>
+          <ul className="ml-5 list-disc space-y-2 text-muted">
             <li>Facilitate account creation and authentication</li>
             <li>Deliver and facilitate delivery of services</li>
             <li>Respond to user inquiries and provide support</li>
@@ -164,14 +164,14 @@ export default function PrivacyPage() {
         </section>
 
         {/* Sharing Information */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             When and With Whom Do We Share Your Personal Information?
           </h2>
-          <p className="mb-4 text-[#475569]">
+          <p className="mb-4 text-muted">
             We may share information in the following situations:
           </p>
-          <ul className="ml-5 list-disc space-y-2 text-[#475569]">
+          <ul className="ml-5 list-disc space-y-2 text-muted">
             <li>
               <strong>Business Transfers:</strong> We may share or transfer your
               information in connection with any merger, sale of company assets,
@@ -195,11 +195,11 @@ export default function PrivacyPage() {
         </section>
 
         {/* Third-Party Websites */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             Third-Party Websites
           </h2>
-          <p className="text-[#475569]">
+          <p className="text-muted">
             The Services may link to third-party websites, online services, or
             mobile applications. We are not responsible for the safety of any
             information you share with these third parties. We cannot guarantee
@@ -210,18 +210,18 @@ export default function PrivacyPage() {
         </section>
 
         {/* Cookies */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             Cookies and Tracking Technologies
           </h2>
-          <p className="mb-4 text-[#475569]">
+          <p className="mb-4 text-muted">
             We may use cookies and similar tracking technologies (like web
             beacons and pixels) to gather information when you interact with our
             Services. Some online tracking technologies help us maintain the
             security of our Services and your account, prevent crashes, fix
             bugs, save your preferences, and assist with basic site functions.
           </p>
-          <p className="text-[#475569]">
+          <p className="text-muted">
             We also permit third parties and service providers to use online
             tracking technologies on our Services for analytics and advertising,
             including to help manage and display advertisements tailored to your
@@ -230,11 +230,11 @@ export default function PrivacyPage() {
         </section>
 
         {/* Social Media Login */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             Social Media Login
           </h2>
-          <p className="mb-4 text-[#475569]">
+          <p className="mb-4 text-muted">
             Our Services offer you the ability to register and log in using your
             third-party social media account details (like your Google,
             Facebook, or other social media logins). Where you choose to do
@@ -242,7 +242,7 @@ export default function PrivacyPage() {
             your social media provider, which may include your name, email
             address, friends list, and profile picture.
           </p>
-          <p className="text-[#475569]">
+          <p className="text-muted">
             We do not control, and are not responsible for, other uses of your
             personal information by your third-party social media provider. We
             recommend reviewing their privacy notice to understand how they
@@ -251,11 +251,11 @@ export default function PrivacyPage() {
         </section>
 
         {/* Data Retention */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             How Long Do We Keep Your Information?
           </h2>
-          <p className="text-[#475569]">
+          <p className="text-muted">
             We keep your personal information for as long as it is necessary for
             the purposes set out in this Privacy Notice, unless a longer
             retention period is required by law. When we have no ongoing
@@ -265,11 +265,11 @@ export default function PrivacyPage() {
         </section>
 
         {/* Security */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             How Do We Keep Your Information Safe?
           </h2>
-          <p className="text-[#475569]">
+          <p className="text-muted">
             We have implemented appropriate technical and organizational
             security measures designed to protect the security of any personal
             information we process. However, no electronic transmission over the
@@ -282,15 +282,15 @@ export default function PrivacyPage() {
         </section>
 
         {/* Privacy Rights */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             Your Privacy Rights
           </h2>
-          <p className="mb-4 text-[#475569]">
+          <p className="mb-4 text-muted">
             Depending on your location, you may have certain rights regarding
             your personal information, including:
           </p>
-          <ul className="ml-5 list-disc space-y-2 text-[#475569]">
+          <ul className="ml-5 list-disc space-y-2 text-muted">
             <li>
               <strong>Right to know</strong> whether or not we are processing
               your personal data
@@ -319,19 +319,19 @@ export default function PrivacyPage() {
             </li>
           </ul>
 
-          <h3 className="mb-3 mt-6 text-lg font-bold text-[#0F172A]">
+          <h3 className="mb-3 mt-6 text-item-heading text-ink">
             How to Exercise Your Rights
           </h3>
-          <p className="mb-4 text-[#475569]">
+          <p className="mb-4 text-muted">
             To exercise these rights, you can contact us at the email or address
             provided below. We will consider and act upon any request in
             accordance with applicable data protection laws.
           </p>
 
-          <h3 className="mb-3 mt-6 text-lg font-bold text-[#0F172A]">
+          <h3 className="mb-3 mt-6 text-item-heading text-ink">
             Account Information
           </h3>
-          <p className="text-[#475569]">
+          <p className="text-muted">
             If you would like to review or change the information in your
             account or terminate your account, you can log in to your account
             settings and update your user account. Upon your request to
@@ -344,11 +344,11 @@ export default function PrivacyPage() {
         </section>
 
         {/* DNT */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             Do-Not-Track Features
           </h2>
-          <p className="text-[#475569]">
+          <p className="text-muted">
             Most web browsers include a Do-Not-Track (DNT) feature or setting
             you can activate to signal your privacy preference. At this stage,
             no uniform technology standard for recognizing DNT signals has been
@@ -359,11 +359,11 @@ export default function PrivacyPage() {
         </section>
 
         {/* Updates */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             Updates to This Notice
           </h2>
-          <p className="text-[#475569]">
+          <p className="text-muted">
             We may update this Privacy Notice from time to time. The updated
             version will be indicated by an updated &ldquo;Revised&rdquo; date. If we make
             material changes, we may notify you by prominently posting a notice
@@ -374,13 +374,13 @@ export default function PrivacyPage() {
         </section>
 
         {/* Contact */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">Contact Us</h2>
-          <p className="text-[#475569]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">Contact Us</h2>
+          <p className="text-muted">
             If you have questions or comments about this notice, you may contact
             us at:
           </p>
-          <p className="mt-4 text-[#475569]">
+          <p className="mt-4 text-muted">
             <strong>Escento</strong>
             <br />
             [Your Address]
@@ -392,11 +392,11 @@ export default function PrivacyPage() {
         </section>
 
         {/* Review Data */}
-        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
+        <section className="border-t border-rule py-8">
+          <h2 className="mb-4 text-section-heading text-ink">
             Review, Update, or Delete Your Data
           </h2>
-          <p className="mb-4 text-[#475569]">
+          <p className="mb-4 text-muted">
             Based on the applicable laws of your country or state of residence,
             you may have the right to request access to the personal information
             we collect from you, details about how we have processed it, correct
@@ -404,7 +404,7 @@ export default function PrivacyPage() {
             the right to withdraw your consent to our processing of your
             personal information.
           </p>
-          <p className="text-[#475569]">
+          <p className="text-muted">
             To request to review, update, or delete your personal information,
             please contact us using the information provided above.
           </p>

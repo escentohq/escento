@@ -45,7 +45,7 @@ export function BlockUserButton({
         type="button"
         onClick={toggle}
         disabled={isPending}
-        className={`inline-flex items-center justify-center gap-2 rounded-full border-2 px-4 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60 ${
+        className={`inline-flex items-center justify-center gap-2 border px-4 text-control transition-colors focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60 ${
           compact ? "min-h-10" : "min-h-11 w-full"
         } ${
           blocked
