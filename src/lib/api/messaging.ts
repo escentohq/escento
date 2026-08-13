@@ -779,6 +779,36 @@ export async function getUnreadMessageCountForUser(userId: string): Promise<numb
   return conversations.reduce((total, conversation) => total + conversation.unreadCount, 0);
 }
 
+export async function getUnreadConversationCountForUser(userId: string): Promise<number> {
+  assertValidId(userId, "user id");
+  const supabase = await createSupabaseServerClient();
+  const { data: participants, error: participantError } = await supabase
+    .from("conversation_participants")
+    .select("conversation_id, last_read_at")
+    .eq("user_id", userId)
+    .is("deleted_at", null);
+
+  if (participantError) throw participantError;
+  if (!participants?.length) return 0;
+
+  const { data: messages, error: messageError } = await supabase
+    .from("messages")
+    .select("conversation_id, created_at")
+    .in("conversation_id", participants.map((row) => row.conversation_id))
+    .neq("sender_id", userId)
+    .is("deleted_at", null);
+
+  if (messageError) throw messageError;
+  const lastReadByConversation = new Map(
+    participants.map((row) => [row.conversation_id, row.last_read_at ? Date.parse(row.last_read_at) : 0]),
+  );
+  return new Set(
+    (messages ?? [])
+      .filter((message) => Date.parse(message.created_at) > (lastReadByConversation.get(message.conversation_id) ?? 0))
+      .map((message) => message.conversation_id),
+  ).size;
+}
+
 export async function getUnreadConversationSummariesForUser(
   userId: string,
 ): Promise<ConversationSummary[]> {
@@ -795,17 +825,27 @@ export async function getMessagingRelationshipForUser(
 
   if (userId === otherUserId) return { status: "self" };
 
-  const conversations = await listConversationsForUser(userId);
-  const directConversation = conversations.find((conversation) =>
-    conversation.type === "direct" &&
-    conversation.participants.some((participant) => participant.userId === otherUserId)
-  );
-
-  if (directConversation) {
-    return { status: "connected", conversationId: directConversation.id };
+  const supabase = await createSupabaseServerClient();
+  const [{ data: ownRows, error: ownError }, { data: otherRows, error: otherError }] = await Promise.all([
+    supabase.from("conversation_participants").select("conversation_id").eq("user_id", userId).is("deleted_at", null),
+    supabase.from("conversation_participants").select("conversation_id").eq("user_id", otherUserId).is("deleted_at", null),
+  ]);
+  if (ownError) throw ownError;
+  if (otherError) throw otherError;
+  const otherIds = new Set((otherRows ?? []).map((row) => row.conversation_id));
+  const sharedIds = (ownRows ?? []).map((row) => row.conversation_id).filter((id) => otherIds.has(id));
+  if (sharedIds.length) {
+    const { data: direct, error: directError } = await supabase
+      .from("conversations")
+      .select("id")
+      .in("id", sharedIds)
+      .eq("type", "direct")
+      .limit(1)
+      .maybeSingle();
+    if (directError) throw directError;
+    if (direct) return { status: "connected", conversationId: direct.id };
   }
 
-  const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("conversation_requests")
     .select(

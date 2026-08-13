@@ -5,6 +5,22 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
+  const pathname = request.nextUrl.pathname;
+  const publicRoute =
+    pathname === "/" ||
+    pathname === "/help" ||
+    pathname === "/terms" ||
+    pathname === "/privacy" ||
+    pathname === "/compliance" ||
+    pathname === "/musicians" ||
+    /^\/musicians\/[^/]+$/.test(pathname) ||
+    pathname === "/gigs" ||
+    (/^\/gigs\/[^/]+$/.test(pathname) && !["/gigs/create", "/gigs/manage"].includes(pathname));
+
+  // Public HTML never waits for authentication. The client navigation identity
+  // endpoint remains matched below and refreshes cookies for signed-in visitors.
+  if (publicRoute) return supabaseResponse;
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 

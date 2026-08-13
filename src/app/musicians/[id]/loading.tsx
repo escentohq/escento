@@ -1,5 +1,5 @@
 import { PageLoading } from "@/components/ui/page-loading";
 
 export default function Loading() {
-  return <PageLoading cards={4} kind="messages" />;
+  return <PageLoading kind="detail" />;
 }

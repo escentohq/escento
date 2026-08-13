@@ -17,6 +17,8 @@ src/lib/api/
 
 **Data flow:** Page/Action → API function → Supabase → response (snake_case raw) → transform to camelCase → return typed object.
 
+Public musician, gig, and taxonomy reads use a cookie-free anonymous Supabase client and the conventional Next.js persistent data cache. Cache entries contain public DTO data only and are invalidated by `public:*` and `taxonomy:*` tags after successful mutations. Authenticated/session/message data remains request-scoped and uncached.
+
 `app_user` metadata is currently read by `src/lib/auth-guards.ts` and updated by onboarding/account actions directly. There is no `src/lib/api/users.ts` in the current codebase.
 
 ---

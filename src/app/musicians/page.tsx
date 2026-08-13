@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 
-import { requireUser } from "@/lib/auth-guards";
 import { listInstruments, listGenres } from "@/lib/api/tags";
 import { listProfiles } from "@/lib/api/profiles";
 import { clampText, visibleTags } from "@/lib/display";
@@ -22,22 +22,20 @@ export default async function MusiciansPage({
   const selectedInstruments = parseSelectedTags(instrument);
   const selectedGenres = parseSelectedTags(genre);
 
-  const [session, instruments, genres, profiles] = await Promise.all([
-    requireUser("/musicians"),
+  const [instruments, genres, profiles] = await Promise.all([
     listInstruments(),
     listGenres(),
     listProfiles({ q: locationSearch.query, instruments: selectedInstruments, genres: selectedGenres, location: locationSearch }),
   ]);
 
   const hasFilters = Boolean(q || selectedInstruments.length || selectedGenres.length || locationDisplayName || radius || (remote && remote !== "include"));
-  const showCreateProfileCta = !session?.user || session.user.role === "MUSICIAN";
 
   return (
     <PageShell
       eyebrow="Directory"
       title="Musicians"
       body="Filter by instrument, genre, and location. Open a profile when the work fits."
-      action={showCreateProfileCta ? <PrimaryCta href="/profile/create">Create Profile</PrimaryCta> : null}
+      action={<PrimaryCta href="/profile/create">Create Profile</PrimaryCta>}
     >
         <div className="border-y border-rule py-5 md:py-6">
           <LocationDirectoryFilters
@@ -68,9 +66,9 @@ export default async function MusiciansPage({
                 <Link href="/musicians" className="control-secondary">
                   Clear filters
                 </Link>
-              ) : showCreateProfileCta ? (
+              ) : (
                 <PrimaryCta href="/profile/create">Create Profile</PrimaryCta>
-              ) : null
+              )
             }
           />
         ) : (
@@ -89,10 +87,12 @@ export default async function MusiciansPage({
                       <div className="flex min-w-0 items-center gap-3">
                         <div className="media-avatar flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden bg-[#E2E8F0] text-sm font-semibold text-ink">
                           {profile.image ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
+                            <Image
                               src={profile.image}
                               alt=""
+                              width={44}
+                              height={44}
+                              sizes="44px"
                               className="h-full w-full object-cover"
                             />
                           ) : (

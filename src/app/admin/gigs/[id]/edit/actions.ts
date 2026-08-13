@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { invalidatePublicGig } from "@/lib/public-cache-invalidation";
 import { redirect } from "next/navigation";
 
 import { requireAdminEmail } from "@/lib/admin-auth";
@@ -106,5 +107,7 @@ export async function adminUpdateGigAction(
   revalidatePath(`/admin/gigs/${gigId}/edit`);
   revalidatePath("/gigs");
   revalidatePath(`/gigs/${gigId}`);
+  revalidatePath("/");
+  invalidatePublicGig(gigId);
   redirect("/admin/gigs");
 }

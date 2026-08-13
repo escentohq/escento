@@ -1,22 +1,12 @@
 import { ExternalLink, MapPin, Clock, Music } from "lucide-react";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { BackLink } from "@/components/ui/back-link";
 import { Chip } from "@/components/ui/chip";
 import { SectionCard } from "@/components/ui/section-card";
-import { BlockUserButton } from "@/components/messaging/block-user-button";
-import { ConnectButton } from "@/components/messaging/connect-button";
-import { ReportButton } from "@/components/reports/report-button";
+import { MusicianContactActions } from "@/components/messaging/public-contact-actions";
 import { getProfile } from "@/lib/api/profiles";
-import { getCurrentSession } from "@/lib/auth-guards";
-import {
-  getMessagingBlockStatusForUser,
-  getMessagingRelationshipForUser,
-} from "@/lib/api/messaging";
-import type {
-  MessagingBlockStatus,
-  MessagingRelationship,
-} from "@/lib/api/types";
 import { displayLocation } from "@/lib/location";
 
 function isValidId(id: string) {
@@ -39,29 +29,8 @@ export default async function MusicianPublicProfilePage({
   const { id } = await params;
   if (!isValidId(id)) notFound();
 
-  const [profile, session] = await Promise.all([
-    getProfile(id),
-    getCurrentSession(),
-  ]);
+  const profile = await getProfile(id);
   if (!profile) notFound();
-
-  const isOwnProfile = session?.user?.id === profile.userId;
-  const canReportProfile = Boolean(session?.user?.role === "CREATOR" && !isOwnProfile);
-  let relationship: MessagingRelationship | null = null;
-  let blockStatus: MessagingBlockStatus | null = null;
-  let messagingUnavailable = false;
-
-  if (session?.user?.id) {
-    try {
-      [relationship, blockStatus] = await Promise.all([
-        getMessagingRelationshipForUser(session.user.id, profile.userId),
-        getMessagingBlockStatusForUser(session.user.id, profile.userId),
-      ]);
-    } catch (error) {
-      messagingUnavailable = true;
-      console.error("[musician-profile] messaging status failed:", error);
-    }
-  }
 
   const links: Array<{ label: string; url: string }> = [
     ...(profile.websiteUrl ? [{ label: "Website", url: profile.websiteUrl }] : []),
@@ -93,10 +62,12 @@ export default async function MusicianPublicProfilePage({
                 <div className="mt-6 grid gap-6 sm:grid-cols-[9rem_minmax(0,1fr)] sm:items-end">
                   <div className="flex h-36 w-36 flex-shrink-0 items-center justify-center overflow-hidden bg-brand-subtle text-3xl font-semibold text-brand">
                     {profile.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={profile.image}
                         alt={`${profile.displayName}, musician on Escento`}
+                        width={144}
+                        height={144}
+                        sizes="144px"
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -209,45 +180,11 @@ export default async function MusicianPublicProfilePage({
 
           {/* ── Sidebar ── */}
           <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-            {!isOwnProfile ? (
-            <div className="border-t-4 border-brand bg-ink p-6 text-white">
-              <div className="relative z-10">
-                <span className="text-meta uppercase text-on-ink-muted">
-                  Contact
-                </span>
-                <h2 className="mt-3 text-section-heading">Message this musician</h2>
-                <p className="mt-3 text-secondary text-on-ink-body">
-                  Send a request. If they accept, a message thread opens.
-                </p>
-
-                <ConnectButton
-                  recipientId={profile.userId}
-                  relationship={relationship}
-                  blockStatus={blockStatus}
-                  signedIn={Boolean(session?.user?.id)}
-                  callbackUrl={`/musicians/${profile.id}`}
-                  disabledReason={messagingUnavailable ? "Messaging is unavailable right now." : null}
-                />
-
-                {session?.user?.id && relationship?.status !== "self" && !messagingUnavailable ? (
-                  <BlockUserButton
-                    userId={profile.userId}
-                    initiallyBlocked={Boolean(blockStatus?.blockedByMe)}
-                  />
-                ) : null}
-              </div>
-            </div>
-            ) : null}
-
-            {canReportProfile ? (
-              <div className="flex justify-end">
-                <ReportButton
-                  targetType="musician_profile"
-                  targetId={profile.id}
-                  targetLabel={profile.displayName}
-                />
-              </div>
-            ) : null}
+            <MusicianContactActions
+              recipientId={profile.userId}
+              profileId={profile.id}
+              profileName={profile.displayName}
+            />
 
           </aside>
         </div>

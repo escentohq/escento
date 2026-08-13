@@ -18,6 +18,7 @@ import {
 } from "@/lib/form-utils";
 import { gigValuesFromFormData } from "@/lib/form-snapshots";
 import { parseStructuredLocation, validateStructuredLocation } from "@/lib/location";
+import { invalidatePublicGig } from "@/lib/public-cache-invalidation";
 
 export async function updateGigAction(
   gigId: string,
@@ -93,5 +94,7 @@ export async function updateGigAction(
   revalidatePath("/gigs");
   revalidatePath("/gigs/manage");
   revalidatePath(`/gigs/${gigId}`);
+  revalidatePath("/");
+  invalidatePublicGig(gigId);
   redirect(`/gigs/${gigId}`);
 }

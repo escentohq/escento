@@ -204,8 +204,8 @@ const session = await requireRole("CREATOR", "/gigs/create");
 |---|---|
 | `src/app/musicians/page.tsx` | Canonical marketplace composition and result-row reference. |
 | `src/components/home/HomeLanding.tsx` | Static editorial public landing composition. |
-| `src/app/page.tsx` | Server-side session + role resolution pattern. |
-| `src/app/layout.tsx` | Root shell and Archivo font setup. |
+| `src/app/page.tsx` | Static landing host backed by cached public directory reads. |
+| `src/app/layout.tsx` | Static root shell and Archivo font setup; identity hydrates through the navigation island. |
 | `src/app/globals.css` | Shared foundation tokens and named corner exceptions. |
 | `src/lib/supabase/server.ts` | Supabase server client factory. |
 | `src/lib/supabase/admin.ts` | Server-only service-role client for auth admin + profile-picture storage. |

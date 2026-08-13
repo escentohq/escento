@@ -9,8 +9,8 @@
 ```
 src/
   app/
-    layout.tsx                          # bright root shell + Archivo font + session-aware navigation
-    page.tsx                            # / landing host (server) — resolves session + role → renders <HomeLanding/>
+    layout.tsx                          # static bright root shell + Archivo font
+    page.tsx                            # / static landing host backed by cached public reads
     globals.css                         # Tailwind v4 entry + shared foundation and exception tokens
     signin/
       page.tsx                          # Email/password sign-in form
@@ -50,10 +50,11 @@ src/
       admin.ts                          # server-only service-role client for auth admin/storage
     auth-guards.ts                      # getCurrentSession, requireSignedIn, requireUser, requireRole
     password.ts                         # validatePassword helper
-  middleware.ts                         # JWT refresh via supabase.auth.getUser()
+  middleware.ts                         # JWT refresh on auth-sensitive requests; public HTML bypasses auth
   components/
     home/
       HomeLanding.tsx                   # static editorial public landing
+    ui/navigation-account.tsx           # client-hydrated private nav identity/unread island
   types/                                # ambient types
 ```
 
@@ -169,7 +170,9 @@ export async function createGigAction(formData: FormData) {
 
 - **Server Components call API functions** from `@/lib/api/*` for feature data where helpers exist. Auth/account actions may use Supabase directly for auth metadata, account deletion, and profile-picture storage.
 - API functions handle data transformation (snake_case → camelCase) and junction table flattening (instruments/genres as `string[]`).
-- No `revalidate` on routes today — every request hits the DB. Acceptable at MVP scale. Add `export const revalidate = 60;` on directory pages once a CDN is in front.
+- Public musician, gig, and taxonomy reads use the conventional App Router data cache through `unstable_cache`, a cookie-free anonymous Supabase client, and tag invalidation. Cache Components are not enabled.
+- Session, permissions, messages, requests, unread state, and other user-specific reads are never persistently cached. React `cache()` is used only for request-lifetime deduplication.
+- The root layout performs no auth or database work. The private `/api/navigation` response is `no-store` and hydrates signed-in navigation after public content can render.
 - Search filters are GET query params → bookmarkable, shareable.
 - See [`DATABASE.md`](./DATABASE.md) for all available API functions and their signatures.
 
@@ -213,7 +216,7 @@ export default async function CreateGigPage() {
 
 ### Middleware
 
-`src/middleware.ts` calls `supabase.auth.getUser()` on every request to refresh the JWT. This is required by `@supabase/ssr` to keep tokens fresh (~1 hour expiry). **Per-page checks are the trust boundary.** When adding a new gated route, do NOT rely on middleware — re-check in the page and in every action.
+`middleware.ts` calls `supabase.auth.getUser()` on auth-sensitive requests to refresh the JWT. Public HTML routes bypass that work; the client navigation endpoint remains matched and refreshes signed-in sessions independently. **Per-page checks are the trust boundary.** When adding a new gated route, do NOT rely on middleware — re-check in the page and in every action.
 
 ### `session.user` shape
 

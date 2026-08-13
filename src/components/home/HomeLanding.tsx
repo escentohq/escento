@@ -1,15 +1,13 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { PrimaryCta } from "@/components/ui/primary-cta";
-import { SecondaryCta } from "@/components/ui/secondary-cta";
+import { HomeSecondaryAction } from "./home-secondary-action";
 import type { Gig, MusicianProfile } from "@/lib/api/types";
 import { compensationLabel, projectTypeLabel } from "@/lib/display";
 import { displayLocation } from "@/lib/location";
 
 type HomeLandingProps = {
-  secondaryHref: string;
-  secondaryLabel: string;
-  signedInLabel?: string | null;
   featuredProfiles: MusicianProfile[];
   featuredGigs: Gig[];
 };
@@ -65,9 +63,6 @@ function gigRow(gig: Gig): PreviewRow {
 }
 
 export function HomeLanding({
-  secondaryHref,
-  secondaryLabel,
-  signedInLabel,
   featuredProfiles,
   featuredGigs,
 }: HomeLandingProps) {
@@ -109,13 +104,8 @@ export function HomeLanding({
               <PrimaryCta href="/musicians" className="w-full sm:w-auto">
                 Browse musicians
               </PrimaryCta>
-              <SecondaryCta href={secondaryHref} className="w-full sm:w-auto">
-                {secondaryLabel}
-              </SecondaryCta>
+              <HomeSecondaryAction />
             </div>
-            {signedInLabel ? (
-              <p className="mt-5 text-secondary text-muted">Signed in as {signedInLabel}</p>
-            ) : null}
           </div>
 
           <aside className="flex min-h-[540px] flex-col bg-brand text-white lg:min-h-0">
@@ -140,11 +130,9 @@ export function HomeLanding({
                 </p>
               </div>
               {leadProfile?.image ? (
-                <div
-                  aria-hidden="true"
-                  style={{ backgroundImage: `url(${leadProfile.image})` }}
-                  className="mb-8 mr-6 h-28 w-28 justify-self-end border-4 border-white bg-brand bg-cover bg-center md:mb-0 md:mr-8 md:h-32 md:w-32"
-                />
+                <div className="relative mb-8 mr-6 h-28 w-28 justify-self-end overflow-hidden border-4 border-white bg-brand md:mb-0 md:mr-8 md:h-32 md:w-32">
+                  <Image src={leadProfile.image} alt="" fill sizes="128px" className="object-cover" />
+                </div>
               ) : null}
             </div>
 
@@ -208,11 +196,7 @@ export function HomeLanding({
                 >
                   <div className={`flex items-center justify-center overflow-hidden ${row.image ? "h-24 w-24" : "h-full min-h-24 w-10 md:w-24"}`}>
                     {row.image ? (
-                      <div
-                        aria-hidden="true"
-                        style={{ backgroundImage: `url(${row.image})` }}
-                        className="h-full w-full bg-surface-secondary bg-cover bg-center"
-                      />
+                      <Image src={row.image} alt="" width={96} height={96} sizes="96px" className="h-full w-full object-cover" />
                     ) : (
                       <div className="flex h-full w-full items-end border-l-4 border-amber pb-1 pl-2 md:pl-4">
                         <span className="text-xl font-semibold tracking-tight text-ink md:text-3xl">0{index + 1}</span>

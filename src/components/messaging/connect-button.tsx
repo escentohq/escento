@@ -107,12 +107,29 @@ export function ConnectButton({
 
   function connect() {
     setError(null);
+    const previous = state;
+    const now = new Date().toISOString();
+    setState({
+      status: "pending_outgoing",
+      request: {
+        id: `optimistic-${Date.now()}`,
+        requesterId: "",
+        recipientId,
+        status: "pending",
+        introMessage: introMessage ?? null,
+        createdAt: now,
+        updatedAt: now,
+        acceptedAt: null,
+        rejectedAt: null,
+      },
+    });
     startTransition(async () => {
       try {
         const request = await sendConnectionRequest(recipientId, introMessage);
         setState({ status: "pending_outgoing", request });
         router.refresh();
       } catch {
+        setState(previous);
         setError("Could not send this request.");
       }
     });

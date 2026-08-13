@@ -1,35 +1,13 @@
 import Link from "next/link";
 import { EscentoWordmark } from "./brand";
-import { UserMenu } from "./_user-menu";
+import { NavigationAccount } from "./navigation-account";
 
-type Props = {
-  signedIn: boolean;
-  email?: string | null;
-  role?: string | null;
-  name?: string | null;
-  image?: string | null;
-  musicianProfilePath?: "/profile/create" | "/profile/edit" | null;
-  isCreator?: boolean;
-  unreadConversationCount?: number;
-};
-
-export function NavBar({
-  signedIn,
-  email,
-  role,
-  name,
-  image,
-  musicianProfilePath,
-  isCreator,
-  unreadConversationCount = 0,
-}: Props) {
+export function NavBar() {
   const publicLinks = (
     <>
       <Link href="/musicians" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Musicians</Link>
       <Link href="/gigs" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Gigs</Link>
-      {!signedIn ? (
-        <Link href="/help" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Help</Link>
-      ) : null}
+      <Link href="/help" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Help</Link>
     </>
   );
 
@@ -50,34 +28,7 @@ export function NavBar({
         </div>
 
         <div className="flex min-w-0 items-center gap-2 text-sm sm:gap-3">
-          {!signedIn ? (
-            <>
-              <Link
-                href="/signin"
-                prefetch={false}
-                className="inline-flex min-h-11 items-center border border-[#0F172A] bg-white px-4 py-2 text-xs font-semibold text-[#0F172A] transition-colors hover:bg-[#0F172A] hover:text-white focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/signup"
-                prefetch={false}
-                className="hidden min-h-11 items-center border border-[#0055FF] bg-[#0055FF] px-4 py-2 text-xs font-semibold text-white transition-colors hover:border-[#0F172A] hover:bg-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 sm:inline-flex"
-              >
-                Sign up
-              </Link>
-            </>
-          ) : (
-            <UserMenu
-              email={email}
-              name={name}
-              image={image}
-              role={role}
-              musicianProfilePath={musicianProfilePath}
-              isCreator={isCreator}
-              unreadConversationCount={unreadConversationCount}
-            />
-          )}
+          <NavigationAccount />
         </div>
       </nav>
       <div className="border-t border-[#CBD5E1] lg:hidden">

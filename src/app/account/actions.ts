@@ -12,6 +12,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getProfileByUserId } from "@/lib/api/profiles";
 import { fieldError, type ActionState } from "@/lib/form-utils";
 import { deleteUserCompletely } from "@/lib/user-deletion";
+import { invalidatePublicGig, invalidatePublicProfile } from "@/lib/public-cache-invalidation";
 
 const PROFILE_PICTURES_BUCKET = "profile-pictures";
 const MAX_PROFILE_PICTURE_BYTES = 2 * 1024 * 1024;
@@ -66,6 +67,8 @@ export async function deleteAccountAction(): Promise<void> {
   }
 
   await supabase.auth.signOut().catch(() => {});
+  invalidatePublicProfile();
+  invalidatePublicGig();
   revalidatePath("/");
   redirect("/signin");
 }
@@ -100,6 +103,7 @@ export async function updateNameAction(_state: ActionState, fd: FormData): Promi
 
   revalidatePath("/account");
   revalidatePath("/");
+  invalidatePublicGig();
 
   return { ok: true, message: "Name updated." };
 }
@@ -182,6 +186,7 @@ export async function updateProfilePictureAction(
     revalidatePath("/account");
     revalidatePath("/musicians");
     if (profile) revalidatePath(`/musicians/${profile.id}`);
+    invalidatePublicProfile(profile?.id);
 
     return {
       ok: true,

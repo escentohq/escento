@@ -1,5 +1,9 @@
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
+import { PUBLIC_GIGS_TAG, PUBLIC_HOME_TAG, publicGigTag } from "@/lib/cache-tags";
 import { distanceMiles, type LocationSearch } from "@/lib/location";
 import { filterSearchResults } from "@/lib/search";
 import { tagMatchesQuery } from "@/lib/tag-taxonomy";
@@ -33,7 +37,7 @@ async function getCreatorSummaries(creatorIds: string[]): Promise<Map<string, Gi
     const supabase = createSupabaseAdminClient();
     const { data, error } = await supabase
       .from("app_user")
-      .select("id, name, email")
+      .select("id, name")
       .in("id", uniqueIds);
 
     if (error) throw error;
@@ -44,7 +48,7 @@ async function getCreatorSummaries(creatorIds: string[]): Promise<Map<string, Gi
         {
           id: user.id,
           name: user.name ?? null,
-          email: user.email ?? null,
+          email: null,
         },
       ]),
     );
@@ -94,8 +98,8 @@ function toGig(raw: any, creatorSummary?: GigCreatorSummary, distance?: number |
   };
 }
 
-export async function getGig(id: string): Promise<Gig | null> {
-  const supabase = await createSupabaseServerClient();
+async function queryPublicGig(id: string): Promise<Gig | null> {
+  const supabase = createSupabasePublicClient();
   const { data, error } = await supabase
     .from("gig")
     .select("*, gig_instrument(*, instrument(*)), gig_genre(*, genre(*))")
@@ -108,6 +112,14 @@ export async function getGig(id: string): Promise<Gig | null> {
   const [gig] = await withCreatorSummaries([data]);
   return gig;
 }
+
+export const getGig = cache(async (id: string): Promise<Gig | null> => (
+  unstable_cache(
+    () => queryPublicGig(id),
+    ["public-gig", id],
+    { tags: [PUBLIC_GIGS_TAG, PUBLIC_HOME_TAG, publicGigTag(id)] },
+  )()
+));
 
 export async function getGigForCreator(id: string, creatorId: string): Promise<Gig | null> {
   const supabase = await createSupabaseServerClient();
@@ -137,8 +149,8 @@ function safeSearchPattern(value: string) {
   return value.replace(/[,%()]/g, " ").trim();
 }
 
-export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]> {
-  const supabase = await createSupabaseServerClient();
+async function queryPublicOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]> {
+  const supabase = createSupabasePublicClient();
 
   let query = supabase
     .from("gig")
@@ -223,6 +235,14 @@ export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]
   }
 
   return gigs.slice(0, 50);
+}
+
+export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]> {
+  return unstable_cache(
+    () => queryPublicOpenGigs(filters),
+    ["public-gigs", JSON.stringify(filters ?? {})],
+    { tags: [PUBLIC_GIGS_TAG, PUBLIC_HOME_TAG] },
+  )();
 }
 
 export async function listGigsByCreator(creatorId: string): Promise<Gig[]> {

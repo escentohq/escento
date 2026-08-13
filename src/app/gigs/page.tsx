@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { requireUser } from "@/lib/auth-guards";
 import { listInstruments, listGenres } from "@/lib/api/tags";
 import { listOpenGigs } from "@/lib/api/gigs";
 import {
@@ -33,22 +32,20 @@ export default async function GigsPage({
     label: projectTypeLabel(type),
   }));
 
-  const [session, instruments, genres, gigs] = await Promise.all([
-    requireUser("/gigs"),
+  const [instruments, genres, gigs] = await Promise.all([
     listInstruments(),
     listGenres(),
     listOpenGigs({ q: locationSearch.query, projectType: safeProjectType, instruments: selectedInstruments, genres: selectedGenres, location: locationSearch }),
   ]);
 
   const hasFilters = Boolean(q || safeProjectType || selectedInstruments.length || selectedGenres.length || locationDisplayName || radius || (remote && remote !== "include"));
-  const showPostGigCta = !session?.user || session.user.role === "CREATOR";
 
   return (
     <PageShell
       eyebrow="Open calls"
       title="Gigs"
       body="Find projects hiring musicians for film, podcasts, games, and live work."
-      action={showPostGigCta ? <PrimaryCta href="/gigs/create">Post a Gig</PrimaryCta> : null}
+      action={<PrimaryCta href="/gigs/create">Post a Gig</PrimaryCta>}
     >
         <div className="border-y border-rule py-5 md:py-6">
           <LocationDirectoryFilters
@@ -79,9 +76,9 @@ export default async function GigsPage({
             cta={
               hasFilters ? (
                 <Link href="/gigs" className="control-secondary">Clear filters</Link>
-              ) : showPostGigCta ? (
+              ) : (
                 <PrimaryCta href="/gigs/create">Post a Gig</PrimaryCta>
-              ) : null
+              )
             }
           />
         ) : (

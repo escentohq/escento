@@ -2,6 +2,7 @@
 
 import { useFormStatus } from "react-dom";
 import Link from "next/link";
+import Image from "next/image";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import {
   User,
@@ -45,8 +46,7 @@ export function UserMenu({
   unreadConversationCount = 0,
 }: UserMenuProps) {
   const avatarContent = image ? (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={image} alt="" className="media-avatar h-full w-full object-cover" />
+    <Image src={image} alt="" width={36} height={36} sizes="36px" className="media-avatar h-full w-full object-cover" />
   ) : name ? (
     <div className="media-avatar flex h-full w-full items-center justify-center bg-[#0055FF] text-xs font-bold text-white">
       {getInitials(name)}

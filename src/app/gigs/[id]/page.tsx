@@ -3,19 +3,8 @@ import { notFound } from "next/navigation";
 
 import { BackLink } from "@/components/ui/back-link";
 import { Chip } from "@/components/ui/chip";
-import { BlockUserButton } from "@/components/messaging/block-user-button";
-import { ConnectButton } from "@/components/messaging/connect-button";
-import { ReportButton } from "@/components/reports/report-button";
+import { GigContactActions } from "@/components/messaging/public-contact-actions";
 import { getGig } from "@/lib/api/gigs";
-import { getCurrentSession } from "@/lib/auth-guards";
-import {
-  getMessagingBlockStatusForUser,
-  getMessagingRelationshipForUser,
-} from "@/lib/api/messaging";
-import type {
-  MessagingBlockStatus,
-  MessagingRelationship,
-} from "@/lib/api/types";
 import { compensationLabel, projectTypeLabel } from "@/lib/display";
 import { displayLocation } from "@/lib/location";
 
@@ -31,30 +20,9 @@ export default async function GigPage({
   const { id } = await params;
   if (!isValidId(id)) notFound();
 
-  const [gig, session] = await Promise.all([
-    getGig(id),
-    getCurrentSession(),
-  ]);
+  const gig = await getGig(id);
   if (!gig) notFound();
-
-  const isOwnGig = session?.user?.id === gig.creatorId;
-  const canReportGig = Boolean(session?.user?.role === "MUSICIAN" && !isOwnGig);
   const gigLocation = displayLocation(gig, "");
-  let relationship: MessagingRelationship | null = null;
-  let blockStatus: MessagingBlockStatus | null = null;
-  let messagingUnavailable = false;
-
-  if (session?.user?.id && !isOwnGig) {
-    try {
-      [relationship, blockStatus] = await Promise.all([
-        getMessagingRelationshipForUser(session.user.id, gig.creatorId),
-        getMessagingBlockStatusForUser(session.user.id, gig.creatorId),
-      ]);
-    } catch (error) {
-      messagingUnavailable = true;
-      console.error("[gig-detail] messaging status failed:", error);
-    }
-  }
 
   return (
     <div className="bg-paper px-4 py-10 sm:px-6 md:py-14 lg:px-8 lg:py-16">
@@ -144,11 +112,9 @@ export default async function GigPage({
                   Contact
                 </span>
                 <h2 className="mt-3 text-section-heading">Contact the creator</h2>
-                {!isOwnGig ? (
-                  <p className="mt-3 text-secondary text-on-ink-body">
-                    Send a request about this gig. If accepted, a message thread opens.
-                  </p>
-                ) : null}
+                <p className="mt-3 text-secondary text-on-ink-body">
+                  Send a request about this gig. If accepted, a message thread opens.
+                </p>
 
                 <div className="mt-6 border-y border-ink-muted py-4">
                   <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-on-ink-muted">
@@ -165,37 +131,9 @@ export default async function GigPage({
                   </div>
                 )}
 
-                {!isOwnGig ? (
-                  <ConnectButton
-                    recipientId={gig.creatorId}
-                    relationship={relationship}
-                    blockStatus={blockStatus}
-                    signedIn={Boolean(session?.user?.id)}
-                    callbackUrl={`/gigs/${gig.id}`}
-                    connectLabel="Contact Creator"
-                    introMessage={`Reached out about your gig: ${gig.title}`}
-                    disabledReason={messagingUnavailable ? "Messaging is unavailable right now." : null}
-                  />
-                ) : null}
-
-                {session?.user?.id && !isOwnGig && relationship?.status !== "self" && !messagingUnavailable ? (
-                  <BlockUserButton
-                    userId={gig.creatorId}
-                    initiallyBlocked={Boolean(blockStatus?.blockedByMe)}
-                  />
-                ) : null}
+                <GigContactActions recipientId={gig.creatorId} gigId={gig.id} gigTitle={gig.title} />
               </div>
             </div>
-
-            {canReportGig ? (
-              <div className="flex justify-end">
-                <ReportButton
-                  targetType="gig"
-                  targetId={gig.id}
-                  targetLabel={gig.title}
-                />
-              </div>
-            ) : null}
           </aside>
         </div>
       </div>

@@ -1,7 +1,10 @@
 import { cache } from "react";
+import { unstable_cache } from "next/cache";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
+import { PUBLIC_HOME_TAG, PUBLIC_MUSICIANS_TAG, publicMusicianTag } from "@/lib/cache-tags";
 import { distanceMiles, type LocationSearch } from "@/lib/location";
 import { filterSearchResults } from "@/lib/search";
 import { tagMatchesQuery } from "@/lib/tag-taxonomy";
@@ -50,6 +53,15 @@ function toProfile(
   };
 }
 
+function toPublicProfile(raw: any, distance?: number | null, image?: string | null) {
+  return {
+    ...toProfile(raw, distance, image),
+    // Contact email is not rendered on public surfaces and must not enter the
+    // cross-request cache even though the profile itself is public.
+    contactEmail: "",
+  };
+}
+
 async function getProfileImages(userIds: string[]) {
   const uniqueIds = Array.from(new Set(userIds.filter(Boolean)));
   if (!uniqueIds.length) return new Map<string, string | null>();
@@ -75,8 +87,8 @@ function firstError(
   return results.find((result) => result.error)?.error ?? null;
 }
 
-export const getProfile = cache(async (id: string): Promise<MusicianProfile | null> => {
-  const supabase = await createSupabaseServerClient();
+async function queryPublicProfile(id: string): Promise<MusicianProfile | null> {
+  const supabase = createSupabasePublicClient();
   const { data, error } = await supabase
     .from("musician_profile")
     .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
@@ -87,8 +99,16 @@ export const getProfile = cache(async (id: string): Promise<MusicianProfile | nu
   if (!data) return null;
 
   const images = await getProfileImages([data.user_id]);
-  return toProfile(data, null, images.get(data.user_id) ?? null);
-});
+  return toPublicProfile(data, null, images.get(data.user_id) ?? null);
+}
+
+export const getProfile = cache(async (id: string): Promise<MusicianProfile | null> => (
+  unstable_cache(
+    () => queryPublicProfile(id),
+    ["public-musician", id],
+    { tags: [PUBLIC_MUSICIANS_TAG, PUBLIC_HOME_TAG, publicMusicianTag(id)] },
+  )()
+));
 
 export const getProfileByUserId = cache(async (userId: string): Promise<MusicianProfile | null> => {
   const supabase = await createSupabaseServerClient();
@@ -105,6 +125,18 @@ export const getProfileByUserId = cache(async (userId: string): Promise<Musician
   return toProfile(data, null, images.get(data.user_id) ?? null);
 });
 
+export const hasProfileForUser = cache(async (userId: string): Promise<boolean> => {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("musician_profile")
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return Boolean(data);
+});
+
 interface ListProfilesFilters {
   instruments?: string[];
   genres?: string[];
@@ -116,8 +148,8 @@ function safeSearchPattern(value: string) {
   return value.replace(/[,%()]/g, " ").trim();
 }
 
-export async function listProfiles(filters?: ListProfilesFilters): Promise<MusicianProfile[]> {
-  const supabase = await createSupabaseServerClient();
+async function queryPublicProfiles(filters?: ListProfilesFilters): Promise<MusicianProfile[]> {
+  const supabase = createSupabasePublicClient();
 
   let query = supabase
     .from("musician_profile")
@@ -132,7 +164,7 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
 
   const images = await getProfileImages((data ?? []).map((raw) => raw.user_id));
   let profiles = (data || []).map((raw) =>
-    toProfile(raw, null, images.get(raw.user_id) ?? null),
+    toPublicProfile(raw, null, images.get(raw.user_id) ?? null),
   );
   const location = filters?.location;
   const instrumentFilters = filters?.instruments ?? [];
@@ -199,6 +231,14 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
   }
 
   return profiles.slice(0, 50);
+}
+
+export async function listProfiles(filters?: ListProfilesFilters): Promise<MusicianProfile[]> {
+  return unstable_cache(
+    () => queryPublicProfiles(filters),
+    ["public-musicians", JSON.stringify(filters ?? {})],
+    { tags: [PUBLIC_MUSICIANS_TAG, PUBLIC_HOME_TAG] },
+  )();
 }
 
 export async function createProfile(
