@@ -46,11 +46,7 @@ export default async function ManageGigsPage() {
 
               return (
                 <Reveal key={gig.id} delay={Math.min(index, 6) * 0.04}>
-                  <div className="group relative flex h-full min-w-0 flex-col overflow-hidden  border border-[#F1F5F9] bg-white p-6 shadow-sm transition-all duration-300 hover:border-transparent hover:shadow-xl hover:shadow-[#FF3366]/8">
-                    <div
-                      className="pointer-events-none absolute right-0 top-0 h-24 w-24     opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                      aria-hidden
-                    />
+                  <div className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm transition-all duration-300 hover:border-transparent hover:shadow-xl hover:shadow-[#FF3366]/8">
 
                     <div className="relative z-10 flex min-w-0 items-start justify-between gap-4">
                       <div className="min-w-0">
@@ -103,7 +99,7 @@ export default async function ManageGigsPage() {
                     <div className="relative z-10 mt-auto space-y-3 pt-6">
                       <Link
                         href={`/gigs/${gig.id}/edit`}
-                        className="inline-flex w-full cursor-pointer items-center justify-center  border border-[#0055FF] px-4 py-2.5 text-sm font-bold text-[#0055FF] transition-all duration-200 hover:bg-[#0055FF] hover:text-white focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                        className="inline-flex w-full cursor-pointer items-center justify-center rounded-2xl border border-[#0055FF] px-4 py-2.5 text-sm font-bold text-[#0055FF] transition-all duration-200 hover:bg-[#0055FF] hover:text-white focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
                       >
                         Edit
                       </Link>

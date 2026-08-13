@@ -24,7 +24,7 @@ export default function PrivacyPage() {
         </div>
 
         {/* Overview */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">Overview</h2>
           <p className="mb-4 text-[#475569]">
             This Privacy Notice for Escento (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) describes how
@@ -47,7 +47,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Agreement to Privacy Policy */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             Agreement to Privacy Policy
           </h2>
@@ -60,7 +60,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Product Description */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             Product Description
           </h2>
@@ -78,7 +78,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* What Information Do We Collect */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             What Information Do We Collect?
           </h2>
@@ -143,7 +143,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* How Do We Process */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             How Do We Process Your Information?
           </h2>
@@ -164,7 +164,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Sharing Information */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             When and With Whom Do We Share Your Personal Information?
           </h2>
@@ -195,7 +195,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Third-Party Websites */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             Third-Party Websites
           </h2>
@@ -210,7 +210,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Cookies */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             Cookies and Tracking Technologies
           </h2>
@@ -230,7 +230,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Social Media Login */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             Social Media Login
           </h2>
@@ -251,7 +251,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Data Retention */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             How Long Do We Keep Your Information?
           </h2>
@@ -265,7 +265,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Security */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             How Do We Keep Your Information Safe?
           </h2>
@@ -282,7 +282,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Privacy Rights */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             Your Privacy Rights
           </h2>
@@ -344,7 +344,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* DNT */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             Do-Not-Track Features
           </h2>
@@ -359,7 +359,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Updates */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             Updates to This Notice
           </h2>
@@ -374,7 +374,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Contact */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">Contact Us</h2>
           <p className="text-[#475569]">
             If you have questions or comments about this notice, you may contact
@@ -392,7 +392,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Review Data */}
-        <section className="mb-6  bg-white p-6 shadow-sm">
+        <section className="mb-6 rounded-2xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-2xl font-bold text-[#0F172A]">
             Review, Update, or Delete Your Data
           </h2>

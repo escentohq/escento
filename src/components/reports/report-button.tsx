@@ -89,7 +89,7 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex min-h-10 items-center justify-center gap-2  border-2 border-[#E2E8F0] bg-white px-4 text-xs font-bold text-[#475569] transition-colors hover:border-[#FF3366] hover:text-[#FF3366] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border-2 border-[#E2E8F0] bg-white px-4 text-xs font-bold text-[#475569] transition-colors hover:border-[#FF3366] hover:text-[#FF3366] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
       >
         <Flag className="h-4 w-4" aria-hidden />
         Report
@@ -110,7 +110,7 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            className="relative max-h-[92vh] w-full max-w-xl overflow-y-auto  border border-[#F1F5F9] bg-white p-6 text-[#0F172A] shadow-2xl"
+            className="relative max-h-[92vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-[#F1F5F9] bg-white p-6 text-[#0F172A] shadow-2xl"
           >
             <button
               ref={closeButtonRef}
@@ -118,7 +118,7 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
               onClick={() => setOpen(false)}
               disabled={pending}
               aria-label="Close"
-              className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center  text-[#64748B] transition-colors hover:bg-[#F1F5F9] hover:text-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:opacity-50"
+              className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full text-[#64748B] transition-colors hover:bg-[#F1F5F9] hover:text-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:opacity-50"
             >
               <X className="h-5 w-5" aria-hidden />
             </button>
@@ -129,7 +129,7 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
             <p className="mt-3 text-sm font-medium leading-relaxed text-[#475569]">
               Tell the Escento team what happened. Your report is not shown publicly or sent to the reported user.
             </p>
-            <p className="mt-3  bg-[#F8FAFC] p-3 text-xs font-bold text-[#64748B]">
+            <p className="mt-3 rounded-2xl bg-[#F8FAFC] p-3 text-xs font-bold text-[#64748B]">
               Reporting: {targetLabel}
             </p>
 
@@ -183,7 +183,7 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
 
               {state.message ? (
                 <p
-                  className={` px-4 py-3 text-sm font-bold ${
+                  className={`rounded-2xl px-4 py-3 text-sm font-bold ${
                     state.ok
                       ? "bg-[#0055FF]/10 text-[#0055FF]"
                       : "bg-[#FF3366]/10 text-[#B42318]"
@@ -199,14 +199,14 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
                   type="button"
                   onClick={() => setOpen(false)}
                   disabled={pending}
-                  className="inline-flex h-12 items-center justify-center  border-2 border-[#E2E8F0] px-6 text-sm font-bold text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:opacity-50"
+                  className="inline-flex h-12 items-center justify-center rounded-full border-2 border-[#E2E8F0] px-6 text-sm font-bold text-[#0F172A] transition-colors hover:border-[#0F172A] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={pending}
-                  className="inline-flex h-12 items-center justify-center  bg-[#0F172A] px-6 text-sm font-bold text-white transition-colors hover:bg-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
+                  className="inline-flex h-12 items-center justify-center rounded-full bg-[#0F172A] px-6 text-sm font-bold text-white transition-colors hover:bg-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
                 >
                   {pending ? "Sending..." : "Send report"}
                 </button>

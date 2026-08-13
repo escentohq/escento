@@ -86,7 +86,7 @@ export function UserMenu({
         <DropdownMenu.Content
           align="end"
           sideOffset={8}
-          className="surface-overlay z-50 min-w-[220px] border border-[#0F172A] bg-white p-1.5 shadow-[4px_4px_0_#0F172A]"
+          className="surface-overlay z-50 min-w-[220px] border border-[#0F172A] bg-white p-1.5"
         >
           <DropdownMenu.Label className="flex flex-col gap-1 px-3 py-2">
             {name && <div className="text-sm font-bold text-[#0F172A]">{name}</div>}

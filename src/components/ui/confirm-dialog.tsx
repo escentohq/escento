@@ -129,7 +129,7 @@ export function ConfirmDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="surface-overlay relative w-full max-w-md border border-[#0F172A] bg-white p-6 text-[#0F172A] shadow-[8px_8px_0_#0F172A]"
+        className="surface-overlay relative w-full max-w-md border border-[#0F172A] bg-white p-6 text-[#0F172A]"
       >
         <button
           type="button"

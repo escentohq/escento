@@ -17,20 +17,20 @@ export function PageShell({
     size === "narrow" ? "max-w-2xl" : size === "medium" ? "max-w-5xl" : "max-w-[1280px]";
 
   return (
-    <div className="bg-[#FAFAFA] px-4 py-10 sm:px-6 md:py-14 lg:px-8 lg:py-16">
+    <div className="bg-paper px-4 py-10 sm:px-6 md:py-14 lg:px-8 lg:py-16">
       <div className={`mx-auto w-full ${maxWidth}`}>
           <header className="mb-8 flex flex-col gap-6 border-b border-[#CBD5E1] pb-8 md:mb-10 md:flex-row md:items-end md:justify-between">
             <div className="min-w-0">
               {eyebrow ? (
-                <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#0055FF]">
+                <span className="text-meta uppercase text-brand">
                   {eyebrow}
                 </span>
               ) : null}
-              <h1 className="mt-3 text-4xl font-bold tracking-[-0.035em] text-[#0F172A] sm:text-5xl">
+              <h1 className="mt-3 text-page-title text-ink">
                 {title}
               </h1>
               {body ? (
-                <p className="mt-4 max-w-2xl text-base leading-relaxed text-[#475569] md:text-lg">
+                <p className="mt-4 max-w-2xl text-body text-muted md:text-lg">
                   {body}
                 </p>
               ) : null}

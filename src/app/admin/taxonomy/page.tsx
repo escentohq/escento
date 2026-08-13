@@ -28,11 +28,11 @@ function AddTermForm({ kind, label }: { kind: TaxonomyKind; label: string }) {
         id={`add-${kind}`}
         name="name"
         placeholder={`Add ${label}`}
-        className="min-h-11 flex-1  border border-[#E2E8F0] bg-white px-4 text-sm font-semibold text-[#0F172A] outline-none focus:border-[#0055FF] focus:ring-4 focus:ring-[#0055FF]/10"
+        className="min-h-11 flex-1 rounded-2xl border border-[#E2E8F0] bg-white px-4 text-sm font-semibold text-[#0F172A] outline-none focus:border-[#0055FF] focus:ring-4 focus:ring-[#0055FF]/10"
       />
       <button
         type="submit"
-        className="inline-flex min-h-11 items-center justify-center  bg-[#0F172A] px-5 text-sm font-bold text-white transition-colors hover:bg-[#0055FF]"
+        className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#0F172A] px-5 text-sm font-bold text-white transition-colors hover:bg-[#0055FF]"
       >
         Add
       </button>
@@ -50,7 +50,7 @@ function TaxonomyTable({
   rows: AdminTaxonomyRow[];
 }) {
   return (
-    <section className=" border border-[#F1F5F9] bg-white p-5 shadow-sm">
+    <section className="rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-black text-[#0F172A]">{title}</h2>
@@ -65,7 +65,7 @@ function TaxonomyTable({
         <AddTermForm kind={kind} label={kind} />
       </div>
 
-      <div className="mt-5 overflow-x-auto  border border-[#F1F5F9]">
+      <div className="mt-5 overflow-x-auto rounded-2xl border border-[#F1F5F9]">
         <table className="w-full min-w-180 text-left text-sm">
           <thead className="bg-[#F8FAFC] text-xs font-black uppercase tracking-[0.14em] text-[#64748B]">
             <tr>

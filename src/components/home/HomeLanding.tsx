@@ -161,8 +161,6 @@ function TrustMarquee() {
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
-        <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24   " aria-hidden />
-        <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24   " aria-hidden />
         <motion.div
           className="flex gap-12 whitespace-nowrap"
           animate={reduced ? {} : { x: ["0%", "-50%"] }}
@@ -172,7 +170,7 @@ function TrustMarquee() {
         >
           {[...SCHOOLS, ...SCHOOLS].map((s, i) => (
             <span key={i} className="inline-flex items-center gap-3 text-sm font-bold text-[#94A3B8]">
-              <span className="h-1 w-1  bg-[#E2E8F0]" />
+              <span className="h-1 w-1 rounded-full bg-[#E2E8F0]" />
               {s}
             </span>
           ))}
@@ -185,8 +183,6 @@ function TrustMarquee() {
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
       >
-        <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-24   " aria-hidden />
-        <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-24   " aria-hidden />
         <motion.div
           className="flex gap-8 whitespace-nowrap"
           animate={reduced ? {} : { x: ["-50%", "0%"] }}
@@ -196,9 +192,9 @@ function TrustMarquee() {
           {[...ACCOLADES, ...ACCOLADES].map((a, i) => (
             <span
               key={i}
-              className="inline-flex items-center gap-2  border border-[#F1F5F9] bg-[#F8FAFC] px-4 py-2 text-xs font-bold text-[#475569]"
+              className="inline-flex items-center gap-2 rounded-full border border-[#F1F5F9] bg-[#F8FAFC] px-4 py-2 text-xs font-bold text-[#475569]"
             >
-              <span className="h-1.5 w-1.5 flex-shrink-0 " style={{ backgroundColor: a.accent }} />
+              <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full" style={{ backgroundColor: a.accent }} />
               {a.text}
             </span>
           ))}
@@ -285,9 +281,9 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
             className="mb-8 flex items-center gap-3"
           >
             <div className="flex gap-1.5" aria-hidden>
-              <span className="h-1.5 w-1.5  bg-[#0055FF]" />
-              <span className="h-1.5 w-1.5  bg-[#FF3366]" />
-              <span className="h-1.5 w-1.5  bg-[#FFB000]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[#0055FF]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[#FF3366]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-[#FFB000]" />
             </div>
             <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
               Live and loud
@@ -339,7 +335,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.5 }}
-              className="mt-5  border border-[#E2E8F0] bg-white/80 px-4 py-2 text-xs font-medium text-[#64748B]"
+              className="mt-5 rounded-full border border-[#E2E8F0] bg-white/80 px-4 py-2 text-xs font-medium text-[#64748B]"
             >
               Signed in as {signedInLabel}
             </motion.p>
@@ -386,10 +382,10 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
               <motion.div
                 key={prop.title}
                 variants={fadeUp}
-                className="flex flex-col gap-5  border border-white/5 bg-[#1E293B] p-8 transition-all duration-300 hover:border-white/10"
+                className="flex flex-col gap-5 rounded-3xl border border-white/5 bg-[#1E293B] p-8 transition-all duration-300 hover:border-white/10"
               >
                 <div
-                  className={`flex h-12 w-12 items-center justify-center  ${prop.bg}`}
+                  className={`flex h-12 w-12 items-center justify-center rounded-2xl ${prop.bg}`}
                 >
                   <prop.icon className="h-5 w-5" style={{ color: prop.accent }} aria-hidden />
                 </div>
@@ -447,7 +443,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
           <div className="relative">
             {/* Connector line, desktop only */}
             <div
-              className="absolute left-1/6 right-1/6 top-9 hidden h-px     md:block"
+              className="absolute left-1/6 right-1/6 top-9 hidden h-px bg-[#CBD5E1] md:block"
               aria-hidden
             />
 
@@ -455,7 +451,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
               {HOW_IT_WORKS.map((step) => (
                 <div
                   key={step.num}
-                  className={`gsap-step group relative  border border-[#F1F5F9] bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-2xl ${step.hoverShadow}`}
+                  className={`gsap-step group relative rounded-3xl border border-[#F1F5F9] bg-white p-8 shadow-sm transition-all duration-300 hover:shadow-2xl ${step.hoverShadow}`}
                 >
                   <motion.div whileHover={{ y: -4 }} transition={{ duration: 0.3, ease }}>
                     <div className="mb-6 flex items-start justify-between">
@@ -465,7 +461,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
                       >
                         {step.num}
                       </span>
-                      <span className={` px-3 py-1 text-xs font-bold uppercase tracking-wider ${step.accentBg} ${step.accentText}`}>
+                      <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${step.accentBg} ${step.accentText}`}>
                         {step.eyebrow}
                       </span>
                     </div>
@@ -510,16 +506,12 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
               variants={fadeUp}
               whileHover={{ y: -8 }}
               transition={{ duration: 0.3, ease }}
-              className="group relative overflow-hidden  border border-[#F1F5F9] bg-[#F8FAFC] p-8 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-[#0055FF]/10"
+              className="group relative overflow-hidden rounded-3xl border border-[#F1F5F9] bg-[#F8FAFC] p-8 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-[#0055FF]/10"
             >
-              <div
-                className="pointer-events-none absolute right-0 top-0 h-40 w-40     opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                aria-hidden
-              />
 
               <div className="relative z-10 mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center     ">
+                  <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-[#E2E8F0]">
                     <span className="text-lg font-black text-[#0F172A]">MR</span>
                   </div>
                   <div>
@@ -527,7 +519,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
                     <p className="font-mono text-sm text-[#64748B]">Piano · Film Scoring</p>
                   </div>
                 </div>
-                <span className=" bg-[#0055FF]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0055FF]">
+                <span className="rounded-full bg-[#0055FF]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0055FF]">
                   Available
                 </span>
               </div>
@@ -539,12 +531,12 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
 
               <div className="relative z-10 mb-8 flex flex-wrap gap-2">
                 {["Guitar", "Piano", "Vocals"].map((t) => (
-                  <span key={t} className=" bg-[#0055FF]/10 px-3 py-1 text-xs font-bold text-[#0055FF]">
+                  <span key={t} className="rounded-full bg-[#0055FF]/10 px-3 py-1 text-xs font-bold text-[#0055FF]">
                     {t}
                   </span>
                 ))}
                 {["Indie", "Jazz", "Film scoring"].map((t) => (
-                  <span key={t} className=" bg-[#FF3366]/10 px-3 py-1 text-xs font-bold text-[#FF3366]">
+                  <span key={t} className="rounded-full bg-[#FF3366]/10 px-3 py-1 text-xs font-bold text-[#FF3366]">
                     {t}
                   </span>
                 ))}
@@ -552,7 +544,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
 
               <Link
                 href="/musicians"
-                className="relative z-10 flex w-full cursor-pointer items-center justify-between  border border-[#F1F5F9] bg-white p-4 transition-all duration-300 group-hover:border-transparent group-hover:bg-[#0055FF] group-hover:text-white focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
+                className="relative z-10 flex w-full cursor-pointer items-center justify-between rounded-2xl border border-[#F1F5F9] bg-white p-4 transition-all duration-300 group-hover:border-transparent group-hover:bg-[#0055FF] group-hover:text-white focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2"
               >
                 <span className="text-sm font-bold">View Musicians</span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
@@ -564,16 +556,12 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
               variants={fadeUp}
               whileHover={{ y: -8 }}
               transition={{ duration: 0.3, ease }}
-              className="group relative overflow-hidden  bg-[#0F172A] p-8 text-white shadow-sm transition-shadow duration-300 hover:shadow-2xl hover:shadow-[#FF3366]/15"
+              className="group relative overflow-hidden rounded-3xl bg-[#0F172A] p-8 text-white shadow-sm transition-shadow duration-300 hover:shadow-2xl hover:shadow-[#FF3366]/15"
             >
-              <div
-                className="pointer-events-none absolute right-0 top-0 h-40 w-40     opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                aria-hidden
-              />
 
               <div className="relative z-10 mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center  bg-[#1E293B]">
+                  <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-2xl bg-[#1E293B]">
                     <Music className="h-6 w-6 text-[#FF3366]" aria-hidden />
                   </div>
                   <div>
@@ -581,7 +569,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
                     <p className="font-mono text-sm text-[#94A3B8]">Alex Park · Film, UT RTF</p>
                   </div>
                 </div>
-                <span className=" bg-[#0055FF]/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0055FF]">
+                <span className="rounded-full bg-[#0055FF]/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0055FF]">
                   Open
                 </span>
               </div>
@@ -593,18 +581,18 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
 
               <div className="relative z-10 mb-8 flex flex-wrap gap-2">
                 {["Strings", "Piano"].map((t) => (
-                  <span key={t} className=" bg-[#FF3366]/20 px-3 py-1 text-xs font-bold text-[#FF3366]">
+                  <span key={t} className="rounded-full bg-[#FF3366]/20 px-3 py-1 text-xs font-bold text-[#FF3366]">
                     {t}
                   </span>
                 ))}
-                <span className=" bg-[#FFB000]/15 px-3 py-1 text-xs font-bold text-[#FFB000]">
+                <span className="rounded-full bg-[#FFB000]/15 px-3 py-1 text-xs font-bold text-[#FFB000]">
                   Paid
                 </span>
               </div>
 
               <Link
                 href="/gigs"
-                className="relative z-10 flex w-full cursor-pointer items-center justify-between  bg-[#1E293B] p-4 transition-all duration-300 group-hover:bg-[#FF3366] focus-visible:outline-2 focus-visible:outline-[#FF3366] focus-visible:outline-offset-2"
+                className="relative z-10 flex w-full cursor-pointer items-center justify-between rounded-2xl bg-[#1E293B] p-4 transition-all duration-300 group-hover:bg-[#FF3366] focus-visible:outline-2 focus-visible:outline-[#FF3366] focus-visible:outline-offset-2"
               >
                 <span className="text-sm font-bold">Browse Gigs</span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
@@ -646,7 +634,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
               variants={fadeUp}
               whileHover={{ y: -6 }}
               transition={{ duration: 0.3, ease }}
-              className="group relative overflow-hidden  border border-[#F1F5F9] bg-white p-10 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-[#0055FF]/10"
+              className="group relative overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white p-10 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-[#0055FF]/10"
             >
               <span
                 className="pointer-events-none absolute left-6 top-4 select-none text-9xl font-black leading-none text-[#0055FF]/8"
@@ -658,7 +646,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
                 &ldquo;{TESTIMONIALS[0].quote}&rdquo;
               </blockquote>
               <figcaption className="relative z-10 mt-8 flex items-center gap-3">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center  bg-[#0055FF] text-xs font-black text-white">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#0055FF] text-xs font-black text-white">
                   {TESTIMONIALS[0].initials}
                 </div>
                 <div>
@@ -673,12 +661,8 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
               variants={fadeUp}
               whileHover={{ y: -6 }}
               transition={{ duration: 0.3, ease }}
-              className="group relative overflow-hidden  bg-[#0F172A] p-10 shadow-sm transition-shadow duration-300 hover:shadow-2xl hover:shadow-[#FF3366]/15"
+              className="group relative overflow-hidden rounded-3xl bg-[#0F172A] p-10 shadow-sm transition-shadow duration-300 hover:shadow-2xl hover:shadow-[#FF3366]/15"
             >
-              <div
-                className="pointer-events-none absolute right-0 top-0 h-36 w-36     opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                aria-hidden
-              />
               <span
                 className="pointer-events-none absolute left-6 top-4 select-none text-9xl font-black leading-none text-[#FF3366]/12"
                 aria-hidden
@@ -689,7 +673,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
                 &ldquo;{TESTIMONIALS[1].quote}&rdquo;
               </blockquote>
               <figcaption className="relative z-10 mt-8 flex items-center gap-3">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center  bg-[#FF3366]/25 text-xs font-black text-[#FF3366]">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-[#FF3366]/25 text-xs font-black text-[#FF3366]">
                   {TESTIMONIALS[1].initials}
                 </div>
                 <div>
@@ -730,16 +714,15 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
                 href="/signin"
-                className="group relative flex h-14 w-full cursor-pointer items-center justify-center gap-2 overflow-hidden  bg-white px-8 text-sm font-bold tracking-wide text-[#0F172A] transition-all hover:scale-[1.03] hover:shadow-[0_0_40px_-10px_#0055FF] focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 sm:w-auto"
+                className="group relative flex h-14 w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-full bg-white px-8 text-sm font-bold tracking-wide text-[#0F172A] transition-all hover:scale-[1.03] hover:shadow-[0_0_40px_-10px_#0055FF] focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 sm:w-auto"
               >
                 <span className="relative z-10">Sign In / Join</span>
                 <ArrowRight className="relative z-10 h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden />
-                <div className="absolute inset-0    opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               </Link>
 
               <Link
                 href="/musicians"
-                className="flex h-14 w-full cursor-pointer items-center justify-center gap-2  border-2 border-white/20 px-8 text-sm font-bold tracking-wide text-white transition-all hover:border-white/50 hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 sm:w-auto"
+                className="flex h-14 w-full cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-white/20 px-8 text-sm font-bold tracking-wide text-white transition-all hover:border-white/50 hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 sm:w-auto"
               >
                 Browse Talent
               </Link>

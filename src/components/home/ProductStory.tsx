@@ -1,16 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { EscentoMark } from "@/components/ui/brand";
 import {
   motion,
   AnimatePresence,
   useScroll,
   useMotionValueEvent,
-  useReducedMotion,
-  useInView,
-  animate,
   type Transition,
 } from "framer-motion";
 import {
@@ -114,29 +111,10 @@ function CountUp({
   prefix?: string;
   suffix?: string;
 }) {
-  const reduced = useReducedMotion();
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
-  const hasRun = useRef(false);
-  const [val, setVal] = useState(0);
-
-  useEffect(() => {
-    if (reduced || !(inView && gate) || hasRun.current) return;
-    hasRun.current = true;
-    const controls = animate(0, to, {
-      duration: 1.2,
-      ease,
-      onUpdate: (v) => setVal(v),
-    });
-    return () => controls.stop();
-  }, [inView, gate, reduced, to]);
-
-  const display = reduced ? to : Math.round(val);
-
   return (
-    <span ref={ref}>
+    <span>
       {prefix}
-      {display}
+      {gate ? to : 0}
       {suffix}
     </span>
   );
@@ -173,7 +151,7 @@ function StepCopy({
 
       <div className="mt-7 flex items-start gap-3">
         <span
-          className="mt-1 h-5 w-1 flex-shrink-0 "
+          className="mt-1 h-5 w-1 flex-shrink-0 rounded-full"
           style={{ backgroundColor: step.accent }}
           aria-hidden
         />
@@ -224,7 +202,7 @@ function Tag({
       : "bg-[#0055FF]/10 text-[#0055FF]";
   return (
     <span
-      className={` px-2.5 py-1 text-[11px] font-bold leading-none transition-colors duration-500 ${cls}`}
+      className={`rounded-full px-2.5 py-1 text-[11px] font-bold leading-none transition-colors duration-500 ${cls}`}
     >
       {label}
     </span>
@@ -233,10 +211,10 @@ function Tag({
 
 function GigCard({ highlight, filled }: { highlight: boolean; filled: boolean }) {
   return (
-    <div className="flex h-full flex-col  border border-[#F1F5F9] bg-white p-3 shadow-sm">
+    <div className="flex h-full flex-col rounded-2xl border border-[#F1F5F9] bg-white p-3 shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center  bg-[#1E293B]">
+          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl bg-[#1E293B]">
             <Film className="h-4 w-4 text-[#FF3366]" aria-hidden />
           </span>
           <div className="min-w-0">
@@ -249,7 +227,7 @@ function GigCard({ highlight, filled }: { highlight: boolean; filled: boolean })
           </div>
         </div>
         <span
-          className={`flex-shrink-0  px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-colors duration-500 ${
+          className={`flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-colors duration-500 ${
             filled
               ? "bg-[#FF3366]/10 text-[#FF3366]"
               : "bg-[#0055FF]/10 text-[#0055FF]"
@@ -266,7 +244,7 @@ function GigCard({ highlight, filled }: { highlight: boolean; filled: boolean })
       <div className="mt-auto flex flex-wrap gap-1.5 pt-3">
         <Tag label="Strings" matched lit={highlight} />
         <Tag label="Piano" matched lit={highlight} />
-        <span className=" bg-[#FFB000]/10 px-2.5 py-1 text-[11px] font-bold leading-none text-[#FFB000]">
+        <span className="rounded-full bg-[#FFB000]/10 px-2.5 py-1 text-[11px] font-bold leading-none text-[#FFB000]">
           Paid
         </span>
       </div>
@@ -282,10 +260,10 @@ function ProfileCard({
   booked: boolean;
 }) {
   return (
-    <div className="flex h-full flex-col  border border-[#F1F5F9] bg-white p-3 shadow-sm">
+    <div className="flex h-full flex-col rounded-2xl border border-[#F1F5F9] bg-white p-3 shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center      text-[10px] font-black text-[#0F172A]">
+          <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#E2E8F0] text-[10px] font-bold text-[#0F172A]">
             MR
           </span>
           <div className="min-w-0">
@@ -298,7 +276,7 @@ function ProfileCard({
           </div>
         </div>
         <span
-          className={`flex-shrink-0  px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-colors duration-500 ${
+          className={`flex-shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider transition-colors duration-500 ${
             booked
               ? "bg-[#FFB000]/10 text-[#FFB000]"
               : "bg-[#0055FF]/10 text-[#0055FF]"
@@ -345,10 +323,10 @@ function Bubble({
       className={`flex ${isLeft ? "justify-start" : "justify-end"}`}
     >
       <span
-        className={`max-w-[85%]  px-3 py-2 text-[11px] font-medium leading-snug ${
+        className={`max-w-[85%] rounded-2xl px-3 py-2 text-[11px] font-medium leading-snug ${
           isLeft
-            ? " bg-[#F1F5F9] text-[#475569]"
-            : " bg-[#0055FF] text-white"
+            ? "rounded-bl-sm bg-[#F1F5F9] text-[#475569]"
+            : "rounded-br-sm bg-[#0055FF] text-white"
         }`}
       >
         {children}
@@ -372,7 +350,7 @@ function NoiseBubble({
       : "border-[#F1F5F9] bg-[#F8FAFC] text-[#94A3B8]";
   return (
     <span
-      className={`absolute inline-flex items-center gap-1.5  border px-3 py-1.5 text-[11px] font-bold ${toneCls} ${className}`}
+      className={`absolute inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-bold ${toneCls} ${className}`}
     >
       {children}
     </span>
@@ -403,13 +381,13 @@ function StageCanvas({
   return (
     <div className="relative mx-auto w-full max-w-[560px]" aria-hidden>
       {/* App frame */}
-      <div className="relative overflow-hidden  border border-[#F1F5F9] bg-white shadow-xl shadow-[#0055FF]/5">
+      <div className="relative overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white shadow-xl shadow-[#0055FF]/5">
         {/* Top bar */}
         <div className="flex items-center gap-3 border-b border-[#F1F5F9] px-4 py-3">
           <div className="flex gap-1.5" aria-hidden>
-            <span className="h-2.5 w-2.5  bg-[#FF3366]/40" />
-            <span className="h-2.5 w-2.5  bg-[#FFB000]/40" />
-            <span className="h-2.5 w-2.5  bg-[#0055FF]/40" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#FF3366]/40" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#FFB000]/40" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#0055FF]/40" />
           </div>
           <span className="flex items-center gap-1.5 text-sm font-black tracking-tight text-[#0F172A]">
             <EscentoMark className="h-3.5 w-auto" />
@@ -477,7 +455,7 @@ function StageCanvas({
             >
               Rough cut due · 3 weeks
             </NoiseBubble>
-            <span className="absolute bottom-8 right-4 inline-flex flex-col gap-1  border border-dashed border-[#E2E8F0] bg-white/60 px-3 py-2">
+            <span className="absolute bottom-8 right-4 inline-flex flex-col gap-1 rounded-2xl border border-dashed border-[#E2E8F0] bg-white/60 px-3 py-2">
               <span className="text-[11px] font-bold text-[#94A3B8]">
                 Maya Reyes
               </span>
@@ -505,7 +483,7 @@ function StageCanvas({
             ].map((f) => (
               <span
                 key={f.k}
-                className={`whitespace-nowrap  border px-2.5 py-1 text-[11px] font-bold transition-colors duration-500 ${
+                className={`whitespace-nowrap rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors duration-500 ${
                   highlight
                     ? "border-[#FF3366]/30 bg-[#FF3366]/10 text-[#FF3366]"
                     : "border-[#F1F5F9] bg-[#F8FAFC] text-[#64748B]"
@@ -539,7 +517,7 @@ function StageCanvas({
               transition={t}
               className="absolute inset-0 flex items-center justify-center"
             >
-              <span className="inline-flex items-center gap-2  border border-[#F1F5F9] bg-[#F8FAFC] px-3 py-1.5 text-[11px] font-bold text-[#64748B]">
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#F1F5F9] bg-[#F8FAFC] px-3 py-1.5 text-[11px] font-bold text-[#64748B]">
                 <Search className="h-3 w-3" aria-hidden />
                 Signed in and browsing the board
               </span>
@@ -552,7 +530,7 @@ function StageCanvas({
               transition={t}
               className="absolute inset-0 flex flex-col items-center justify-center gap-2.5 text-center"
             >
-              <span className="inline-flex items-center gap-1.5  bg-[#FF3366] px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-white">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FF3366] px-3 py-1.5 text-[11px] font-black uppercase tracking-wider text-white">
                 <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
                 Matched
               </span>
@@ -560,7 +538,7 @@ function StageCanvas({
                 {SHARED_TAGS.map((tg) => (
                   <span
                     key={tg}
-                    className=" bg-[#FF3366]/10 px-2.5 py-1 text-[11px] font-bold text-[#FF3366]"
+                    className="rounded-full bg-[#FF3366]/10 px-2.5 py-1 text-[11px] font-bold text-[#FF3366]"
                   >
                     {tg}
                   </span>
@@ -597,14 +575,14 @@ function StageCanvas({
               transition={t}
               className="absolute inset-0 flex flex-col justify-center gap-2.5"
             >
-              <div className="flex items-center gap-2  border border-[#F1F5F9] bg-[#F8FAFC] px-3 py-2">
+              <div className="flex items-center gap-2 rounded-2xl border border-[#F1F5F9] bg-[#F8FAFC] px-3 py-2">
                 <Star className="h-4 w-4 flex-shrink-0 text-[#FFB000]" aria-hidden />
                 <span className="text-[12px] font-bold leading-tight text-[#0F172A]">
                   Original score — student short (dir. A. Park)
                 </span>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                <div className=" border border-[#F1F5F9] bg-white p-2.5 text-center">
+                <div className="rounded-2xl border border-[#F1F5F9] bg-white p-2.5 text-center">
                   <p className="text-xl font-black tracking-tight text-[#0055FF]">
                     <CountUp to={2} gate={countGate} />
                   </p>
@@ -612,7 +590,7 @@ function StageCanvas({
                     Days to reply
                   </p>
                 </div>
-                <div className=" border border-[#F1F5F9] bg-white p-2.5 text-center">
+                <div className="rounded-2xl border border-[#F1F5F9] bg-white p-2.5 text-center">
                   <p className="text-xl font-black tracking-tight text-[#FFB000]">
                     <CountUp to={200} prefix="$" gate={countGate} />
                   </p>
@@ -620,7 +598,7 @@ function StageCanvas({
                     Plus credit
                   </p>
                 </div>
-                <div className=" border border-[#F1F5F9] bg-white p-2.5 text-center">
+                <div className="rounded-2xl border border-[#F1F5F9] bg-white p-2.5 text-center">
                   <p className="text-xl font-black tracking-tight text-[#FF3366]">
                     <CountUp to={1} gate={countGate} />
                   </p>
@@ -642,7 +620,6 @@ function StageCanvas({
 // ---------------------------------------------------------------------------
 
 function PinnedStory() {
-  const reduced = useReducedMotion() ?? false;
   const scrollRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: scrollRef,
@@ -686,10 +663,10 @@ function PinnedStory() {
               {STEPS.map((s, i) => (
                 <span
                   key={s.id}
-                  className="h-1 flex-1 overflow-hidden  bg-[#F1F5F9]"
+                  className="h-1 flex-1 overflow-hidden rounded-full bg-[#F1F5F9]"
                 >
                   <motion.span
-                    className="block h-full "
+                    className="block h-full rounded-full"
                     style={{ backgroundColor: s.accent, originX: 0 }}
                     initial={false}
                     animate={{ scaleX: i <= active ? 1 : 0 }}
@@ -703,7 +680,7 @@ function PinnedStory() {
           {/* Right — product canvas */}
           <StageCanvas
             active={active}
-            reduced={reduced}
+            reduced={false}
             countGate={active === 4}
           />
         </div>
@@ -750,8 +727,18 @@ function subscribeDesktop(callback: () => void) {
   return () => mq.removeEventListener("change", callback);
 }
 
+function subscribeReducedMotion(callback: () => void) {
+  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  mq.addEventListener("change", callback);
+  return () => mq.removeEventListener("change", callback);
+}
+
 export function ProductStory() {
-  const reduced = useReducedMotion() ?? false;
+  const reduced = useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => false,
+  );
   // useSyncExternalStore reads the media query without a setState-in-effect.
   // The server snapshot is false, so SSR / first paint render the stacked
   // layout, then desktop upgrades to the pinned experience after hydration.

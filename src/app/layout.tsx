@@ -90,7 +90,7 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
       </head>
-      <body className="flex min-h-screen flex-col bg-[#FAFAFA] text-[#0F172A] antialiased">
+      <body className="flex min-h-screen flex-col bg-paper text-ink antialiased">
         <NavBar
           signedIn={!!session?.user}
           email={session?.user?.email}

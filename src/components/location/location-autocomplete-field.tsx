@@ -149,14 +149,14 @@ export function LocationAutocompleteField({
       <input type="hidden" name="locationVisibility" value={value.locationVisibility} />
 
       {shouldSearch && suggestions.length > 0 ? (
-        <div className="absolute z-30 mt-2 max-h-64 w-full overflow-auto  border border-[#E2E8F0] bg-white p-2 shadow-xl">
+        <div className="absolute z-30 mt-2 max-h-64 w-full overflow-auto rounded-2xl border border-[#E2E8F0] bg-white p-2 shadow-xl">
           {suggestions.map((suggestion) => (
             <button
               key={suggestion.placeId}
               type="button"
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => selectSuggestion(suggestion)}
-              className="block w-full  px-3 py-2 text-left text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus-visible:outline-2 focus-visible:outline-[#0055FF]"
+              className="block w-full rounded-xl px-3 py-2 text-left text-sm font-bold text-[#0F172A] transition-colors hover:bg-[#F8FAFC] focus-visible:outline-2 focus-visible:outline-[#0055FF]"
             >
               <span className="block">{suggestion.description}</span>
               {suggestion.secondaryDescription ? (

@@ -29,9 +29,9 @@ function RoleButton({
       type="button"
       disabled={isPending}
       onClick={() => startTransition(() => setRole(role))}
-      className={`group flex h-full min-h-64 w-full flex-col items-start  border border-[#F1F5F9] bg-white p-8 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${hoverShadowClass} focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-70`}
+      className={`group flex h-full min-h-64 w-full flex-col items-start rounded-3xl border border-[#F1F5F9] bg-white p-8 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${hoverShadowClass} focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-70`}
     >
-      <span className={`flex h-14 w-14 items-center justify-center  ${accentClass}`}>
+      <span className={`flex h-14 w-14 items-center justify-center rounded-2xl ${accentClass}`}>
         <Icon className="h-7 w-7" aria-hidden />
       </span>
       <span className="mt-8 text-2xl font-black tracking-tight text-[#0F172A]">{title}</span>

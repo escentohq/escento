@@ -51,7 +51,7 @@ export default async function BlockedUsersPage() {
             const name = displayName(user?.name, user?.email);
             return (
               <Reveal key={block.id} delay={Math.min(index, 6) * 0.04}>
-                <div className="flex items-center justify-between gap-4  border border-[#F1F5F9] bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between gap-4 rounded-3xl border border-[#F1F5F9] bg-white p-5 shadow-sm">
                   <div className="min-w-0">
                     <h2 className="truncate text-base font-black text-[#0F172A]">{name}</h2>
                     {user?.role ? (

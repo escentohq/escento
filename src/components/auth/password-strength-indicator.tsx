@@ -34,10 +34,10 @@ export function PasswordStrengthIndicator({ password }: Props) {
             {[1, 2, 3, 4].map((segment) => (
               <div
                 key={segment}
-                className={`h-1.5 flex-1  bg-[#E2E8F0] ${transitionClass}`}
+                className={`h-1.5 flex-1 rounded-full bg-[#E2E8F0] ${transitionClass}`}
               >
                 <div
-                  className={`h-full  ${transitionClass}`}
+                  className={`h-full rounded-full ${transitionClass}`}
                   style={{
                     width: score >= segment ? "100%" : "0%",
                     backgroundColor: score >= segment ? activeColor : "transparent",

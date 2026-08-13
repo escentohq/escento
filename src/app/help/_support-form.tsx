@@ -50,7 +50,7 @@ export function SupportForm() {
       <form
         action={formAction}
         noValidate
-        className=" border border-[#F1F5F9] bg-white p-6 shadow-sm sm:p-8"
+        className="rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm sm:p-8"
         onSubmit={() => formFields.setSubmitAttempted(true)}
       >
         <div className="space-y-5">
@@ -127,7 +127,7 @@ export function SupportForm() {
       </form>
 
       {state.deliveryFailed ? (
-        <section className=" border border-[#F1F5F9] bg-[#F8FAFC] p-5">
+        <section className="rounded-3xl border border-[#F1F5F9] bg-[#F8FAFC] p-5">
           <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
             Still need help?
           </p>

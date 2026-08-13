@@ -12,12 +12,12 @@ export function SectionCard({
   return (
     <section className={`border-t border-[#CBD5E1] py-6 ${className}`}>
       {eyebrow ? (
-        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#64748B]">
+        <span className="text-meta uppercase text-muted">
           {eyebrow}
         </span>
       ) : null}
       {title ? (
-        <h2 className={`${eyebrow ? "mt-3" : ""} text-2xl font-semibold tracking-[-0.02em] text-[#0F172A]`}>
+        <h2 className={`${eyebrow ? "mt-3" : ""} text-section-heading text-ink`}>
           {title}
         </h2>
       ) : null}

@@ -40,14 +40,10 @@ export default async function SignInPage({
           </p>
         </header>
 
-        <div className="relative overflow-hidden  border border-[#F1F5F9] bg-white p-6 shadow-sm sm:p-8">
-          <div
-            className="pointer-events-none absolute right-0 top-0 h-40 w-40    "
-            aria-hidden
-          />
+        <div className="relative overflow-hidden rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm sm:p-8">
           <div className="relative z-10 space-y-6">
             {authError ? (
-              <div className=" border border-[#FF3366]/20 bg-[#FF3366]/10 px-4 py-3 text-sm font-bold text-[#B42318]">
+              <div className="rounded-2xl border border-[#FF3366]/20 bg-[#FF3366]/10 px-4 py-3 text-sm font-bold text-[#B42318]">
                 Something went wrong finishing sign-in. Try again.
               </div>
             ) : null}

@@ -31,7 +31,7 @@ export default async function AccountPage() {
                 disabled
                 readOnly
                 value={session.user.email ?? ""}
-                className="mt-2 w-full  border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5 text-sm text-[#475569] disabled:cursor-not-allowed"
+                className="mt-2 w-full rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-2.5 text-sm text-[#475569] disabled:cursor-not-allowed"
               />
               <p className="mt-2 text-xs text-[#64748B]">
                 Email is managed by your sign-in provider.

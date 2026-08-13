@@ -99,7 +99,7 @@ export function LocationDirectoryFilters({
 
         <button
           type="submit"
-          className="inline-flex min-h-12 cursor-pointer items-center justify-center  bg-[#0F172A] px-7 text-sm font-bold tracking-wide text-white transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_-8px_#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 lg:min-h-11"
+          className="inline-flex min-h-12 cursor-pointer items-center justify-center rounded-full bg-[#0F172A] px-7 text-sm font-bold tracking-wide text-white transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_-8px_#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 lg:min-h-11"
         >
           Search
         </button>
@@ -109,7 +109,7 @@ export function LocationDirectoryFilters({
           aria-expanded={advancedOpen}
           aria-controls="directory-advanced-search"
           onClick={() => setAdvancedOpen((open) => !open)}
-          className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2  border-2 border-[#E2E8F0] bg-white px-5 text-sm font-bold text-[#0F172A] transition-colors hover:border-[#0055FF] hover:text-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 lg:min-h-11"
+          className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-full border-2 border-[#E2E8F0] bg-white px-5 text-sm font-bold text-[#0F172A] transition-colors hover:border-[#0055FF] hover:text-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 lg:min-h-11"
         >
           <SlidersHorizontal className="h-4 w-4" aria-hidden />
           Advanced search

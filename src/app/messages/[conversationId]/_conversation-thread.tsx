@@ -88,10 +88,10 @@ export function ConversationThread({
   }
 
   return (
-    <div className="flex min-h-[60vh] flex-col  border border-[#F1F5F9] bg-white shadow-sm">
+    <div className="flex min-h-[60vh] flex-col rounded-3xl border border-[#F1F5F9] bg-white shadow-sm">
       <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
         {messages.length === 0 ? (
-          <div className=" bg-[#F8FAFC] p-8 text-center">
+          <div className="rounded-3xl bg-[#F8FAFC] p-8 text-center">
             <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
               No messages
             </span>
@@ -103,7 +103,7 @@ export function ConversationThread({
             return (
               <div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[82%]  px-4 py-3 ${
+                  className={`max-w-[82%] rounded-3xl px-4 py-3 ${
                     mine
                       ? "bg-[#0F172A] text-white"
                       : "border border-[#F1F5F9] bg-[#F8FAFC] text-[#0F172A]"
@@ -123,7 +123,7 @@ export function ConversationThread({
 
       <form onSubmit={submit} className="border-t border-[#F1F5F9] p-4 sm:p-5">
         {messagingUnavailable ? (
-          <div className="mb-4  border border-[#FF3366]/20 bg-[#FF3366]/10 px-4 py-3 text-sm font-bold text-[#B42318]">
+          <div className="mb-4 rounded-2xl border border-[#FF3366]/20 bg-[#FF3366]/10 px-4 py-3 text-sm font-bold text-[#B42318]">
             Messaging is unavailable because one of you has blocked the other.
           </div>
         ) : null}
@@ -143,12 +143,12 @@ export function ConversationThread({
             maxLength={2000}
             placeholder="Write a message"
             disabled={messagingUnavailable}
-            className="min-h-14 flex-1 resize-none  border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-medium text-[#0F172A] shadow-sm transition-colors focus:border-[#0055FF] focus:outline-none focus:ring-2 focus:ring-[#0055FF]/20"
+            className="min-h-14 flex-1 resize-none rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm font-medium text-[#0F172A] shadow-sm transition-colors focus:border-[#0055FF] focus:outline-none focus:ring-2 focus:ring-[#0055FF]/20"
           />
           <button
             type="submit"
             disabled={isPending || messagingUnavailable}
-            className="inline-flex min-h-14 items-center justify-center gap-2  bg-[#0F172A] px-6 text-sm font-bold text-white transition-all hover:bg-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
+            className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#0F172A] px-6 text-sm font-bold text-white transition-all hover:bg-[#0055FF] focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
           >
             <Send className="h-4 w-4" aria-hidden />
             {isPending ? "Sending..." : "Send"}

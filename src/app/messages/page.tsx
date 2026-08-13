@@ -98,11 +98,11 @@ export default async function MessagesPage() {
               <Reveal key={conversation.id} delay={Math.min(index, 6) * 0.04}>
                 <Link
                   href={`/messages/${conversation.id}`}
-                  className={`group flex min-w-0 items-center gap-4  border bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#0055FF]/10 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 ${
+                  className={`group flex min-w-0 items-center gap-4 rounded-3xl border bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-[#0055FF]/10 focus-visible:outline-2 focus-visible:outline-[#0055FF] focus-visible:outline-offset-2 ${
                     unread ? "border-[#0055FF]/30" : "border-[#F1F5F9]"
                   }`}
                 >
-                  <div className="media-avatar relative h-12 w-12 shrink-0 overflow-hidden bg-[#F1F5F9]">
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-[#F1F5F9]">
                     {other?.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={other.image} alt="" className="h-full w-full object-cover" />
@@ -112,7 +112,7 @@ export default async function MessagesPage() {
                       </div>
                     )}
                     {unread ? (
-                      <span className="status-dot absolute right-0 top-0 h-3 w-3 border-2 border-white bg-[#FF3366]" />
+                      <span className="absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-white bg-[#FF3366]" />
                     ) : null}
                   </div>
 
@@ -121,7 +121,7 @@ export default async function MessagesPage() {
                       <div className="flex min-w-0 items-center gap-2">
                         <h2 className="truncate text-base font-black text-[#0F172A]">{name}</h2>
                         {officialSupport ? (
-                          <span className="shrink-0  bg-[#0055FF]/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.14em] text-[#0055FF]">
+                          <span className="shrink-0 rounded-full bg-[#0055FF]/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-[0.14em] text-[#0055FF]">
                             Official support
                           </span>
                         ) : null}
@@ -136,7 +136,7 @@ export default async function MessagesPage() {
                   </div>
 
                   {unread ? (
-                    <span className="hidden  bg-[#FF3366]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#FF3366] sm:inline-flex">
+                    <span className="hidden rounded-full bg-[#FF3366]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#FF3366] sm:inline-flex">
                       {conversation.unreadCount}
                     </span>
                   ) : null}

@@ -139,7 +139,7 @@ export function GigForm({
   }, [state]);
 
   return (
-    <div className=" border border-[#F1F5F9] bg-white p-6 shadow-sm md:p-8">
+    <div className="rounded-3xl border border-[#F1F5F9] bg-white p-6 shadow-sm md:p-8">
       {state.message && fieldErrorCount >= 2 ? (
         <div className="mb-6">
           <FormErrorBanner
@@ -283,7 +283,7 @@ export function GigForm({
             </FormField>
             <label
               htmlFor="isRemote"
-              className="flex min-h-14 items-center gap-3  border border-[#E2E8F0] bg-white px-4 text-sm font-bold text-[#0F172A] md:mt-7"
+              className="flex min-h-14 items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-white px-4 text-sm font-bold text-[#0F172A] md:mt-7"
             >
               <input
                 id="isRemote"

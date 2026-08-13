@@ -71,7 +71,7 @@ export function UpdateProfilePictureForm({ name, image }: Props) {
       ) : null}
 
       <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-        <div className="media-avatar flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden bg-[#E2E8F0] ring-4 ring-[#F1F5F9]">
+        <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#E2E8F0] ring-4 ring-[#F1F5F9]">
           {currentImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -101,7 +101,7 @@ export function UpdateProfilePictureForm({ name, image }: Props) {
               onChange={(event) =>
                 setSelectedFileName(event.currentTarget.files?.[0]?.name ?? "")
               }
-              className="file:mr-4 file: file:border-0 file:bg-[#0F172A] file:px-4 file:py-2 file:text-sm file:font-bold file:text-white hover:file:bg-[#0055FF]"
+              className="file:mr-4 file:rounded-full file:border-0 file:bg-[#0F172A] file:px-4 file:py-2 file:text-sm file:font-bold file:text-white hover:file:bg-[#0055FF]"
             />
           </FormField>
 
