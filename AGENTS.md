@@ -13,30 +13,64 @@ This directive overrides older visual examples elsewhere in the docs. Use Archiv
 
 | Task | Sub-agent file |
 |------|---------------|
-| New page / component / styling | [`ai-context/agents/ui-agent.md`](ai-context/agents/ui-agent.md) |
-| Supabase / server actions / auth | [`ai-context/agents/backend-agent.md`](ai-context/agents/backend-agent.md) |
-| Complete feature (UI + data) | [`ai-context/agents/feature-agent.md`](ai-context/agents/feature-agent.md) |
-| Bug diagnosis | [`ai-context/agents/debug-agent.md`](ai-context/agents/debug-agent.md) |
-| Headlines / copy / microcopy | [`ai-context/agents/copy-agent.md`](ai-context/agents/copy-agent.md) |
+| New page / component / styling | [`docs/ai-context/agents/ui-agent.md`](docs/ai-context/agents/ui-agent.md) |
+| Supabase / server actions / auth | [`docs/ai-context/agents/backend-agent.md`](docs/ai-context/agents/backend-agent.md) |
+| Complete feature (UI + data) | [`docs/ai-context/agents/feature-agent.md`](docs/ai-context/agents/feature-agent.md) |
+| Bug diagnosis | [`docs/ai-context/agents/debug-agent.md`](docs/ai-context/agents/debug-agent.md) |
+| Headlines / copy / microcopy | [`docs/ai-context/agents/copy-agent.md`](docs/ai-context/agents/copy-agent.md) |
 
 Load the sub-agent **in addition to** this file — sub-agents scope your task, AGENTS.md sets the rules.
+
+---
+
+## UI/UX Skill (MANDATORY for all UI work)
+
+**Every agent doing UI work must use the `ui-ux-pro-max` skill** before building or reviewing any page, component, or interaction pattern.
+
+### How to invoke (Claude Code)
+
+```
+/ui-ux-pro-max:ui-ux-pro-max
+```
+
+Or use the CLI search script directly:
+
+```bash
+python3 ~/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/.claude/skills/ui-ux-pro-max/scripts/search.py "<query>" --design-system -p "Escento"
+```
+
+### When to use it
+
+| Situation | Command |
+|-----------|---------|
+| Building new page / section | `--design-system` query |
+| Accessibility / interaction audit | `--domain ux "accessibility touch"` |
+| Form UX questions | `--domain ux "form validation error"` |
+| Chart / data table | `--domain ux "chart table"` |
+| Animation questions | `--domain ux "animation motion"` |
+
+### Conflict resolution
+
+**Escento's `DESIGN.md` tokens always win** over skill output. The skill supplements with UX patterns and a11y rules — it does not override brand colors, typography, or spacing defined in `DESIGN.md`.
 
 ---
 
 ## Read order
 
 1. **AGENTS.md** (this file) — rules, stack, DoD, conventions
-2. [`PRODUCT.md`](./PRODUCT.md) — product scope and what NOT to build
-3. [`BRAND.md`](./BRAND.md) — voice, copy patterns, forbidden phrases
-4. [`DESIGN.md`](./DESIGN.md) — color, type, spacing, motion tokens
-5. [`UX_RULES.md`](./UX_RULES.md) — interactions, loading/empty/error, a11y
-6. [`FRONTEND_ARCH.md`](./FRONTEND_ARCH.md) — Next.js, server actions, Supabase, auth
-7. [`COMPONENTS.md`](./COMPONENTS.md) — copy-pasteable component recipes
-8. [`FORMS.md`](./ai-context/FORMS.md) — form UX system (when touching forms)
+2. [`PRODUCT.md`](./docs/ai-context/PRODUCT.md) — product scope and what NOT to build
+3. [`BRAND.md`](./docs/ai-context/BRAND.md) — voice, copy patterns, forbidden phrases
+4. [`DESIGN.md`](./docs/ai-context/DESIGN.md) — color, type, spacing, motion tokens
+5. [`UX_RULES.md`](./docs/ai-context/UX_RULES.md) — interactions, loading/empty/error, a11y
+6. [`FRONTEND_ARCH.md`](./docs/ai-context/FRONTEND_ARCH.md) — Next.js, server actions, Supabase, auth
+7. [`COMPONENTS.md`](./docs/ai-context/COMPONENTS.md) — copy-pasteable component recipes
+8. [`FORMS.md`](./docs/ai-context/FORMS.md) — form UX system (when touching forms)
 
 ---
 
 ## Stack snapshot (version-pinned — do not introduce mismatches)
+
+This table lists what is **actually installed**. If a library is not here, it is not available — adding one requires approval (see §Things to ask about before doing).
 
 | Layer | Choice | Version |
 |---|---|---|
@@ -44,30 +78,31 @@ Load the sub-agent **in addition to** this file — sub-agents scope your task, 
 | Language | TypeScript | `^5.9.2` |
 | UI | React | `^19.1.1` |
 | Styling | Tailwind CSS v4 (`@tailwindcss/postcss`) | `^4.1.13` |
-| Motion | framer-motion | app-wide |
-| 3D | `@react-three/fiber`, `@react-three/drei`, `three` | any page hero/accent |
-| Smooth scroll | `lenis` + `@studio-freight/react-lenis` | app-wide |
-| Scroll animation | `gsap` + `@gsap/react` (ScrollTrigger) | scroll-driven sections |
-| Accessible primitives | `@radix-ui/react-*` (dialog, tooltip, dropdown) | interactive components |
-| Component variants | `class-variance-authority` + `clsx` | variant props on UI primitives |
-| Icons | `lucide-react` | app-wide |
-| Database | PostgreSQL | (Supabase) |
+| Motion | `framer-motion` | `^12.38.0` |
+| Scroll animation | `gsap` (ScrollTrigger) | `^3.15.0` |
+| Accessible primitives | `@radix-ui/react-dropdown-menu` | `^2.1.16` |
+| Icons | `lucide-react` | `^1.14.0` |
+| Database | PostgreSQL | Supabase |
 | DB Client | Supabase JS SDK (`@supabase/supabase-js`, `@supabase/ssr`) | `^2.105.4`, `^0.6.1` |
 | Storage | Supabase Storage | profile pictures |
 | Auth | Supabase Auth (session-based) | built-in |
-| OAuth | GitHub, Google | — |
+| OAuth | Google | — |
+| Analytics | `@vercel/analytics`, `@vercel/speed-insights` | `^2.0.1`, `^2.0.0` |
 | Lint | ESLint + `eslint-config-next` | `^9.35.0` |
+| E2E | Playwright | `^1.60.0` |
 
 The animation packages remain installed for retained legacy work, but new UI should not add routine entrance, reveal, page-transition, or scroll-driven animation. Use a subtle CSS state transition only when interaction feedback needs it.
 
-Do not add: date pickers, form libraries (react-hook-form, formik), state managers (zustand, redux), fetch libraries (react-query, swr), or UI kits (shadcn bulk install, MUI, Chakra).
+Styling is plain Tailwind utility strings — there is no `clsx`/`cva` in this repo, so compose class names with template literals.
+
+Do not add: 3D libraries (`three`, `@react-three/*`), smooth-scroll libraries (`lenis`), date pickers, form libraries (react-hook-form, formik), state managers (zustand, redux), fetch libraries (react-query, swr), or UI kits (shadcn bulk install, MUI, Chakra).
 
 ---
 
 ## The 10 non-negotiable rules
 
 ### 1. Server Components by default
-**Rule.** Every file under `src/app/**/page.tsx`, `layout.tsx`, and any non-form helper is a Server Component. Add `"use client"` **only** when you need browser-only APIs (event handlers, `useState`, `useEffect`, framer-motion, R3F).
+**Rule.** Every file under `src/app/**/page.tsx`, `layout.tsx`, and any non-form helper is a Server Component. Add `"use client"` **only** when you need browser-only APIs (event handlers, `useState`, `useEffect`, framer-motion).
 **Why.** Server Components own session + server-side data access. Client boundaries balloon bundle size and re-introduce data-fetching complexity.
 **Do.** `// app/musicians/page.tsx` — server, fetches via the API layer.
 **Don't.** Add `"use client"` to a page just to use framer-motion. Extract the animated block into a child client component instead.
@@ -76,22 +111,22 @@ Do not add: date pickers, form libraries (react-hook-form, formik), state manage
 **Rule.** Every write goes through a `"use server"` function. No new REST routes for product mutations.
 **Why.** Server Actions inherit Next's CSRF protection, run on the same origin, and avoid hand-rolled API boilerplate.
 **Do.** `src/app/gigs/create/actions.ts` exporting `createGig(formData)`.
-**Don't.** Add `src/app/api/gigs/route.ts`. See [`FRONTEND_ARCH.md`](./FRONTEND_ARCH.md) §Server Actions.
+**Don't.** Add `src/app/api/gigs/route.ts`. See [`FRONTEND_ARCH.md`](./docs/ai-context/FRONTEND_ARCH.md) §Server Actions.
 
-### 3. Supabase client via `createSupabaseServerClient()` only
-**Rule.** Server Actions/Components use: `const supabase = await createSupabaseServerClient()` from `@/lib/supabase/server`. Service layer in `src/lib/api/` wraps Supabase calls with typed helpers.
-**Why.** Centralizes auth (cookies), avoids connection leaks, types queries.
+### 3. Supabase clients via helpers only
+**Rule.** Server Actions/Components use `createSupabaseServerClient()` from `@/lib/supabase/server`. Admin-only tasks use `createSupabaseAdminClient()` from `@/lib/supabase/admin` and must never expose `SUPABASE_SERVICE_ROLE_KEY` to the browser. Service layer in `src/lib/api/` wraps Supabase calls with typed helpers.
+**Why.** Centralizes auth cookies, keeps service-role access server-only, avoids connection leaks, types queries.
 
-### 4. Auth via `getCurrentSession()` or `requireRole()`
-**Rule.** Every protected page/action calls `const session = await requireRole("CREATOR", "/path")` from `@/lib/auth-guards`. Middleware protects `/onboarding/*`.
-**Why.** Supabase session + app user sync. Per-request check is trust boundary.
+### 4. Auth via `getCurrentSession()` / `requireRole()`
+**Rule.** Protected pages/actions call helpers from `@/lib/auth-guards` and re-check role inside the handler.
+**Why.** Per-request server checks are the trust boundary. Middleware refreshes Supabase sessions and blocks `/onboarding/*` for signed-out users, but it does **not** replace page/action checks.
 **Do.**
 ```ts
-const session = await requireRole("CREATOR", request.nextUrl.pathname);
+const session = await requireRole("CREATOR", "/gigs/create");
 ```
 
 ### 5. Bright stage-light theme — no dark zinc
-**Rule.** Use tokens in [`DESIGN.md`](./DESIGN.md): `#FAFAFA` page, `#0F172A` ink, `#0055FF`/`#FF3366`/`#FFB000` accents. Do **not** introduce `bg-zinc-950`, `text-zinc-100`, `border-zinc-800`, `violet-500`, or any class from the legacy dark shell into new code.
+**Rule.** Use tokens in [`DESIGN.md`](./docs/ai-context/DESIGN.md): `#FAFAFA` page, `#0F172A` ink, `#0055FF`/`#FF3366`/`#FFB000` accents. Do **not** introduce `bg-zinc-950`, `text-zinc-100`, `border-zinc-800`, `violet-500`, or any class from the legacy dark shell into new code.
 **Why.** The current root shell and shared tokens establish the bright foundation; the remaining routes are being migrated onto it.
 **Do.** `className="bg-white text-[#0F172A] border border-[#F1F5F9]"`.
 **Don't.** `className="bg-zinc-950 text-zinc-100"`.
@@ -100,7 +135,7 @@ const session = await requireRole("CREATOR", request.nextUrl.pathname);
 **Rule.** Do not add page transitions, entrance reveals, hover lifts, parallax, or scroll choreography during the overhaul. Use a subtle targeted transition only when an interactive state needs feedback. Installed animation packages support retained legacy code; they are not a requirement for new work.
 
 ### 7. Icons: `lucide-react` only
-**Rule.** `import { ArrowRight, Sparkles, PlayCircle } from "lucide-react"`. No emoji as UI, no inline SVG paths copied from Figma/Heroicons, no other icon packs.
+**Rule.** `import { ArrowRight, Sparkles, PlayCircle } from "lucide-react"`. No emoji as UI, no inline SVG paths copied from Figma/Heroicons, no other icon packs. The brand marks in [`src/components/ui/brand.tsx`](src/components/ui/brand.tsx) are the one sanctioned exception.
 **Why.** Visual consistency + tree-shaking.
 
 ### 8. App Router file discipline
@@ -109,11 +144,11 @@ const session = await requireRole("CREATOR", request.nextUrl.pathname);
 **Do.** Shared UI → `src/components/<feature>/<Name>.tsx`. Route-only client form → `src/app/<route>/_<name>.tsx`.
 
 ### 9. No new files without a home
-**Rule.** Before creating a file, find the right folder. UI primitives → `src/components/ui/`. Feature components → `src/components/<feature>/`. Server helpers → `src/lib/`. Supabase schema/storage changes must be documented and confirmed when destructive.
+**Rule.** Before creating a file, find the right folder. UI primitives → `src/components/ui/`. Feature components → `src/components/<feature>/`. Server helpers → `src/lib/`. Documentation → `docs/` (agent-facing docs → `docs/ai-context/`). Supabase schema/storage changes must be documented and confirmed when destructive.
 **Why.** Folder sprawl is the #1 source of duplication in this repo (see the duplicated `_ui.tsx` between `musicians/` and `gigs/`).
 
 ### 10. Run lint + build before declaring done
-**Rule.** `npm run lint` then `npm run build`. Both must pass.
+**Rule.** `npm run lint`, `npm run typecheck`, then `npm run build`. All must pass.
 **Why.** TypeScript catches missing props, Next catches RSC/client boundary violations, ESLint catches the rest.
 
 ---
@@ -127,19 +162,19 @@ const session = await requireRole("CREATOR", request.nextUrl.pathname);
 ## Definition of Done (agent self-check before reporting complete)
 
 - [ ] Page is a Server Component unless it genuinely needs to be client.
-- [ ] All mutations are Server Actions; session + role re-checked inside via `requireRole()` or `requireSignedIn()`.
+- [ ] All mutations are Server Actions; session + role re-checked inside via `requireSignedIn()`, `requireUser()`, or `requireRole()`.
 - [ ] Bright stage-light tokens used. No `bg-zinc-*`, no `violet-*`, no `text-zinc-*`.
 - [ ] Icons are `lucide-react`. No emoji.
-- [ ] Motion (if any) uses `framer-motion` with tokens from [`DESIGN.md`](./DESIGN.md). No R3F outside `src/components/home/`.
-- [ ] Reduced-motion handled (`useReducedMotion()` for non-trivial animations).
+- [ ] No new routine motion (reveals, page transitions, hover lifts, parallax). Targeted CSS state transitions only.
 - [ ] Loading + empty + error states present for any new async route.
 - [ ] Form labels are `<label htmlFor>` bound to input `id`.
-- [ ] Forms use `FormField` + error hierarchy from [`FORMS.md`](./ai-context/FORMS.md); no validation toasts; bright `Input`/`Textarea`/`Select` (not legacy `.input-base`).
+- [ ] Forms use `FormField` + error hierarchy from [`FORMS.md`](./docs/ai-context/FORMS.md); no validation toasts; bright `Input`/`Textarea`/`Select` (not legacy `.input-base`).
 - [ ] `aria-hidden` on decorative icons; `aria-label` on icon-only buttons/links.
 - [ ] `npm run lint` passes.
+- [ ] `npm run typecheck` passes.
 - [ ] `npm run build` passes.
 - [ ] No new dependencies were added without approval.
-- [ ] Reused existing helpers (`createSupabaseServerClient()`, service layer in `src/lib/api/`, auth guards) — did not duplicate.
+- [ ] Reused existing helpers (`createSupabaseServerClient()`, `createSupabaseAdminClient()`, service layer in `src/lib/api/`, auth guards) — did not duplicate.
 
 ---
 
@@ -156,10 +191,10 @@ const session = await requireRole("CREATOR", request.nextUrl.pathname);
 ## Things to ask about before doing
 
 - Adding a dependency.
-- Touching the database schema (additive usually fine, destructive never without confirmation).
+- Touching the database schema (additive changes are usually fine; destructive ones never without confirmation).
 - Refactoring `src/app/layout.tsx`, `globals.css`, `src/lib/auth-guards.ts`, or `middleware.ts`.
 - Introducing a new top-level route segment.
-- Anything in [`PRODUCT.md`](./PRODUCT.md) §Out of scope.
+- Anything in [`PRODUCT.md`](./docs/ai-context/PRODUCT.md) §Out of scope.
 
 ---
 
@@ -168,17 +203,16 @@ const session = await requireRole("CREATOR", request.nextUrl.pathname);
 | File | Why |
 |---|---|
 | `src/components/home/HomeLanding.tsx` | Retained landing implementation; do not copy its legacy motion patterns. |
-| `src/components/home/StageLightsScene.tsx` | Only file allowed to import `@react-three/*` and `three`. |
 | `src/app/page.tsx` | Server-side session + role resolution pattern. |
 | `src/app/layout.tsx` | Root shell and Archivo font setup. |
 | `src/app/globals.css` | Shared foundation tokens and named corner exceptions. |
 | `src/lib/supabase/server.ts` | Supabase server client factory. |
-| `src/lib/auth-guards.ts` | Auth helpers: `requireRole()`, `getCurrentSession()`, role guards. |
 | `src/lib/supabase/admin.ts` | Server-only service-role client for auth admin + profile-picture storage. |
-| `src/lib/api/` | Service layer with typed DB helpers (`profiles.ts`, `gigs.ts`, `tags.ts`). |
+| `src/lib/auth-guards.ts` | Auth helpers: `getCurrentSession()`, `requireSignedIn()`, `requireUser()`, `requireRole()`. |
+| `src/lib/api/` | Service layer with typed DB helpers (`profiles.ts`, `gigs.ts`, `messaging.ts`, `tags.ts`, …). |
+| `middleware.ts` | Supabase session refresh + `/onboarding/*` protection. Project root, **not** `src/`. |
 | Supabase Dashboard | Source of truth for current schema/storage config when no migration file exists locally. |
-| `middleware.ts` | Supabase session refresh + `/onboarding/*` protection. |
 
 ---
 
-*Last updated: 2026-05-14.*
+*Last updated: 2026-08-13.*
