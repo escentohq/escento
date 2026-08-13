@@ -25,7 +25,6 @@ abstractions.
 | `PageShell` | `src/components/ui/page-shell.tsx` | Shared route width, header, and optional action alignment |
 | `SectionCard` | `src/components/ui/section-card.tsx` | Rule-separated subsection; despite the historical name, it is not a card |
 | `Chip` | `src/components/ui/chip.tsx` | Compact outlined metadata; neutral by default |
-| `StatusBadge` | `src/components/ui/status-badge.tsx` | Semantic open/closed state only |
 | `BackLink` | `src/components/ui/back-link.tsx` | Route-level return navigation |
 | `EmptyState` | `src/components/ui/empty-state.tsx` | Rule-separated empty state with an optional CTA |
 | `PageLoading` | `src/components/ui/page-loading.tsx` | Static route skeleton matching list composition |
