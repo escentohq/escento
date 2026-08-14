@@ -113,7 +113,6 @@ export function HomeLanding({
               <p className="text-sm font-semibold text-white">Live directory</p>
               <Link
                 href="/musicians"
-                prefetch={false}
                 className="text-control text-white underline-offset-4 transition-colors duration-150 hover:text-on-brand-muted hover:underline"
               >
                 Open the room
@@ -132,7 +131,7 @@ export function HomeLanding({
               </div>
               {leadProfile?.image ? (
                 <div className="relative mb-8 mr-6 h-28 w-28 justify-self-end overflow-hidden border-4 border-white bg-brand md:mb-0 md:mr-8 md:h-32 md:w-32">
-                  <Image src={leadProfile.image} alt="" fill sizes="128px" className="object-cover" />
+                  <Image src={leadProfile.image} alt="" fill sizes="128px" priority className="object-cover" />
                 </div>
               ) : null}
             </div>
@@ -193,7 +192,6 @@ export function HomeLanding({
                 <Link
                   key={`${row.type}-${row.title}`}
                   href={row.href}
-                  prefetch={false}
                   className={`group grid gap-x-5 gap-y-4 py-8 transition-colors duration-150 hover:bg-surface-secondary focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 md:grid-cols-[7.5rem_minmax(0,1.1fr)_minmax(18rem,0.8fr)] md:items-center md:px-4 ${row.image ? "grid-cols-[6.5rem_minmax(0,1fr)]" : "grid-cols-[2.5rem_minmax(0,1fr)]"}`}
                 >
                   <div className={`flex items-center justify-center overflow-hidden ${row.image ? "h-24 w-24" : "h-full min-h-24 w-10 md:w-24"}`}>
