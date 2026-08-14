@@ -78,8 +78,6 @@ This table lists what is **actually installed**. If a library is not here, it is
 | Language | TypeScript | `^5.9.2` |
 | UI | React | `^19.1.1` |
 | Styling | Tailwind CSS v4 (`@tailwindcss/postcss`) | `^4.1.13` |
-| Motion | `framer-motion` | `^12.38.0` |
-| Scroll animation | `gsap` (ScrollTrigger) | `^3.15.0` |
 | Accessible primitives | `@radix-ui/react-dropdown-menu` | `^2.1.16` |
 | Icons | `lucide-react` | `^1.14.0` |
 | Database | PostgreSQL | Supabase |
@@ -91,7 +89,7 @@ This table lists what is **actually installed**. If a library is not here, it is
 | Lint | ESLint + `eslint-config-next` | `^9.35.0` |
 | E2E | Playwright | `^1.60.0` |
 
-The animation packages remain installed for retained legacy work, but new UI should not add routine entrance, reveal, page-transition, or scroll-driven animation. Use a subtle CSS state transition only when interaction feedback needs it.
+There is no animation library installed. `framer-motion` and `gsap` were removed once the overhaul left them with zero imports in `src/`; re-adding either needs approval per §Things to ask about before doing. Use a subtle CSS state transition only when interaction feedback needs it.
 
 Styling is plain Tailwind utility strings — there is no `clsx`/`cva` in this repo, so compose class names with template literals.
 
@@ -102,10 +100,10 @@ Do not add: 3D libraries (`three`, `@react-three/*`), smooth-scroll libraries (`
 ## The 10 non-negotiable rules
 
 ### 1. Server Components by default
-**Rule.** Every file under `src/app/**/page.tsx`, `layout.tsx`, and any non-form helper is a Server Component. Add `"use client"` **only** when you need browser-only APIs (event handlers, `useState`, `useEffect`, framer-motion).
+**Rule.** Every file under `src/app/**/page.tsx`, `layout.tsx`, and any non-form helper is a Server Component. Add `"use client"` **only** when you need browser-only APIs (event handlers, `useState`, `useEffect`).
 **Why.** Server Components own session + server-side data access. Client boundaries balloon bundle size and re-introduce data-fetching complexity.
 **Do.** `// app/musicians/page.tsx` — server, fetches via the API layer.
-**Don't.** Add `"use client"` to a page just to use framer-motion. Extract the animated block into a child client component instead.
+**Don't.** Add `"use client"` to a page just to make one block interactive. Extract that block into a child client component instead.
 
 ### 2. Mutations are Server Actions
 **Rule.** Every write goes through a `"use server"` function. No new REST routes for product mutations.
@@ -132,7 +130,7 @@ const session = await requireRole("CREATOR", "/gigs/create");
 **Don't.** `className="bg-zinc-950 text-zinc-100"`.
 
 ### 6. Motion: static by default
-**Rule.** Do not add page transitions, entrance reveals, hover lifts, parallax, or scroll choreography during the overhaul. Use a subtle targeted transition only when an interactive state needs feedback. Installed animation packages support retained legacy code; they are not a requirement for new work.
+**Rule.** Do not add page transitions, entrance reveals, hover lifts, parallax, or scroll choreography during the overhaul. Use a subtle targeted transition only when an interactive state needs feedback. No animation library is installed — adding one needs approval.
 
 ### 7. Icons: `lucide-react` only
 **Rule.** `import { ArrowRight, Sparkles, PlayCircle } from "lucide-react"`. No emoji as UI, no inline SVG paths copied from Figma/Heroicons, no other icon packs. The brand marks in [`src/components/ui/brand.tsx`](src/components/ui/brand.tsx) are the one sanctioned exception.

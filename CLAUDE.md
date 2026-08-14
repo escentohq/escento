@@ -54,7 +54,7 @@ All documentation lives under `docs/`. Do not add new Markdown to the repo root.
 
 Supabase Auth and the app's own `app_user` table are two separate identity stores, merged on read (not by a sync/upsert step). It all lives in `src/lib/auth-guards.ts`:
 
-`getCurrentSession()` is wrapped in React's `cache()`, so it runs at most once per request. It calls `supabase.auth.getUser()`, then selects `role, name, image` from `app_user` by `id`. A `PGRST116` (no rows) error is expected and ignored — it just means the auth user has no `app_user` row yet, which surfaces as `role: null`. Any other error is logged and the session still returns. The shape is always:
+`getCurrentSession()` is wrapped in React's `cache()`, so it runs at most once per request. It calls `supabase.auth.getClaims()` — not `getUser()` — then selects `role, name, image` from `app_user` by the `sub` claim. `getClaims()` verifies the JWT locally when the project uses asymmetric signing keys, saving a network round trip to the Auth server on every request, and falls back to a `getUser()` call under legacy HS256 secrets. `middleware.ts` uses the same call for the same reason. Do not switch these back to `getUser()` without measuring. A `PGRST116` (no rows) error is expected and ignored — it just means the auth user has no `app_user` row yet, which surfaces as `role: null`. Any other error is logged and the session still returns. The shape is always:
 
 ```ts
 { user: { id, email, role, name, image } }  // id = the Supabase auth user id, reused as the app_user TEXT id
@@ -73,6 +73,17 @@ Product data access is concentrated here — no direct Supabase calls for produc
 - IDs are `TEXT` generated via `crypto.randomUUID()` in application code before insert, not Postgres-native `uuid`.
 
 Tags (instruments, genres) are deduplicated via `normalizeTagName` and upserted via `ensureInstruments`/`ensureGenres` in `tags.ts`. Gig and profile mutations delete-and-reinsert junction rows on every update.
+
+#### Public read caching — one entry per dataset, not per filter
+
+`listProfiles(filters)` and `listOpenGigs(filters)` are thin wrappers, and the split matters:
+
+- `getCachedPublicProfiles` / `getCachedPublicOpenGigs` are **module-level** `unstable_cache` entries keyed `["public-musicians"]` / `["public-gigs"]` with no filter in the key. They read the whole public dataset through `createSupabasePublicClient()` (cookie-free, which is what makes the read cacheable at all) and are invalidated only by tag, via `updateTag()` in `src/lib/public-cache-invalidation.ts`.
+- `filterProfiles` / `filterGigs` then apply search, instrument, genre, project-type, remote, and radius filtering **in JS** against that one cached array.
+
+Do not move the cache key back onto the filters. None of these filters were ever pushed into SQL, so a per-filter key just made every distinct search string a cold full-table read. Keeping one entry means `?q=jazz` and `?q=blues` both hit the same warm data. If filtering ever does move into SQL, this arrangement has to be revisited together.
+
+Selects list explicit columns (`PROFILE_COLUMNS`, `GIG_SELECT`, `PARTICIPANT_COLUMNS`, …) rather than `select("*")`; the junction-row columns were being fetched and discarded. Composing the select string from a constant costs PostgREST's row-type inference, which is why `profiles.ts` reads rows through the loose `ProfileRow` type.
 
 ### Server Actions pattern
 
@@ -107,7 +118,7 @@ Feature components shared across routes live in `src/components/<feature>/`. Glo
 
 Do not add routine entrance, reveal, page-transition, hover-lift, or scroll-driven animation during the overhaul. `<Reveal>` is currently a static compatibility wrapper. Use subtle targeted state transitions only where interaction feedback needs them.
 
-There is no 3D or smooth-scroll layer: `three`/`@react-three/*` and `lenis` were removed once their only consumers (`StageLightsScene.tsx`, `SmoothScroll.tsx`) proved unreferenced. Re-introducing either needs approval per `AGENTS.md` §Things to ask about before doing.
+There is no animation, 3D, or smooth-scroll layer left. `three`/`@react-three/*` and `lenis` were removed once their only consumers (`StageLightsScene.tsx`, `SmoothScroll.tsx`) proved unreferenced; `framer-motion` and `gsap` followed for the same reason — zero imports anywhere in `src/`. Re-introducing any of them needs approval per `AGENTS.md` §Things to ask about before doing.
 
 ### Supabase Realtime
 
