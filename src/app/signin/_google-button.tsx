@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-
 export function GoogleButton({
   callbackUrl,
   label = "Continue with Google",
@@ -18,6 +16,9 @@ export function GoogleButton({
     setMessage(null);
     setPending(true);
     try {
+      // The Supabase browser SDK is ~230 KB and is only needed once the visitor commits
+      // to Google sign-in, so it is fetched here rather than in the page's first load.
+      const { createSupabaseBrowserClient } = await import("@/lib/supabase/client");
       const supabase = createSupabaseBrowserClient();
       const origin =
         typeof window !== "undefined" ? window.location.origin : "";
