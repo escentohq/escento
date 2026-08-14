@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { cache } from "react";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -105,6 +106,11 @@ function toParticipant(raw: any): ConversationParticipant {
     user: toUserSummary(raw.user),
   };
 }
+
+/** Columns the normalizers below actually read; `select("*")` pulled the rest for nothing. */
+const PARTICIPANT_COLUMNS = "id, conversation_id, user_id, joined_at, last_read_at, deleted_at";
+const MESSAGE_COLUMNS = "id, conversation_id, sender_id, body, created_at, updated_at, deleted_at";
+const CONVERSATION_COLUMNS = "id, type, created_at, updated_at, last_message_at";
 
 function toMessage(raw: any): MessageRecord {
   return {
@@ -291,7 +297,7 @@ async function getActiveParticipant(userId: string, conversationId: string) {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("conversation_participants")
-    .select("*")
+    .select(PARTICIPANT_COLUMNS)
     .eq("conversation_id", conversationId)
     .eq("user_id", userId)
     .is("deleted_at", null)
@@ -307,7 +313,7 @@ async function getConversationParticipantRows(conversationIds: string[]) {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("conversation_participants")
-    .select("*, user:app_user!conversation_participants_user_id_fkey(id, email, name, image, role)")
+    .select(`${PARTICIPANT_COLUMNS}, user:app_user!conversation_participants_user_id_fkey(id, email, name, image, role)`)
     .in("conversation_id", conversationIds)
     .is("deleted_at", null);
 
@@ -321,7 +327,7 @@ async function getMessageRows(conversationIds: string[], ascending = false) {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("messages")
-    .select("*, sender:app_user!messages_sender_id_fkey(id, email, name, image, role)")
+    .select(`${MESSAGE_COLUMNS}, sender:app_user!messages_sender_id_fkey(id, email, name, image, role)`)
     .in("conversation_id", conversationIds)
     .is("deleted_at", null)
     .order("created_at", { ascending });
@@ -392,7 +398,7 @@ async function getConversationRowsForUser(userId: string) {
 
   const { data: conversations, error: conversationsError } = await supabase
     .from("conversations")
-    .select("*")
+    .select(CONVERSATION_COLUMNS)
     .in("id", conversationIds)
     .order("last_message_at", { ascending: false, nullsFirst: false })
     .order("updated_at", { ascending: false });
@@ -607,7 +613,7 @@ export async function getConversationForUser(
   const supabase = await createSupabaseServerClient();
   const { data: conversation, error } = await supabase
     .from("conversations")
-    .select("*")
+    .select(CONVERSATION_COLUMNS)
     .eq("id", conversationId)
     .single();
 
@@ -634,24 +640,38 @@ export async function createMessageForUser(
   assertValidId(conversationId, "conversation id");
   const normalizedBody = normalizeRequiredText(body, MESSAGE_BODY_MAX_LENGTH);
 
-  const participant = await getActiveParticipant(userId, conversationId);
+  const supabase = await createSupabaseServerClient();
+
+  // Sending one message used to load the entire thread: getActiveParticipant, then
+  // getConversationForUser (which re-reads the participants *and* every message in the
+  // conversation). All this needs is the conversation type and the other participant, so
+  // read exactly that — the participant rows double as the membership check.
+  const [{ data: conversation, error: conversationLookupError }, participants] = await Promise.all([
+    supabase.from("conversations").select("id, type").eq("id", conversationId).single(),
+    getConversationParticipantRows([conversationId]),
+  ]);
+
+  if (conversationLookupError && conversationLookupError.code !== "PGRST116") {
+    throw conversationLookupError;
+  }
+
+  const participant = participants.find((row) => row.userId === userId);
   if (!participant) {
     throw new MessagingError("forbidden", "You cannot send messages in this conversation.");
   }
-
-  const conversation = await getConversationForUser(userId, conversationId);
   if (!conversation) {
     throw new MessagingError("not_found", "Conversation not found.");
   }
 
-  if (conversation.type === "direct" && conversation.otherParticipant) {
-    const blocked = await hasBlockBetween(userId, conversation.otherParticipant.userId);
+  const otherParticipant = participants.find((row) => row.userId !== userId);
+
+  if (conversation.type === "direct" && otherParticipant) {
+    const blocked = await hasBlockBetween(userId, otherParticipant.userId);
     if (blocked) {
       throw new MessagingError("blocked", "You cannot send messages in this conversation.");
     }
   }
 
-  const supabase = await createSupabaseServerClient();
   const now = new Date().toISOString();
   const { data, error } = await supabase
     .from("messages")
@@ -661,7 +681,7 @@ export async function createMessageForUser(
       sender_id: userId,
       body: normalizedBody,
     })
-    .select("*, sender:app_user!messages_sender_id_fkey(id, email, name, image, role)")
+    .select(`${MESSAGE_COLUMNS}, sender:app_user!messages_sender_id_fkey(id, email, name, image, role)`)
     .single();
 
   if (error) throw error;
@@ -677,7 +697,7 @@ export async function createMessageForUser(
   await queueMessageNotification({
     message,
     sender: message.sender,
-    recipient: conversation.otherParticipant?.user,
+    recipient: otherParticipant?.user,
   });
   return message;
 }
@@ -779,7 +799,7 @@ export async function getUnreadMessageCountForUser(userId: string): Promise<numb
   return conversations.reduce((total, conversation) => total + conversation.unreadCount, 0);
 }
 
-export async function getUnreadConversationCountForUser(userId: string): Promise<number> {
+export const getUnreadConversationCountForUser = cache(async (userId: string): Promise<number> => {
   assertValidId(userId, "user id");
   const supabase = await createSupabaseServerClient();
   const { data: participants, error: participantError } = await supabase
@@ -807,7 +827,7 @@ export async function getUnreadConversationCountForUser(userId: string): Promise
       .filter((message) => Date.parse(message.created_at) > (lastReadByConversation.get(message.conversation_id) ?? 0))
       .map((message) => message.conversation_id),
   ).size;
-}
+});
 
 export async function getUnreadConversationSummariesForUser(
   userId: string,
