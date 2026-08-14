@@ -14,13 +14,19 @@ export type AppSession = {
 
 export const getCurrentSession = cache(async (): Promise<AppSession | null> => {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user?.id) return null;
+
+  // getClaims() verifies the JWT locally when the project uses asymmetric signing keys,
+  // which removes a network round trip to the Auth server from every request. With
+  // legacy symmetric (HS256) secrets it transparently falls back to a getUser() call, so
+  // this is safe regardless of how the project is configured.
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const claims = claimsData?.claims;
+  if (!claims?.sub) return null;
 
   const { data: appUser, error: appUserError } = await supabase
     .from("app_user")
     .select("role, name, image")
-    .eq("id", user.id)
+    .eq("id", claims.sub)
     .single();
 
   // Log unexpected errors (RLS violations, timeouts, etc) but ignore expected "not found"
@@ -30,8 +36,8 @@ export const getCurrentSession = cache(async (): Promise<AppSession | null> => {
 
   return {
     user: {
-      id: user.id,
-      email: user.email ?? null,
+      id: claims.sub,
+      email: claims.email ?? null,
       name: appUser?.name ?? null,
       role: appUser?.role ?? null,
       image: appUser?.image ?? null,
