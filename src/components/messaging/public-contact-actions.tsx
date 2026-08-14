@@ -16,14 +16,32 @@ type Context = {
   unavailable?: boolean;
 };
 
+// A page can mount several of these for the same recipient (contact panel + report
+// button), and each mount otherwise fired its own uncached request. Share the in-flight
+// promise per recipient, the way navigation-state.ts does for identity.
+const contextRequests = new Map<string, Promise<Context>>();
+
+function loadContactContext(recipientId: string) {
+  const existing = contextRequests.get(recipientId);
+  if (existing) return existing;
+
+  const request = fetch(`/api/messaging/context?recipientId=${encodeURIComponent(recipientId)}`, { cache: "no-store" })
+    .then(async (response) => response.ok ? response.json() as Promise<Context> : Promise.reject())
+    .catch((): Context => {
+      // Don't cache a failure — the next mount should be able to retry.
+      contextRequests.delete(recipientId);
+      return { signedIn: false, unavailable: true };
+    });
+
+  contextRequests.set(recipientId, request);
+  return request;
+}
+
 function useContactContext(recipientId: string) {
   const [context, setContext] = useState<Context | null>(null);
   useEffect(() => {
     let active = true;
-    void fetch(`/api/messaging/context?recipientId=${encodeURIComponent(recipientId)}`, { cache: "no-store" })
-      .then(async (response) => response.ok ? response.json() as Promise<Context> : Promise.reject())
-      .then((next) => { if (active) setContext(next); })
-      .catch(() => { if (active) setContext({ signedIn: false, unavailable: true }); });
+    void loadContactContext(recipientId).then((next) => { if (active) setContext(next); });
     return () => { active = false; };
   }, [recipientId]);
   return context;

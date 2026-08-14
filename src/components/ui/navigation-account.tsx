@@ -1,29 +1,40 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { NAVIGATION_REFRESH_EVENT, loadNavigationState, type NavigationState } from "@/lib/navigation-state";
-import { UserMenu } from "./_user-menu";
+import { NAVIGATION_REFRESH_EVENT, loadNavigationState, readCachedNavigationState, type NavigationState } from "@/lib/navigation-state";
+
+// Radix's dropdown primitive is the single largest chunk in the shared shell, and only
+// signed-in visitors ever render it. Loading it on demand keeps it out of first load on
+// every public page.
+const UserMenu = dynamic(() => import("./_user-menu").then((mod) => mod.UserMenu));
 
 export function NavigationAccount() {
+  // Starts null so the client render matches the prerendered signed-out shell; the
+  // sessionStorage seed is applied in the effect below, before the network settles.
   const [state, setState] = useState<NavigationState | null>(null);
-  const pathname = usePathname();
 
   useEffect(() => {
     let active = true;
-    const load = (force = false) => void loadNavigationState(force).then((next) => {
-      if (active) setState(next);
-    });
-    load(true);
-    const refresh = () => load(true);
-    window.addEventListener(NAVIGATION_REFRESH_EVENT, refresh);
+    const apply = (next: NavigationState | null) => {
+      if (active && next) setState(next);
+    };
+    const load = () => {
+      // Paint the last known identity first, then reconcile with the server. On a
+      // refresh event the cache has already been cleared, so this resolves null and
+      // only the network result applies — a sign-out can never be re-seeded stale.
+      void Promise.resolve(readCachedNavigationState()).then(apply);
+      void loadNavigationState(true).then(apply);
+    };
+    load();
+    window.addEventListener(NAVIGATION_REFRESH_EVENT, load);
     return () => {
       active = false;
-      window.removeEventListener(NAVIGATION_REFRESH_EVENT, refresh);
+      window.removeEventListener(NAVIGATION_REFRESH_EVENT, load);
     };
-  }, [pathname]);
+  }, []);
 
   if (state?.signedIn) {
     return (
