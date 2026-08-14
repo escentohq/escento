@@ -14,6 +14,8 @@ const PUBLIC_PATHS = [
   "/privacy",
   "/terms",
   "/compliance",
+  "/musicians",
+  "/gigs",
 ];
 
 // Protected routes that must bounce a signed-out visitor to the sign-in page.
@@ -23,8 +25,6 @@ const PROTECTED_PATHS = [
   "/profile/create",
   "/gigs/create",
   "/gigs/manage",
-  "/musicians",
-  "/gigs",
 ];
 
 test.describe("app is alive", () => {
@@ -46,7 +46,7 @@ test.describe("app is alive", () => {
     ).not.toContainText(/Authentication Required/i);
 
     await expect(page).toHaveURL(/\/$/);
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/sound/i);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/musician|work/i);
 
     expect(serverErrors, `5xx responses on homepage: ${serverErrors.join(", ")}`).toHaveLength(0);
     expect(pageErrors, `uncaught errors on homepage: ${pageErrors.join(", ")}`).toHaveLength(0);

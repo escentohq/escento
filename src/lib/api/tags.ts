@@ -1,4 +1,7 @@
+import { unstable_cache } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabasePublicClient } from "@/lib/supabase/public";
+import { GENRES_TAG, INSTRUMENTS_TAG } from "@/lib/cache-tags";
 import { normalizeTagName } from "@/lib/form-utils";
 import type { Tag } from "./types";
 
@@ -30,8 +33,8 @@ async function ensureTags(table: TagTable, names: string[], userId: string): Pro
   return normalized.map((name) => tagsByName.get(name)).filter((tag): tag is Tag => Boolean(tag));
 }
 
-export async function listInstruments(): Promise<Tag[]> {
-  const supabase = await createSupabaseServerClient();
+async function queryInstruments(): Promise<Tag[]> {
+  const supabase = createSupabasePublicClient();
   const { data, error } = await supabase
     .from("instrument")
     .select("id, name")
@@ -41,8 +44,16 @@ export async function listInstruments(): Promise<Tag[]> {
   return data || [];
 }
 
-export async function listGenres(): Promise<Tag[]> {
-  const supabase = await createSupabaseServerClient();
+const getCachedInstruments = unstable_cache(queryInstruments, ["taxonomy-instruments"], {
+  tags: [INSTRUMENTS_TAG],
+});
+
+export async function listInstruments(): Promise<Tag[]> {
+  return getCachedInstruments();
+}
+
+async function queryGenres(): Promise<Tag[]> {
+  const supabase = createSupabasePublicClient();
   const { data, error } = await supabase
     .from("genre")
     .select("id, name")
@@ -50,6 +61,14 @@ export async function listGenres(): Promise<Tag[]> {
 
   if (error) throw error;
   return data || [];
+}
+
+const getCachedGenres = unstable_cache(queryGenres, ["taxonomy-genres"], {
+  tags: [GENRES_TAG],
+});
+
+export async function listGenres(): Promise<Tag[]> {
+  return getCachedGenres();
 }
 
 export async function ensureInstruments(names: string[], userId: string): Promise<Tag[]> {

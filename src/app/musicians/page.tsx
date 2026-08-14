@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
-import { requireUser } from "@/lib/auth-guards";
+import { DirectoryResultsSkeleton } from "@/components/ui/directory-results-skeleton";
 import { listInstruments, listGenres } from "@/lib/api/tags";
 import { listProfiles } from "@/lib/api/profiles";
 import { clampText, visibleTags } from "@/lib/display";
@@ -12,51 +14,22 @@ import { PrimaryCta } from "@/components/ui/primary-cta";
 import { LocationDirectoryFilters } from "@/components/location/location-directory-filters";
 import { parseSelectedTags } from "@/lib/tag-taxonomy";
 
-export default async function MusiciansPage({
-  searchParams,
+type ProfileFilters = Parameters<typeof listProfiles>[0];
+
+/**
+ * Split out so the page shell and filter bar stream immediately; only the result rows
+ * wait on the directory read.
+ */
+async function MusicianResults({
+  filters,
+  hasFilters,
 }: {
-  searchParams: Promise<{ q?: string; instrument?: string | string[]; genre?: string | string[]; locationDisplayName?: string; lat?: string; lng?: string; radius?: string; remote?: string }>;
+  filters: ProfileFilters;
+  hasFilters: boolean;
 }) {
-  const { q, instrument, genre, locationDisplayName, lat, lng, radius, remote } = await searchParams;
-  const locationSearch = parseLocationSearch({ q, lat, lng, radius, remote });
-  const selectedInstruments = parseSelectedTags(instrument);
-  const selectedGenres = parseSelectedTags(genre);
-
-  const [session, instruments, genres, profiles] = await Promise.all([
-    requireUser("/musicians"),
-    listInstruments(),
-    listGenres(),
-    listProfiles({ q: locationSearch.query, instruments: selectedInstruments, genres: selectedGenres, location: locationSearch }),
-  ]);
-
-  const hasFilters = Boolean(q || selectedInstruments.length || selectedGenres.length || locationDisplayName || radius || (remote && remote !== "include"));
-  const showCreateProfileCta = !session?.user || session.user.role === "MUSICIAN";
+  const profiles = await listProfiles(filters);
 
   return (
-    <PageShell
-      eyebrow="Directory"
-      title="Musicians"
-      body="Filter by instrument, genre, and location. Open a profile when the work fits."
-      action={showCreateProfileCta ? <PrimaryCta href="/profile/create">Create Profile</PrimaryCta> : null}
-    >
-        <div className="border-y border-rule py-5 md:py-6">
-          <LocationDirectoryFilters
-            action="/musicians"
-            clearHref="/musicians"
-            keyword={q}
-            locationDisplayName={locationDisplayName}
-            locationLat={lat}
-            locationLng={lng}
-            radius={radius}
-            remote={locationSearch.remoteFilter}
-            instrument={selectedInstruments}
-            instruments={instruments}
-            genre={selectedGenres}
-            genres={genres}
-            hasFilters={hasFilters}
-          />
-        </div>
-
       <section className="mt-10">
         {profiles.length === 0 ? (
           <EmptyState
@@ -68,9 +41,9 @@ export default async function MusiciansPage({
                 <Link href="/musicians" className="control-secondary">
                   Clear filters
                 </Link>
-              ) : showCreateProfileCta ? (
-                <PrimaryCta href="/profile/create">Create Profile</PrimaryCta>
-              ) : null
+              ) : (
+                <PrimaryCta href="/profile/create" prefetch={false}>Create Profile</PrimaryCta>
+              )
             }
           />
         ) : (
@@ -89,10 +62,12 @@ export default async function MusiciansPage({
                       <div className="flex min-w-0 items-center gap-3">
                         <div className="media-avatar flex h-11 w-11 flex-shrink-0 items-center justify-center overflow-hidden bg-[#E2E8F0] text-sm font-semibold text-ink">
                           {profile.image ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
+                            <Image
                               src={profile.image}
                               alt=""
+                              width={44}
+                              height={44}
+                              sizes="44px"
                               className="h-full w-full object-cover"
                             />
                           ) : (
@@ -151,6 +126,60 @@ export default async function MusiciansPage({
           </div>
         )}
       </section>
+  );
+}
+
+export default async function MusiciansPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; instrument?: string | string[]; genre?: string | string[]; locationDisplayName?: string; lat?: string; lng?: string; radius?: string; remote?: string }>;
+}) {
+  const { q, instrument, genre, locationDisplayName, lat, lng, radius, remote } = await searchParams;
+  const locationSearch = parseLocationSearch({ q, lat, lng, radius, remote });
+  const selectedInstruments = parseSelectedTags(instrument);
+  const selectedGenres = parseSelectedTags(genre);
+
+  // Only the taxonomy is awaited here — it drives the filter bar, which should paint
+  // straight away. The directory read happens inside the Suspense boundary below.
+  const [instruments, genres] = await Promise.all([
+    listInstruments(),
+    listGenres(),
+  ]);
+
+  const filters = { q: locationSearch.query, instruments: selectedInstruments, genres: selectedGenres, location: locationSearch };
+  // Re-keying on the filters makes a filter change show the skeleton again rather than
+  // holding the previous results while the new ones resolve.
+  const resultsKey = JSON.stringify(filters);
+  const hasFilters = Boolean(q || selectedInstruments.length || selectedGenres.length || locationDisplayName || radius || (remote && remote !== "include"));
+
+  return (
+    <PageShell
+      eyebrow="Directory"
+      title="Musicians"
+      body="Filter by instrument, genre, and location. Open a profile when the work fits."
+      action={<PrimaryCta href="/profile/create" prefetch={false}>Create Profile</PrimaryCta>}
+    >
+        <div className="border-y border-rule py-5 md:py-6">
+          <LocationDirectoryFilters
+            action="/musicians"
+            clearHref="/musicians"
+            keyword={q}
+            locationDisplayName={locationDisplayName}
+            locationLat={lat}
+            locationLng={lng}
+            radius={radius}
+            remote={locationSearch.remoteFilter}
+            instrument={selectedInstruments}
+            instruments={instruments}
+            genre={selectedGenres}
+            genres={genres}
+            hasFilters={hasFilters}
+          />
+        </div>
+
+      <Suspense key={resultsKey} fallback={<DirectoryResultsSkeleton />}>
+        <MusicianResults filters={filters} hasFilters={hasFilters} />
+      </Suspense>
     </PageShell>
   );
 }

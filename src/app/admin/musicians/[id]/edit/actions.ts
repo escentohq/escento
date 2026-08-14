@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { invalidatePublicProfile } from "@/lib/public-cache-invalidation";
 import { redirect } from "next/navigation";
 
 import { requireAdminEmail } from "@/lib/admin-auth";
@@ -122,5 +123,7 @@ export async function adminUpdateMusicianProfileAction(
   revalidatePath(`/admin/musicians/${profileId}/edit`);
   revalidatePath("/musicians");
   revalidatePath(`/musicians/${profileId}`);
+  revalidatePath("/");
+  invalidatePublicProfile(profileId);
   redirect("/admin/musicians");
 }

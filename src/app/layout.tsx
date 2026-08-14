@@ -5,9 +5,6 @@ import { Archivo } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
-import { getCurrentSession } from "@/lib/auth-guards";
-import { getProfileByUserId } from "@/lib/api/profiles";
-import { getUnreadConversationSummariesForUser } from "@/lib/api/messaging";
 import { NavBar } from "@/components/ui/nav-bar";
 import { Footer } from "@/components/ui/footer";
 
@@ -58,30 +55,11 @@ const structuredData = [
   },
 ];
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getCurrentSession();
-
-  let musicianProfilePath: "/profile/create" | "/profile/edit" | null = null;
-  if (session?.user?.role === "MUSICIAN" && session?.user?.id) {
-    const existing = await getProfileByUserId(session.user.id);
-    musicianProfilePath = existing ? "/profile/edit" : "/profile/create";
-  }
-
-  const isCreator = session?.user?.role === "CREATOR";
-  let unreadConversationCount = 0;
-  if (session?.user?.id && session.user.role) {
-    try {
-      const unread = await getUnreadConversationSummariesForUser(session.user.id);
-      unreadConversationCount = unread.length;
-    } catch (error) {
-      console.error("[layout] unread messaging badge failed:", error);
-    }
-  }
-
   return (
     <html lang="en" className={archivo.variable}>
       <head>
@@ -91,16 +69,7 @@ export default async function RootLayout({
         />
       </head>
       <body className="flex min-h-screen flex-col bg-paper text-ink antialiased">
-        <NavBar
-          signedIn={!!session?.user}
-          email={session?.user?.email}
-          role={session?.user?.role}
-          name={session?.user?.name}
-          image={session?.user?.image}
-          musicianProfilePath={musicianProfilePath}
-          isCreator={isCreator}
-          unreadConversationCount={unreadConversationCount}
-        />
+        <NavBar />
 
         <main className="flex-1">{children}</main>
 

@@ -29,7 +29,7 @@ abstractions.
 | `EmptyState` | `src/components/ui/empty-state.tsx` | Rule-separated empty state with an optional CTA |
 | `PageLoading` | `src/components/ui/page-loading.tsx` | Static route skeleton matching list composition |
 | `RouteError` | `src/components/ui/route-error.tsx` | Route error boundary content and retry action |
-| `NavBar` | `src/components/ui/nav-bar.tsx` | Solid sticky navigation; horizontal secondary links below `lg` |
+| `NavBar` | `src/components/ui/nav-bar.tsx` | Static solid shell; `NavigationAccount` hydrates private identity/unread state independently |
 | `Footer` | `src/components/ui/footer.tsx` | Product and legal navigation |
 | `Input` | `src/components/ui/input.tsx` | Shared text control with invalid state |
 | `Textarea` | `src/components/ui/textarea.tsx` | Shared multiline control with invalid state |

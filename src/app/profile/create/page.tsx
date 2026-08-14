@@ -8,14 +8,17 @@ import { ProfileForm } from "../_profile-form";
 import { createMusicianProfileAction } from "./actions";
 
 export default async function CreateProfilePage() {
+  // Taxonomy depends on neither the session nor the profile; start it first so it
+  // overlaps both reads. The no-op catch keeps a redirect from surfacing as an
+  // unhandled rejection when we unwind before awaiting it.
+  const tagsPromise = Promise.all([listInstruments(), listGenres()]);
+  tagsPromise.catch(() => {});
+
   const session = await requireRole("MUSICIAN", "/profile/create");
 
   const existing = await getProfileByUserId(session.user.id);
   if (existing) redirect("/profile/edit");
-  const [instruments, genres] = await Promise.all([
-    listInstruments(),
-    listGenres(),
-  ]);
+  const [instruments, genres] = await tagsPromise;
 
   return (
     <PageShell

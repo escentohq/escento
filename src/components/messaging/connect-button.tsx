@@ -39,6 +39,7 @@ export function ConnectButton({
     return (
       <Link
         href={`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+        prefetch={false}
         className="mt-5 flex w-full cursor-pointer items-center justify-between bg-brand px-5 py-3 text-control text-white transition-colors hover:bg-white hover:text-ink focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
       >
         <span>Sign in to Connect</span>
@@ -107,12 +108,29 @@ export function ConnectButton({
 
   function connect() {
     setError(null);
+    const previous = state;
+    const now = new Date().toISOString();
+    setState({
+      status: "pending_outgoing",
+      request: {
+        id: `optimistic-${Date.now()}`,
+        requesterId: "",
+        recipientId,
+        status: "pending",
+        introMessage: introMessage ?? null,
+        createdAt: now,
+        updatedAt: now,
+        acceptedAt: null,
+        rejectedAt: null,
+      },
+    });
     startTransition(async () => {
       try {
         const request = await sendConnectionRequest(recipientId, introMessage);
         setState({ status: "pending_outgoing", request });
         router.refresh();
       } catch {
+        setState(previous);
         setError("Could not send this request.");
       }
     });

@@ -1,17 +1,13 @@
+import { Suspense } from "react";
+
 import { AdminNavLinks } from "@/components/admin/admin-nav-links";
 import { Chip } from "@/components/ui/chip";
 import { getOpenReportCount } from "@/lib/api/reports";
 
-export async function AdminNav({
+function adminLinks({
+  reportsBadgeCount = 0,
   supportBadgeCount = 0,
-}: { supportBadgeCount?: number } = {}) {
-  let reportsBadgeCount = 0;
-  try {
-    reportsBadgeCount = await getOpenReportCount();
-  } catch (error) {
-    console.error("[admin] report badge count failed", error);
-  }
-
+}: { reportsBadgeCount?: number; supportBadgeCount?: number }) {
   const links = [
     { href: "/admin", label: "Dashboard" },
     { href: "/admin/users", label: "Users" },
@@ -24,6 +20,31 @@ export async function AdminNav({
   ];
 
   return <AdminNavLinks links={links} />;
+}
+
+/**
+ * The nav renders on every admin page and used to block it on a report count query.
+ * The links paint with a zero badge, then the real count streams in behind Suspense.
+ */
+async function AdminNavWithReportCount({ supportBadgeCount }: { supportBadgeCount: number }) {
+  let reportsBadgeCount = 0;
+  try {
+    reportsBadgeCount = await getOpenReportCount();
+  } catch (error) {
+    console.error("[admin] report badge count failed", error);
+  }
+
+  return adminLinks({ reportsBadgeCount, supportBadgeCount });
+}
+
+export function AdminNav({
+  supportBadgeCount = 0,
+}: { supportBadgeCount?: number } = {}) {
+  return (
+    <Suspense fallback={adminLinks({ supportBadgeCount })}>
+      <AdminNavWithReportCount supportBadgeCount={supportBadgeCount} />
+    </Suspense>
+  );
 }
 
 export function AdminUnavailable({

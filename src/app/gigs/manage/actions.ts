@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 
 import { requireRole } from "@/lib/auth-guards";
 import { closeGig, deleteGig, getGigForCreator, reopenGig } from "@/lib/api/gigs";
+import { invalidatePublicGig } from "@/lib/public-cache-invalidation";
 
 async function ensureCreatorOwnsGig(gigId: string) {
   const session = await requireRole("CREATOR", "/gigs/manage");
@@ -20,6 +21,8 @@ export async function closeGigAction(gigId: string) {
   revalidatePath("/gigs");
   revalidatePath("/gigs/manage");
   revalidatePath(`/gigs/${gigId}`);
+  revalidatePath("/");
+  invalidatePublicGig(gigId);
   redirect("/gigs/manage");
 }
 
@@ -29,6 +32,8 @@ export async function reopenGigAction(gigId: string) {
   revalidatePath("/gigs");
   revalidatePath("/gigs/manage");
   revalidatePath(`/gigs/${gigId}`);
+  revalidatePath("/");
+  invalidatePublicGig(gigId);
   redirect("/gigs/manage");
 }
 
@@ -37,5 +42,7 @@ export async function deleteGigAction(gigId: string) {
   await deleteGig(gigId);
   revalidatePath("/gigs");
   revalidatePath("/gigs/manage");
+  revalidatePath("/");
+  invalidatePublicGig(gigId);
   redirect("/gigs/manage");
 }

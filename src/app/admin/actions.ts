@@ -25,6 +25,7 @@ import {
 import { nonEmptyOrNull, normalizeTagName, strOrEmpty } from "@/lib/form-utils";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { deleteUserCompletely } from "@/lib/user-deletion";
+import { invalidatePublicGig, invalidatePublicProfile } from "@/lib/public-cache-invalidation";
 
 const TARGET_TYPES = new Set<AdminTargetType>([
   "user",
@@ -69,6 +70,8 @@ export async function adminModerationAction(formData: FormData) {
   revalidatePath("/admin/musicians");
   revalidatePath("/admin/creators");
   revalidatePath("/admin/gigs");
+  if (targetType === "musician_profile") invalidatePublicProfile(targetId);
+  if (targetType === "gig") invalidatePublicGig(targetId);
 }
 
 export async function adminDeleteUserAction(formData: FormData) {
@@ -123,6 +126,8 @@ export async function adminDeleteUserAction(formData: FormData) {
   revalidatePath("/admin/musicians");
   revalidatePath("/admin/creators");
   revalidatePath("/admin/gigs");
+  invalidatePublicProfile();
+  invalidatePublicGig();
 }
 
 export async function adminAddTaxonomyTermAction(formData: FormData) {
@@ -137,6 +142,10 @@ export async function adminAddTaxonomyTermAction(formData: FormData) {
 
   await addTaxonomyTerm({ kind, name, createdBy: session.user.id });
   revalidatePath("/admin/taxonomy");
+  if (kind === "instrument" || kind === "genre") {
+    invalidatePublicProfile();
+    invalidatePublicGig();
+  }
 }
 
 export async function adminDeleteTaxonomyTermAction(formData: FormData) {
@@ -150,6 +159,8 @@ export async function adminDeleteTaxonomyTermAction(formData: FormData) {
 
   await deleteTaxonomyTerm(kind, id);
   revalidatePath("/admin/taxonomy");
+  invalidatePublicProfile();
+  invalidatePublicGig();
 }
 
 export async function adminSendSupportMessageAction(formData: FormData) {

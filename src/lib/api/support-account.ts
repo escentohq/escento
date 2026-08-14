@@ -1,4 +1,5 @@
 import { randomUUID } from "crypto";
+import { cache } from "react";
 
 import { MESSAGE_BODY_MAX_LENGTH } from "@/lib/api/messaging";
 import type { MessageRecord, MessagingUserSummary } from "@/lib/api/types";
@@ -101,7 +102,13 @@ async function findAuthUserByEmail(email: string) {
   return null;
 }
 
-export async function getEscentoSupportAccount(): Promise<MessagingUserSummary> {
+/**
+ * Resolves (and self-heals) the Escento system account. Every support read and write
+ * starts here, so a single admin page render used to run the whole chain three or more
+ * times. React cache() dedupes it to once per request; the self-healing writes below are
+ * unchanged, they just no longer repeat.
+ */
+export const getEscentoSupportAccount = cache(async (): Promise<MessagingUserSummary> => {
   const supabase = createSupabaseAdminClient();
   const email = getEscentoSupportAccountEmail();
 
@@ -192,7 +199,7 @@ export async function getEscentoSupportAccount(): Promise<MessagingUserSummary> 
 
   if (upsertError) throw upsertError;
   return toSupportUser(supportUser);
-}
+});
 
 export async function searchUsersForSupport(query: string): Promise<SupportUserSearchResult[]> {
   const supabase = createSupabaseAdminClient();

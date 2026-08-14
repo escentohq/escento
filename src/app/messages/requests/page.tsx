@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { requireUser } from "@/lib/auth-guards";
 import {
@@ -93,8 +94,7 @@ export default async function MessageRequestsPage() {
                     <div className="flex gap-4">
                       <div className="media-avatar h-12 w-12 shrink-0 overflow-hidden bg-[#F1F5F9]">
                         {user?.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={user.image} alt="" className="h-full w-full object-cover" />
+                          <Image src={user.image} alt="" width={48} height={48} sizes="48px" className="h-full w-full object-cover" />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center bg-[#0055FF]/10 text-control text-brand">
                             {initials(name)}

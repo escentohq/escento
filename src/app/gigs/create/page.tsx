@@ -5,11 +5,14 @@ import { GigForm } from "../_gig-form";
 import { createGigAction } from "./actions";
 
 export default async function CreateGigPage() {
+  // Taxonomy is public and session-independent, so it loads alongside the auth check
+  // instead of after it. The no-op catch keeps a redirect from surfacing as an
+  // unhandled rejection when the guard unwinds before we await.
+  const tagsPromise = Promise.all([listInstruments(), listGenres()]);
+  tagsPromise.catch(() => {});
+
   await requireRole("CREATOR", "/gigs/create");
-  const [instruments, genres] = await Promise.all([
-    listInstruments(),
-    listGenres(),
-  ]);
+  const [instruments, genres] = await tagsPromise;
 
   return (
     <PageShell

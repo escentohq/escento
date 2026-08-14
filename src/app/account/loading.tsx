@@ -1,5 +1,5 @@
 import { PageLoading } from "@/components/ui/page-loading";
 
 export default function AccountLoading() {
-  return <PageLoading />;
+  return <PageLoading cards={4} kind="form" />;
 }

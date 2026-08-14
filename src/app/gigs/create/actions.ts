@@ -18,6 +18,7 @@ import {
 } from "@/lib/form-utils";
 import { gigValuesFromFormData } from "@/lib/form-snapshots";
 import { parseStructuredLocation, validateStructuredLocation } from "@/lib/location";
+import { invalidatePublicGig } from "@/lib/public-cache-invalidation";
 
 export async function createGigAction(_state: ActionState, fd: FormData): Promise<ActionState> {
   const session = await requireRole("CREATOR", "/gigs/create");
@@ -81,5 +82,7 @@ export async function createGigAction(_state: ActionState, fd: FormData): Promis
 
   revalidatePath("/gigs");
   revalidatePath("/gigs/manage");
+  revalidatePath("/");
+  invalidatePublicGig(gig.id);
   redirect(`/gigs/${gig.id}`);
 }

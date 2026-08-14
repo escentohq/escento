@@ -7,12 +7,14 @@ type Props = {
   icon?: LucideIcon;
   className?: string;
   badgeCount?: number;
+  prefetch?: boolean;
 };
 
-export function PrimaryCta({ href, children, icon: Icon, className = "", badgeCount = 0 }: Props) {
+export function PrimaryCta({ href, children, icon: Icon, className = "", badgeCount = 0, prefetch }: Props) {
   return (
     <Link
       href={href}
+      prefetch={prefetch}
       className={`relative inline-flex min-h-12 min-w-0 items-center justify-center gap-2 border border-brand bg-brand px-6 py-3 text-center text-control text-white transition-colors duration-150 hover:border-brand-hover hover:bg-brand-hover active:border-brand-pressed active:bg-brand-pressed focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 ${className}`}
     >
       <span className="relative z-10 min-w-0">{children}</span>

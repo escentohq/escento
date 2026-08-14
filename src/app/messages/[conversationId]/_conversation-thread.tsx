@@ -6,6 +6,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 
 import { markConversationAsRead, sendMessage } from "@/app/messages/actions";
 import type { MessageRecord } from "@/lib/api/types";
+import { refreshNavigationState } from "@/lib/navigation-state";
 
 function formatTime(value: string) {
   return new Intl.DateTimeFormat("en-US", {
@@ -45,7 +46,10 @@ export function ConversationThread({
     let cancelled = false;
     async function markRead() {
       await markConversationAsRead(conversationId).catch(() => {});
-      if (!cancelled) router.refresh();
+      if (!cancelled) {
+        refreshNavigationState();
+        router.refresh();
+      }
     }
     void markRead();
     return () => {
@@ -67,12 +71,25 @@ export function ConversationThread({
     }
 
     setError(null);
+    const optimisticId = `optimistic-${Date.now()}`;
+    const optimisticMessage: MessageRecord = {
+      id: optimisticId,
+      conversationId,
+      senderId: currentUserId,
+      body: nextBody,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      deletedAt: null,
+    };
+    setMessages((current) => [...current, optimisticMessage]);
+    setBody("");
     startTransition(async () => {
       try {
         const message = await sendMessage(conversationId, nextBody);
-        setMessages((current) => [...current, message]);
-        setBody("");
+        setMessages((current) => current.map((item) => item.id === optimisticId ? message : item));
       } catch {
+        setMessages((current) => current.filter((item) => item.id !== optimisticId));
+        setBody(nextBody);
         setError("Message could not be sent.");
       }
     });

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 
 import { BackLink } from "@/components/ui/back-link";
 import { Chip } from "@/components/ui/chip";
@@ -7,7 +8,6 @@ import { requireUser } from "@/lib/auth-guards";
 import {
   getConversationForUser,
   getMessagingBlockStatusForUser,
-  markConversationReadForUser,
 } from "@/lib/api/messaging";
 import { getMessagingDisplayName, isEscentoSupportSummary } from "@/lib/support-identity";
 import { HideConversationButton } from "./_conversation-actions";
@@ -37,8 +37,6 @@ export default async function ConversationPage({
   const conversation = await getConversationForUser(session.user.id, conversationId);
   if (!conversation) notFound();
 
-  await markConversationReadForUser(session.user.id, conversationId);
-
   const other = conversation.otherParticipant?.user;
   const name = getMessagingDisplayName(other);
   const officialSupport = isEscentoSupportSummary(other);
@@ -59,8 +57,7 @@ export default async function ConversationPage({
             <div className="flex min-w-0 items-center gap-4">
               <div className="media-avatar h-12 w-12 shrink-0 overflow-hidden bg-[#F1F5F9]">
                 {other?.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={other.image} alt="" className="h-full w-full object-cover" />
+                  <Image src={other.image} alt="" width={48} height={48} sizes="48px" className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-[#0055FF]/10 text-control text-brand">
                     {initials(name)}

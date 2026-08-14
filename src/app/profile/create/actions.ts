@@ -17,6 +17,7 @@ import {
 import { parseStructuredLocation } from "@/lib/location";
 import { profileValuesFromFormData } from "@/lib/form-snapshots";
 import { requireRole } from "@/lib/auth-guards";
+import { invalidatePublicProfile } from "@/lib/public-cache-invalidation";
 
 function validateProfile(fd: FormData) {
   const fieldErrors: Record<string, string> = {};
@@ -133,5 +134,6 @@ export async function createMusicianProfileAction(
 
   revalidatePath("/");
   revalidatePath("/musicians");
+  invalidatePublicProfile(profile.id);
   redirect(`/musicians/${profile.id}`);
 }

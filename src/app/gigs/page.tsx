@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import Link from "next/link";
 
-import { requireUser } from "@/lib/auth-guards";
+import { DirectoryResultsSkeleton } from "@/components/ui/directory-results-skeleton";
+
 import { listInstruments, listGenres } from "@/lib/api/tags";
 import { listOpenGigs } from "@/lib/api/gigs";
 import {
@@ -18,58 +20,22 @@ import { PrimaryCta } from "@/components/ui/primary-cta";
 import { LocationDirectoryFilters } from "@/components/location/location-directory-filters";
 import { parseSelectedTags } from "@/lib/tag-taxonomy";
 
-export default async function GigsPage({
-  searchParams,
+type GigFilters = Parameters<typeof listOpenGigs>[0];
+
+/**
+ * Split out so the page shell and filter bar stream immediately; only the result rows
+ * wait on the gig read.
+ */
+async function GigResults({
+  filters,
+  hasFilters,
 }: {
-  searchParams: Promise<{ q?: string; projectType?: string; instrument?: string | string[]; genre?: string | string[]; locationDisplayName?: string; lat?: string; lng?: string; radius?: string; remote?: string }>;
+  filters: GigFilters;
+  hasFilters: boolean;
 }) {
-  const { q, projectType, instrument, genre, locationDisplayName, lat, lng, radius, remote } = await searchParams;
-  const safeProjectType = PROJECT_TYPES.find((type) => type === projectType);
-  const locationSearch = parseLocationSearch({ q, lat, lng, radius, remote });
-  const selectedInstruments = parseSelectedTags(instrument);
-  const selectedGenres = parseSelectedTags(genre);
-  const projectTypeOptions = PROJECT_TYPES.map((type) => ({
-    value: type,
-    label: projectTypeLabel(type),
-  }));
-
-  const [session, instruments, genres, gigs] = await Promise.all([
-    requireUser("/gigs"),
-    listInstruments(),
-    listGenres(),
-    listOpenGigs({ q: locationSearch.query, projectType: safeProjectType, instruments: selectedInstruments, genres: selectedGenres, location: locationSearch }),
-  ]);
-
-  const hasFilters = Boolean(q || safeProjectType || selectedInstruments.length || selectedGenres.length || locationDisplayName || radius || (remote && remote !== "include"));
-  const showPostGigCta = !session?.user || session.user.role === "CREATOR";
+  const gigs = await listOpenGigs(filters);
 
   return (
-    <PageShell
-      eyebrow="Open calls"
-      title="Gigs"
-      body="Find projects hiring musicians for film, podcasts, games, and live work."
-      action={showPostGigCta ? <PrimaryCta href="/gigs/create">Post a Gig</PrimaryCta> : null}
-    >
-        <div className="border-y border-rule py-5 md:py-6">
-          <LocationDirectoryFilters
-            action="/gigs"
-            clearHref="/gigs"
-            keyword={q}
-            locationDisplayName={locationDisplayName}
-            locationLat={lat}
-            locationLng={lng}
-            radius={radius}
-            remote={locationSearch.remoteFilter}
-            projectType={safeProjectType}
-            projectTypeOptions={projectTypeOptions}
-            instrument={selectedInstruments}
-            instruments={instruments}
-            genre={selectedGenres}
-            genres={genres}
-            hasFilters={hasFilters}
-          />
-        </div>
-
       <section className="mt-10">
         {gigs.length === 0 ? (
           <EmptyState
@@ -79,9 +45,9 @@ export default async function GigsPage({
             cta={
               hasFilters ? (
                 <Link href="/gigs" className="control-secondary">Clear filters</Link>
-              ) : showPostGigCta ? (
-                <PrimaryCta href="/gigs/create">Post a Gig</PrimaryCta>
-              ) : null
+              ) : (
+                <PrimaryCta href="/gigs/create" prefetch={false}>Post a Gig</PrimaryCta>
+              )
             }
           />
         ) : (
@@ -144,6 +110,67 @@ export default async function GigsPage({
           </div>
         )}
       </section>
+  );
+}
+
+export default async function GigsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; projectType?: string; instrument?: string | string[]; genre?: string | string[]; locationDisplayName?: string; lat?: string; lng?: string; radius?: string; remote?: string }>;
+}) {
+  const { q, projectType, instrument, genre, locationDisplayName, lat, lng, radius, remote } = await searchParams;
+  const safeProjectType = PROJECT_TYPES.find((type) => type === projectType);
+  const locationSearch = parseLocationSearch({ q, lat, lng, radius, remote });
+  const selectedInstruments = parseSelectedTags(instrument);
+  const selectedGenres = parseSelectedTags(genre);
+  const projectTypeOptions = PROJECT_TYPES.map((type) => ({
+    value: type,
+    label: projectTypeLabel(type),
+  }));
+
+  // Only the taxonomy is awaited here — it drives the filter bar, which should paint
+  // straight away. The gig read happens inside the Suspense boundary below.
+  const [instruments, genres] = await Promise.all([
+    listInstruments(),
+    listGenres(),
+  ]);
+
+  const filters = { q: locationSearch.query, projectType: safeProjectType, instruments: selectedInstruments, genres: selectedGenres, location: locationSearch };
+  // Re-keying on the filters makes a filter change show the skeleton again rather than
+  // holding the previous results while the new ones resolve.
+  const resultsKey = JSON.stringify(filters);
+  const hasFilters = Boolean(q || safeProjectType || selectedInstruments.length || selectedGenres.length || locationDisplayName || radius || (remote && remote !== "include"));
+
+  return (
+    <PageShell
+      eyebrow="Open calls"
+      title="Gigs"
+      body="Find projects hiring musicians for film, podcasts, games, and live work."
+      action={<PrimaryCta href="/gigs/create" prefetch={false}>Post a Gig</PrimaryCta>}
+    >
+        <div className="border-y border-rule py-5 md:py-6">
+          <LocationDirectoryFilters
+            action="/gigs"
+            clearHref="/gigs"
+            keyword={q}
+            locationDisplayName={locationDisplayName}
+            locationLat={lat}
+            locationLng={lng}
+            radius={radius}
+            remote={locationSearch.remoteFilter}
+            projectType={safeProjectType}
+            projectTypeOptions={projectTypeOptions}
+            instrument={selectedInstruments}
+            instruments={instruments}
+            genre={selectedGenres}
+            genres={genres}
+            hasFilters={hasFilters}
+          />
+        </div>
+
+      <Suspense key={resultsKey} fallback={<DirectoryResultsSkeleton />}>
+        <GigResults filters={filters} hasFilters={hasFilters} />
+      </Suspense>
     </PageShell>
   );
 }
