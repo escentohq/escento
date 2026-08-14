@@ -17,16 +17,20 @@ export default async function EditGigPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+
+  // Taxonomy depends on neither the session nor the gig; start it first so it overlaps
+  // the auth check and the gig read. The no-op catch keeps a redirect from surfacing as
+  // an unhandled rejection when we unwind before awaiting it.
+  const tagsPromise = Promise.all([listInstruments(), listGenres()]);
+  tagsPromise.catch(() => {});
+
   const session = await requireRole("CREATOR", `/gigs/${id}/edit`);
 
   if (!isValidId(id)) redirect("/gigs/manage");
 
   const gig = await getGigForCreator(id, session.user.id);
   if (!gig) redirect("/gigs/manage");
-  const [instruments, genres] = await Promise.all([
-    listInstruments(),
-    listGenres(),
-  ]);
+  const [instruments, genres] = await tagsPromise;
   const updateAction = updateGigAction.bind(null, id);
 
   return (

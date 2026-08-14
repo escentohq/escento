@@ -59,11 +59,14 @@ export default async function AdminSupportPage({
   let conversation: SupportConversationForAdmin | null = null;
 
   try {
-    supportInbox = await listSupportInboxForAdmin();
-    users = query ? await searchUsersForSupport(query) : [];
-    if (selectedUserId) {
-      conversation = await getSupportConversationForAdmin(selectedUserId);
-    }
+    // These three are independent and individually expensive — each one re-resolves the
+    // support account and walks the conversation tables. Running them concurrently turns
+    // the page's three serial round-trip chains into one.
+    [supportInbox, users, conversation] = await Promise.all([
+      listSupportInboxForAdmin(),
+      query ? searchUsersForSupport(query) : Promise.resolve([]),
+      selectedUserId ? getSupportConversationForAdmin(selectedUserId) : Promise.resolve(null),
+    ]);
   } catch (error) {
     console.error("[admin-support] support data failed", error);
     return <AdminSetupRequired />;
