@@ -53,6 +53,30 @@ function toProfile(
   };
 }
 
+/**
+ * The select strings below are composed from constants rather than written inline, which
+ * means PostgREST can no longer infer the row shape. The normalizers above already take
+ * `any`, so rows are read through this loose type.
+ */
+type ProfileRow = { user_id: string } & Record<string, any>;
+
+const PROFILE_TAG_JOINS = "musician_instrument(instrument(name)), musician_genre(genre(name))";
+
+/** Columns `toProfile` actually reads. `select("*")` pulled junction-row columns that are discarded. */
+const PROFILE_COLUMNS = [
+  "id", "user_id", "display_name", "bio", "school",
+  "location", "location_display_name", "location_place_id", "location_lat", "location_lng",
+  "location_city", "location_state", "location_country", "location_provider", "provider_place_id",
+  "location_visibility", "is_remote", "seeking_paid", "seeking_unpaid", "years_experience",
+  "availability_text", "instagram_url", "youtube_url", "spotify_url", "soundcloud_url",
+  "website_url", "created_at", "updated_at",
+].join(", ");
+
+/** Public reads never render contact_email, so it is not selected at all. */
+const PUBLIC_PROFILE_SELECT = `${PROFILE_COLUMNS}, ${PROFILE_TAG_JOINS}`;
+/** The owner's own profile needs the contact email for the edit form. */
+const OWNER_PROFILE_SELECT = `${PROFILE_COLUMNS}, contact_email, ${PROFILE_TAG_JOINS}`;
+
 function toPublicProfile(raw: any, distance?: number | null, image?: string | null) {
   return {
     ...toProfile(raw, distance, image),
@@ -91,9 +115,9 @@ async function queryPublicProfile(id: string): Promise<MusicianProfile | null> {
   const supabase = createSupabasePublicClient();
   const { data, error } = await supabase
     .from("musician_profile")
-    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .select(PUBLIC_PROFILE_SELECT)
     .eq("id", id)
-    .single();
+    .single<ProfileRow>();
 
   if (error && error.code !== "PGRST116") throw error;
   if (!data) return null;
@@ -114,9 +138,9 @@ export const getProfileByUserId = cache(async (userId: string): Promise<Musician
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("musician_profile")
-    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .select(OWNER_PROFILE_SELECT)
     .eq("user_id", userId)
-    .single();
+    .single<ProfileRow>();
 
   if (error && error.code !== "PGRST116") throw error;
   if (!data) return null;
@@ -148,24 +172,37 @@ function safeSearchPattern(value: string) {
   return value.replace(/[,%()]/g, " ").trim();
 }
 
-async function queryPublicProfiles(filters?: ListProfilesFilters): Promise<MusicianProfile[]> {
+async function queryPublicProfiles(): Promise<MusicianProfile[]> {
   const supabase = createSupabasePublicClient();
 
-  let query = supabase
+  const { data, error } = await supabase
     .from("musician_profile")
-    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
+    .select(PUBLIC_PROFILE_SELECT)
     .order("updated_at", { ascending: false });
-
-  const q = filters?.q ? safeSearchPattern(filters.q) : "";
-
-  const { data, error } = await query;
 
   if (error) throw error;
 
-  const images = await getProfileImages((data ?? []).map((raw) => raw.user_id));
-  let profiles = (data || []).map((raw) =>
+  const images = await getProfileImages((data ?? []).map((raw: any) => raw.user_id));
+  return (data || []).map((raw: any) =>
     toPublicProfile(raw, null, images.get(raw.user_id) ?? null),
   );
+}
+
+/**
+ * One cache entry for the whole public directory. Every filter below is applied in JS
+ * anyway — the query never pushed `q`, instruments, genres, or location into SQL — so
+ * keying the cache per filter combination just meant every novel search string paid a
+ * full table read. This way `?q=jazz` and `?q=blues` both hit the same warm entry.
+ */
+const getCachedPublicProfiles = unstable_cache(
+  queryPublicProfiles,
+  ["public-musicians"],
+  { tags: [PUBLIC_MUSICIANS_TAG, PUBLIC_HOME_TAG] },
+);
+
+function filterProfiles(all: MusicianProfile[], filters?: ListProfilesFilters): MusicianProfile[] {
+  let profiles = all;
+  const q = filters?.q ? safeSearchPattern(filters.q) : "";
   const location = filters?.location;
   const instrumentFilters = filters?.instruments ?? [];
   const genreFilters = filters?.genres ?? [];
@@ -234,11 +271,7 @@ async function queryPublicProfiles(filters?: ListProfilesFilters): Promise<Music
 }
 
 export async function listProfiles(filters?: ListProfilesFilters): Promise<MusicianProfile[]> {
-  return unstable_cache(
-    () => queryPublicProfiles(filters),
-    ["public-musicians", JSON.stringify(filters ?? {})],
-    { tags: [PUBLIC_MUSICIANS_TAG, PUBLIC_HOME_TAG] },
-  )();
+  return filterProfiles(await getCachedPublicProfiles(), filters);
 }
 
 export async function createProfile(
