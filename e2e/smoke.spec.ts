@@ -1,36 +1,15 @@
 import { test, expect } from "@playwright/test";
 
+import { MIXED_PATHS, PROTECTED_PATHS, PUBLIC_PATHS } from "./route-inventory";
+
 /**
  * Read-only smoke checks. Every case is signed-out and never writes data, so
  * this is safe to run against the live Supabase-backed deployment.
+ *
+ * The path lists come from `route-inventory.ts`, which the unit suite checks
+ * against the files on disk — so a new route cannot quietly avoid this suite by
+ * not being listed here.
  */
-
-// Public pages that must load without redirecting a signed-out visitor away.
-const PUBLIC_PATHS = [
-  "/signin",
-  "/signup",
-  "/forgot-password",
-  "/help",
-  "/privacy",
-  "/terms",
-  "/compliance",
-  "/musicians",
-  "/gigs",
-];
-
-// Protected routes that must bounce a signed-out visitor to the sign-in page.
-const PROTECTED_PATHS = [
-  "/account",
-  "/messages",
-  "/profile/create",
-  // Every wizard step guards itself; middleware does not cover these.
-  "/profile/create/identity",
-  "/profile/create/craft",
-  "/profile/create/context",
-  "/profile/create/reach",
-  "/gigs/create",
-  "/gigs/manage",
-];
 
 test.describe("app is alive", () => {
   test("homepage renders the hero and stays on /", async ({ page }) => {
@@ -57,7 +36,7 @@ test.describe("app is alive", () => {
     expect(pageErrors, `uncaught errors on homepage: ${pageErrors.join(", ")}`).toHaveLength(0);
   });
 
-  for (const path of PUBLIC_PATHS) {
+  for (const path of [...PUBLIC_PATHS, ...MIXED_PATHS]) {
     test(`public page loads: ${path}`, async ({ page }) => {
       const response = await page.goto(path, { waitUntil: "domcontentloaded" });
       expect(response?.status(), `${path} HTTP status`).toBeLessThan(400);
