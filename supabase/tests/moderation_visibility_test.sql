@@ -48,6 +48,7 @@ values ('20000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-0000000
 insert into public.gig_instrument (gig_id, instrument_id)
 values ('30000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000001');
 
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
 set local role anon;
 select is((select count(*) from public.musician_profile where id = '20000000-0000-0000-0000-000000000001'), 1::bigint, 'anon can read an active public profile');
 select is((select count(*) from public.gig where id = '30000000-0000-0000-0000-000000000001'), 1::bigint, 'anon can read an active public open gig');
@@ -57,6 +58,7 @@ update public.musician_profile
 set is_public = false, moderation_status = 'hidden'
 where id = '20000000-0000-0000-0000-000000000001';
 
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
 set local role anon;
 select is((select count(*) from public.musician_profile where id = '20000000-0000-0000-0000-000000000001'), 0::bigint, 'anon cannot read a hidden profile');
 select is((select count(*) from public.musician_instrument where musician_profile_id = '20000000-0000-0000-0000-000000000001'), 0::bigint, 'anon cannot read hidden profile taxonomy');
@@ -79,6 +81,7 @@ update public.gig
 set is_public = false, moderation_status = 'hidden'
 where id = '30000000-0000-0000-0000-000000000001';
 
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
 set local role anon;
 select is((select count(*) from public.gig where id = '30000000-0000-0000-0000-000000000001'), 0::bigint, 'anon cannot read a hidden gig');
 select is((select count(*) from public.gig_instrument where gig_id = '30000000-0000-0000-0000-000000000001'), 0::bigint, 'anon cannot read hidden gig taxonomy');
@@ -104,6 +107,7 @@ where id in (
   '10000000-0000-0000-0000-000000000002'
 );
 
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
 set local role anon;
 select is((select count(*) from public.musician_profile where id = '20000000-0000-0000-0000-000000000001'), 0::bigint, 'a hidden account suppresses its otherwise-public profile');
 select is((select count(*) from public.gig where id = '30000000-0000-0000-0000-000000000001'), 0::bigint, 'a hidden account suppresses its otherwise-public gig');
@@ -126,6 +130,7 @@ where id in (
   '10000000-0000-0000-0000-000000000002'
 );
 
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
 set local role anon;
 select is((select count(*) from public.musician_profile where id = '20000000-0000-0000-0000-000000000001'), 1::bigint, 'restoring the account republishes its active profile');
 select is((select count(*) from public.gig where id = '30000000-0000-0000-0000-000000000001'), 1::bigint, 'restoring the account republishes its active open gig');
@@ -138,6 +143,7 @@ update public.gig
 set moderation_status = 'needs_review'
 where id = '30000000-0000-0000-0000-000000000001';
 
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
 set local role anon;
 select is((select count(*) from public.musician_profile where id = '20000000-0000-0000-0000-000000000001'), 0::bigint, 'needs-review profiles are not public');
 select is((select count(*) from public.gig where id = '30000000-0000-0000-0000-000000000001'), 0::bigint, 'needs-review gigs are not public');
