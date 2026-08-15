@@ -278,6 +278,8 @@ Messaging powers the V1 inbox, request inbox, conversation threads, unread badge
 - `getUnreadMessageCountForUser(userId)`
 - `getUnreadConversationSummariesForUser(userId)`
 
+After a new request or direct message is persisted, the service invokes the best-effort email helpers in `src/lib/messaging-notifications.ts`. Recipients come from the enriched `app_user` summaries (never a public profile contact field), links use `NEXT_PUBLIC_APP_URL`, and provider failure does not change the stored request/message result. Resend idempotency keys are derived from the persisted request/message ID. Request acceptance and other messaging state changes do not send email.
+
 ### Security model
 
 Server actions in `src/app/messages/actions.ts` derive the actor from `requireUser()` and pass that user id into the service layer. The migration also enables RLS on messaging tables, using participant/request/block ownership checks plus triggers for invariants that RLS cannot express cleanly.

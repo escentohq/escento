@@ -332,9 +332,12 @@ NEXT_PUBLIC_SUPABASE_URL=https://...supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...          # server-only; Supabase Dashboard → API Keys → service_role/secret
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+RESEND_API_KEY=re_...                   # server-only; transactional email delivery
+SUPPORT_FROM_EMAIL=Escento Support <support@example.com>
+NOTIFICATION_FROM_EMAIL=Escento <notifications@example.com> # optional; falls back to SUPPORT_FROM_EMAIL
 ```
 
-`NEXT_PUBLIC_APP_URL` is used in email redirect links for password reset and signup confirmation.
+`NEXT_PUBLIC_APP_URL` is the canonical origin used in password-reset, signup-confirmation, request-notification, and direct-message links. Resend sends support, report, connection-request, and direct-message email through `src/lib/resend-email.ts`; sender domains must be verified for unrestricted delivery. Messaging delivery is best-effort after persistence and uses the request/message ID as the Resend idempotency key.
 
 `SUPABASE_SERVICE_ROLE_KEY` is required for:
 - **Account deletion** (`auth.admin.deleteUser` in `deleteAccountAction`)

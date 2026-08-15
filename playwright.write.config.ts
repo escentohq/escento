@@ -110,7 +110,6 @@ export default defineConfig({
             ADMIN_EMAILS: "admin@example.test",
             SUPPORT_EMAIL: "support@example.test",
             ESCENTO_SUPPORT_ACCOUNT_EMAIL: "support@example.test",
-            RESEND_API_KEY: "re_placeholder",
             SUPPORT_FROM_EMAIL: "Escento Support <support@example.test>",
             GEOAPIFY_API_KEY: "placeholder",
           },

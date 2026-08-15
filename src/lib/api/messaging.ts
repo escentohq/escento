@@ -5,7 +5,6 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getEscentoSupportAccountEmail } from "@/lib/support-identity";
 import {
-  queueAcceptedConnectionRequestNotification,
   queueConnectionRequestNotification,
   queueMessageNotification,
 } from "@/lib/messaging-notifications";
@@ -504,18 +503,6 @@ export async function acceptConnectionRequestForUser(
   assertValidId(requestId, "request id");
 
   const supabase = await createSupabaseServerClient();
-  const { data: requestData, error: requestError } = await supabase
-    .from("conversation_requests")
-    .select(
-      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image, role), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image, role)",
-    )
-    .eq("id", requestId)
-    .eq("recipient_id", userId)
-    .eq("status", "pending")
-    .single();
-
-  if (requestError && requestError.code !== "PGRST116") throw requestError;
-
   const { data: conversationId, error } = await supabase.rpc(
     "messaging_accept_connection_request",
     { p_request_id: requestId },
@@ -529,11 +516,6 @@ export async function acceptConnectionRequestForUser(
   const conversation = await getConversationForUser(userId, String(conversationId));
   if (!conversation) {
     throw new MessagingError("database_error", "Conversation could not be loaded.");
-  }
-
-  if (requestData) {
-    const [request] = await enrichConnectionRequests([toConnectionRequest(requestData)]);
-    await queueAcceptedConnectionRequestNotification(request);
   }
 
   return conversation;
