@@ -47,13 +47,14 @@ export async function listAdminTaxonomy(kind: TaxonomyKind): Promise<AdminTaxono
 
   const musicianCounts = new Map<string, number>();
   for (const link of musicianLinks.data ?? []) {
-    const id = link[tables.musicianColumn];
+    // The join column is chosen at runtime from `tables`, so the row is indexed loosely.
+    const id = (link as unknown as Record<string, string>)[tables.musicianColumn];
     musicianCounts.set(id, (musicianCounts.get(id) ?? 0) + 1);
   }
 
   const gigCounts = new Map<string, number>();
   for (const link of gigLinks.data ?? []) {
-    const id = link[tables.gigColumn];
+    const id = (link as unknown as Record<string, string>)[tables.gigColumn];
     gigCounts.set(id, (gigCounts.get(id) ?? 0) + 1);
   }
 
