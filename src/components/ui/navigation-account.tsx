@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { NAVIGATION_REFRESH_EVENT, loadNavigationState, readCachedNavigationState, type NavigationState } from "@/lib/navigation-state";
@@ -15,6 +16,11 @@ export function NavigationAccount() {
   // Starts null so the client render matches the prerendered signed-out shell; the
   // sessionStorage seed is applied in the effect below, before the network settles.
   const [state, setState] = useState<NavigationState | null>(null);
+  // Signing in, signing up, and signing out are client transitions inside the same
+  // layout, so this component never remounted and the header kept whatever identity
+  // it resolved on first load — a fresh signup saw "Sign in / Sign up" until a hard
+  // reload. Re-resolving per path keeps the shell honest for every one of them.
+  const pathname = usePathname();
 
   useEffect(() => {
     let active = true;
@@ -34,7 +40,7 @@ export function NavigationAccount() {
       active = false;
       window.removeEventListener(NAVIGATION_REFRESH_EVENT, load);
     };
-  }, []);
+  }, [pathname]);
 
   if (state?.signedIn) {
     return (

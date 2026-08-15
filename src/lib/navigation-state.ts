@@ -9,7 +9,7 @@ export type NavigationState = {
   unreadConversationCount?: number;
 };
 
-let navigationRequest: Promise<NavigationState> | null = null;
+let navigationRequest: Promise<NavigationState | null> | null = null;
 
 export const NAVIGATION_REFRESH_EVENT = "escento:navigation-refresh";
 
@@ -45,7 +45,16 @@ function writeCachedNavigationState(state: NavigationState) {
   }
 }
 
-export function loadNavigationState(force = false) {
+/**
+ * Resolves the current identity, or `null` when the request itself failed.
+ *
+ * The distinction matters: a failed fetch used to resolve as `{ signedIn: false }`
+ * and then stay memoized, so one transient error left the header showing "Sign in"
+ * to a signed-in user for the rest of the page's life. A failure now clears the
+ * memo so the next call retries, and reports "unknown" so callers can keep
+ * whatever they already knew instead of downgrading to signed-out.
+ */
+export function loadNavigationState(force = false): Promise<NavigationState | null> {
   if (force) navigationRequest = null;
   if (!navigationRequest) {
     navigationRequest = fetch("/api/navigation", { cache: "no-store" })
@@ -55,7 +64,10 @@ export function loadNavigationState(force = false) {
         writeCachedNavigationState(state);
         return state;
       })
-      .catch(() => ({ signedIn: false }));
+      .catch(() => {
+        navigationRequest = null;
+        return null;
+      });
   }
 
   return navigationRequest;
