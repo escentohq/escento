@@ -50,6 +50,7 @@ export const ROUTE_INVENTORY: RouteEntry[] = [
   { pattern: "/terms", access: "public", smokePath: "/terms" },
   { pattern: "/compliance", access: "public", smokePath: "/compliance" },
   { pattern: "/help", access: "public", smokePath: "/help" },
+  { pattern: "/faq", access: "public", smokePath: "/faq" },
   { pattern: "/forgot-password", access: "public", smokePath: "/forgot-password" },
   { pattern: "/musicians", access: "public", smokePath: "/musicians" },
   { pattern: "/gigs", access: "public", smokePath: "/gigs" },
