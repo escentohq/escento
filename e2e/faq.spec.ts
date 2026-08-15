@@ -22,8 +22,12 @@ test.describe("/faq", () => {
         `question missing: ${item.id}`,
       ).toBeVisible();
 
-      // Answers must be expanded on arrival — a collapsed answer is not reliably indexed.
-      await expect(page.locator(`#${item.id} p`).first(), `answer hidden: ${item.id}`).toBeVisible();
+      // Answers ship collapsed, so assert the text is in the server HTML rather
+      // than visible — that is what indexing and the JSON-LD parity depend on.
+      await expect(
+        page.locator(`#${item.id} p`).first(),
+        `answer missing from HTML: ${item.id}`,
+      ).toHaveText(item.answer);
     }
   });
 

@@ -66,14 +66,10 @@ export default function FaqPage() {
 
               <div className="mt-6 border-t border-rule">
                 {section.items.map((item) => (
-                  // `open` by default: a collapsed answer is client state, and
-                  // Google indexes the server HTML. Everything here ships expanded.
-                  <details
-                    key={item.id}
-                    id={item.id}
-                    open
-                    className="group scroll-mt-24 border-b border-rule"
-                  >
+                  // Collapsed by default. The answer is still in the server HTML
+                  // either way — `<details>` ships its content whether or not it
+                  // is open — so indexing does not depend on the open attribute.
+                  <details key={item.id} id={item.id} className="group scroll-mt-24 border-b border-rule">
                     <summary className="flex cursor-pointer list-none items-start justify-between gap-4 py-5 [&::-webkit-details-marker]:hidden">
                       <h3 className="text-item-heading text-ink">{item.question}</h3>
                       <ChevronDown
