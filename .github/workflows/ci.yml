@@ -94,6 +94,9 @@ jobs:
             echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
           } >> "$GITHUB_ENV"
 
+      - name: Run database policy tests
+        run: supabase test db
+
       - name: Run write-flow E2E
         run: npm run test:e2e:write
 
