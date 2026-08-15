@@ -87,6 +87,7 @@ This table lists what is **actually installed**. If a library is not here, it is
 | OAuth | Google | — |
 | Analytics | `@vercel/analytics`, `@vercel/speed-insights` | `^2.0.1`, `^2.0.0` |
 | Lint | ESLint + `eslint-config-next` | `^9.35.0` |
+| Unit tests | Vitest | `^3.2.7` |
 | E2E | Playwright | `^1.60.0` |
 
 There is no animation library installed. `framer-motion` and `gsap` were removed once the overhaul left them with zero imports in `src/`; re-adding either needs approval per §Things to ask about before doing. Use a subtle CSS state transition only when interaction feedback needs it.
@@ -145,9 +146,26 @@ const session = await requireRole("CREATOR", "/gigs/create");
 **Rule.** Before creating a file, find the right folder. UI primitives → `src/components/ui/`. Feature components → `src/components/<feature>/`. Server helpers → `src/lib/`. Documentation → `docs/` (agent-facing docs → `docs/ai-context/`). Supabase schema/storage changes must be documented and confirmed when destructive.
 **Why.** Folder sprawl is the #1 source of duplication in this repo (see the duplicated `_ui.tsx` between `musicians/` and `gigs/`).
 
-### 10. Run lint + build before declaring done
-**Rule.** `npm run lint`, `npm run typecheck`, then `npm run build`. All must pass.
-**Why.** TypeScript catches missing props, Next catches RSC/client boundary violations, ESLint catches the rest.
+### 10. Run lint + unit + build before declaring done
+**Rule.** `npm run lint`, `npm run typecheck`, `npm run test:unit`, then `npm run build`. All must pass.
+**Why.** TypeScript catches missing props, Next catches RSC/client boundary violations, ESLint catches architecture drift, and the unit suite catches an unclassified route, an undocumented env var, or a broken normalizer. `test:unit` is sub-second — there is no reason to skip it.
+
+---
+
+## What CI enforces, so you do not have to check it by hand
+
+Several rules above stopped being prose. They now fail a build, with the rule named in the error:
+
+| Rule | Enforced by | Fails when |
+|---|---|---|
+| #2 mutations are Server Actions | `tests/unit/route-inventory.test.ts` | a `route.ts` appears outside `ALLOWED_ROUTE_HANDLERS` |
+| #3 Supabase via helpers / service layer | `eslint.config.mjs` (`no-restricted-imports`) | `@supabase/*` or `@/lib/supabase/*` is imported outside the service layer, auth plumbing, or middleware |
+| #4 protected routes call a guard | `tests/unit/route-inventory.test.ts` | a route classified `protected`/`admin` in `e2e/route-inventory.ts` calls no guard |
+| #6 no motion libraries | `eslint.config.mjs` | `framer-motion`, `gsap`, `lenis`, `three`, or `@react-three/*` is imported |
+| no gradients, frozen `globals.css` | `tests/unit/design-invariants.test.ts` | a gradient appears in `src/`, or a new class is added to `globals.css` |
+| env vars are documented | `tests/unit/env-contract.test.ts` | code reads a `process.env.X` missing from `.env.example` |
+
+**Adding a route means classifying it in `e2e/route-inventory.ts`.** That file is the single place declaring whether a signed-out visitor may load a page; the unit suite checks it against the files on disk, and the smoke suite derives its expectations from it.
 
 ---
 
@@ -170,7 +188,10 @@ const session = await requireRole("CREATOR", "/gigs/create");
 - [ ] `aria-hidden` on decorative icons; `aria-label` on icon-only buttons/links.
 - [ ] `npm run lint` passes.
 - [ ] `npm run typecheck` passes.
+- [ ] `npm run test:unit` passes.
 - [ ] `npm run build` passes.
+- [ ] Any new route is classified in `e2e/route-inventory.ts`.
+- [ ] Any schema change is a file in `supabase/migrations/`, not a dashboard-only edit.
 - [ ] No new dependencies were added without approval.
 - [ ] Reused existing helpers (`createSupabaseServerClient()`, `createSupabaseAdminClient()`, service layer in `src/lib/api/`, auth guards) — did not duplicate.
 

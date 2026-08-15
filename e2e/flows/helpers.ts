@@ -1,4 +1,4 @@
-import { expect, type Browser, type Page } from "@playwright/test";
+import { expect, type Browser, type Locator, type Page } from "@playwright/test";
 
 /**
  * Helpers for the write-flow E2E suite. These drive the real UI against a local
@@ -94,6 +94,23 @@ export async function createMusicianProfile(page: Page, displayName: string): Pr
 }
 
 /**
+ * Choose a `<select>` value and prove it stuck.
+ *
+ * A plain selectOption can land before hydration finishes, and the hydrating
+ * render then resets the element to its default — the form submits with the
+ * field empty and fails validation with "Choose a project type", which reads
+ * like a product bug rather than a race. Retrying the pair until the value holds
+ * makes the step deterministic.
+ */
+async function selectOptionStably(page: Page, name: string, value: string): Promise<void> {
+  const select = page.locator(`select[name="${name}"]`);
+  await expect(async () => {
+    await select.selectOption(value);
+    await expect(select).toHaveValue(value);
+  }).toPass({ timeout: 15_000 });
+}
+
+/**
  * Publish a gig from /gigs/create. Fills the required fields; isRemote defaults
  * on so no location is needed. Returns the gig id from the success redirect.
  */
@@ -105,8 +122,8 @@ export async function createGig(
   await expect(page).toHaveURL(/\/gigs\/create/);
   await page.locator('input[name="title"]').fill(opts.title);
   await page.locator('textarea[name="description"]').fill(opts.description);
-  await page.locator('select[name="projectType"]').selectOption(opts.projectType ?? "FILM");
-  await page.locator('select[name="compensationType"]').selectOption(opts.compensationType ?? "PAID");
+  await selectOptionStably(page, "projectType", opts.projectType ?? "FILM");
+  await selectOptionStably(page, "compensationType", opts.compensationType ?? "PAID");
   await page.getByRole("button", { name: "Publish Gig" }).click();
   // Exclude the create page itself: the form lives at /gigs/create which also
   // matches /gigs/<id>, so without the negative lookahead waitForURL resolves
@@ -153,11 +170,33 @@ export async function newMusicianWithProfile(
   return { page, profileId, ...credentials };
 }
 
+/**
+ * Click a button and keep clicking until the UI actually moves.
+ *
+ * Several controls here (Connect, Accept, Mark Filled) are client components
+ * whose behaviour lives in an `onClick`. A click that lands before hydration is
+ * a genuine no-op — no request, no state change — and since nothing re-clicks,
+ * the following assertion then burns its full timeout waiting for something that
+ * was never going to happen. It reads as a broken feature; it is a race.
+ *
+ * `count()` is re-checked each attempt, so once the first click has registered
+ * and the trigger is gone this only waits on the outcome. That keeps the retry
+ * from firing an action twice.
+ */
+export async function clickUntil(trigger: Locator, settled: Locator): Promise<void> {
+  await expect(async () => {
+    if ((await trigger.count()) > 0) await trigger.click();
+    await expect(settled.first()).toBeVisible({ timeout: 3_000 });
+  }).toPass({ timeout: 30_000 });
+}
+
 /** Send a connection request to a musician from their public profile. */
 export async function sendConnectRequest(page: Page, profileId: string): Promise<void> {
   await page.goto(`/musicians/${profileId}`);
-  await page.getByRole("button", { name: "Connect", exact: true }).click();
-  await expect(page.getByText("Pending")).toBeVisible();
+  await clickUntil(
+    page.getByRole("button", { name: "Connect", exact: true }),
+    page.getByText("Pending"),
+  );
 }
 
 /** Sign out from the account menu and land back on the homepage. */

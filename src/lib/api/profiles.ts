@@ -10,53 +10,12 @@ import { filterSearchResults } from "@/lib/search";
 import { tagMatchesQuery } from "@/lib/tag-taxonomy";
 import { ensureInstruments, ensureGenres } from "./tags";
 import type { MusicianProfile, CreateProfileInput, UpdateProfileInput } from "./types";
-
-function toProfile(
-  raw: any,
-  distance?: number | null,
-  image: string | null = raw.app_user?.image ?? null,
-): MusicianProfile {
-  return {
-    id: raw.id,
-    userId: raw.user_id,
-    image,
-    displayName: raw.display_name,
-    bio: raw.bio,
-    school: raw.school,
-    location: raw.location,
-    locationDisplayName: raw.location_display_name,
-    locationPlaceId: raw.location_place_id,
-    locationLat: raw.location_lat,
-    locationLng: raw.location_lng,
-    locationCity: raw.location_city,
-    locationState: raw.location_state,
-    locationCountry: raw.location_country,
-    locationProvider: raw.location_provider,
-    providerPlaceId: raw.provider_place_id,
-    locationVisibility: raw.location_visibility ?? "public_region",
-    isRemote: raw.is_remote,
-    distanceMiles: distance ?? null,
-    seekingPaid: raw.seeking_paid,
-    seekingUnpaid: raw.seeking_unpaid,
-    yearsExperience: raw.years_experience,
-    availabilityText: raw.availability_text,
-    contactEmail: raw.contact_email,
-    instagramUrl: raw.instagram_url,
-    youtubeUrl: raw.youtube_url,
-    spotifyUrl: raw.spotify_url,
-    soundcloudUrl: raw.soundcloud_url,
-    websiteUrl: raw.website_url,
-    createdAt: raw.created_at,
-    updatedAt: raw.updated_at,
-    instruments: raw.musician_instrument?.map((x: any) => x.instrument?.name).filter(Boolean) ?? [],
-    genres: raw.musician_genre?.map((x: any) => x.genre?.name).filter(Boolean) ?? [],
-  };
-}
+import { toProfile, toPublicProfile } from "./normalizers";
 
 /**
  * The select strings below are composed from constants rather than written inline, which
- * means PostgREST can no longer infer the row shape. The normalizers above already take
- * `any`, so rows are read through this loose type.
+ * means PostgREST can no longer infer the row shape. The normalizers in
+ * `./normalizers` already take a loose row, so rows are read through this type.
  */
 type ProfileRow = { user_id: string } & Record<string, any>;
 
@@ -77,14 +36,6 @@ const PUBLIC_PROFILE_SELECT = `${PROFILE_COLUMNS}, ${PROFILE_TAG_JOINS}`;
 /** The owner's own profile needs the contact email for the edit form. */
 const OWNER_PROFILE_SELECT = `${PROFILE_COLUMNS}, contact_email, ${PROFILE_TAG_JOINS}`;
 
-function toPublicProfile(raw: any, distance?: number | null, image?: string | null) {
-  return {
-    ...toProfile(raw, distance, image),
-    // Contact email is not rendered on public surfaces and must not enter the
-    // cross-request cache even though the profile itself is public.
-    contactEmail: "",
-  };
-}
 
 async function getProfileImages(userIds: string[]) {
   const uniqueIds = Array.from(new Set(userIds.filter(Boolean)));
@@ -204,6 +155,24 @@ const getCachedPublicProfiles = unstable_cache(
   { tags: [PUBLIC_MUSICIANS_TAG, PUBLIC_HOME_TAG] },
 );
 
+/**
+ * The public directory is rendered on `/` and `/musicians`, both of which are
+ * prerendered at build time. An unreachable database there used to throw and
+ * fail the whole build — and at runtime it turned a Supabase blip into a 500 on
+ * the most-visited page in the app.
+ *
+ * A public read has an honest empty state, so it degrades to one and logs.
+ * Owner reads and every mutation still throw: those have no safe empty answer.
+ */
+async function readPublicProfiles(): Promise<MusicianProfile[]> {
+  try {
+    return await getCachedPublicProfiles();
+  } catch (error) {
+    console.error("[profiles] public directory read failed, rendering empty:", error);
+    return [];
+  }
+}
+
 function filterProfiles(all: MusicianProfile[], filters?: ListProfilesFilters): MusicianProfile[] {
   let profiles = all;
   const q = filters?.q ? safeSearchPattern(filters.q) : "";
@@ -275,7 +244,7 @@ function filterProfiles(all: MusicianProfile[], filters?: ListProfilesFilters): 
 }
 
 export async function listProfiles(filters?: ListProfilesFilters): Promise<MusicianProfile[]> {
-  return filterProfiles(await getCachedPublicProfiles(), filters);
+  return filterProfiles(await readPublicProfiles(), filters);
 }
 
 export async function createProfile(

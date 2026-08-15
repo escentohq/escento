@@ -29,7 +29,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           # Cache ~/.npm so the global Vercel CLI install and the dependency
           # install inside `vercel build` reuse downloaded packages.
           cache: npm
@@ -89,13 +89,29 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - run: npm ci
 
+      - name: Resolve Playwright version
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+
       - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
+        run: |
+          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install chromium
+          else
+            npx playwright install --with-deps chromium
+          fi
 
       - name: Run smoke against the preview deployment
         env:
@@ -103,13 +119,15 @@ jobs:
           # Lets Playwright through Vercel Deployment Protection. Create it at
           # Vercel -> Project -> Settings -> Deployment Protection -> Protection
           # Bypass for Automation, then add it as the GitHub Actions secret
-          # VERCEL_AUTOMATION_BYPASS_SECRET. Until then, smoke is skipped (not
-          # failed) so a protected deployment does not turn the pipeline red.
+          # VERCEL_AUTOMATION_BYPASS_SECRET.
           VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
+          # A safety check that cannot run is a red check, not a green one. This
+          # previously warned and exited 0, which reported success having executed
+          # zero tests against the deployment.
           if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
-            echo "::warning title=Smoke skipped::Deployment Protection is on but VERCEL_AUTOMATION_BYPASS_SECRET is not set. Add the Protection Bypass for Automation secret to enable smoke tests."
-            exit 0
+            echo "::error title=Smoke cannot run::Deployment Protection is on but VERCEL_AUTOMATION_BYPASS_SECRET is not set, so no test could reach the preview. Add the Protection Bypass for Automation secret (Vercel -> Project -> Settings -> Deployment Protection)."
+            exit 1
           fi
           npm run test:e2e
 

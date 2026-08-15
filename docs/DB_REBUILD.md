@@ -1,5 +1,21 @@
 # DB Rebuild — Escento Schema Reset
 
+> **Historical incident record. Do not follow these steps.**
+>
+> This documents the fresh-signup bug (a production-only `role` DEFAULT bounced
+> every new account off `/onboarding/role`) and the reset that fixed it. It is
+> kept for the failure mode, not for the schema.
+>
+> What is stale here: the table is `app_user`, not `"user"`; `app_user` rows come
+> from the `handle_new_user()` trigger in the baseline migration, not from a
+> `src/lib/auth/sync-app-user.ts` file, which does not exist; and schema is no
+> longer applied by pasting SQL into the dashboard.
+>
+> **Current source of truth: `supabase/migrations/`.** Schema changes ship as
+> migration files, and `.github/workflows/schema-drift.yml` fails when the hosted
+> database diverges from them — which is the check that would have caught this
+> incident before users hit it.
+
 ## Problem
 
 - Fresh signup → `/onboarding/role` → immediate redirect to `/` (should stay on role picker)
