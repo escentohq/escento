@@ -41,7 +41,7 @@ export async function signUp(page: Page, prefix = "user"): Promise<{ email: stri
 
 /** Pick a role on the onboarding screen and wait for the role-specific landing. */
 export async function chooseRole(page: Page, role: Role): Promise<void> {
-  const label = role === "MUSICIAN" ? "I'm a Musician" : "I'm a Creator";
+  const label = role === "MUSICIAN" ? "I play music" : "I need musicians";
   const destination = role === "MUSICIAN" ? /\/profile\/create/ : /\/gigs\/manage/;
   await page.getByRole("button", { name: label }).click();
   await page.waitForURL(destination, { timeout: 30_000 });
@@ -76,17 +76,21 @@ export async function signIn(
 }
 
 /**
- * Create a musician profile from /profile/create. Only the display name is
- * required; isRemote defaults on, so no location/tag interaction is needed.
- * Returns the public profile id parsed from the success redirect.
+ * Create a musician profile through step one of the create wizard. The display
+ * name is the only required field anywhere in the flow, and step one lands on
+ * the directory rather than the profile, so the id is read off the "finish your
+ * profile" strip instead of the URL.
  */
 export async function createMusicianProfile(page: Page, displayName: string): Promise<string> {
   await page.goto("/profile/create");
-  await expect(page).toHaveURL(/\/profile\/create/);
+  await expect(page).toHaveURL(/\/profile\/create\/identity/);
   await page.locator('input[name="displayName"]').fill(displayName);
   await page.getByRole("button", { name: "Create Profile" }).click();
-  await page.waitForURL(/\/musicians\/[^/]+$/, { timeout: 30_000 });
-  return page.url().split("/musicians/")[1];
+  await page.waitForURL(/\/musicians$/, { timeout: 30_000 });
+
+  const href = await page.getByRole("link", { name: "View your profile" }).getAttribute("href");
+  expect(href).toBeTruthy();
+  return String(href).split("/musicians/")[1];
 }
 
 /**

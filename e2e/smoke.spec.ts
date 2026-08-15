@@ -23,6 +23,11 @@ const PROTECTED_PATHS = [
   "/account",
   "/messages",
   "/profile/create",
+  // Every wizard step guards itself; middleware does not cover these.
+  "/profile/create/identity",
+  "/profile/create/craft",
+  "/profile/create/context",
+  "/profile/create/reach",
   "/gigs/create",
   "/gigs/manage",
 ];

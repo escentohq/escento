@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { DirectoryResultsSkeleton } from "@/components/ui/directory-results-skeleton";
+import { FinishProfileNudge } from "@/components/profile/finish-profile-nudge";
 import { listInstruments, listGenres } from "@/lib/api/tags";
 import { listProfiles } from "@/lib/api/profiles";
 import { clampText, visibleTags } from "@/lib/display";
@@ -159,6 +160,11 @@ export default async function MusiciansPage({
       body="Filter by instrument, genre, and location. Open a profile when the work fits."
       action={<PrimaryCta href="/profile/create" prefetch={false}>Create Profile</PrimaryCta>}
     >
+        {/* Reads the session, so it streams separately and never blocks the shell. */}
+        <Suspense fallback={null}>
+          <FinishProfileNudge />
+        </Suspense>
+
         <div className="border-y border-rule py-5 md:py-6">
           <LocationDirectoryFilters
             action="/musicians"

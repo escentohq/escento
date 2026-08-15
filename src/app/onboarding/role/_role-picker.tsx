@@ -38,14 +38,14 @@ export function RoleOnboardingPicker() {
     <div className="grid gap-5 md:grid-cols-2">
       <RoleButton
         role="MUSICIAN"
-        title="I’m a musician"
-        body="Create a profile with your instruments, genres, availability, and portfolio."
+        title="I play music"
+        body="Build a profile so creators can find you. It takes one field to get listed."
         cta="Create a musician account"
       />
       <RoleButton
         role="CREATOR"
-        title="I’m hiring musicians"
-        body="Post project details and contact musicians who match the work."
+        title="I need musicians"
+        body="Post gigs and browse players who match the work."
         cta="Create a hiring account"
       />
     </div>
