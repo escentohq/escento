@@ -19,11 +19,20 @@ npm run dev             # dev server at localhost:3000
 npm run build           # production build (must pass before done)
 npm run lint            # ESLint (must pass before done)
 npm run typecheck       # tsc --noEmit (must pass before done)
+npm run test:unit       # Vitest — pure logic and repo invariants (sub-second)
 npm run test:e2e        # Playwright read-only suite
 npm run test:e2e:write  # write-flow suite (needs a local Supabase stack)
 ```
 
-There are no unit tests — Playwright E2E under `e2e/` is the only automated suite. The write-flow suite uses the guarded local Supabase setup in `playwright.write.config.ts`; never point it at hosted Supabase. Verification is `lint` + `typecheck` + `build`, plus manual browser checks for UI work.
+Three layers, in order of what they cost:
+
+- **`test:unit`** (`tests/unit/`) is pure logic plus the checks that read the repo itself: the route-guard inventory, the `.env.example` contract, the frozen `globals.css`, and the service-layer normalizers. It runs in the `quality` CI job alongside lint, because none of it needs a browser.
+- **`test:e2e`** (`e2e/smoke.spec.ts`) is signed-out and read-only, safe against a live deployment. Its path lists come from `e2e/route-inventory.ts`.
+- **`test:e2e:write`** (`e2e/flows/`) drives the real mutation flows against the guarded local Supabase setup in `playwright.write.config.ts`; never point it at hosted Supabase. CI runs it in 3 shards, each with its own ephemeral stack.
+
+**Adding a route requires classifying it in `e2e/route-inventory.ts`.** The unit suite enumerates `src/app/**/page.tsx` and fails, naming the file, if a route is unclassified — or if a route classified `protected`/`admin` no longer calls an auth guard.
+
+Verification is `lint` + `typecheck` + `test:unit` + `build`, plus manual browser checks for UI work.
 
 ---
 
@@ -126,6 +135,8 @@ Not currently used in the codebase. The browser client (`src/lib/supabase/client
 
 ### Database schema
 
-Source of truth: Supabase dashboard SQL editor. Schema documentation in `docs/DB_REBUILD.md`. Apply schema changes directly via Supabase dashboard or MCP. No RLS — auth enforced server-side. IDs are `TEXT` (not `uuid` type). All FK constraints use `ON DELETE CASCADE`.
+**Source of truth: `supabase/migrations/`.** This changed — the dashboard used to be authoritative, and the cost was invisible drift: CI tests against the migrations, so a dashboard-only edit left CI green while production broke. That is exactly the `DB_REBUILD.md` incident, where a prod-only `role` DEFAULT bounced every fresh signup off `/onboarding/role`.
+
+Apply schema changes as a migration file. A dashboard or MCP edit is allowed for exploration but must be exported back into a migration before the change ships. `.github/workflows/schema-drift.yml` diffs the hosted schema against the migrations on a schedule and fails on divergence (it needs the `SUPABASE_DB_URL` repo secret; it fails rather than skips when that is missing). No RLS — auth enforced server-side. IDs are `TEXT` (not `uuid` type). All FK constraints use `ON DELETE CASCADE`.
 
 Service layer (`src/lib/api/`) makes all DB calls — never direct queries outside this directory.
