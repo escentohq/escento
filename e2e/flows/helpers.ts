@@ -143,11 +143,11 @@ export async function newMusicianWithProfile(
   browser: Browser,
   prefix: string,
   displayName: string,
-): Promise<{ page: Page; profileId: string }> {
+): Promise<{ page: Page; profileId: string; email: string; password: string }> {
   const page = await newContextPage(browser);
-  await signUpAs(page, "MUSICIAN", prefix);
+  const credentials = await signUpAs(page, "MUSICIAN", prefix);
   const profileId = await createMusicianProfile(page, displayName);
-  return { page, profileId };
+  return { page, profileId, ...credentials };
 }
 
 /** Send a connection request to a musician from their public profile. */
@@ -199,12 +199,13 @@ export async function newCreatorWithGig(
   browser: Browser,
   prefix: string,
   titlePrefix = "Test Gig",
-): Promise<{ page: Page; gigId: string }> {
-  const page = await newCreator(browser, prefix);
+): Promise<{ page: Page; gigId: string; email: string; password: string }> {
+  const page = await newContextPage(browser);
+  const credentials = await signUpAs(page, "CREATOR", prefix);
   const slug = Date.now().toString(36);
   const gigId = await createGig(page, {
     title: `${titlePrefix} ${slug}`,
     description: `Gig description ${slug}`,
   });
-  return { page, gigId };
+  return { page, gigId, ...credentials };
 }

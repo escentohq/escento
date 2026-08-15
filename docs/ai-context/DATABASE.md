@@ -19,6 +19,18 @@ src/lib/api/
 
 Public musician, gig, and taxonomy reads use a cookie-free anonymous Supabase client and the conventional Next.js persistent data cache. Cache entries contain public DTO data only and are invalidated by `public:*` and `taxonomy:*` tags after successful mutations. Authenticated/session/message data remains request-scoped and uncached.
 
+### Public moderation visibility
+
+Public marketplace visibility uses a deny-by-default intersection:
+
+- an account is public only when `app_user.is_public = true` and `moderation_status = 'active'`;
+- a musician profile is public only when both the profile and its owning account are public;
+- a gig is public only when the gig and creator account are public and the gig status is `OPEN`;
+- `hidden` and `needs_review` rows are not anonymous-readable;
+- authenticated owners retain access to their own hidden profile/gigs for management, while server-only service-role admin reads bypass RLS.
+
+The RLS helpers and policies live in `20260815000000_enforce_public_moderation_visibility.sql`. Public profile/gig service queries repeat the resource-level `is_public` and `moderation_status` filters as defense in depth. Admin hide/restore invalidates the home, directory, and detail cache tags; account-level moderation invalidates both musician and gig cache domains because it affects every owned listing.
+
 `app_user` metadata is currently read by `src/lib/auth-guards.ts` and updated by onboarding/account actions directly. There is no `src/lib/api/users.ts` in the current codebase.
 
 ---
@@ -38,7 +50,7 @@ export interface Tag {
 ### `AppUser`
 ```ts
 export interface AppUser {
-  id: string;                  // TEXT, matches auth.users.id
+  id: string;                  // UUID, matches auth.users.id
   email: string;               // from auth.users
   name: string | null;
   image: string | null;
@@ -136,12 +148,12 @@ Handles all gig CRUD + queries. DB-level filtering for `projectType`; client-sid
 ### Read functions
 
 **`getGig(id: string): Promise<Gig | null>`**
-- Fetch single gig by ID
+- Fetch a single active/public open gig by ID through anonymous RLS
 - Includes nested: instruments, genres, creator (user name + email)
 - Returns `null` if not found
 
 **`listOpenGigs(filters?: { projectType?: string; instrument?: string; genre?: string }): Promise<Gig[]>`**
-- Fetch all gigs with `status = "OPEN"`
+- Fetch gigs with `status = "OPEN"`, `is_public = true`, and `moderation_status = "active"`; RLS also requires a public/active creator account
 - DB-level filter: `projectType`
 - Client-side filter: `instrument`, `genre` (after flattening junction rows)
 - Ordered by `created_at DESC`
@@ -180,7 +192,7 @@ Handles musician profile CRUD + queries.
 ### Read functions
 
 **`getProfile(id: string): Promise<MusicianProfile | null>`**
-- Fetch single profile by ID
+- Fetch a single active/public profile by ID through anonymous RLS; the owning account must also be active/public
 - Includes nested: instruments, genres, and joined `app_user.image`
 
 **`getProfileByUserId(userId: string): Promise<MusicianProfile | null>`**
@@ -188,7 +200,7 @@ Handles musician profile CRUD + queries.
 - Used in `/profile/create` and `/profile/edit` to check if profile exists
 
 **`listProfiles(filters?: { instrument?: string; genre?: string }): Promise<MusicianProfile[]>`**
-- Fetch all profiles
+- Fetch active/public profiles whose owning accounts are also active/public
 - DB-level filtering by instrument/genre joins
 - Ordered by `updated_at DESC`
 - Capped at 50 results

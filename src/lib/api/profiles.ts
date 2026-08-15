@@ -117,6 +117,8 @@ async function queryPublicProfile(id: string): Promise<MusicianProfile | null> {
     .from("musician_profile")
     .select(PUBLIC_PROFILE_SELECT)
     .eq("id", id)
+    .eq("is_public", true)
+    .eq("moderation_status", "active")
     .single<ProfileRow>();
 
   if (error && error.code !== "PGRST116") throw error;
@@ -178,6 +180,8 @@ async function queryPublicProfiles(): Promise<MusicianProfile[]> {
   const { data, error } = await supabase
     .from("musician_profile")
     .select(PUBLIC_PROFILE_SELECT)
+    .eq("is_public", true)
+    .eq("moderation_status", "active")
     .order("updated_at", { ascending: false });
 
   if (error) throw error;

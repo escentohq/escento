@@ -105,12 +105,11 @@ export function AdminSetupRequired() {
   );
 }
 
-export function ModerationTodo() {
+export function ModerationVisibilityNotice() {
   return (
-    <div className="mb-6 border-l-4 border-amber px-4 py-3 text-secondary text-[#7A5200]">
-      TODO: Public directory queries are intentionally unchanged for safety.
-      Hide/restore writes admin metadata only until public filtering is
-      explicitly added later.
+    <div className="mb-6 border-l-4 border-brand px-4 py-3 text-secondary text-[#334155]">
+      Hide removes the selected account or listing from anonymous marketplace
+      reads. Restore republishes it when both the account and listing are active.
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { AdminNav, AdminSetupRequired, AdminUnavailable, DateValue, ModerationTodo, Preview } from "@/components/admin/admin-display";
+import { AdminNav, AdminSetupRequired, AdminUnavailable, DateValue, ModerationVisibilityNotice, Preview } from "@/components/admin/admin-display";
 import { PageShell } from "@/components/ui/page-shell";
 import { SectionCard } from "@/components/ui/section-card";
 import { getAdminAccess } from "@/lib/admin-auth";
@@ -25,7 +25,7 @@ export default async function AdminDashboardPage() {
   return (
     <PageShell eyebrow="Admin" title="Escento admin" body="Private moderation tools for Escento operators.">
       <AdminNav />
-      <ModerationTodo />
+      <ModerationVisibilityNotice />
 
       <dl className="grid border-y border-rule md:grid-cols-4 md:divide-x md:divide-rule">
         {stats.map(([label, value]) => (

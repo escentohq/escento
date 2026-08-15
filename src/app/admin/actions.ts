@@ -72,6 +72,13 @@ export async function adminModerationAction(formData: FormData) {
   revalidatePath("/admin/gigs");
   if (targetType === "musician_profile") invalidatePublicProfile(targetId);
   if (targetType === "gig") invalidatePublicGig(targetId);
+  if (targetType === "user" || targetType === "creator_profile") {
+    // Account moderation changes the visibility of every owned public resource.
+    // The broad directory tags are also attached to detail cache entries, so
+    // invalidating both domains refreshes home, list, and detail reads together.
+    invalidatePublicProfile();
+    invalidatePublicGig();
+  }
 }
 
 export async function adminDeleteUserAction(formData: FormData) {

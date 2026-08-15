@@ -3,7 +3,7 @@ import {
   AdminSetupRequired,
   AdminUnavailable,
   DateValue,
-  ModerationTodo,
+  ModerationVisibilityNotice,
   StatusCells,
 } from "@/components/admin/admin-display";
 import { AdminActionButton } from "@/components/admin/admin-action-button";
@@ -30,7 +30,7 @@ export default async function AdminUsersPage() {
       body="View Escento user accounts and admin moderation metadata."
     >
       <AdminNav />
-      <ModerationTodo />
+      <ModerationVisibilityNotice />
       <div className="overflow-x-auto border-y border-rule bg-surface">
         <table className="w-full min-w-235 text-left text-sm">
           <thead className="bg-[#F8FAFC] text-meta uppercase text-muted">

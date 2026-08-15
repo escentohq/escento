@@ -115,6 +115,8 @@ async function queryPublicGig(id: string): Promise<Gig | null> {
     .from("gig")
     .select(GIG_SELECT)
     .eq("id", id)
+    .eq("is_public", true)
+    .eq("moderation_status", "active")
     .single();
 
   if (error && error.code !== "PGRST116") throw error;
@@ -167,6 +169,8 @@ async function queryPublicOpenGigs(): Promise<Gig[]> {
     .from("gig")
     .select(GIG_SELECT)
     .eq("status", "OPEN")
+    .eq("is_public", true)
+    .eq("moderation_status", "active")
     .order("created_at", { ascending: false });
 
   if (error) throw error;

@@ -4,7 +4,7 @@ import {
   AdminSetupRequired,
   AdminUnavailable,
   DateValue,
-  ModerationTodo,
+  ModerationVisibilityNotice,
   StatusCells,
 } from "@/components/admin/admin-display";
 import { PageShell } from "@/components/ui/page-shell";
@@ -29,7 +29,7 @@ export default async function AdminCreatorsPage() {
       body="Creator profiles are represented by creator user accounts in this MVP."
     >
       <AdminNav />
-      <ModerationTodo />
+      <ModerationVisibilityNotice />
       <div className="overflow-x-auto border-y border-rule bg-surface">
         <table className="w-full min-w-230 text-left text-sm">
           <thead className="bg-[#F8FAFC] text-meta uppercase text-muted">

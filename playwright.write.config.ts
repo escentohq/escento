@@ -64,6 +64,9 @@ function resolveLocalSupabaseEnv(): Record<string, string> {
 }
 
 const supabaseEnv = resolveLocalSupabaseEnv();
+// Workers need the same verified-local credentials for focused RLS/admin setup.
+// The hosted-project guard above runs before these values are exposed to tests.
+Object.assign(process.env, supabaseEnv);
 const PORT = 3100;
 const baseURL = `http://localhost:${PORT}`;
 const isCI = Boolean(process.env.CI);

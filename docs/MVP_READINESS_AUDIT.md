@@ -2,29 +2,28 @@
 
 Audit date: August 15, 2026  
 Repository: `escentohq/escento` at `4c50c5f`  
-Audit mode: planning and verification only; no product behavior was changed
+Resolution update: August 15, 2026 — MVP-01 / issue #25 implemented
 
 ## Executive Summary
 
 Escento is **not ready for an unsupervised pilot**. The main marketplace loop is substantially present: public musician and gig discovery, role-gated profile and gig authoring, connection requests, accepted 1:1 conversations, blocking, reporting, account management, and an admin surface all exist. The signed-out application rendered at desktop and mobile widths without horizontal overflow, and protected routes redirected to sign-in.
 
-The remaining blockers are narrow but consequential. Admin “hide” actions do not remove hidden users, profiles, or gigs from public reads; role assignment can be overwritten after onboarding; several multi-table mutations can leave partial state; gig deadlines and closed-detail behavior do not match the promised lifecycle; and signup requires agreement to Terms and Compliance pages that are still placeholders. A smaller set of P2 issues makes malformed IDs fail as server errors and allows marketplace identities to become public without enough context to be trustworthy.
+The remaining blockers are narrow but consequential. Role assignment can be overwritten after onboarding; several multi-table mutations can leave partial state; gig deadlines and closed-detail behavior do not match the promised lifecycle; and signup requires agreement to Terms and Compliance pages that are still placeholders. A smaller set of P2 issues makes malformed IDs fail as server errors and allows marketplace identities to become public without enough context to be trustworthy. The original P0 moderation defect is now resolved: anonymous RLS, service queries, and cache invalidation all enforce hide/restore.
 
 | Severity | Count |
 | --- | ---: |
-| P0 | 1 |
+| P0 | 0 |
 | P1 | 5 |
 | P2 | 2 |
 | P3 | 0 |
 
 The shortest path to a usable pilot is:
 
-1. Make moderation visibility effective at both RLS and service-query boundaries.
-2. Make the one-time role invariant enforceable and make critical multi-resource writes failure-safe.
-3. Correct gig deadline/closed-detail behavior.
-4. Complete the legal documents already required by signup.
-5. Reject malformed resource IDs cleanly and require minimum public identity context.
-6. Re-run the existing local-Supabase write-flow suite and add focused regression coverage for the corrected invariants.
+1. Make the one-time role invariant enforceable and make critical multi-resource writes failure-safe.
+2. Correct gig deadline/closed-detail behavior.
+3. Complete the legal documents already required by signup.
+4. Reject malformed resource IDs cleanly and require minimum public identity context.
+5. Re-run the existing local-Supabase write-flow suite, including the new moderation regression coverage.
 
 ## Canonical MVP Scope
 
@@ -91,7 +90,7 @@ Actual code and the baseline migration were treated as the tie-breaker.
 | Request lifecycle | Code-complete, runtime not re-verified | — | Unique pending pair, actor-specific transitions, acceptance RPC, outgoing/incoming states, cancel/reject, and conversation creation exist; dedicated write specs cover the lifecycle | existing #15 for test gaps |
 | Direct messaging | Code-complete, runtime not re-verified | — | Membership RLS, persistence, ordering, unread/read, optimistic send, returnable threads, blocks, and two-way write specs exist | existing #15 for test gaps |
 | Notifications | Implemented, external delivery unverified | — | In-app unread conversation/request surfaces and best-effort Resend email for incoming requests/messages exist; delivery configuration was not exercised | No new issue |
-| Basic trust and safety | Broken | P0 | Reporting, blocking, admin review, audit log, and hide/restore UI exist, but public reads intentionally ignore moderation flags | MVP-01 |
+| Basic trust and safety | Functionally enforced; local runtime pending | — | Reporting, blocking, admin review, audit log, and hide/restore are present; RLS, public queries, and cache invalidation now enforce visibility | MVP-01 resolved by #25; #26 retains broader CI follow-up |
 | Account management/deletion | Incomplete reliability | P1 | Name/photo/password/sign-out/deletion exist; deletion spans many irreversible calls without a recoverable state machine | MVP-04 |
 | Legal consent at signup | Broken | P1 | Terms checkbox is required, but Terms and Compliance are placeholder pages; Privacy claims product behavior not present in the current MVP | Existing #10 |
 | Mobile core surfaces | Functional in signed-out pass | — | 390×844 screenshots showed no clipping or horizontal overflow on public discovery, details, and auth | Authenticated flows not runtime-verified |
@@ -100,19 +99,18 @@ Actual code and the baseline migration were treated as the tie-breaker.
 
 ### Trust and safety
 
-#### MVP-01 — Admin hide/restore does not control public visibility
+#### MVP-01 — Admin hide/restore controls public visibility — resolved
 
-- **Severity:** P0 — launch blocker
+- **Status:** Resolved August 15, 2026 by [#25](https://github.com/escentohq/escento/issues/25)
+- **Original severity:** P0 — launch blocker
 - **Affected users:** all users and operators
 - **Affected surfaces:** `/admin/users`, `/admin/musicians`, `/admin/gigs`, `/`, `/musicians`, `/musicians/[id]`, `/gigs`, `/gigs/[id]`
 - **Expected:** hiding a user, musician profile, or gig removes it from anonymous discovery/detail reads; restore reverses that result; cache invalidation makes the change visible promptly.
-- **Actual:** `moderateAdminTarget()` writes `is_public=false` and `moderation_status=hidden`, but public profile reads have no visibility filter and profile RLS is `USING (true)`. Public gig reads filter only `status=OPEN`, and gig RLS allows any open row. Account-level hide flags are likewise not joined into public ownership visibility. The admin UI explicitly says hide/restore “writes admin metadata only.”
-- **Reproduction:** hide a profile or open gig in admin, invalidate/refresh its directory and detail page, and observe that the public row still qualifies for the same read. This was not executed against hosted data; the service query, RLS policy, and explicit admin TODO establish the behavior without mutation.
-- **Evidence:** `src/lib/api/admin-dashboard.ts:207-210`; `src/components/admin/admin-display.tsx:108-114`; `src/lib/api/gigs.ts:162-172`; `src/lib/api/profiles.ts:153-168`; `supabase/migrations/00000000000000_baseline.sql:1301,1406`.
-- **Likely cause:** moderation metadata was added without defining/enforcing public visibility semantics in RLS and cached public queries.
-- **MVP impact:** operators cannot promptly remove abusive or unsafe public content using the advertised basic moderation control. This makes a real-user pilot unsafe.
-- **Proposed fix scope:** define profile-, gig-, and account-level hide semantics; enforce them in RLS and public service queries; preserve owner/admin access where needed; invalidate all affected cache tags; add local-Supabase regression tests.
-- **Verification:** a hidden profile/gig/user is absent from anonymous list and detail reads, direct anon Supabase reads fail, owners/admins retain only the intended access, restore returns content, and cached home/directory/detail surfaces update.
+- **Original defect:** moderation metadata was written but ignored by public profile/gig queries and permissive RLS, so hide did not remove unsafe content.
+- **Implemented contract:** accounts, profiles, and gigs must be both `is_public=true` and `moderation_status='active'`; profile/gig visibility also requires an active/public owner account; public gigs additionally remain restricted to `OPEN`. `hidden` and `needs_review` are non-public. Owners retain authenticated management access and service-role admins retain full access.
+- **Implementation:** `20260815000000_enforce_public_moderation_visibility.sql` replaces the permissive root and junction-table SELECT policies; `profiles.ts` and `gigs.ts` add explicit resource filters; user/creator hide and restore invalidate both public cache domains; the obsolete admin TODO now describes the enforced behavior.
+- **Regression coverage:** `supabase/tests/moderation_visibility_test.sql` covers anonymous, owner, service-role, resource-level, account-level, restore, needs-review, and taxonomy visibility. `e2e/flows/moderation-visibility.spec.ts` warms list/detail caches, performs real admin hide/restore actions, and checks anonymous plus owner behavior for profiles, gigs, and their accounts.
+- **Verification status:** static/type/build checks are recorded below. The local database/E2E cases are committed but could not be executed in this environment because neither Supabase CLI nor Docker is installed; the write config continues to refuse hosted projects.
 - **Issue:** [#23 — Enforce public moderation visibility](https://github.com/escentohq/escento/issues/23) with native sub-issues #25–#26.
 
 ### Authentication, roles, and marketplace identity
@@ -232,7 +230,7 @@ Actual code and the baseline migration were treated as the tie-breaker.
 
 ## Security and Authorization Findings
 
-- **P0:** moderation visibility is not enforced by RLS or service queries (MVP-01).
+- **Resolved P0:** moderation visibility is enforced by RLS, explicit public service filters, and cache invalidation (MVP-01 / #25).
 - **P1:** the one-time role invariant is not enforced at the Server Action/database boundary (MVP-02).
 - Ownership protection for creator gig edit/close/reopen/delete is present in Server Actions and reinforced by RLS.
 - Profile writes obtain the current user's profile and rely on owner RLS.
@@ -265,7 +263,7 @@ Authenticated onboarding forms, gig/profile editors, request lists, conversation
 - Invalid dynamic IDs do not fail safely (MVP-07).
 - Major async areas include loading/error states, and conversation detail has its own not-found surface.
 - Empty directory, request, conversation, blocked-user, and management states exist.
-- Public-service cache invalidation is called after profile/gig/admin mutations, but moderation invalidation cannot compensate for queries that ignore visibility flags.
+- Public-service cache invalidation is called after profile/gig/admin mutations. Account-level moderation invalidates both public resource domains, and anonymous queries/RLS independently enforce visibility flags.
 - Transactional email intentionally fails best-effort so messaging persistence is not rolled back. Actual Resend configuration/delivery was not verified.
 - The read-only smoke suite currently has one false failure due solely to URL-encoding expectation. Existing issue #15 already covers making tests and CI trustworthy; no duplicate MVP issue was created.
 
@@ -278,9 +276,9 @@ Authenticated onboarding forms, gig/profile editors, request lists, conversation
 | `npm run typecheck` | Passed |
 | `npm run build` | Passed; 38 static/dynamic application routes generated |
 | `npx playwright test e2e/smoke.spec.ts --project=chromium` | 22 passed, 1 failed due to percent-encoding-only URL expectation; redirect behavior itself was correct |
-| Local-Supabase write-flow suite | Not run: Supabase CLI/ephemeral stack unavailable; hosted-data safety guard must not be bypassed |
+| `supabase test db` / moderation write-flow spec | Coverage added but not run: Supabase CLI and Docker are unavailable in this environment; the Playwright safety guard correctly refused to fall back to hosted data |
 
-Repository changes from this audit are limited to this report. GitHub issue writes are listed below; no application source, schema, settings, milestones, or unrelated issues were changed.
+The August 15 resolution update changes only moderation visibility policy/query/cache behavior, its focused local tests, the admin status notice, and the directly applicable documentation. It does not change role behavior, closed-gig semantics, automated moderation, verification, or trust scoring.
 
 ## Existing Issues That Already Cover Findings
 
@@ -294,7 +292,7 @@ Repository changes from this audit are limited to this report. GitHub issue writ
 GitHub's native parent/sub-issue API was available and used for every child below.
 
 - [#23 — Enforce public moderation visibility](https://github.com/escentohq/escento/issues/23)
-  - [#25 — Enforce hide/restore across public RLS and cached reads](https://github.com/escentohq/escento/issues/25)
+  - [#25 — Enforce hide/restore across public RLS and cached reads](https://github.com/escentohq/escento/issues/25) — resolved August 15, 2026
   - [#26 — Add moderation visibility regression coverage](https://github.com/escentohq/escento/issues/26)
 - [#24 — Harden onboarding roles and marketplace identity](https://github.com/escentohq/escento/issues/24)
   - [#27 — Make first role assignment immutable](https://github.com/escentohq/escento/issues/27)
@@ -336,18 +334,17 @@ No issues were created for:
 
 ## Recommended Execution Order
 
-1. **MVP-01:** enforce moderation visibility and verify cache/RLS behavior.
-2. **MVP-02:** lock role assignment at mutation/database boundaries.
-3. **MVP-03 and MVP-04:** make profile/gig mutations and deletion failure-safe.
-4. **MVP-05:** align deadlines, closed detail, directory visibility, and contact actions.
-5. **MVP-06 / #10:** complete the documents required by signup before recruiting pilot users.
-6. **MVP-08:** gate public marketplace readiness on minimal existing identity fields.
-7. **MVP-07:** make malformed/stale dynamic links safe.
-8. Run the complete ephemeral-Supabase role suite on desktop and 390×844, then perform a supervised two-account pilot rehearsal.
+1. **MVP-02:** lock role assignment at mutation/database boundaries.
+2. **MVP-03 and MVP-04:** make profile/gig mutations and deletion failure-safe.
+3. **MVP-05:** align deadlines, closed detail, directory visibility, and contact actions.
+4. **MVP-06 / #10:** complete the documents required by signup before recruiting pilot users.
+5. **MVP-08:** gate public marketplace readiness on minimal existing identity fields.
+6. **MVP-07:** make malformed/stale dynamic links safe.
+7. Run the complete ephemeral-Supabase role suite, including moderation visibility, on desktop and 390×844, then perform a supervised two-account pilot rehearsal.
 
 ## Launch Checklist
 
-- [ ] Hidden users/profiles/gigs are absent from anonymous directories and details; restore works.
+- [x] Hidden users/profiles/gigs are denied by anonymous RLS and public queries; restore invalidates home/list/detail caches. Local runtime execution remains tracked by #26.
 - [ ] A role can be assigned once and cannot be changed through direct action/database access.
 - [ ] Profile and gig create/edit failure injection leaves no partial public state.
 - [ ] Account deletion is idempotent/recoverable and verified across DB, Auth, Storage, public cache, requests, and conversations.
