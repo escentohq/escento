@@ -1,39 +1,22 @@
 import { redirect } from "next/navigation";
 
 import { getProfileByUserId } from "@/lib/api/profiles";
-import { listGenres, listInstruments } from "@/lib/api/tags";
-import { PageShell } from "@/components/ui/page-shell";
 import { requireRole } from "@/lib/auth-guards";
-import { ProfileForm } from "../_profile-form";
-import { createMusicianProfileAction } from "./actions";
+import { nextIncompleteStep, stepPath } from "@/lib/profile-progress";
 
+/**
+ * Entry point for the create wizard. Holds no UI of its own — it resolves where
+ * the user left off and forwards, so `/profile/create` stays a stable link from
+ * the directory, the nav, and the onboarding role picker.
+ */
 export default async function CreateProfilePage() {
-  // Taxonomy depends on neither the session nor the profile; start it first so it
-  // overlaps both reads. The no-op catch keeps a redirect from surfacing as an
-  // unhandled rejection when we unwind before awaiting it.
-  const tagsPromise = Promise.all([listInstruments(), listGenres()]);
-  tagsPromise.catch(() => {});
-
   const session = await requireRole("MUSICIAN", "/profile/create");
 
-  const existing = await getProfileByUserId(session.user.id);
-  if (existing) redirect("/profile/edit");
-  const [instruments, genres] = await tagsPromise;
+  const profile = await getProfileByUserId(session.user.id);
+  if (!profile) redirect(stepPath("identity"));
 
-  return (
-    <PageShell
-      eyebrow="On stage"
-      title="Create Profile"
-      body="Put your sound where creators can find it. Keep it specific and make it easy to start a conversation."
-      size="medium"
-    >
-      <ProfileForm
-        mode="create"
-        initial={{ isRemote: true, seekingPaid: true, seekingUnpaid: true }}
-        action={createMusicianProfileAction}
-        instruments={instruments}
-        genres={genres}
-      />
-    </PageShell>
-  );
+  const step = nextIncompleteStep(profile);
+  if (!step) redirect("/profile/edit");
+
+  redirect(stepPath(step));
 }
