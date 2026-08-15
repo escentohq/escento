@@ -420,12 +420,16 @@ export async function updateProfile(
     if (deleteError) throw deleteError;
   }
 
-  const { error: updateError } = await supabase
-    .from("musician_profile")
-    .update(updateData)
-    .eq("id", id);
+  // The create wizard saves tags on their own step, so `input` can legitimately be
+  // empty. PostgREST rejects an update with no columns, so skip the write entirely.
+  if (Object.keys(updateData).length) {
+    const { error: updateError } = await supabase
+      .from("musician_profile")
+      .update(updateData)
+      .eq("id", id);
 
-  if (updateError) throw updateError;
+    if (updateError) throw updateError;
+  }
 
   if (instrumentNames || genreNames) {
     const [instruments, genres] = await Promise.all([
