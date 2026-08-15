@@ -155,6 +155,24 @@ const getCachedPublicProfiles = unstable_cache(
   { tags: [PUBLIC_MUSICIANS_TAG, PUBLIC_HOME_TAG] },
 );
 
+/**
+ * The public directory is rendered on `/` and `/musicians`, both of which are
+ * prerendered at build time. An unreachable database there used to throw and
+ * fail the whole build — and at runtime it turned a Supabase blip into a 500 on
+ * the most-visited page in the app.
+ *
+ * A public read has an honest empty state, so it degrades to one and logs.
+ * Owner reads and every mutation still throw: those have no safe empty answer.
+ */
+async function readPublicProfiles(): Promise<MusicianProfile[]> {
+  try {
+    return await getCachedPublicProfiles();
+  } catch (error) {
+    console.error("[profiles] public directory read failed, rendering empty:", error);
+    return [];
+  }
+}
+
 function filterProfiles(all: MusicianProfile[], filters?: ListProfilesFilters): MusicianProfile[] {
   let profiles = all;
   const q = filters?.q ? safeSearchPattern(filters.q) : "";
@@ -226,7 +244,7 @@ function filterProfiles(all: MusicianProfile[], filters?: ListProfilesFilters): 
 }
 
 export async function listProfiles(filters?: ListProfilesFilters): Promise<MusicianProfile[]> {
-  return filterProfiles(await getCachedPublicProfiles(), filters);
+  return filterProfiles(await readPublicProfiles(), filters);
 }
 
 export async function createProfile(

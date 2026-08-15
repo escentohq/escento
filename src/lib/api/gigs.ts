@@ -153,6 +153,17 @@ const getCachedPublicOpenGigs = unstable_cache(
   { tags: [PUBLIC_GIGS_TAG, PUBLIC_HOME_TAG] },
 );
 
+/** Mirrors `readPublicProfiles`: a public listing degrades to empty rather than
+ * failing a prerender or 500-ing the homepage. See the note there. */
+async function readPublicOpenGigs(): Promise<Gig[]> {
+  try {
+    return await getCachedPublicOpenGigs();
+  } catch (error) {
+    console.error("[gigs] public listing read failed, rendering empty:", error);
+    return [];
+  }
+}
+
 function filterGigs(all: Gig[], filters?: ListOpenGigsFilters): Gig[] {
   let gigs = all;
   const q = filters?.q ? safeSearchPattern(filters.q) : "";
@@ -231,7 +242,7 @@ function filterGigs(all: Gig[], filters?: ListOpenGigsFilters): Gig[] {
 }
 
 export async function listOpenGigs(filters?: ListOpenGigsFilters): Promise<Gig[]> {
-  return filterGigs(await getCachedPublicOpenGigs(), filters);
+  return filterGigs(await readPublicOpenGigs(), filters);
 }
 
 export async function listGigsByCreator(creatorId: string): Promise<Gig[]> {
