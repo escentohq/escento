@@ -31,6 +31,7 @@ jobs:
   diff:
     name: Hosted schema vs supabase/migrations
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 

@@ -20,6 +20,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     outputs:
       url: ${{ steps.deploy.outputs.url }}
     steps:
@@ -84,6 +85,7 @@ jobs:
     name: Read-only smoke (production URL)
     needs: deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 

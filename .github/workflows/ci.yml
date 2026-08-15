@@ -44,6 +44,7 @@ jobs:
   changes:
     name: Detect changed surfaces
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       code: ${{ steps.filter.outputs.code }}
     steps:
@@ -82,6 +83,9 @@ jobs:
   quality:
     name: Lint, typecheck, unit, build
     runs-on: ubuntu-latest
+    # A hung install or build must surface as a failure, not as a job that sits
+    # amber until the 6-hour default timeout.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -136,9 +140,17 @@ jobs:
       needs.changes.outputs.code == 'true' &&
       (github.event_name != 'workflow_dispatch' || inputs.run_write_flows)
     runs-on: ubuntu-latest
+    # Each shard boots its own Supabase stack, builds, and runs its slice. Thirty
+    # minutes is roughly 2x the observed worst case, so a stack that never comes
+    # up dies here instead of burning a runner.
+    timeout-minutes: 30
     strategy:
-      # A failing shard should not hide a second, unrelated failure in another.
-      fail-fast: false
+      # Fail fast: the first failing shard cancels the other two. The signal we
+      # act on is "the suite is red", and we get it in the time of the fastest
+      # failure rather than the slowest shard. The trade is that a second,
+      # unrelated failure in another shard is not surfaced in the same run — it
+      # shows up on the next run once the first is fixed.
+      fail-fast: true
       matrix:
         shard: [1, 2, 3]
     steps:
@@ -293,6 +305,7 @@ jobs:
     needs: [changes, write-flows]
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Check shard results
         run: |
