@@ -3,14 +3,15 @@ import { test, expect } from "@playwright/test";
 import { createMusicianProfile, signUpAs } from "./helpers";
 
 test.describe("profile edit and validation", () => {
-  test("profile create validates years experience and website url", async ({ page }) => {
+  test("profile edit validates years experience and website url", async ({ page }) => {
     await signUpAs(page, "MUSICIAN", "profile-validate");
+    await createMusicianProfile(page, `Validation Artist ${Date.now().toString(36)}`);
 
-    await page.goto("/profile/create");
-    await page.locator('input[name="displayName"]').fill("Validation Artist");
+    // The edit form keeps every field on one screen, so both rules fire together.
+    await page.goto("/profile/edit");
     await page.locator('input[name="yearsExperience"]').fill("abc");
     await page.locator('input[name="websiteUrl"]').fill("not-a-url");
-    await page.getByRole("button", { name: "Create Profile" }).click();
+    await page.getByRole("button", { name: "Save Profile" }).click();
 
     await expect(page.getByText("Use a whole number.")).toBeVisible();
     await expect(page.getByText("Use a full http:// or https:// URL.")).toBeVisible();

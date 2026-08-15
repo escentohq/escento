@@ -11,8 +11,8 @@ test.describe("auth + onboarding", () => {
   test("signup lands on the role picker", async ({ page }) => {
     await signUp(page, "onboard");
     await expect(page).toHaveURL(/\/onboarding\/role/);
-    await expect(page.getByRole("button", { name: "I'm a Musician" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "I'm a Creator" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "I play music" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "I need musicians" })).toBeVisible();
   });
 
   test("choosing Musician routes to profile create", async ({ page }) => {
