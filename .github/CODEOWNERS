@@ -1,0 +1,24 @@
+# The files AGENTS.md already flags as ask-before-touching. Ownership here is not
+# about permission — it is about making sure a change to one of these is never
+# reviewed by nobody.
+#
+# Note: required reviews on a private repo need GitHub Pro. Until then this file
+# requests review rather than enforcing it.
+
+*                           @shresthamishra76
+
+# Auth is the load-bearing surface: a wrong edit here is silent and total.
+/middleware.ts              @shresthamishra76
+/src/lib/auth-guards.ts     @shresthamishra76
+/src/lib/admin-auth.ts      @shresthamishra76
+
+# The only place product data access is allowed to live.
+/src/lib/api/               @shresthamishra76
+
+# The pipeline that decides what "green" means.
+/.github/workflows/         @shresthamishra76
+/e2e/route-inventory.ts     @shresthamishra76
+/tests/unit/                @shresthamishra76
+
+# Schema changes are irreversible in a way application code is not.
+/supabase/migrations/       @shresthamishra76

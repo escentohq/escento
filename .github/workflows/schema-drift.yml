@@ -1,0 +1,76 @@
+name: Schema drift
+
+# CI tests against `supabase/migrations/`. Production schema has historically been
+# edited in the Supabase dashboard. When those two diverge, CI stays green while
+# production breaks — this is the DB_REBUILD.md incident, where a prod-only
+# `role` DEFAULT bounced every fresh signup off /onboarding/role and no check
+# noticed.
+#
+# This workflow diffs the hosted schema against the migrations in the repo.
+#
+# It cannot be a PR gate: the database URL is a secret and secrets are not
+# available to forked PRs, so a PR-triggered version would be skippable exactly
+# when it matters. It runs on a schedule and on demand instead, and it FAILS
+# rather than skips when it cannot run — an unconfigured drift check is a drift
+# check that is not protecting anything.
+#
+# Setup: add the repository secret SUPABASE_DB_URL with the project's pooler
+# connection string (Supabase -> Project Settings -> Database -> Connection
+# string -> URI, session mode).
+on:
+  schedule:
+    # 09:00 UTC daily — before the working day, so drift is found before it ships.
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: schema-drift
+  cancel-in-progress: true
+
+jobs:
+  diff:
+    name: Hosted schema vs supabase/migrations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Require the database URL
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error title=Drift check not configured::SUPABASE_DB_URL is not set, so the hosted schema was never compared against supabase/migrations/. Add the secret (Supabase -> Project Settings -> Database -> Connection string -> URI)."
+            exit 1
+          fi
+
+      - name: Diff hosted schema against migrations
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          # Applies the repo's migrations to a throwaway local stack, then reports
+          # what the hosted database has that the migrations do not.
+          supabase db diff --db-url "$SUPABASE_DB_URL" --schema public > /tmp/drift.sql
+
+          if [ -s /tmp/drift.sql ]; then
+            echo "::error title=Schema drift detected::The hosted database differs from supabase/migrations/. Migrations are the source of truth — export the dashboard change into a migration file."
+            echo "--- drift ---"
+            cat /tmp/drift.sql
+            exit 1
+          fi
+
+          echo "Hosted schema matches supabase/migrations/."
+
+      - name: Upload the diff
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: schema-drift
+          path: /tmp/drift.sql
+          retention-days: 14
+          if-no-files-found: ignore
