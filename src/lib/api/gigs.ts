@@ -9,12 +9,7 @@ import { filterSearchResults } from "@/lib/search";
 import { tagMatchesQuery } from "@/lib/tag-taxonomy";
 import { ensureInstruments, ensureGenres } from "./tags";
 import type { Gig, CreateGigInput, UpdateGigInput } from "./types";
-
-type GigCreatorSummary = {
-  id: string;
-  name: string | null;
-  email: string | null;
-};
+import { toGig, type GigCreatorSummary } from "./normalizers";
 
 function firstError(
   results: Array<{ error: unknown | null }>,
@@ -77,37 +72,6 @@ const GIG_SELECT = [
   "status", "created_at", "updated_at",
 ].join(", ") + `, ${GIG_TAG_JOINS}`;
 
-function toGig(raw: any, creatorSummary?: GigCreatorSummary, distance?: number | null): Gig {
-  return {
-    id: raw.id,
-    creatorId: raw.creator_id,
-    title: raw.title,
-    description: raw.description,
-    projectType: raw.project_type,
-    location: raw.location,
-    locationDisplayName: raw.location_display_name,
-    locationPlaceId: raw.location_place_id,
-    locationLat: raw.location_lat,
-    locationLng: raw.location_lng,
-    locationCity: raw.location_city,
-    locationState: raw.location_state,
-    locationCountry: raw.location_country,
-    locationProvider: raw.location_provider,
-    providerPlaceId: raw.provider_place_id,
-    locationVisibility: raw.location_visibility ?? "public_region",
-    isRemote: raw.is_remote,
-    distanceMiles: distance ?? null,
-    compensationType: raw.compensation_type,
-    compensationDetails: raw.compensation_details,
-    deadline: raw.deadline,
-    status: raw.status,
-    createdAt: raw.created_at,
-    updatedAt: raw.updated_at,
-    instruments: raw.gig_instrument?.map((x: any) => x.instrument?.name).filter(Boolean) ?? [],
-    genres: raw.gig_genre?.map((x: any) => x.genre?.name).filter(Boolean) ?? [],
-    creator: creatorSummary,
-  };
-}
 
 async function queryPublicGig(id: string): Promise<Gig | null> {
   const supabase = createSupabasePublicClient();
