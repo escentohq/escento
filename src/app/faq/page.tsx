@@ -5,6 +5,7 @@ import { ChevronDown } from "lucide-react";
 import { PageShell } from "@/components/ui/page-shell";
 import { SITE_URL } from "@/lib/site";
 
+import { RoleDefinitions } from "./_definitions";
 import { FAQ_ITEMS, FAQ_SECTIONS } from "./_faq-content";
 
 const description =
@@ -57,6 +58,8 @@ export default function FaqPage() {
         size="medium"
       >
         <div className="flex flex-col gap-12">
+          <RoleDefinitions />
+
           {FAQ_SECTIONS.map((section) => (
             <section key={section.id} id={section.id} className="scroll-mt-24">
               <h2 className="text-section-heading text-ink">{section.title}</h2>

@@ -44,7 +44,7 @@ export const FAQ_SECTIONS: FaqSection[] = [
         id: "what-is-escento",
         question: "What is Escento?",
         answer:
-          "Escento is a free directory where student musicians and student creators find each other for gigs and collaborations. Musicians publish a profile listing their instruments, genres, and location. Creators post gigs describing the project and who they need. Either side can browse the other without an account, then send a connection request to start a conversation. It is not a social network — there are no feeds, followers, or ratings.",
+          "Escento is a free directory where musicians and creators find each other for gigs and collaborations. Musicians publish a profile listing their instruments, genres, and location. Creators post gigs describing the project and who they need. Either side can browse the other without an account, then send a connection request to start a conversation. It is not a social network — there are no feeds, followers, or ratings.",
         links: [
           { href: "/musicians", label: "Browse musicians" },
           { href: "/gigs", label: "Browse gigs" },
@@ -60,7 +60,7 @@ export const FAQ_SECTIONS: FaqSection[] = [
         id: "who-can-use-escento",
         question: "Who is Escento for?",
         answer:
-          "Escento is built for student musicians and student creators. Musicians are performers, instrumentalists, vocalists, and producers looking for gigs and collaborations. Creators are film students, podcasters, YouTubers, game developers, and event organizers who need music for a project. You pick one side — musician or creator — when you sign up, and that choice decides whether you build a profile or post gigs.",
+          "Escento is open to anyone making music or making something that needs music — students, hobbyists, semi-pros, and working professionals alike. Musicians are performers, instrumentalists, vocalists, and producers looking for gigs and collaborations. Creators are filmmakers, podcasters, YouTubers, game developers, and event organizers who need music for a project. There is no application or approval step: you pick one side, musician or creator, when you sign up.",
         links: [{ href: "/signup", label: "Create an account" }],
       },
       {
