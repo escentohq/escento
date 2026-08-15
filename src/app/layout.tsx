@@ -7,6 +7,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { NavBar } from "@/components/ui/nav-bar";
 import { Footer } from "@/components/ui/footer";
+import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -14,9 +15,8 @@ const archivo = Archivo({
   display: "swap",
 });
 
-const siteUrl = "https://www.escento.com";
-const siteDescription =
-  "Escento helps musicians get discovered for gigs, collaborations, and creative opportunities.";
+const siteUrl = SITE_URL;
+const siteDescription = SITE_DESCRIPTION;
 
 export const metadata: Metadata = {
   title: "Escento",

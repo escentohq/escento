@@ -23,7 +23,7 @@ const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: /(?:smoke|email-notifications)\.spec\.ts$/,
+  testMatch: /(?:smoke|faq|email-notifications)\.spec\.ts$/,
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
