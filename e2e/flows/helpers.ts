@@ -94,6 +94,23 @@ export async function createMusicianProfile(page: Page, displayName: string): Pr
 }
 
 /**
+ * Choose a `<select>` value and prove it stuck.
+ *
+ * A plain selectOption can land before hydration finishes, and the hydrating
+ * render then resets the element to its default — the form submits with the
+ * field empty and fails validation with "Choose a project type", which reads
+ * like a product bug rather than a race. Retrying the pair until the value holds
+ * makes the step deterministic.
+ */
+async function selectOptionStably(page: Page, name: string, value: string): Promise<void> {
+  const select = page.locator(`select[name="${name}"]`);
+  await expect(async () => {
+    await select.selectOption(value);
+    await expect(select).toHaveValue(value);
+  }).toPass({ timeout: 15_000 });
+}
+
+/**
  * Publish a gig from /gigs/create. Fills the required fields; isRemote defaults
  * on so no location is needed. Returns the gig id from the success redirect.
  */
@@ -105,8 +122,8 @@ export async function createGig(
   await expect(page).toHaveURL(/\/gigs\/create/);
   await page.locator('input[name="title"]').fill(opts.title);
   await page.locator('textarea[name="description"]').fill(opts.description);
-  await page.locator('select[name="projectType"]').selectOption(opts.projectType ?? "FILM");
-  await page.locator('select[name="compensationType"]').selectOption(opts.compensationType ?? "PAID");
+  await selectOptionStably(page, "projectType", opts.projectType ?? "FILM");
+  await selectOptionStably(page, "compensationType", opts.compensationType ?? "PAID");
   await page.getByRole("button", { name: "Publish Gig" }).click();
   // Exclude the create page itself: the form lives at /gigs/create which also
   // matches /gigs/<id>, so without the negative lookahead waitForURL resolves
