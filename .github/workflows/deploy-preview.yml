@@ -1,12 +1,14 @@
 name: Deploy Preview (Vercel)
 
-# Runs on pull requests and on pushes to any branch except `main`. Produces a
-# Vercel preview deployment with its own URL, authenticated as the project owner
-# via VERCEL_TOKEN so the Hobby "commit author" block does not apply.
+# Manual-only. Automatic preview deploys are disabled: on the Vercel Hobby tier
+# every branch push/PR burned a deployment and the failures mailed out on each
+# run. Run this workflow by hand (Actions -> Deploy Preview -> Run workflow) when
+# a branch actually needs a preview URL. Production deploys are unaffected —
+# see deploy-production.yml.
+#
+# Consequence: the read-only smoke suite below no longer runs per-PR. Push to
+# main still deploys and `ci.yml` still gates PRs.
 on:
-  pull_request:
-  push:
-    branches-ignore: [main]
   workflow_dispatch:
 
 concurrency:
