@@ -1,24 +1,42 @@
 import { createClient } from "@supabase/supabase-js";
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Browser, type Page } from "@playwright/test";
 
 import {
   TEST_PASSWORD,
   newContextPage,
-  newCreatorWithGig,
   newMusicianWithProfile,
   signIn,
+  uniqueEmail,
 } from "./helpers";
 
 const ADMIN_EMAIL = "admin@example.test";
 
-function localAnonymousClient() {
+function localSupabaseConfig() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
   if (!url || !anonKey || /\.supabase\.co/i.test(url)) {
     throw new Error("Moderation visibility tests require the guarded local Supabase stack.");
   }
 
+  return { url, anonKey };
+}
+
+function localAnonymousClient() {
+  const { url, anonKey } = localSupabaseConfig();
+
   return createClient(url, anonKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
+
+function localAdminClient() {
+  const { url } = localSupabaseConfig();
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+  if (!serviceKey) {
+    throw new Error("Moderation visibility tests require the local service-role key.");
+  }
+
+  return createClient(url, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
@@ -38,15 +56,7 @@ async function expectAnonymousRow(
 }
 
 async function ensureLocalAdminAccount() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-  if (!url || !serviceKey || /\.supabase\.co/i.test(url)) {
-    throw new Error("Moderation visibility tests require the guarded local Supabase stack.");
-  }
-
-  const admin = createClient(url, serviceKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  const admin = localAdminClient();
   const { data: users, error: listError } = await admin.auth.admin.listUsers({ perPage: 1000 });
   if (listError) throw listError;
 
@@ -76,6 +86,53 @@ async function ensureLocalAdminAccount() {
     moderation_status: "active",
   });
   if (profileError) throw profileError;
+}
+
+async function createCreatorGigFixture(browser: Browser, title: string) {
+  const admin = localAdminClient();
+  const email = uniqueEmail("moderation-gig");
+  const { data, error: userError } = await admin.auth.admin.createUser({
+    email,
+    password: TEST_PASSWORD,
+    email_confirm: true,
+    user_metadata: { full_name: "Moderated Creator" },
+  });
+  if (userError || !data.user) {
+    throw userError ?? new Error("Could not create the local creator fixture.");
+  }
+
+  const { error: profileError } = await admin.from("app_user").upsert({
+    id: data.user.id,
+    email,
+    name: "Moderated Creator",
+    role: "CREATOR",
+    is_public: true,
+    moderation_status: "active",
+  });
+  if (profileError) throw profileError;
+
+  const { data: gig, error: gigError } = await admin
+    .from("gig")
+    .insert({
+      creator_id: data.user.id,
+      title,
+      description: "Representative gig for moderation visibility regression coverage.",
+      project_type: "FILM",
+      is_remote: true,
+      compensation_type: "PAID",
+      status: "OPEN",
+      is_public: true,
+      moderation_status: "active",
+    })
+    .select("id")
+    .single();
+  if (gigError || !gig) {
+    throw gigError ?? new Error("Could not create the local gig fixture.");
+  }
+
+  const page = await newContextPage(browser);
+  await signIn(page, email, TEST_PASSWORD, "/gigs/manage");
+  return { page, gigId: gig.id, email };
 }
 
 async function moderateRow(page: Page, rowText: string, action: "Hide" | "Restore") {
@@ -165,7 +222,10 @@ test.describe("moderation visibility", () => {
   test("gig and creator-account hide/restore update cached public reads", async ({ browser }) => {
     test.setTimeout(240_000);
     const title = `Moderated Gig ${Date.now().toString(36)}`;
-    const { page: owner, gigId, email: ownerEmail } = await newCreatorWithGig(browser, "moderation-gig", title);
+    // This suite tests moderation, not gig creation. Build its representative
+    // fixture directly in the guarded ephemeral stack so an unrelated form or
+    // navigation timing issue cannot make moderation coverage flaky.
+    const { page: owner, gigId, email: ownerEmail } = await createCreatorGigFixture(browser, title);
     const anonymous = await newContextPage(browser);
     const adminPage = await newContextPage(browser);
 
