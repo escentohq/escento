@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-import { signUpAs, createGig, newContextPage } from "./helpers";
+import { signUpAs, createGig, clickUntil, newContextPage } from "./helpers";
 
 const stamp = () => Date.now().toString(36);
 
@@ -45,8 +45,10 @@ test.describe("gig lifecycle", () => {
     // the action revalidates — this guarantees the status change has committed
     // before we re-check the directory.
     await page.goto("/gigs/manage");
-    await page.getByRole("button", { name: "Mark Filled" }).click();
-    await expect(page.getByRole("button", { name: "Reopen Gig" })).toBeVisible();
+    await clickUntil(
+      page.getByRole("button", { name: "Mark Filled" }),
+      page.getByRole("button", { name: "Reopen Gig" }),
+    );
 
     await page.goto(directory);
     await expect(page.getByText(title)).toHaveCount(0);
@@ -55,8 +57,10 @@ test.describe("gig lifecycle", () => {
     await expect(page.getByText("Filled", { exact: true })).toBeVisible();
 
     await page.goto("/gigs/manage");
-    await page.getByRole("button", { name: "Reopen Gig" }).click();
-    await expect(page.getByRole("button", { name: "Mark Filled" })).toBeVisible();
+    await clickUntil(
+      page.getByRole("button", { name: "Reopen Gig" }),
+      page.getByRole("button", { name: "Mark Filled" }),
+    );
 
     await page.goto(directory);
     await expect(page.getByText(title).first()).toBeVisible();

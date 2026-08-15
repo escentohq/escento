@@ -1,4 +1,4 @@
-import { expect, type Browser, type Page } from "@playwright/test";
+import { expect, type Browser, type Locator, type Page } from "@playwright/test";
 
 /**
  * Helpers for the write-flow E2E suite. These drive the real UI against a local
@@ -167,11 +167,33 @@ export async function newMusicianWithProfile(
   return { page, profileId, ...credentials };
 }
 
+/**
+ * Click a button and keep clicking until the UI actually moves.
+ *
+ * Several controls here (Connect, Accept, Mark Filled) are client components
+ * whose behaviour lives in an `onClick`. A click that lands before hydration is
+ * a genuine no-op — no request, no state change — and since nothing re-clicks,
+ * the following assertion then burns its full timeout waiting for something that
+ * was never going to happen. It reads as a broken feature; it is a race.
+ *
+ * `count()` is re-checked each attempt, so once the first click has registered
+ * and the trigger is gone this only waits on the outcome. That keeps the retry
+ * from firing an action twice.
+ */
+export async function clickUntil(trigger: Locator, settled: Locator): Promise<void> {
+  await expect(async () => {
+    if ((await trigger.count()) > 0) await trigger.click();
+    await expect(settled.first()).toBeVisible({ timeout: 3_000 });
+  }).toPass({ timeout: 30_000 });
+}
+
 /** Send a connection request to a musician from their public profile. */
 export async function sendConnectRequest(page: Page, profileId: string): Promise<void> {
   await page.goto(`/musicians/${profileId}`);
-  await page.getByRole("button", { name: "Connect", exact: true }).click();
-  await expect(page.getByText("Pending")).toBeVisible();
+  await clickUntil(
+    page.getByRole("button", { name: "Connect", exact: true }),
+    page.getByText("Pending"),
+  );
 }
 
 /** Sign out from the account menu and land back on the homepage. */
