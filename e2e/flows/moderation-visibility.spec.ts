@@ -229,6 +229,13 @@ test.describe("moderation visibility", () => {
     const anonymous = await newContextPage(browser);
     const adminPage = await newContextPage(browser);
 
+    // The app server was built before this direct fixture existed, so publish
+    // it into the already-running process's cached home/directory reads through
+    // the same restore action whose invalidation contract this suite exercises.
+    await signIn(adminPage, ADMIN_EMAIL, TEST_PASSWORD, "/admin/gigs");
+    await moderateRow(adminPage, title, "Hide");
+    await moderateRow(adminPage, title, "Restore");
+
     await anonymous.goto("/");
     await expect(anonymous.getByText(title).first()).toBeVisible();
     await anonymous.goto(`/gigs?q=${encodeURIComponent(title)}`);
@@ -237,7 +244,6 @@ test.describe("moderation visibility", () => {
     await expect(anonymous.getByRole("heading", { name: title })).toBeVisible();
     await expectAnonymousRow("gig", gigId, 1);
 
-    await signIn(adminPage, ADMIN_EMAIL, TEST_PASSWORD, "/admin/gigs");
     await moderateRow(adminPage, title, "Hide");
 
     await anonymous.goto("/");
