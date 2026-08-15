@@ -12,8 +12,8 @@ export default async function RoleOnboardingPage() {
   return (
     <PageShell
       eyebrow="Soundcheck"
-      title="Choose your role"
-      body="Pick the side you are using today. Escento keeps the tools focused around that choice."
+      title="What brings you here first?"
+      body="This sets what you see first. Escento keeps the tools focused around that choice."
       size="medium"
     >
       <RoleOnboardingPicker />
