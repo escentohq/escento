@@ -1,7 +1,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(20);
+select plan(21);
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -53,6 +53,22 @@ set local role anon;
 select is((select count(*) from public.musician_profile where id = '20000000-0000-0000-0000-000000000001'), 1::bigint, 'anon can read an active public profile');
 select is((select count(*) from public.gig where id = '30000000-0000-0000-0000-000000000001'), 1::bigint, 'anon can read an active public open gig');
 reset role;
+
+-- Closing a gig is a lifecycle change, not a moderation one. The row stays
+-- readable so its detail page keeps rendering "Call filled"; the directory
+-- query is what filters closed gigs out of the marketplace.
+update public.gig
+set status = 'CLOSED'
+where id = '30000000-0000-0000-0000-000000000001';
+
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
+set local role anon;
+select is((select count(*) from public.gig where id = '30000000-0000-0000-0000-000000000001'), 1::bigint, 'anon can still read a closed gig by direct id');
+reset role;
+
+update public.gig
+set status = 'OPEN'
+where id = '30000000-0000-0000-0000-000000000001';
 
 update public.musician_profile
 set is_public = false, moderation_status = 'hidden'
