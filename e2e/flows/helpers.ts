@@ -111,7 +111,10 @@ export async function createGig(
   // Exclude the create page itself: the form lives at /gigs/create which also
   // matches /gigs/<id>, so without the negative lookahead waitForURL resolves
   // immediately and returns "create" instead of the real gig id.
-  await page.waitForURL(/\/gigs\/(?!create$)[^/]+$/, { timeout: 30_000 });
+  // Assert the redirect URL without waiting for the destination's full `load`
+  // event. The Server Action has committed once the URL changes; waiting for
+  // unrelated page resources made this helper intermittently time out in CI.
+  await expect(page).toHaveURL(/\/gigs\/(?!create$)[^/]+$/, { timeout: 30_000 });
   return page.url().split("/gigs/")[1];
 }
 
