@@ -11,6 +11,32 @@ import {
 
 const ADMIN_EMAIL = "admin@example.test";
 
+function localAnonymousClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+  if (!url || !anonKey || /\.supabase\.co/i.test(url)) {
+    throw new Error("Moderation visibility tests require the guarded local Supabase stack.");
+  }
+
+  return createClient(url, anonKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
+
+async function expectAnonymousRow(
+  table: "musician_profile" | "gig",
+  id: string,
+  expectedCount: 0 | 1,
+) {
+  const { data, error } = await localAnonymousClient()
+    .from(table)
+    .select("id")
+    .eq("id", id);
+
+  expect(error).toBeNull();
+  expect(data).toHaveLength(expectedCount);
+}
+
 async function ensureLocalAdminAccount() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
@@ -69,7 +95,7 @@ test.describe("moderation visibility", () => {
   });
 
   test("profile and musician-account hide/restore update cached public reads", async ({ browser }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(240_000);
     const displayName = `Moderated Musician ${Date.now().toString(36)}`;
     const { page: owner, profileId, email: ownerEmail } = await newMusicianWithProfile(
       browser,
@@ -79,76 +105,120 @@ test.describe("moderation visibility", () => {
     const anonymous = await newContextPage(browser);
     const adminPage = await newContextPage(browser);
 
+    // Warm every cached public surface before moderation so these assertions
+    // prove invalidation, not merely correct behavior on a cold read.
+    await anonymous.goto("/");
+    await expect(anonymous.getByText(displayName).first()).toBeVisible();
     await anonymous.goto(`/musicians?q=${encodeURIComponent(displayName)}`);
     await expect(anonymous.getByText(displayName).first()).toBeVisible();
     await anonymous.goto(`/musicians/${profileId}`);
     await expect(anonymous.getByRole("heading", { name: displayName })).toBeVisible();
+    await expectAnonymousRow("musician_profile", profileId, 1);
 
     await signIn(adminPage, ADMIN_EMAIL, TEST_PASSWORD, "/admin/musicians");
     await moderateRow(adminPage, displayName, "Hide");
 
+    await anonymous.goto("/");
+    await expect(anonymous.getByText(displayName)).toHaveCount(0);
     await anonymous.goto(`/musicians?q=${encodeURIComponent(displayName)}`);
     await expect(anonymous.getByText(displayName)).toHaveCount(0);
     await anonymous.goto(`/musicians/${profileId}`);
     await expect(anonymous.getByRole("heading", { name: "Lost in the mix." })).toBeVisible();
+    await expectAnonymousRow("musician_profile", profileId, 0);
     await owner.goto("/profile/edit");
     await expect(owner.getByRole("heading", { name: "Edit Profile" })).toBeVisible();
 
     await moderateRow(adminPage, displayName, "Restore");
+    await anonymous.goto("/");
+    await expect(anonymous.getByText(displayName).first()).toBeVisible();
+    await anonymous.goto(`/musicians?q=${encodeURIComponent(displayName)}`);
+    await expect(anonymous.getByText(displayName).first()).toBeVisible();
     await anonymous.goto(`/musicians/${profileId}`);
     await expect(anonymous.getByRole("heading", { name: displayName })).toBeVisible();
+    await expectAnonymousRow("musician_profile", profileId, 1);
 
     // The authenticated navigation exposes the signed-in email, which gives us
     // an unambiguous admin user-row target without relying on generated IDs.
     await adminPage.goto("/admin/users");
     await moderateRow(adminPage, ownerEmail, "Hide");
 
+    await anonymous.goto("/");
+    await expect(anonymous.getByText(displayName)).toHaveCount(0);
+    await anonymous.goto(`/musicians?q=${encodeURIComponent(displayName)}`);
+    await expect(anonymous.getByText(displayName)).toHaveCount(0);
     await anonymous.goto(`/musicians/${profileId}`);
     await expect(anonymous.getByRole("heading", { name: "Lost in the mix." })).toBeVisible();
+    await expectAnonymousRow("musician_profile", profileId, 0);
     await owner.goto("/profile/edit");
     await expect(owner.getByRole("heading", { name: "Edit Profile" })).toBeVisible();
 
     await moderateRow(adminPage, ownerEmail, "Restore");
+    await anonymous.goto("/");
+    await expect(anonymous.getByText(displayName).first()).toBeVisible();
+    await anonymous.goto(`/musicians?q=${encodeURIComponent(displayName)}`);
+    await expect(anonymous.getByText(displayName).first()).toBeVisible();
     await anonymous.goto(`/musicians/${profileId}`);
     await expect(anonymous.getByRole("heading", { name: displayName })).toBeVisible();
+    await expectAnonymousRow("musician_profile", profileId, 1);
   });
 
   test("gig and creator-account hide/restore update cached public reads", async ({ browser }) => {
-    test.setTimeout(180_000);
+    test.setTimeout(240_000);
     const title = `Moderated Gig ${Date.now().toString(36)}`;
     const { page: owner, gigId, email: ownerEmail } = await newCreatorWithGig(browser, "moderation-gig", title);
     const anonymous = await newContextPage(browser);
     const adminPage = await newContextPage(browser);
 
+    await anonymous.goto("/");
+    await expect(anonymous.getByText(title).first()).toBeVisible();
     await anonymous.goto(`/gigs?q=${encodeURIComponent(title)}`);
     await expect(anonymous.getByText(title).first()).toBeVisible();
     await anonymous.goto(`/gigs/${gigId}`);
     await expect(anonymous.getByRole("heading", { name: title })).toBeVisible();
+    await expectAnonymousRow("gig", gigId, 1);
 
     await signIn(adminPage, ADMIN_EMAIL, TEST_PASSWORD, "/admin/gigs");
     await moderateRow(adminPage, title, "Hide");
 
+    await anonymous.goto("/");
+    await expect(anonymous.getByText(title)).toHaveCount(0);
     await anonymous.goto(`/gigs?q=${encodeURIComponent(title)}`);
     await expect(anonymous.getByText(title)).toHaveCount(0);
     await anonymous.goto(`/gigs/${gigId}`);
     await expect(anonymous.getByRole("heading", { name: "Lost in the mix." })).toBeVisible();
+    await expectAnonymousRow("gig", gigId, 0);
     await owner.goto("/gigs/manage");
     await expect(owner.getByText(title)).toBeVisible();
 
     await moderateRow(adminPage, title, "Restore");
+    await anonymous.goto("/");
+    await expect(anonymous.getByText(title).first()).toBeVisible();
+    await anonymous.goto(`/gigs?q=${encodeURIComponent(title)}`);
+    await expect(anonymous.getByText(title).first()).toBeVisible();
     await anonymous.goto(`/gigs/${gigId}`);
     await expect(anonymous.getByRole("heading", { name: title })).toBeVisible();
+    await expectAnonymousRow("gig", gigId, 1);
 
     await adminPage.goto("/admin/users");
     await moderateRow(adminPage, ownerEmail, "Hide");
 
+    await anonymous.goto("/");
+    await expect(anonymous.getByText(title)).toHaveCount(0);
+    await anonymous.goto(`/gigs?q=${encodeURIComponent(title)}`);
+    await expect(anonymous.getByText(title)).toHaveCount(0);
     await anonymous.goto(`/gigs/${gigId}`);
     await expect(anonymous.getByRole("heading", { name: "Lost in the mix." })).toBeVisible();
+    await expectAnonymousRow("gig", gigId, 0);
     await owner.goto("/gigs/manage");
     await expect(owner.getByText(title)).toBeVisible();
 
     await moderateRow(adminPage, ownerEmail, "Restore");
+    await anonymous.goto("/");
+    await expect(anonymous.getByText(title).first()).toBeVisible();
+    await anonymous.goto(`/gigs?q=${encodeURIComponent(title)}`);
+    await expect(anonymous.getByText(title).first()).toBeVisible();
     await anonymous.goto(`/gigs/${gigId}`);
     await expect(anonymous.getByRole("heading", { name: title })).toBeVisible();
+    await expectAnonymousRow("gig", gigId, 1);
   });
 });

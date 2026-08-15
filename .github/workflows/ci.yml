@@ -248,6 +248,13 @@ jobs:
           SUPPORT_FROM_EMAIL: "Escento Support <support@example.test>"
           GEOAPIFY_API_KEY: placeholder
 
+      # The pgTAP policy tests check the database, not the app, so the answer is
+      # identical on every shard. Running them once keeps two shards from paying
+      # for a third copy of the same result.
+      - name: Run database policy tests
+        if: matrix.shard == 1
+        run: supabase test db
+
       - name: Run write-flow E2E (shard ${{ matrix.shard }}/3)
         run: npm run test:e2e:write -- --shard=${{ matrix.shard }}/3
         env:
