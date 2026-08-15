@@ -100,12 +100,20 @@ export default defineConfig({
         webServer: {
           // A fresh production build + start on a dedicated port (never 3000) so a
           // running `next dev` against cloud Supabase can never be reused by accident.
-          command: `npm run build && npx next start -p ${PORT}`,
+          //
+          // E2E_PREBUILT skips the build for a caller that already ran one against
+          // this same stack — CI builds in its own step so the build is separately
+          // timed and shared with nothing else. Locally the default still rebuilds,
+          // because a stale .next is a far worse failure mode than a slow run.
+          command: process.env.E2E_PREBUILT
+            ? `npx next start -p ${PORT}`
+            : `npm run build && npx next start -p ${PORT}`,
           url: baseURL,
           reuseExistingServer: false,
-          // Generous: a cold `next build` plus start can be slow on loaded CI
-          // runners or developer machines.
-          timeout: 600_000,
+          // Generous for a cold `next build` plus start on a loaded CI runner or
+          // developer machine. With a prebuilt app there is nothing to compile, so
+          // a slow start means something is actually wrong — fail fast instead.
+          timeout: process.env.E2E_PREBUILT ? 120_000 : 600_000,
           env: {
             ...supabaseEnv,
             NEXT_PUBLIC_APP_URL: baseURL,
