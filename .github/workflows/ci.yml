@@ -16,7 +16,10 @@ name: CI
 # a fast quality-only pass.
 on:
   pull_request:
+  # Only `main` here. A branch push is already covered by its pull request, and
+  # listening to both ran the whole pipeline twice per PR commit.
   push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       run_write_flows:
