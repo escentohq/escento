@@ -2,7 +2,7 @@
 
 Audit date: August 15, 2026  
 Repository: `escentohq/escento` at `4c50c5f`  
-Resolution update: August 15, 2026 — MVP-01 / issue #25 implemented
+Resolution update: August 15, 2026 — MVP-01 / issues #25–#26 implemented and verified
 
 ## Executive Summary
 
@@ -68,11 +68,12 @@ Actual code and the baseline migration were treated as the tie-breaker.
 - Resized core public surfaces through desktop and mobile layouts and checked document-width overflow. No horizontal overflow was observed.
 - Inspected form labels, touch surfaces, focus classes, loading/error/not-found files, ownership checks, RLS policies, database triggers, request/message invariants, and cache invalidation paths.
 - Ran the signed-out Playwright smoke suite: 22 passed, 1 failed because the test expects a percent-encoded callback while the browser correctly normalizes it to `/signin?callbackUrl=/onboarding/role`. This is a test assertion defect, not a product redirect failure.
+- Ran the moderation database and browser regressions in CI against a disposable local Supabase stack. No hosted Supabase data or credentials were used.
 
 ### Not safely runtime-tested
 
 - No signup, role selection, profile/gig mutation, request/message exchange, moderation write, report submission, email delivery, OAuth, password-email round trip, storage upload, or account deletion was performed against the configured hosted Supabase project.
-- The write-flow suite was not run because the Supabase CLI/local ephemeral stack was unavailable. Its safety guard correctly refuses a hosted Supabase URL. Existing specs were inspected as evidence, not represented as a current passing run.
+- The full write-flow suite was executed against ephemeral Supabase in CI. Its remaining failures are outside moderation visibility and remain tracked by #15 and the applicable MVP issues; it is not represented as globally green.
 - Resend delivery, OAuth-provider configuration, password-reset email delivery, Geoapify availability, Supabase Storage policy/configuration, and Vercel environment values were not externally verified.
 - Authenticated mobile screens were reviewed statically and through their component layouts, but not with live role sessions.
 - The required `ui-ux-pro-max` review skill named in `AGENTS.md` was not available in this Codex session; canonical Escento rules and direct browser inspection were used instead.
@@ -90,7 +91,7 @@ Actual code and the baseline migration were treated as the tie-breaker.
 | Request lifecycle | Code-complete, runtime not re-verified | — | Unique pending pair, actor-specific transitions, acceptance RPC, outgoing/incoming states, cancel/reject, and conversation creation exist; dedicated write specs cover the lifecycle | existing #15 for test gaps |
 | Direct messaging | Code-complete, runtime not re-verified | — | Membership RLS, persistence, ordering, unread/read, optimistic send, returnable threads, blocks, and two-way write specs exist | existing #15 for test gaps |
 | Notifications | Implemented, external delivery unverified | — | In-app unread conversation/request surfaces and best-effort Resend email for incoming requests/messages exist; delivery configuration was not exercised | No new issue |
-| Basic trust and safety | Functionally enforced; local runtime pending | — | Reporting, blocking, admin review, audit log, and hide/restore are present; RLS, public queries, and cache invalidation now enforce visibility | MVP-01 resolved by #25; #26 retains broader CI follow-up |
+| Basic trust and safety | Functionally enforced and regression-covered | — | Reporting, blocking, admin review, audit log, and hide/restore are present; RLS, public queries, cache invalidation, and restore behavior are exercised on ephemeral Supabase | MVP-01 resolved by #25–#26 |
 | Account management/deletion | Incomplete reliability | P1 | Name/photo/password/sign-out/deletion exist; deletion spans many irreversible calls without a recoverable state machine | MVP-04 |
 | Legal consent at signup | Broken | P1 | Terms checkbox is required, but Terms and Compliance are placeholder pages; Privacy claims product behavior not present in the current MVP | Existing #10 |
 | Mobile core surfaces | Functional in signed-out pass | — | 390×844 screenshots showed no clipping or horizontal overflow on public discovery, details, and auth | Authenticated flows not runtime-verified |
@@ -101,7 +102,7 @@ Actual code and the baseline migration were treated as the tie-breaker.
 
 #### MVP-01 — Admin hide/restore controls public visibility — resolved
 
-- **Status:** Resolved August 15, 2026 by [#25](https://github.com/escentohq/escento/issues/25)
+- **Status:** Resolved August 15, 2026 by [#25](https://github.com/escentohq/escento/issues/25) and [#26](https://github.com/escentohq/escento/issues/26)
 - **Original severity:** P0 — launch blocker
 - **Affected users:** all users and operators
 - **Affected surfaces:** `/admin/users`, `/admin/musicians`, `/admin/gigs`, `/`, `/musicians`, `/musicians/[id]`, `/gigs`, `/gigs/[id]`
@@ -109,8 +110,8 @@ Actual code and the baseline migration were treated as the tie-breaker.
 - **Original defect:** moderation metadata was written but ignored by public profile/gig queries and permissive RLS, so hide did not remove unsafe content.
 - **Implemented contract:** accounts, profiles, and gigs must be both `is_public=true` and `moderation_status='active'`; profile/gig visibility also requires an active/public owner account; public gigs additionally remain restricted to `OPEN`. `hidden` and `needs_review` are non-public. Owners retain authenticated management access and service-role admins retain full access.
 - **Implementation:** `20260815000000_enforce_public_moderation_visibility.sql` replaces the permissive root and junction-table SELECT policies; `profiles.ts` and `gigs.ts` add explicit resource filters; user/creator hide and restore invalidate both public cache domains; the obsolete admin TODO now describes the enforced behavior.
-- **Regression coverage:** `supabase/tests/moderation_visibility_test.sql` covers anonymous, owner, service-role, resource-level, account-level, restore, needs-review, and taxonomy visibility. `e2e/flows/moderation-visibility.spec.ts` warms list/detail caches, performs real admin hide/restore actions, and checks anonymous plus owner behavior for profiles, gigs, and their accounts.
-- **Verification status:** static/type/build checks are recorded below. The local database/E2E cases are committed but could not be executed in this environment because neither Supabase CLI nor Docker is installed; the write config continues to refuse hosted projects.
+- **Regression coverage:** `supabase/tests/moderation_visibility_test.sql` covers anonymous, owner, service-role, resource-level, account-level, restore, needs-review, and taxonomy visibility. `e2e/flows/moderation-visibility.spec.ts` warms the cached home, directory, and detail surfaces; performs real admin hide/restore actions; makes direct anonymous Supabase reads; and checks owner access for profiles, gigs, and their owner accounts. Fixture creation is isolated from unrelated product forms, and the write config refuses hosted projects.
+- **Verification status:** ephemeral CI run [31910552363](https://github.com/escentohq/escento/actions/runs/31910552363) passed lint, typecheck, build, the 20 database policy assertions, and the focused two-case moderation browser suite. A prior full write-flow run [31908575319](https://github.com/escentohq/escento/actions/runs/31908575319) executed the broader suite; its unrelated existing failures remain tracked separately rather than being attributed to #26.
 - **Issue:** [#23 — Enforce public moderation visibility](https://github.com/escentohq/escento/issues/23) with native sub-issues #25–#26.
 
 ### Authentication, roles, and marketplace identity
@@ -230,7 +231,7 @@ Actual code and the baseline migration were treated as the tie-breaker.
 
 ## Security and Authorization Findings
 
-- **Resolved P0:** moderation visibility is enforced by RLS, explicit public service filters, and cache invalidation (MVP-01 / #25).
+- **Resolved P0:** moderation visibility is enforced by RLS, explicit public service filters, and cache invalidation, with focused database and browser regression coverage (MVP-01 / #25–#26).
 - **P1:** the one-time role invariant is not enforced at the Server Action/database boundary (MVP-02).
 - Ownership protection for creator gig edit/close/reopen/delete is present in Server Actions and reinforced by RLS.
 - Profile writes obtain the current user's profile and rely on owner RLS.
@@ -276,14 +277,16 @@ Authenticated onboarding forms, gig/profile editors, request lists, conversation
 | `npm run typecheck` | Passed |
 | `npm run build` | Passed; 38 static/dynamic application routes generated |
 | `npx playwright test e2e/smoke.spec.ts --project=chromium` | 22 passed, 1 failed due to percent-encoding-only URL expectation; redirect behavior itself was correct |
-| `supabase test db` / moderation write-flow spec | Coverage added but not run: Supabase CLI and Docker are unavailable in this environment; the Playwright safety guard correctly refused to fall back to hosted data |
+| `supabase test db` | Passed on ephemeral Supabase in CI: 1 file, 20 tests |
+| Focused moderation Playwright spec | Passed on ephemeral Supabase in CI: 2 tests; covers cached home/directory/detail reads, direct anonymous RLS, resource and owner-account hide/restore, and owner access |
+| `npm run test:e2e:write` | Executed in CI run 31908575319: 26 passed, 2 flaky, 6 failed, 1 did not run. The failures are pre-existing broader-suite concerns outside #26 and remain tracked by #15/#34 and their applicable flows. |
 
-The August 15 resolution update changes only moderation visibility policy/query/cache behavior, its focused local tests, the admin status notice, and the directly applicable documentation. It does not change role behavior, closed-gig semantics, automated moderation, verification, or trust scoring.
+The August 15 resolution update changes only moderation visibility policy/query/cache behavior, its focused ephemeral regression coverage and CI wiring, the admin status notice, and the directly applicable documentation. It does not change role behavior, closed-gig semantics, automated moderation, verification, or trust scoring.
 
 ## Existing Issues That Already Cover Findings
 
 - [#10 — Finish Terms of Use and Compliance pages](https://github.com/escentohq/escento/issues/10): directly covers MVP-06 and already calls for Privacy reconciliation.
-- [#15 — CI hardening: make green mean green](https://github.com/escentohq/escento/issues/15): covers local-Supabase write-flow coverage gaps, schema drift, admin/auth/storage/email-related blind spots, and false confidence in CI. It should include/follow the focused regression tests from new implementation issues, not be duplicated.
+- [#15 — CI hardening: make green mean green](https://github.com/escentohq/escento/issues/15): continues to cover broader write-flow stability, schema drift, and admin/auth/storage/email-related blind spots. The focused moderation database and browser regressions are now independently enforced in CI.
 - [#9 — Cut click latency](https://github.com/escentohq/escento/issues/9): much of its static shell/cache/image scope is now present in source. No remaining performance problem severe enough to create an additional MVP ticket was demonstrated.
 - [#4, #5, #17](https://github.com/escentohq/escento/issues): visual/landing work is outside this functional audit and was not duplicated.
 
@@ -293,7 +296,7 @@ GitHub's native parent/sub-issue API was available and used for every child belo
 
 - [#23 — Enforce public moderation visibility](https://github.com/escentohq/escento/issues/23)
   - [#25 — Enforce hide/restore across public RLS and cached reads](https://github.com/escentohq/escento/issues/25) — resolved August 15, 2026
-  - [#26 — Add moderation visibility regression coverage](https://github.com/escentohq/escento/issues/26)
+  - [#26 — Add moderation visibility regression coverage](https://github.com/escentohq/escento/issues/26) — resolved August 15, 2026
 - [#24 — Harden onboarding roles and marketplace identity](https://github.com/escentohq/escento/issues/24)
   - [#27 — Make first role assignment immutable](https://github.com/escentohq/escento/issues/27)
   - [#28 — Keep incomplete musician profiles out of public discovery](https://github.com/escentohq/escento/issues/28)
@@ -344,7 +347,7 @@ No issues were created for:
 
 ## Launch Checklist
 
-- [x] Hidden users/profiles/gigs are denied by anonymous RLS and public queries; restore invalidates home/list/detail caches. Local runtime execution remains tracked by #26.
+- [x] Hidden users/profiles/gigs are denied by anonymous RLS and public queries; restore invalidates home/list/detail caches; ephemeral database and browser regressions enforce the contract.
 - [ ] A role can be assigned once and cannot be changed through direct action/database access.
 - [ ] Profile and gig create/edit failure injection leaves no partial public state.
 - [ ] Account deletion is idempotent/recoverable and verified across DB, Auth, Storage, public cache, requests, and conversations.
