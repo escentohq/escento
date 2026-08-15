@@ -26,12 +26,17 @@ export default defineConfig({
   testMatch: /(?:smoke|faq|email-notifications)\.spec\.ts$/,
   fullyParallel: true,
   forbidOnly: isCI,
-  retries: isCI ? 2 : 0,
+  // No retries, and stop at the first failure — same rule as the write suite. A
+  // smoke check that only passes on the third attempt is not a passing check,
+  // and re-rolling it hides exactly the intermittent breakage this suite exists
+  // to catch.
+  retries: 0,
+  maxFailures: isCI ? 1 : 0,
   workers: isCI ? 2 : undefined,
   reporter: isCI ? [["list"], ["html", { open: "never" }]] : [["list"]],
   use: {
     baseURL,
-    trace: "on-first-retry",
+    trace: "retain-on-failure",
     extraHTTPHeaders: bypass
       ? { "x-vercel-protection-bypass": bypass, "x-vercel-set-bypass-cookie": "true" }
       : {},

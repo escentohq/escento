@@ -81,13 +81,23 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   forbidOnly: isCI,
-  retries: isCI ? 1 : 0,
+  // No retries in CI. A retry turns a first-attempt failure into a green run and
+  // buries the flake in the log — the suite is supposed to tell us the moment
+  // something stops working, so a test that does not pass on its first attempt
+  // is a failure. Flakes get fixed, not re-rolled.
+  retries: 0,
+  // Stop the shard on the first failure instead of spending another ten minutes
+  // proving the rest still passes. The report and trace for that one failure are
+  // what anybody debugging actually reads.
+  maxFailures: isCI ? 1 : 0,
   reporter: isCI ? [["list"], ["html", { open: "never" }]] : [["list"]],
   timeout: 90_000,
   expect: { timeout: 15_000 },
   use: {
     baseURL: externalTarget ?? baseURL,
-    trace: "on-first-retry",
+    // There is no retry to trace any more, so keep the trace of the failure
+    // itself. Only failures produce one, so this costs nothing on a green run.
+    trace: "retain-on-failure",
     // The app's Reveal animations slide cards in on scroll; under load that can
     // leave buttons "not stable" for Playwright. Reduced motion (which the app
     // honours via useReducedMotion) makes them appear instantly and stably.
