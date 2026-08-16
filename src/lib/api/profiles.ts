@@ -56,12 +56,6 @@ async function getProfileImages(userIds: string[]) {
   }
 }
 
-function firstError(
-  results: Array<{ error: unknown | null }>,
-): unknown | null {
-  return results.find((result) => result.error)?.error ?? null;
-}
-
 async function queryPublicProfile(id: string): Promise<MusicianProfile | null> {
   const supabase = createSupabasePublicClient();
   const { data, error } = await supabase
@@ -247,6 +241,99 @@ export async function listProfiles(filters?: ListProfilesFilters): Promise<Music
   return filterProfiles(await readPublicProfiles(), filters);
 }
 
+/**
+ * camelCase input → the snake_case column names the RPCs merge into the row.
+ * Only keys the caller actually supplied are included: the update RPC treats a
+ * present key as "write this" (explicit nulls included) and an absent key as
+ * "keep what is stored", which is what the multi-step create wizard needs.
+ */
+function profileColumnPayload(
+  input: Partial<CreateProfileInput & UpdateProfileInput>,
+): Record<string, unknown> {
+  const pairs: Array<[string, unknown]> = [
+    ["display_name", input.displayName],
+    ["bio", input.bio],
+    ["school", input.school],
+    ["location", input.location],
+    ["location_display_name", input.locationDisplayName],
+    ["location_place_id", input.locationPlaceId],
+    ["location_lat", input.locationLat],
+    ["location_lng", input.locationLng],
+    ["location_city", input.locationCity],
+    ["location_state", input.locationState],
+    ["location_country", input.locationCountry],
+    ["location_provider", input.locationProvider],
+    ["provider_place_id", input.providerPlaceId],
+    ["location_visibility", input.locationVisibility],
+    ["is_remote", input.isRemote],
+    ["seeking_paid", input.seekingPaid],
+    ["seeking_unpaid", input.seekingUnpaid],
+    ["years_experience", input.yearsExperience],
+    ["availability_text", input.availabilityText],
+    ["contact_email", input.contactEmail],
+    ["instagram_url", input.instagramUrl],
+    ["youtube_url", input.youtubeUrl],
+    ["spotify_url", input.spotifyUrl],
+    ["soundcloud_url", input.soundcloudUrl],
+    ["website_url", input.websiteUrl],
+  ];
+
+  const payload: Record<string, unknown> = {};
+  for (const [column, value] of pairs) {
+    if (value !== undefined) payload[column] = value;
+  }
+  return payload;
+}
+
+/** The RPCs return the profile row itself, so the shape matches a table read. */
+function profileFromRow(row: ProfileRow, instruments: string[], genres: string[]): MusicianProfile {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    image: null,
+    displayName: row.display_name,
+    bio: row.bio,
+    school: row.school,
+    location: row.location,
+    locationDisplayName: row.location_display_name,
+    locationPlaceId: row.location_place_id,
+    locationLat: row.location_lat,
+    locationLng: row.location_lng,
+    locationCity: row.location_city,
+    locationState: row.location_state,
+    locationCountry: row.location_country,
+    locationProvider: row.location_provider,
+    providerPlaceId: row.provider_place_id,
+    locationVisibility: row.location_visibility ?? "public_region",
+    isRemote: row.is_remote,
+    distanceMiles: null,
+    seekingPaid: row.seeking_paid,
+    seekingUnpaid: row.seeking_unpaid,
+    yearsExperience: row.years_experience,
+    availabilityText: row.availability_text,
+    contactEmail: row.contact_email,
+    instagramUrl: row.instagram_url,
+    youtubeUrl: row.youtube_url,
+    spotifyUrl: row.spotify_url,
+    soundcloudUrl: row.soundcloud_url,
+    websiteUrl: row.website_url,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    instruments,
+    genres,
+  };
+}
+
+/**
+ * Create the profile row and its taxonomy in one database transaction
+ * (`create_musician_profile_with_tags`). The root row and the junction rows used
+ * to be separate PostgREST calls, so a failure after the first one published a
+ * profile with no instruments or genres attached. Now either all of it commits
+ * or none of it does, and the caller only invalidates caches on success.
+ *
+ * Tag rows themselves are ensured beforehand: they are shared reference data,
+ * and an orphan tag name is not partial user state.
+ */
 export async function createProfile(
   userId: string,
   input: CreateProfileInput,
@@ -259,95 +346,27 @@ export async function createProfile(
     ensureGenres(genreNames, userId),
   ]);
 
-  const { data: profile, error: profileError } = await supabase
-    .from("musician_profile")
-    .insert({
-      user_id: userId,
-      display_name: input.displayName,
-      bio: input.bio,
-      school: input.school,
-      location: input.location,
-      location_display_name: input.locationDisplayName,
-      location_place_id: input.locationPlaceId,
-      location_lat: input.locationLat,
-      location_lng: input.locationLng,
-      location_city: input.locationCity,
-      location_state: input.locationState,
-      location_country: input.locationCountry,
-      location_provider: input.locationProvider,
-      provider_place_id: input.providerPlaceId,
-      location_visibility: input.locationVisibility,
-      is_remote: input.isRemote,
-      seeking_paid: input.seekingPaid,
-      seeking_unpaid: input.seekingUnpaid,
-      years_experience: input.yearsExperience,
-      availability_text: input.availabilityText,
-      contact_email: input.contactEmail,
-      instagram_url: input.instagramUrl,
-      youtube_url: input.youtubeUrl,
-      spotify_url: input.spotifyUrl,
-      soundcloud_url: input.soundcloudUrl,
-      website_url: input.websiteUrl,
-    })
-    .select()
-    .single();
+  const { data, error } = await supabase.rpc("create_musician_profile_with_tags", {
+    p_profile: profileColumnPayload(input),
+    p_instrument_ids: instruments.map((tag) => tag.id),
+    p_genre_ids: genres.map((tag) => tag.id),
+  });
 
-  if (profileError) throw profileError;
+  if (error) throw error;
+  if (!data) throw new Error("Profile create returned no row.");
 
-  const junctionResults = await Promise.all([
-    ...instruments.map((inst) =>
-      supabase.from("musician_instrument").insert({
-        musician_profile_id: profile.id,
-        instrument_id: inst.id,
-      })
-    ),
-    ...genres.map((genre) =>
-      supabase.from("musician_genre").insert({
-        musician_profile_id: profile.id,
-        genre_id: genre.id,
-      })
-    ),
-  ]);
-  const junctionError = firstError(junctionResults);
-  if (junctionError) throw junctionError;
-
-  return {
-    id: profile.id,
-    userId: profile.user_id,
-    image: null,
-    displayName: profile.display_name,
-    bio: profile.bio,
-    school: profile.school,
-    location: profile.location,
-    locationDisplayName: profile.location_display_name,
-    locationPlaceId: profile.location_place_id,
-    locationLat: profile.location_lat,
-    locationLng: profile.location_lng,
-    locationCity: profile.location_city,
-    locationState: profile.location_state,
-    locationCountry: profile.location_country,
-    locationProvider: profile.location_provider,
-    providerPlaceId: profile.provider_place_id,
-    locationVisibility: profile.location_visibility ?? "public_region",
-    isRemote: profile.is_remote,
-    distanceMiles: null,
-    seekingPaid: profile.seeking_paid,
-    seekingUnpaid: profile.seeking_unpaid,
-    yearsExperience: profile.years_experience,
-    availabilityText: profile.availability_text,
-    contactEmail: profile.contact_email,
-    instagramUrl: profile.instagram_url,
-    youtubeUrl: profile.youtube_url,
-    spotifyUrl: profile.spotify_url,
-    soundcloudUrl: profile.soundcloud_url,
-    websiteUrl: profile.website_url,
-    createdAt: profile.created_at,
-    updatedAt: profile.updated_at,
-    instruments: instrumentNames,
-    genres: genreNames,
-  };
+  return profileFromRow(data as ProfileRow, instrumentNames, genreNames);
 }
 
+/**
+ * Update the profile row and, when tag lists are supplied, replace its taxonomy
+ * — both inside one transaction (`update_musician_profile_with_tags`). The old
+ * sequence deleted every junction row first, so a later failure left a musician
+ * with no instruments or genres while the UI said the save had failed.
+ *
+ * Passing `undefined` for a tag list leaves that taxonomy untouched; passing an
+ * empty array clears it. Ownership is asserted inside the function.
+ */
 export async function updateProfile(
   id: string,
   input: UpdateProfileInput,
@@ -357,84 +376,29 @@ export async function updateProfile(
 ): Promise<MusicianProfile> {
   const supabase = await createSupabaseServerClient();
 
-  const updateData: Record<string, any> = {};
-  if (input.displayName !== undefined) updateData.display_name = input.displayName;
-  if (input.bio !== undefined) updateData.bio = input.bio;
-  if (input.school !== undefined) updateData.school = input.school;
-  if (input.location !== undefined) updateData.location = input.location;
-  if (input.locationDisplayName !== undefined) updateData.location_display_name = input.locationDisplayName;
-  if (input.locationPlaceId !== undefined) updateData.location_place_id = input.locationPlaceId;
-  if (input.locationLat !== undefined) updateData.location_lat = input.locationLat;
-  if (input.locationLng !== undefined) updateData.location_lng = input.locationLng;
-  if (input.locationCity !== undefined) updateData.location_city = input.locationCity;
-  if (input.locationState !== undefined) updateData.location_state = input.locationState;
-  if (input.locationCountry !== undefined) updateData.location_country = input.locationCountry;
-  if (input.locationProvider !== undefined) updateData.location_provider = input.locationProvider;
-  if (input.providerPlaceId !== undefined) updateData.provider_place_id = input.providerPlaceId;
-  if (input.locationVisibility !== undefined) updateData.location_visibility = input.locationVisibility;
-  if (input.isRemote !== undefined) updateData.is_remote = input.isRemote;
-  if (input.seekingPaid !== undefined) updateData.seeking_paid = input.seekingPaid;
-  if (input.seekingUnpaid !== undefined) updateData.seeking_unpaid = input.seekingUnpaid;
-  if (input.yearsExperience !== undefined) updateData.years_experience = input.yearsExperience;
-  if (input.availabilityText !== undefined) updateData.availability_text = input.availabilityText;
-  if (input.contactEmail !== undefined) updateData.contact_email = input.contactEmail;
-  if (input.instagramUrl !== undefined) updateData.instagram_url = input.instagramUrl;
-  if (input.youtubeUrl !== undefined) updateData.youtube_url = input.youtubeUrl;
-  if (input.spotifyUrl !== undefined) updateData.spotify_url = input.spotifyUrl;
-  if (input.soundcloudUrl !== undefined) updateData.soundcloud_url = input.soundcloudUrl;
-  if (input.websiteUrl !== undefined) updateData.website_url = input.websiteUrl;
+  const [instruments, genres] = await Promise.all([
+    instrumentNames ? ensureInstruments(instrumentNames, userId) : Promise.resolve(null),
+    genreNames ? ensureGenres(genreNames, userId) : Promise.resolve(null),
+  ]);
 
-  if (instrumentNames || genreNames) {
-    const deleteResults = await Promise.all([
-      supabase.from("musician_instrument").delete().eq("musician_profile_id", id),
-      supabase.from("musician_genre").delete().eq("musician_profile_id", id),
-    ]);
-    const deleteError = firstError(deleteResults);
-    if (deleteError) throw deleteError;
-  }
-
-  // The create wizard saves tags on their own step, so `input` can legitimately be
-  // empty. PostgREST rejects an update with no columns, so skip the write entirely.
-  if (Object.keys(updateData).length) {
-    const { error: updateError } = await supabase
-      .from("musician_profile")
-      .update(updateData)
-      .eq("id", id);
-
-    if (updateError) throw updateError;
-  }
-
-  if (instrumentNames || genreNames) {
-    const [instruments, genres] = await Promise.all([
-      instrumentNames ? ensureInstruments(instrumentNames, userId) : Promise.resolve([]),
-      genreNames ? ensureGenres(genreNames, userId) : Promise.resolve([]),
-    ]);
-
-    const junctionResults = await Promise.all([
-      ...instruments.map((inst) =>
-        supabase.from("musician_instrument").insert({
-          musician_profile_id: id,
-          instrument_id: inst.id,
-        })
-      ),
-      ...genres.map((genre) =>
-        supabase.from("musician_genre").insert({
-          musician_profile_id: id,
-          genre_id: genre.id,
-        })
-      ),
-    ]);
-    const junctionError = firstError(junctionResults);
-    if (junctionError) throw junctionError;
-  }
-
-  const { data, error } = await supabase
-    .from("musician_profile")
-    .select("*, musician_instrument(*, instrument(*)), musician_genre(*, genre(*))")
-    .eq("id", id)
-    .single();
+  const { error } = await supabase.rpc("update_musician_profile_with_tags", {
+    p_id: id,
+    p_profile: profileColumnPayload(input),
+    p_instrument_ids: instruments ? instruments.map((tag) => tag.id) : null,
+    p_genre_ids: genres ? genres.map((tag) => tag.id) : null,
+  });
 
   if (error) throw error;
+
+  // Read the committed row back with its joins so callers get the same shape a
+  // page read would produce, including tags they did not just write.
+  const { data, error: readError } = await supabase
+    .from("musician_profile")
+    .select(OWNER_PROFILE_SELECT)
+    .eq("id", id)
+    .single<ProfileRow>();
+
+  if (readError) throw readError;
   const images = await getProfileImages([data.user_id]);
   return toProfile(data, null, images.get(data.user_id) ?? null);
 }
