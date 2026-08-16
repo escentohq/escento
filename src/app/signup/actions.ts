@@ -43,7 +43,7 @@ export async function validateSignUp(
     fieldError(fieldErrors, "confirmPassword", "Passwords need to match.");
   }
   if (!termsAccepted) {
-    fieldError(fieldErrors, "termsAccepted", "Agree to the terms, privacy policy, and compliance policy to continue.");
+        fieldError(fieldErrors, "termsAccepted", "Agree to the terms, privacy policy, and acceptable use rules to continue.");
   }
 
   if (Object.keys(fieldErrors).length) {

@@ -57,7 +57,7 @@ export function Footer() {
               href="/compliance"
               className="text-xs text-[#94A3B8] transition-colors hover:text-[#0055FF]"
             >
-              Compliance
+              Acceptable use
             </Link>
           </div>
 

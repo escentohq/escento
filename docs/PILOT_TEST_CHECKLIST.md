@@ -160,7 +160,7 @@ Recommended browsers and devices:
   - Expected: Error says passwords need to match.
 - [ ] **Leave terms unchecked and otherwise valid fields.**
   - Check: Terms validation.
-  - Expected: Error says to agree to terms, privacy policy, and compliance policy.
+  - Expected: Error says to agree to terms, privacy policy, and acceptable use rules.
 - [ ] **Click Terms link from sign-up form.**
   - Check: Legal link.
   - Expected: `/terms` opens and can be returned from.
