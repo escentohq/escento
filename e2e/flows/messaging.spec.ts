@@ -1,27 +1,36 @@
-import { test, expect, type Browser, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
-import { signUp, chooseRole, clickUntil, createMusicianProfile } from "./helpers";
+import {
+  chooseRole,
+  clickUntil,
+  createMusicianProfile,
+  newContextPage,
+  newMusicianWithProfile,
+  signUp,
+} from "./helpers";
 
 /**
  * Full messaging write flow across two isolated browser contexts (two real
  * users): connection request -> accept -> send -> cross-user receive on first
  * load, plus a reply from the second participant into the shared thread.
  */
-async function newUserPage(browser: Browser): Promise<Page> {
-  const context = await browser.newContext();
-  return context.newPage();
-}
-
 test("connection request, accept, and two-way messaging", async ({ browser }) => {
   // ── User B: musician with a public profile (the recipient) ──
-  const pageB = await newUserPage(browser);
-  await signUp(pageB, "msg-b");
-  await chooseRole(pageB, "MUSICIAN");
-  const bDisplayName = `Recipient ${Date.now().toString(36)}`;
-  const bProfileId = await createMusicianProfile(pageB, bDisplayName);
+  //
+  // B has to be *launch ready*, not merely saved. Since issue #28 a profile with
+  // only a display name is a draft: its owner can see and resume it, but it is
+  // not anonymous inventory, so A would get a 404 here instead of a Connect
+  // button. This test predates that rule and was quarantined rather than updated.
+  const { page: pageB, profileId: bProfileId } = await newMusicianWithProfile(
+    browser,
+    "msg-b",
+    `Recipient ${Date.now().toString(36)}`,
+  );
 
   // ── User A: musician who initiates the connection (the requester) ──
-  const pageA = await newUserPage(browser);
+  // A's own profile stays a draft on purpose: nobody has to look at it, and it
+  // keeps this test honest about which profile needs to be public.
+  const pageA = await newContextPage(browser);
   await signUp(pageA, "msg-a");
   await chooseRole(pageA, "MUSICIAN");
   await createMusicianProfile(pageA, `Requester ${Date.now().toString(36)}`);
