@@ -8,7 +8,7 @@ export function DirectoryResultsSkeleton({ rows = 6 }: { rows?: number }) {
     <section className="mt-10" aria-hidden>
       <div className="divide-y divide-rule border-y border-rule">
         {Array.from({ length: rows }).map((_, index) => (
-          <div key={index} className="h-28 bg-surface" />
+          <div key={index} className="h-28" />
         ))}
       </div>
     </section>
