@@ -15,6 +15,7 @@ import {
 import { isMalformedIdError, isUuid } from "@/lib/ids";
 import { displayLocation, distanceMiles, parseLocationSearch } from "@/lib/location";
 import { getPasswordStrength, validatePassword } from "@/lib/password";
+import { hasPublicName, validatePublicName } from "@/lib/public-name";
 import {
   completedStepCount,
   isProfileLaunchReady,
@@ -348,5 +349,20 @@ describe("isMalformedIdError", () => {
     expect(isMalformedIdError({ code: "PGRST116" })).toBe(false);
     expect(isMalformedIdError(null)).toBe(false);
     expect(isMalformedIdError(undefined)).toBe(false);
+  });
+});
+
+describe("public name", () => {
+  it("rejects empty and whitespace-only values", () => {
+    expect(hasPublicName("")).toBe(false);
+    expect(hasPublicName("   ")).toBe(false);
+    expect(hasPublicName(null)).toBe(false);
+    expect(validatePublicName("   ").error).toBeTruthy();
+  });
+
+  it("trims a usable name and bounds its length", () => {
+    expect(validatePublicName("  Maya Singh  ")).toEqual({ name: "Maya Singh" });
+    expect(hasPublicName("Maya Singh")).toBe(true);
+    expect(validatePublicName("x".repeat(81)).error).toBeTruthy();
   });
 });

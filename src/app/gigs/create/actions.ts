@@ -20,9 +20,13 @@ import { gigValuesFromFormData } from "@/lib/form-snapshots";
 import { isDeadlinePast } from "@/lib/gig-deadline";
 import { parseStructuredLocation, validateStructuredLocation } from "@/lib/location";
 import { invalidatePublicGig } from "@/lib/public-cache-invalidation";
+import { ACCOUNT_NAME_PATH, hasPublicName } from "@/lib/public-name";
 
 export async function createGigAction(_state: ActionState, fd: FormData): Promise<ActionState> {
   const session = await requireRole("CREATOR", "/gigs/create");
+  if (!hasPublicName(session.user.name)) {
+    redirect(ACCOUNT_NAME_PATH);
+  }
   const fieldErrors: Record<string, string> = {};
 
   const title = strOrEmpty(fd.get("title"));

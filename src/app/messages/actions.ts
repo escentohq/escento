@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { requireUser } from "@/lib/auth-guards";
 import {
@@ -23,6 +24,7 @@ import {
 } from "@/lib/api/messaging";
 import { isEscentoSupportSummary } from "@/lib/support-identity";
 import { isEscentoSupportUserId } from "@/lib/api/support-account";
+import { ACCOUNT_NAME_PATH, hasPublicName } from "@/lib/public-name";
 
 const MESSAGES_CALLBACK_URL = "/messages";
 
@@ -31,6 +33,9 @@ export async function sendConnectionRequest(
   optionalIntroMessage?: string | null,
 ) {
   const session = await requireUser(MESSAGES_CALLBACK_URL);
+  if (session.user.role === "CREATOR" && !hasPublicName(session.user.name)) {
+    redirect(ACCOUNT_NAME_PATH);
+  }
   const request = await createConnectionRequest(
     session.user.id,
     recipientId,

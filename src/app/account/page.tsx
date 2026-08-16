@@ -1,17 +1,32 @@
 import { requireSignedIn } from "@/lib/auth-guards";
 import { PageShell } from "@/components/ui/page-shell";
 import { SectionCard } from "@/components/ui/section-card";
+import { hasPublicName } from "@/lib/public-name";
 import { UpdateProfilePictureForm } from "./_update-profile-picture-form";
 import { UpdateNameForm } from "./_update-name-form";
 import { DeleteAccountButton } from "./_delete-account-button";
 import { deleteAccountAction } from "./actions";
 
-export default async function AccountPage() {
+export default async function AccountPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reason?: string }>;
+}) {
   const session = await requireSignedIn("/account");
+  const { reason } = await searchParams;
+  const needsName = reason === "name" || !hasPublicName(session.user.name);
 
   return (
     <PageShell size="narrow" eyebrow="Settings" title="Account settings">
       <div className="space-y-8">
+        {needsName ? (
+          <aside className="border-y border-rule bg-surface px-1 py-5 md:px-4">
+            <p className="text-meta uppercase text-brand">Add a name</p>
+            <p className="mt-2 text-body text-ink">
+              Musicians see this name on your gigs and requests. Add one before you publish or contact anyone.
+            </p>
+          </aside>
+        ) : null}
         <SectionCard eyebrow="Profile" title="Account details">
           <div className="space-y-6">
             <UpdateProfilePictureForm
