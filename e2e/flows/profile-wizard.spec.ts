@@ -29,9 +29,15 @@ test.describe("profile create wizard", () => {
     await page.getByRole("button", { name: "Save and continue" }).click();
     await page.waitForURL(/\/profile\/create\/context/, { timeout: 30_000 });
 
-    // Leave mid-wizard. Step 2 must survive.
+    // Leave mid-wizard. Step 2 must survive and the setup prompt must point to
+    // the first unfinished step. Remote availability already supplies enough
+    // context for listing, even though the wizard is not complete.
     await page.goto("/musicians");
-    await expect(page.getByText("Saved, not listed yet")).toBeVisible();
+    await expect(page.getByText("Profile setup: 2 of 4 steps")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Continue setup" }).first()).toHaveAttribute(
+      "href",
+      "/profile/create/context",
+    );
 
     // Re-entering the wizard resumes at the first unfinished step, not step 1.
     await page.goto("/profile/create");
@@ -42,10 +48,9 @@ test.describe("profile create wizard", () => {
     await page.waitForURL(/\/profile\/create\/craft/, { timeout: 30_000 });
     await expect(page.getByRole("button", { name: "Remove Cello" })).toBeVisible();
 
-    // The owner can still preview the draft; it is not listed yet (no context).
+    // The saved craft data is visible on the listed profile.
     await page.goto(`/musicians/${profileId}`);
     await expect(page.getByText("Cello").first()).toBeVisible();
-    await expect(page.getByText("Not listed yet")).toBeVisible();
   });
 
   test("skip advances without writing, and the last step finishes on the profile", async ({ page }) => {
