@@ -13,6 +13,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getProfileByUserId } from "@/lib/api/profiles";
 import { fieldError, type ActionState } from "@/lib/form-utils";
+import { validatePublicName } from "@/lib/public-name";
 import { AccountDeletionError, deleteUserCompletely } from "@/lib/user-deletion";
 import { invalidatePublicGig, invalidatePublicProfile } from "@/lib/public-cache-invalidation";
 
@@ -98,15 +99,11 @@ export async function deleteAccountAction(): Promise<{ ok: false; message: strin
 
 export async function updateNameAction(_state: ActionState, fd: FormData): Promise<ActionState> {
   const session = await requireSignedIn("/account");
-  const name = String(fd.get("name") ?? "").trim();
-
-  if (!name) {
-    return { ok: false, fieldErrors: { name: "Add a display name." } };
+  const parsed = validatePublicName(fd.get("name"));
+  if (parsed.error) {
+    return { ok: false, fieldErrors: { name: parsed.error } };
   }
-
-  if (name.length > 80) {
-    return { ok: false, fieldErrors: { name: "Name must be 80 characters or fewer." } };
-  }
+  const name = parsed.name;
 
   const supabase = await createSupabaseServerClient();
 

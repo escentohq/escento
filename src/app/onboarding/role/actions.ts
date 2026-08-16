@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireSignedIn } from "@/lib/auth-guards";
 import { isAppRole, roleDestination, type AppRole } from "@/lib/onboarding-role";
+import { ACCOUNT_NAME_PATH, hasPublicName } from "@/lib/public-name";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createSupabaseServerClient>>;
@@ -76,5 +77,17 @@ export async function setRole(role: "MUSICIAN" | "CREATOR"): Promise<void> {
   revalidatePath("/onboarding/role");
   revalidatePath("/");
   // Always the role the account actually has, never the one that was asked for.
+  // OAuth accounts can arrive with no provider name; send those creators to
+  // Account before they can publish, instead of onto an empty manage page.
+  if (effectiveRole === "CREATOR") {
+    const { data: row } = await supabase
+      .from("app_user")
+      .select("name")
+      .eq("id", session.user.id)
+      .maybeSingle();
+    if (!hasPublicName(row?.name ?? session.user.name)) {
+      redirect(ACCOUNT_NAME_PATH);
+    }
+  }
   redirect(roleDestination(effectiveRole));
 }

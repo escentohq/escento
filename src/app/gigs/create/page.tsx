@@ -1,8 +1,11 @@
+import { redirect } from "next/navigation";
+
 import { PageShell } from "@/components/ui/page-shell";
 import { requireRole } from "@/lib/auth-guards";
 import { listGenres, listInstruments } from "@/lib/api/tags";
 import { GigForm } from "../_gig-form";
 import { createGigAction } from "./actions";
+import { ACCOUNT_NAME_PATH, hasPublicName } from "@/lib/public-name";
 
 export default async function CreateGigPage() {
   // Taxonomy is public and session-independent, so it loads alongside the auth check
@@ -11,7 +14,8 @@ export default async function CreateGigPage() {
   const tagsPromise = Promise.all([listInstruments(), listGenres()]);
   tagsPromise.catch(() => {});
 
-  await requireRole("CREATOR", "/gigs/create");
+  const session = await requireRole("CREATOR", "/gigs/create");
+  if (!hasPublicName(session.user.name)) redirect(ACCOUNT_NAME_PATH);
   const [instruments, genres] = await tagsPromise;
 
   return (

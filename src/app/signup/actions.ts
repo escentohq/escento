@@ -9,6 +9,7 @@ import {
   type FieldErrors,
 } from "@/lib/form-utils";
 import { validatePassword } from "@/lib/password";
+import { validatePublicName } from "@/lib/public-name";
 import { sendWelcomeMessageFromEscentoBestEffort } from "@/lib/api/support-account";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -26,8 +27,10 @@ export async function validateSignUp(
   const password = String(formData.get("password") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
   const termsAccepted = formData.get("termsAccepted") === "on";
+  const nameResult = validatePublicName(formData.get("name"));
 
   const fieldErrors: FieldErrors = {};
+  if (nameResult.error) fieldError(fieldErrors, "name", nameResult.error);
   if (!email) fieldError(fieldErrors, "email", "Enter your email address.");
   if (email && !isValidEmail(email)) {
     fieldError(fieldErrors, "email", "Enter a valid email address.");
@@ -66,7 +69,7 @@ export async function signUpWithPasswordAction(
 
   const email = String(fd.get("email") ?? "").trim().toLowerCase();
   const password = String(fd.get("password") ?? "");
-  const name = String(fd.get("name") ?? "").trim();
+  const name = validatePublicName(fd.get("name")).name;
 
   try {
     const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";

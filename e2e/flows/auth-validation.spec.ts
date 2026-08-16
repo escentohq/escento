@@ -3,6 +3,18 @@ import { test, expect } from "@playwright/test";
 import { signOut, signUpAs } from "./helpers";
 
 test.describe("auth validation", () => {
+  test("signup requires a name", async ({ page }) => {
+    await page.goto("/signup");
+    await page.locator('input[name="email"]').fill(`noname+${Date.now().toString(36)}@example.test`);
+    await page.locator('input[name="password"]').fill("Escento1234");
+    await page.locator('input[name="confirmPassword"]').fill("Escento1234");
+    await page.locator('input[name="termsAccepted"]').check();
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await expect(page.getByText("Add the name musicians should see.")).toBeVisible();
+    await expect(page).toHaveURL(/\/signup/);
+  });
+
   test("signup enforces password and confirmation rules", async ({ page }) => {
     await page.goto("/signup");
     await page.locator('input[name="name"]').fill("Auth Tester");

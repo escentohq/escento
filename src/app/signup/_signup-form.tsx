@@ -67,7 +67,14 @@ export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
         />
       ) : null}
 
-      <FormField id="name" label="Name">
+      <FormField
+        id="name"
+        label="Name"
+        required
+        error={errors.name}
+        showError={formFields.shouldShowError("name", errors.name)}
+        onBlur={() => formFields.markTouched("name")}
+      >
         <Input
           name="name"
           type="text"

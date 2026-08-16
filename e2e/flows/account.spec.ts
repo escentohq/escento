@@ -21,6 +21,6 @@ test.describe("account", () => {
     await page.locator('input[name="name"]').fill("");
     await page.getByRole("button", { name: "Save" }).click();
 
-    await expect(page.getByText("Add a display name.")).toBeVisible();
+    await expect(page.getByText("Add the name musicians should see.")).toBeVisible();
   });
 });
