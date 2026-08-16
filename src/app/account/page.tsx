@@ -27,7 +27,7 @@ export default async function AccountPage({
             </p>
           </aside>
         ) : null}
-        <SectionCard eyebrow="Profile" title="Account details">
+        <SectionCard title="Account details">
           <div className="space-y-6">
             <UpdateProfilePictureForm
               name={session.user.name}

@@ -24,7 +24,6 @@ export default async function CraftStepPage() {
 
   return (
     <PageShell
-      eyebrow="Instruments and genres"
       title="What do you play?"
       body="Add the instruments you play and the genres you work in."
       size="narrow"

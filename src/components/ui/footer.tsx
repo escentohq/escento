@@ -4,7 +4,7 @@ import { EscentoWordmark } from "./brand";
 
 export function Footer() {
   return (
-    <footer className="border-t border-[#CBD5E1] bg-white py-8 md:py-10">
+    <footer className="border-t border-rule bg-paper py-8 md:py-10">
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-8 md:flex-row md:items-end md:gap-12">
           <div className="flex items-center gap-3">

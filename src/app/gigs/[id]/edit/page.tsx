@@ -32,7 +32,6 @@ export default async function EditGigPage({
 
   return (
     <PageShell
-      eyebrow="Your gig"
       title="Edit gig"
       body="Update the project details, requirements, pay, or deadline."
       size="medium"

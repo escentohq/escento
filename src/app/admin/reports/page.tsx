@@ -98,7 +98,6 @@ export default async function AdminReportsPage() {
 
       {reports.length === 0 ? (
         <EmptyState
-          eyebrow="Clear"
           title="No reports yet."
           body="New reports will appear here."
         />
