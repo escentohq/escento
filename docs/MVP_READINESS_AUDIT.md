@@ -1,365 +1,375 @@
 # Escento MVP Readiness Audit
 
-Audit date: August 15, 2026  
-Repository: `escentohq/escento` at `4c50c5f`  
-Resolution update: August 15, 2026 — MVP-01 / issues #25–#26 implemented and verified
+Audit date: August 16, 2026
+
+Repository: `escentohq/escento` at `663d7c3`
+
+Supersedes the August 15, 2026 snapshot in this file
 
 ## Executive Summary
 
-Escento is **not ready for an unsupervised pilot**. The main marketplace loop is substantially present: public musician and gig discovery, role-gated profile and gig authoring, connection requests, accepted 1:1 conversations, blocking, reporting, account management, and an admin surface all exist. The signed-out application rendered at desktop and mobile widths without horizontal overflow, and protected routes redirected to sign-in.
+Escento is **not ready for pilot users today**. The public product, auth gates, discovery surfaces,
+request/message model, moderation rules, account controls, and legal pages are substantially built.
+The previous audit's role, atomicity, deletion, lifecycle, legal, malformed-ID, identity-readiness,
+and moderation findings all have implementations and regression artifacts in the repository.
 
-The remaining blockers are narrow but consequential. Role assignment can be overwritten after onboarding; several multi-table mutations can leave partial state; gig deadlines and closed-detail behavior do not match the promised lifecycle; and signup requires agreement to Terms and Compliance pages that are still placeholders. A smaller set of P2 issues makes malformed IDs fail as server errors and allows marketplace identities to become public without enough context to be trustworthy. The original P0 moderation defect is now resolved: anonymous RLS, service queries, and cache invalidation all enforce hide/restore.
+The current blocker is narrower and more immediate: the latest privilege-hardening migration
+(`20260816120000_lock_app_user_self_update.sql`) prevents the transactional profile and gig creation
+RPCs from inserting their root rows. A fresh local Supabase stack reproduced PostgreSQL `42501`
+errors in all three write-flow shards. A new musician therefore cannot finish profile creation and a
+creator cannot publish a gig in the schema represented by `main`.
+
+Production schema state is also not proven. Production deployment does not apply migrations, the
+repository has no recorded schema-drift workflow run, and the pull-request process says migrations
+are pasted into the hosted SQL editor manually. That means the hosted system may either lack the
+security hardening from issue #59 or contain the hardening and inherit the creation regression. No
+production mutation was performed during this audit.
 
 | Severity | Count |
 | --- | ---: |
-| P0 | 0 |
-| P1 | 5 |
-| P2 | 2 |
+| P0 | 1 |
+| P1 | 1 |
+| P2 | 1 |
 | P3 | 0 |
 
-The shortest path to a usable pilot is:
+The shortest path to a usable MVP is finite:
 
-1. Make the one-time role invariant enforceable and make critical multi-resource writes failure-safe.
-2. Correct gig deadline/closed-detail behavior.
-3. Complete the legal documents already required by signup.
-4. Reject malformed resource IDs cleanly and require minimum public identity context.
-5. Re-run the existing local-Supabase write-flow suite, including the new moderation regression coverage.
+1. Repair the profile/gig RPC privilege contract without restoring writes to moderation/support
+   columns.
+2. Apply and verify the exact migration set in hosted Supabase, then make schema drift observable.
+3. Run the entire isolated write-flow suite to completion and remove the four remaining skips.
+4. Rehearse the two-account musician/creator loop and external email/OAuth/storage configuration in
+   the deployed pilot environment.
 
 ## Canonical MVP Scope
 
-This audit uses the smallest product that reliably connects real musicians with people seeking musical talent:
+The audited MVP is the smallest product that lets real musicians and people hiring them complete
+discovery, direct outreach, and conversation:
 
-- account creation, sign-in/out, session continuity, password recovery, and one-time role onboarding;
-- a maintainable musician profile with enough context to evaluate a match;
-- public musician and open-gig discovery with the existing keyword, taxonomy, remote, and location filters;
-- creator-owned gig creation, editing, closing/reopening, and deletion;
-- one coherent connection-request lifecycle that opens an accepted 1:1 conversation;
-- persisted direct messaging, unread state, blocking, reporting, and basic operator moderation;
-- basic account settings and deletion;
-- safe, understandable loading, empty, error, unauthorized, and mobile states.
+- account creation, sign-in/out, recovery, session continuity, and one-time role onboarding;
+- a musician profile with existing identity, skill, location, availability, and work-link fields;
+- public musician and open-gig discovery with the filters already implemented;
+- creator-owned gig create, edit, close/reopen, and delete;
+- connection request send, receive, accept/reject/cancel, and duplicate prevention;
+- accepted 1:1 conversations with persisted messages, unread state, and blocking;
+- transactional request/message email where configured;
+- reporting, operator moderation, account settings, and account deletion;
+- safe loading, empty, error, not-found, authorization, and mobile behavior.
 
-Payments, escrow, contracts, calendars, reviews, ratings, favorites, feeds, follows, group chat, calls, AI matching, recommendation systems, advanced verification, native apps, subscriptions, and sophisticated analytics are outside this audit.
+Payments, escrow, contracts, calendars, ratings, reviews, favorites, feeds, follows, group chat,
+calls, AI matching/recommendations, subscriptions, native apps, advanced verification, and hosted
+portfolio media remain outside MVP scope.
 
 ## Architecture Observed
 
-- Next.js 16 App Router with React 19 and TypeScript. Pages are predominantly Server Components; forms isolate client behavior.
-- Supabase Auth, SSR cookie clients, PostgreSQL, RLS, Supabase Storage, and service-role helpers for privileged server-only work.
-- Server Actions own product mutations. `getCurrentSession()`, `requireSignedIn()`, `requireUser()`, `requireRole()`, and `requireAdminEmail()` establish page/action authorization.
-- Typed-by-convention service modules under `src/lib/api/` wrap Supabase reads and writes. Public directory data is cached with `unstable_cache` and invalidated by tags.
-- Connection requests, direct conversations, participants, messages, blocks, and reports are stored in Supabase. Database triggers constrain request transitions, direct participants, message membership, and block behavior.
-- Transactional request/message email uses the Resend HTTP API as best-effort delivery. Vercel Analytics and Speed Insights are present.
-- Playwright is the only test runner. Read-only smoke tests target public/protected route behavior; mutation flows target an ephemeral local Supabase stack.
+- Next.js 16 App Router, React 19, TypeScript, and Server Components by default.
+- Supabase Auth with SSR cookies, PostgreSQL/RLS, Supabase Storage, an anonymous public client, a
+  session client, and a server-only service-role client.
+- Mutations are Server Actions; protected pages/actions use the established auth guards. Product
+  data access is concentrated under `src/lib/api/`.
+- Public profile, gig, and taxonomy reads use `unstable_cache` and tag invalidation. User-specific
+  session and messaging reads are not persistently cached.
+- Profile/gig root and taxonomy writes use PostgreSQL RPCs. Request acceptance and account data
+  deletion also use database functions.
+- Messaging stores requests, conversations, participants, messages, read timestamps, soft-deleted
+  participant state, and directional blocks. Request/message email is best-effort through Resend.
+- CI gates lint, typecheck, unit tests, and build. The local-Supabase write-flow suite is manual and
+  sharded. Schema drift is scheduled/manual but has never recorded a run in GitHub Actions.
 
 ### Documentation drift
 
-- `docs/ai-context/userflows/musician-conversation-flow.md` describes a planned gig-specific/realtime model. Live code uses generalized connection requests and non-realtime direct conversations.
-- `docs/ai-context/userflows/onboarding-flows.md` still refers to a `user` table and older sync/form architecture. Live code uses `app_user`, a database trigger, and a multi-step profile wizard.
-- `CLAUDE.md` contains a stale “No RLS” statement; the baseline migration enables RLS on core tables.
-- `PRODUCT.md` says closed gigs remain reachable by link, and the write-flow test asserts that behavior. The live public client/RLS combination denies closed gig detail reads.
+Actual source was used as the tie-breaker. Notable stale documentation remains:
 
-Actual code and the baseline migration were treated as the tie-breaker.
+- `CLAUDE.md` says there is no RLS and that IDs are text, while live migrations use extensive RLS
+  and core marketplace IDs are UUIDs.
+- `docs/ai-context/userflows/musician-conversation-flow.md` is marked planned and describes an old
+  gig-specific, realtime design. Live messaging uses generalized connection requests and refresh-
+  based persisted conversations.
+- `docs/ai-context/userflows/onboarding-flows.md` refers to the old `user` table, old copy, and a
+  single-step profile form. Live code uses `app_user` and a resumable multi-step wizard.
+- `PRODUCT.md` says all musician profiles are public; live RLS requires account/profile moderation
+  visibility and a launch-readiness predicate.
+- `FRONTEND_ARCH.md` still says some actions throw user-correctable errors and skip revalidation;
+  live form actions use `ActionState`, and marketplace mutations invalidate caches.
+- `UX_RULES.md` says no loading routes/modals exist; the current route tree has both loading files
+  and `ConfirmDialog`.
 
-## Audit Method and Limits
+These are documentation-maintenance risks, not separate launch blockers in this audit.
+
+## Audit Method and Runtime Limits
 
 ### Completed
 
-- Read the repository instructions, product/design/UX/architecture/data/component/form docs, agent docs, user-flow docs, package/configuration, schema, auth, middleware, all route/action inventories, core service layers, notifications, messaging, moderation, account deletion, shared UI, environment documentation, and tests.
-- Walked signed-out routes in local Chrome at 1440×900 and 390×844, including `/`, `/musicians`, `/gigs`, representative musician/gig details, `/signin`, `/signup`, `/forgot-password`, `/help`, legal pages, protected redirects, invalid resources, and unknown routes.
-- Resized core public surfaces through desktop and mobile layouts and checked document-width overflow. No horizontal overflow was observed.
-- Inspected form labels, touch surfaces, focus classes, loading/error/not-found files, ownership checks, RLS policies, database triggers, request/message invariants, and cache invalidation paths.
-- Ran the signed-out Playwright smoke suite: 22 passed, 1 failed because the test expects a percent-encoded callback while the browser correctly normalizes it to `/signin?callbackUrl=/onboarding/role`. This is a test assertion defect, not a product redirect failure.
-- Ran the moderation database and browser regressions in CI against a disposable local Supabase stack. No hosted Supabase data or credentials were used.
+- Read repository instructions, `CLAUDE.md`, all primary AI-context documents, all agent files,
+  both documented user flows, package/configuration, route inventory, actions, service layers,
+  auth/middleware, migrations, email/messaging/moderation code, shared states, environment contract,
+  and tests.
+- Rechecked every finding from the August 15 audit against current source, migrations, commits,
+  tests, and GitHub issue state.
+- Rendered public, auth, invalid-ID, and protected routes in Chrome at 1440×900, 768×1024, and
+  390×844. Screenshots were inspected for the landing page, musician/gig directories, auth, and
+  protected redirects. No document-width overflow or uncaught browser error was observed.
+- Ran the complete read-only Playwright suite locally: 40 passed.
+- Inspected GitHub Actions and the isolated local-Supabase run on current `main`: database policy
+  tests passed, but every write shard failed at profile/gig creation with `42501`.
+- Ran lint, typecheck, 102 unit tests, production build, production dependency audit, and
+  `git diff --check`.
 
-### Not safely runtime-tested
+### Not safely runtime-verified
 
-- No signup, role selection, profile/gig mutation, request/message exchange, moderation write, report submission, email delivery, OAuth, password-email round trip, storage upload, or account deletion was performed against the configured hosted Supabase project.
-- The full write-flow suite was executed against ephemeral Supabase in CI. Its remaining failures are outside moderation visibility and remain tracked by #15 and the applicable MVP issues; it is not represented as globally green.
-- Resend delivery, OAuth-provider configuration, password-reset email delivery, Geoapify availability, Supabase Storage policy/configuration, and Vercel environment values were not externally verified.
-- Authenticated mobile screens were reviewed statically and through their component layouts, but not with live role sessions.
-- The required `ui-ux-pro-max` review skill named in `AGENTS.md` was not available in this Codex session; canonical Escento rules and direct browser inspection were used instead.
+- No hosted/production signup, role, profile, gig, message, moderation, deletion, report, or storage
+  mutation was performed.
+- Google OAuth, password-reset email receipt, Resend delivery, verified sender domains, Geoapify,
+  profile-picture storage, session expiry after time, and Vercel environment values were not
+  externally rehearsed.
+- Authenticated mobile screens could not be walked end to end because the isolated write suite stops
+  at the current P0 and production data was kept read-only.
+- Hosted Supabase migration history/schema could not be compared: the Supabase CLI is unavailable
+  locally, no database URL is configured for the GitHub drift workflow, and that workflow has no
+  recorded run.
 
 ## Core Flow Status
 
 | Flow | Status | Severity | Evidence | Related issues |
 | --- | --- | --- | --- | --- |
-| Signed-out landing and discovery | Functional with caveats | P2 | `/`, `/musicians`, `/gigs`, and representative details rendered at both viewports; filters and empty states are wired; malformed detail IDs error instead of 404 | MVP-07 |
-| Account auth and protected redirects | Substantially functional | P1 | Email/Google auth, recovery, session helpers, middleware refresh, and signed-out redirects exist; 22/23 smoke checks passed; role can be overwritten after onboarding | MVP-02; existing #15 |
-| New musician onboarding/profile | Incomplete for pilot quality | P2 | Profile creation/edit services and wizard exist, but step one publishes a name-only profile immediately; live directory contains profiles with no bio, skills, or useful context | MVP-03, MVP-08 |
-| Creator/hirer discovers and contacts musician | Substantially functional | P2 | Public directory/detail and request control are connected; an unnamed creator can publish/contact without credible identity | MVP-08 |
-| Creator publishes/manages gig | Incomplete | P1 | Create/edit/close/reopen/delete and owner guards exist; multi-table writes are non-atomic and deadline/closed-detail behavior is inconsistent | MVP-03, MVP-05 |
-| Musician discovers and contacts gig owner | Incomplete | P1 | Directory/detail/contact flow exists; an already-expired open gig remained discoverable and contactable during the audit | MVP-05 |
-| Request lifecycle | Code-complete, runtime not re-verified | — | Unique pending pair, actor-specific transitions, acceptance RPC, outgoing/incoming states, cancel/reject, and conversation creation exist; dedicated write specs cover the lifecycle | existing #15 for test gaps |
-| Direct messaging | Code-complete, runtime not re-verified | — | Membership RLS, persistence, ordering, unread/read, optimistic send, returnable threads, blocks, and two-way write specs exist | existing #15 for test gaps |
-| Notifications | Implemented, external delivery unverified | — | In-app unread conversation/request surfaces and best-effort Resend email for incoming requests/messages exist; delivery configuration was not exercised | No new issue |
-| Basic trust and safety | Functionally enforced and regression-covered | — | Reporting, blocking, admin review, audit log, and hide/restore are present; RLS, public queries, cache invalidation, and restore behavior are exercised on ephemeral Supabase | MVP-01 resolved by #25–#26 |
-| Account management/deletion | Incomplete reliability | P1 | Name/photo/password/sign-out/deletion exist; deletion spans many irreversible calls without a recoverable state machine | MVP-04 |
-| Legal consent at signup | Broken | P1 | Terms checkbox is required, but Terms and Compliance are placeholder pages; Privacy claims product behavior not present in the current MVP | Existing #10 |
-| Mobile core surfaces | Functional in signed-out pass | — | 390×844 screenshots showed no clipping or horizontal overflow on public discovery, details, and auth | Authenticated flows not runtime-verified |
+| Signed-out landing/discovery | Functional | — | Browser captures at all three widths; 40/40 read-only Playwright checks passed | — |
+| Signup/sign-in/onboarding gates | Substantially functional | P1 operational caveat | Signed-out redirects and auth form inventory pass; role trigger/action exist; hosted schema state unproved | MVP-10 |
+| New musician profile | **Broken on current schema** | P0 | Local-Supabase profile creation fails with `42501 permission denied for table musician_profile` | MVP-09 |
+| Musician discovery/profile detail | Functional for existing launch-ready data | — | Search/filter/detail/empty/404 render; public RLS/query/readiness tests exist | #25, #26, #28 resolved |
+| Creator publishes a gig | **Broken on current schema** | P0 | Local-Supabase gig creation fails with `42501 permission denied for table gig` | MVP-09 |
+| Creator manages an existing gig | Implemented; full regression incomplete | P2 | Owner actions/guards exist; edit and close/reopen specs exist; delete spec remains skipped | MVP-11 |
+| Musician browses/contacts gig owner | Code-complete; blocked from fresh fixture setup | P0 dependency | Discovery/contact logic exists; fresh creator gig cannot be published in the isolated stack | MVP-09 |
+| Request lifecycle | Implemented; incomplete final evidence | P2 | Reject/cancel/accept/block cases exist; duplicate-request and complete two-user lifecycle specs remain skipped | MVP-11 |
+| Direct messaging | Implemented; incomplete final evidence | P2 | Membership/RLS, persistence, unread, message validation, keyboard send, and block code exist; complete two-way spec is skipped | MVP-11 |
+| Notifications | Implemented; provider delivery unverified | — | Five email tests pass; in-app counts/links exist; external Resend configuration not exercised | launch rehearsal |
+| Moderation/reporting | Implemented; one cache case skipped | P2 | pgTAP passed; profile/account cache hide/restore spec exists; gig/account cache spec remains skipped | MVP-11 |
+| Account management/deletion | Implemented; current suite blocked during fixture creation | P0 dependency | Transactional/idempotent deletion code/tests exist; shard failed before deletion assertions because profile create failed | MVP-09 |
+| Legal consent | Implemented in source | — | Terms, Privacy, and Acceptable Use are substantive; five legal unit tests and public route checks pass | #10/#36–#38 resolved; #49 stale/open |
+| Mobile public/auth surfaces | Functional in reviewed scope | — | 390×844 captures show no horizontal overflow or material clipping | authenticated rehearsal pending |
 
 ## Findings
 
-### Trust and safety
+### MVP-09 — Privilege hardening blocks transactional profile and gig creation
 
-#### MVP-01 — Admin hide/restore controls public visibility — resolved
+- **Severity:** P0 — launch blocker
+- **Affected users:** every new musician and creator
+- **Affected routes/services:** `/profile/create/**`, `/gigs/create`, `createProfile()`, `createGig()`,
+  `create_musician_profile_with_tags`, `create_gig_with_tags`
+- **Expected:** a signed-in musician can create a profile and a signed-in creator can publish a gig,
+  while neither can write moderation, verification, or support-account columns.
+- **Actual:** both transactional create RPCs fail with PostgreSQL `42501 permission denied` on a
+  fresh database built from `supabase/migrations/`.
+- **Reproduction:** run the manual Write-flow E2E workflow on `663d7c3`. Shard 1 fails while creating
+  the account-deletion profile fixture; shard 2 fails the creator-publishes-gig flow; shard 3 fails
+  the moderation profile fixture. Logs identify denied inserts on `musician_profile` and `gig`.
+- **Evidence:** GitHub Actions run `31933990213`; `supabase/migrations/20260816120000_lock_app_user_self_update.sql`;
+  the transactional functions in the `20260816010000` and `20260816020000` migrations.
+- **Likely cause:** issue #59 correctly replaced table-wide authenticated DML with column-level
+  grants, but the invoker-security create functions use `INSERT ... SELECT composite.*`. PostgreSQL
+  evaluates that insert against every table column, including columns intentionally omitted from
+  the authenticated insert grant.
+- **MVP impact:** two foundational supply-side flows cannot begin. Downstream request, messaging,
+  moderation, and deletion tests cannot construct representative users/listings.
+- **Fix scope:** change the function/grant contract so each transactional function writes only the
+  allowed product columns (or uses another narrowly privileged database boundary). Do not restore
+  authenticated writes to `is_admin_support_account`, moderation, visibility, or verification
+  columns. Cover success and privileged-column refusal together.
+- **Verification:** profile and gig create/edit succeed on a fresh migrated stack; atomic rollback
+  tests still pass; direct authenticated writes to all privileged columns still fail; the full
+  write-flow suite advances past fixture creation.
+- **GitHub:** new parent and child issues are listed below.
 
-- **Status:** Resolved August 15, 2026 by [#25](https://github.com/escentohq/escento/issues/25) and [#26](https://github.com/escentohq/escento/issues/26)
-- **Original severity:** P0 — launch blocker
-- **Affected users:** all users and operators
-- **Affected surfaces:** `/admin/users`, `/admin/musicians`, `/admin/gigs`, `/`, `/musicians`, `/musicians/[id]`, `/gigs`, `/gigs/[id]`
-- **Expected:** hiding a user, musician profile, or gig removes it from anonymous discovery/detail reads; restore reverses that result; cache invalidation makes the change visible promptly.
-- **Original defect:** moderation metadata was written but ignored by public profile/gig queries and permissive RLS, so hide did not remove unsafe content.
-- **Implemented contract:** accounts, profiles, and gigs must be both `is_public=true` and `moderation_status='active'`; profile/gig visibility also requires an active/public owner account; public gigs additionally remain restricted to `OPEN`. `hidden` and `needs_review` are non-public. Owners retain authenticated management access and service-role admins retain full access.
-- **Implementation:** `20260815000000_enforce_public_moderation_visibility.sql` replaces the permissive root and junction-table SELECT policies; `profiles.ts` and `gigs.ts` add explicit resource filters; user/creator hide and restore invalidate both public cache domains; the obsolete admin TODO now describes the enforced behavior.
-- **Regression coverage:** `supabase/tests/moderation_visibility_test.sql` covers anonymous, owner, service-role, resource-level, account-level, restore, needs-review, and taxonomy visibility. `e2e/flows/moderation-visibility.spec.ts` warms the cached home, directory, and detail surfaces; performs real admin hide/restore actions; makes direct anonymous Supabase reads; and checks owner access for profiles, gigs, and their owner accounts. Fixture creation is isolated from unrelated product forms, and the write config refuses hosted projects.
-- **Verification status:** ephemeral CI run [31910552363](https://github.com/escentohq/escento/actions/runs/31910552363) passed lint, typecheck, build, the 20 database policy assertions, and the focused two-case moderation browser suite. A prior full write-flow run [31908575319](https://github.com/escentohq/escento/actions/runs/31908575319) executed the broader suite; its unrelated existing failures remain tracked separately rather than being attributed to #26.
-- **Issue:** [#23 — Enforce public moderation visibility](https://github.com/escentohq/escento/issues/23) with native sub-issues #25–#26.
+### MVP-10 — Hosted database migration state is neither deployed nor verified automatically
 
-### Authentication, roles, and marketplace identity
+- **Severity:** P1 — core security/reliability readiness gap
+- **Affected users:** all hosted users
+- **Affected systems:** production Supabase, deployment workflow, schema-drift workflow
+- **Expected:** the hosted database is known to match reviewed migrations before pilot use, and a
+  deploy cannot silently pair new application code with old schema/security rules.
+- **Actual:** Vercel production deploys application code only. The pull-request template and latest
+  migration require a manual SQL-editor paste. GitHub reports no run for `schema-drift.yml`, whose
+  own comments require an absent `SUPABASE_DB_URL` secret.
+- **Evidence:** `.github/workflows/deploy-production.yml`, `.github/workflows/schema-drift.yml`,
+  `.github/pull_request_template.md`, `20260816120000_lock_app_user_self_update.sql`, GitHub Actions
+  history on August 16.
+- **Likely cause:** hosted database credentials were intentionally withheld from CI without an
+  alternative release gate or recorded operator checklist.
+- **MVP impact:** if the hardening migration is absent, the support-account impersonation and
+  self-moderation vulnerability from #59 remains. If it is present unchanged, profile/gig creation
+  inherits MVP-09. A green application deploy does not distinguish those states.
+- **Fix scope:** after MVP-09 is corrected, apply the reviewed migration set to hosted Supabase,
+  verify migration/schema parity read-only, and establish a repeatable deploy/drift check. Do not
+  run destructive resets or copy local test data to production.
+- **Verification:** hosted migration history/schema matches the repository; direct privileged writes
+  are refused; one supervised musician profile and creator gig smoke succeeds; a drift workflow has
+  a recorded successful run and fails on an intentional disposable mismatch.
+- **GitHub:** new parent and child issues are listed below.
 
-#### MVP-02 — The one-time role choice is mutable through the Server Action
+### MVP-11 — Four required end-to-end regressions remain explicitly skipped
 
-- **Severity:** P1 — core MVP broken/incomplete
-- **Affected users:** musicians and creators
-- **Affected surface:** `/onboarding/role`, `setRole()`, all `requireRole()` gates
-- **Expected:** the first role choice is durable. A user with an existing role cannot switch identities unless a separately scoped product migration is introduced.
-- **Actual:** the page redirects users who already have a role, but `setRole(role)` only requires a signed-in session and then upserts the supplied role. An authenticated caller can invoke the action directly and overwrite their existing role.
-- **Reproduction:** with any role-bearing session, invoke the `setRole` action with the other enum value; `app_user.role` is updated and subsequent role guards use the new value. Not executed against hosted data.
-- **Evidence:** `src/app/onboarding/role/page.tsx:11-12`; `src/app/onboarding/role/actions.ts:8-20`; `docs/ai-context/PRODUCT.md:14`.
-- **Likely cause:** one-time enforcement exists only in page navigation, not at the mutation/database trust boundary.
-- **MVP impact:** a user can create contradictory role/resource state and gain the other role's product actions, undermining authorization assumptions and supportability.
-- **Proposed fix scope:** reject role changes when a role is already set, enforce the invariant at action and database boundaries, and test direct action invocation plus concurrent first writes.
-- **Verification:** a role-less user can choose exactly once; repeat/switch attempts fail without changing state; existing profile/gig ownership remains coherent; route guards continue to work.
-- **Issue:** [#24 — Harden onboarding roles and marketplace identity](https://github.com/escentohq/escento/issues/24), specifically #27.
+- **Severity:** P2 — required reliability evidence gap
+- **Affected flows:** duplicate request state, complete request-to-two-way-message loop, gig delete,
+  and gig/creator-account moderation cache invalidation
+- **Expected:** the isolated suite executes these required MVP flows, and a regression makes the
+  workflow red.
+- **Actual:** four `test.skip` calls remain. Their comments point to closed issue #41 and say the
+  tests failed consistently on `main`. Closing #41 did not remove the skips. The write workflow is
+  manual, so normal PR CI cannot see these paths.
+- **Evidence:** `e2e/flows/messaging.spec.ts`, `messaging-advanced.spec.ts`,
+  `gig-lifecycle.spec.ts`, and `moderation-visibility.spec.ts`; closed #41; workflow comments.
+- **MVP impact:** these product paths may work, but the repository cannot currently demonstrate that
+  they do. The uncertainty is material for a small pilot because request-to-message is the matching
+  loop, gig deletion is promised, and moderation visibility is a safety control.
+- **Fix scope:** after MVP-09, run each skipped case independently, fix actual product/test defects,
+  remove all four skips, and decide a documented pre-pilot/merge cadence for the slow workflow.
+- **Verification:** `rg 'test\.skip' e2e/flows` returns no unexplained required-flow skip and one clean
+  unsharded/sharded local-Supabase run executes every scenario on first attempt.
+- **Existing issue:** #41 described these exact cases but is closed while the skips remain. A new
+  child is required rather than silently reopening or modifying the closed issue during this audit.
 
-#### MVP-08 — Public marketplace identities can publish without enough trust context
+## Prior Audit Findings Reverified
 
-- **Severity:** P2 — required usability/trust issue
-- **Affected users:** people evaluating musicians and gigs
-- **Affected surfaces:** signup, profile wizard/directory/detail, gig creation/detail
-- **Expected:** public listings identify who is offering or requesting work with a minimal, useful identity. This does not require verification, ratings, or completion scoring.
-- **Actual:** signup displays but does not validate `name`. A creator can therefore post a gig rendered as `Unknown creator`. On the musician side, step one creates and publicly lists a profile from display name alone, while bio, instruments, genres, location, availability, and work preferences remain optional later steps. The rendered directory contained multiple profiles with “No bio yet” and no skills.
-- **Reproduction:** submit signup with an empty name, choose Creator, publish a valid gig; or choose Musician, submit only the identity step, and return to `/musicians`.
-- **Evidence:** `src/app/signup/actions.ts:22-53,69-86`; `src/app/gigs/[id]/page.tsx:117-120`; `src/app/profile/create/identity/actions.ts:13-44`; `src/lib/profile-validation.ts:20-31`; desktop/mobile directory screenshots captured during this audit.
-- **Likely cause:** the low-friction onboarding optimization equated “row exists” with “ready for public discovery,” and creator identity remained an optional signup field.
-- **MVP impact:** recipients cannot reliably judge who is contacting/hiring them, and public search inventory includes entries too incomplete to evaluate, increasing abandonment and low-quality outreach.
-- **Proposed fix scope:** define a small publishability threshold using fields already in the model; keep drafts/partial wizard progress owner-visible but out of public discovery until threshold completion; require a usable creator-facing name before publishing/contacting.
-- **Verification:** incomplete drafts remain resumable but anonymous users cannot discover them; a minimally complete profile is discoverable; a creator cannot publish with an empty identity; OAuth users missing a name get a clear completion path.
-- **Issue:** [#24 — Harden onboarding roles and marketplace identity](https://github.com/escentohq/escento/issues/24), specifically #28–#29.
-
-### Data integrity and mutation reliability
-
-#### MVP-03 — Profile and gig writes can commit partial marketplace state
-
-- **Severity:** P1 — core MVP reliability/data integrity
-- **Affected users:** musicians and creators
-- **Affected services:** `createProfile`, `updateProfile`, `createGig`, `updateGig`
-- **Expected:** saving a profile/gig and its instrument/genre relationships succeeds as one logical operation or leaves the previous state intact.
-- **Actual:** create writes the root row before inserting junction rows. Update deletes all existing junctions before updating the root and reinserting replacements. Any later error leaves a published root with partial/no taxonomy or strips a previously valid listing while the UI reports failure.
-- **Reproduction:** force a junction insert failure after the root insert, or after update deletes; then inspect the root and relationships. Not injected against hosted data.
-- **Evidence:** `src/lib/api/gigs.ts:285-338,400-437`; `src/lib/api/profiles.ts:280-339,414-455`.
-- **Likely cause:** a multi-table logical write is assembled from independent PostgREST calls instead of a database transaction/RPC.
-- **MVP impact:** normal transient/schema/constraint failures can publish unintended gig state or silently damage discoverability fields. Retrying may not reproduce the user's original intent.
-- **Proposed fix scope:** transactional database functions or another schema-backed atomic mechanism for profile/gig root plus taxonomy replacement; return typed failures; invalidate caches only after commit.
-- **Verification:** injected failure leaves no new root on create and preserves all old root/tag values on update; successful create/edit still appears immediately in public discovery.
-- **Issue:** [#21 — Make critical marketplace writes failure-safe](https://github.com/escentohq/escento/issues/21), specifically #30–#31.
-
-#### MVP-04 — Account deletion can fail after irreversibly deleting only part of an account
-
-- **Severity:** P1 — core MVP reliability/data integrity
-- **Affected users:** users deleting accounts and their conversation counterparts
-- **Affected service:** `deleteUserCompletely()` / `/account`
-- **Expected:** deletion either completes, or records a recoverable/retriable deletion state with truthful user feedback and no contradictory surviving identity.
-- **Actual:** the service performs multiple batches of irreversible database deletes, then storage cleanup, then Auth deletion. Errors are checked between stages, but prior successful deletes are not rolled back. Auth deletion can fail after `app_user` and product data are gone, causing the action to report failure while much of the account has already been erased.
-- **Reproduction:** inject an error in a later delete stage, storage, or `auth.admin.deleteUser()` and inspect earlier resources. Not executed against hosted data.
-- **Evidence:** `src/lib/user-deletion.ts:5-108`; `src/app/account/actions.ts:51-74`.
-- **Likely cause:** cross-database/Auth/Storage deletion has no idempotent state machine, transaction boundary, or compensating strategy.
-- **MVP impact:** deletion is part of current account/legal commitments; partial failure can mislead users and leave an auth identity inconsistent with product records.
-- **Proposed fix scope:** make database cleanup transactional/idempotent, establish an explicit ordering/retry state for Auth and Storage, and make repeated deletion safe. Do not add a settings suite or retention product.
-- **Verification:** failure injection at each stage produces a documented recoverable state; retries converge; successful deletion removes auth, public content, private participation, and stored image; UI never claims a clean failure after destructive partial completion.
-- **Issue:** [#21 — Make critical marketplace writes failure-safe](https://github.com/escentohq/escento/issues/21), specifically #32.
-
-### Gig lifecycle
-
-#### MVP-05 — Deadline and closed-gig behavior contradict the promised lifecycle
-
-- **Severity:** P1 — core gig workflow incomplete
-- **Affected users:** creators managing listings and musicians browsing/responding
-- **Affected surfaces:** `/gigs`, `/gigs/[id]`, `/gigs/manage`, gig create/edit, public gig RLS
-- **Expected:** past deadlines cannot remain actionable open calls; closing removes a gig from discovery but preserves an understandable linked “filled” detail state without a contact action, as documented and asserted by the existing lifecycle spec.
-- **Actual:** create/edit only validate that a deadline parses, not that it is current/future. Public queries filter only `status=OPEN`. On August 15, 2026, `/gigs` displayed an open gig with deadline August 14, 2026 and its detail still offered contact. Conversely, closed gigs are denied by the anonymous public client/RLS, even to the detail route; this conflicts with `PRODUCT.md` and `e2e/flows/gig-lifecycle.spec.ts`, which expects a linked closed detail to show `Filled`.
-- **Reproduction:** create or retain an open gig with a past deadline and browse/contact it; close a gig, then request `/gigs/{id}` as anonymous or owner through the public detail service.
-- **Evidence:** runtime browse/detail on August 15; `src/app/gigs/create/actions.ts:34-45`; `src/lib/api/gigs.ts:111-130,162-172`; `src/app/gigs/[id]/page.tsx:11-26,39-42,111-124`; `supabase/migrations/00000000000000_baseline.sql:1301`; `docs/ai-context/PRODUCT.md:53-56`; `e2e/flows/gig-lifecycle.spec.ts:28-62`.
-- **Likely cause:** deadline is treated as display metadata, while public detail caching uses an anonymous client whose RLS policy was optimized for open-directory visibility rather than detail history.
-- **MVP impact:** musicians can spend effort on expired work, while creators and recipients lose the promised stable link after closing a call. The current lifecycle test should fail against the live architecture.
-- **Proposed fix scope:** define deadline semantics, reject/prompt on past dates, exclude/disable expired calls, separate public detail visibility from open-directory eligibility, and suppress contact for non-open/expired calls.
-- **Verification:** past deadlines cannot be newly published; expired existing gigs are non-actionable and absent from open browsing; closed gigs remain linked as filled but cannot receive a gig-context request; reopen restores discovery; tests cover anonymous and owner views.
-- **Issue:** [#22 — Correct gig and resource lifecycle behavior](https://github.com/escentohq/escento/issues/22), specifically #33–#34.
-
-### Legal consent
-
-#### MVP-06 — Signup requires agreement to incomplete/inaccurate legal documents
-
-- **Severity:** P1 — pilot launch requirement
-- **Affected users:** every new account
-- **Affected surfaces:** `/signup`, `/terms`, `/privacy`, `/compliance`
-- **Expected:** the required checkbox links to real, current documents describing the actual MVP and its data flows.
-- **Actual:** Terms says it is “being prepared”; Compliance is also a placeholder. Privacy claims phone/mailing/job-title collection, Stripe payments, orders, advertising/targeting, Facebook/social-friends access, and other behavior not present in the current MVP, while current messaging/email/storage/analytics disclosures need verification.
-- **Reproduction:** open the three required signup links before checking the agreement box.
-- **Evidence:** `src/app/signup/_signup-form.tsx`; `src/app/terms/page.tsx`; `src/app/compliance/page.tsx`; `src/app/privacy/page.tsx`.
-- **Likely cause:** legal copy predates the current product boundary and was never reconciled after Supabase/messaging/email changes.
-- **MVP impact:** pilot users are asked to consent to missing and materially mismatched documents.
-- **Proposed fix scope:** complete Terms, decide and complete/remove Compliance consistently, and revise Privacy to actual data flows. Legal review remains a human responsibility.
-- **Verification:** all signup links resolve to substantive current text; no placeholder remains; product/provider claims match actual code/configuration; dates are current.
-- **Existing issue:** [#10 — Finish Terms of Use and Compliance pages](https://github.com/escentohq/escento/issues/10).
-
-### Resource and error states
-
-#### MVP-07 — Malformed musician/gig IDs produce server errors instead of not-found states
-
-- **Severity:** P2 — required reliability/usability
-- **Affected users:** anyone following malformed/stale links
-- **Affected surfaces:** `/musicians/[id]`, `/gigs/[id]`
-- **Expected:** any invalid or missing resource identifier renders the branded 404 without a database error.
-- **Actual:** `isValidId()` checks only string length. Values such as `not-a-real-id` reach UUID comparisons, Supabase returns `22P02`, and the page enters its error boundary. A wholly unknown route correctly returns the branded 404.
-- **Reproduction:** visit `/musicians/not-a-real-id` or `/gigs/not-a-real-id` in local dev and inspect the console/error boundary.
-- **Evidence:** browser runtime; `src/app/musicians/[id]/page.tsx:12-28`; `src/app/gigs/[id]/page.tsx:11-26`.
-- **Likely cause:** route validation does not match the UUID schema.
-- **MVP impact:** common malformed links fail as system errors rather than safely and understandably.
-- **Proposed fix scope:** central UUID validation at route/service boundaries and not-found handling for malformed/missing records; do not expose database error details.
-- **Verification:** malformed and valid-but-missing UUIDs return the branded 404 in dev/production with no uncaught page/console error; valid resources still render.
-- **Issue:** [#22 — Correct gig and resource lifecycle behavior](https://github.com/escentohq/escento/issues/22), specifically #35.
+| Prior finding | Current result | Evidence |
+| --- | --- | --- |
+| MVP-01 moderation visibility (#25/#26) | Resolved in policy/query/cache code; one gig cache E2E remains skipped under MVP-11 | moderation migration, pgTAP pass, profile moderation spec |
+| MVP-02 immutable first role (#27) | Resolved | compare-and-set action, immutable-role trigger, direct-write tests |
+| MVP-03 atomic profile/gig writes (#30/#31) | Atomic design present, but create is now blocked by MVP-09 | transactional RPCs and rollback tests |
+| MVP-04 deletion recovery (#32) | Resolved in design/code; current UI E2E cannot set up its profile fixture | deletion RPC, staged idempotent cleanup, four E2E cases |
+| MVP-05 deadline/closed detail (#33/#34) | Resolved | Pacific-day deadline helper, public lifecycle split, unskipped close/reopen/filled-detail tests |
+| MVP-06 legal pages (#10/#36–#38) | Resolved in source/tests | substantive pages and five unit tests |
+| MVP-07 malformed IDs (#35) | Resolved | central ID validation and four passing browser cases |
+| MVP-08 profile/creator readiness (#28/#29) | Resolved | RLS launch-ready predicate and creator public-name guard |
+| Support-account impersonation (#59) | Fixed in repository intent, but deployment unproved and fix causes MVP-09 locally | column grants, direct-write tests, no hosted drift evidence |
 
 ## Security and Authorization Findings
 
-- **Resolved P0:** moderation visibility is enforced by RLS, explicit public service filters, and cache invalidation, with focused database and browser regression coverage (MVP-01 / #25–#26).
-- **P1:** the one-time role invariant is not enforced at the Server Action/database boundary (MVP-02).
-- Ownership protection for creator gig edit/close/reopen/delete is present in Server Actions and reinforced by RLS.
-- Profile writes obtain the current user's profile and rely on owner RLS.
-- Message/request actions require a role-bearing session. RLS and database triggers enforce participant visibility, sender membership, duplicate pending-pair prevention, actor-specific request transitions, direct participant limits, and block behavior.
-- Public profile selection deliberately excludes `contact_email`. Creator summaries expose name but not email.
-- Admin routes/actions use an email allowlist and server-only admin client. Runtime coverage for every admin route/action remains an existing CI gap covered by #15.
-- No evidence was found that one user can read another user's messages or mutate another creator's gig through supported actions.
+- **P1:** hosted enforcement of issue #59 is unproved (MVP-10). This is the highest remaining
+  security risk.
+- The migration correctly intends to deny authenticated writes to support, moderation, visibility,
+  and verification flags on `app_user`, `gig`, and `musician_profile`.
+- Role assignment is protected by an action compare-and-set and a database trigger.
+- Page/action route inventory is complete; protected pages call approved guards and 14 signed-out
+  redirect cases pass in Playwright.
+- Gig owner actions load the gig through the creator-scoped service before mutation; profile writes
+  and RPCs enforce the authenticated owner; messaging transitions derive the actor from session and
+  use RLS/database constraints.
+- No evidence was found that one user can read another user's private conversation or edit another
+  creator's gig through current supported paths.
+- `npm audit --omit=dev` reported zero production dependency vulnerabilities.
 
 ## Data Integrity Findings
 
-- Role mutation can create contradictory role/resource state (MVP-02).
-- Profile/gig root and taxonomy writes are not atomic (MVP-03).
-- Account deletion is not failure-atomic or explicitly recoverable (MVP-04).
-- Deadline and closed status have inconsistent visibility/action semantics (MVP-05).
-- Request/message database constraints are comparatively strong: unique pending pairs, valid actor transitions, accepted-request conversation RPC, foreign keys, body limits, and block checks are present.
+- MVP-09 is a permissions regression, not a rollback regression: atomic RPCs refuse to begin, so no
+  partial profile/gig is committed in the observed failure.
+- Atomic failure-injection unit/source invariants remain present for profile and gig root/tag writes.
+- Account database deletion is transactional; Storage and Auth cleanup is ordered and idempotent.
+- Request constraints cover self-request, unique pending pairs, actor-specific transitions,
+  participant membership, body limits, and blocks.
+- Gig discovery/actionability combines status and Pacific-day deadline semantics; filled details are
+  readable but non-actionable.
 
 ## Mobile Findings
 
-No launch-blocking mobile defect was found in the signed-out pass at 390×844:
+No launch-blocking defect was found in the runtime-reviewed signed-out/mobile scope at 390×844:
 
-- landing, directory, detail, auth, password recovery, footer, and protected redirects had no horizontal document overflow;
-- directory rows stack into readable touch targets and filters remain reachable;
-- auth fields and buttons remain full width with bound labels;
-- public detail sidebars stack beneath content.
+- landing, musician directory, gig directory, sign-in, sign-up, FAQ/help, invalid IDs, and protected
+  redirects had `scrollWidth === clientWidth`;
+- navigation remained reachable, directory filters stacked, controls met usable widths, and auth
+  labels were bound;
+- empty gig inventory and profile rows remained readable.
 
-Authenticated onboarding forms, gig/profile editors, request lists, conversation threads, block/report dialogs, and account deletion were not runtime-walked without a safe local role dataset. Their responsive classes and existing desktop Playwright locators were inspected, but this does not replace a live mobile role-flow pass after P0/P1 fixes.
+Authenticated wizard, management, request, message, admin, and destructive-confirmation surfaces
+must be rechecked at 390×844 after MVP-09 because their real fixture setup currently fails.
 
 ## Reliability and Error-State Findings
 
-- Invalid dynamic IDs do not fail safely (MVP-07).
-- Major async areas include loading/error states, and conversation detail has its own not-found surface.
-- Empty directory, request, conversation, blocked-user, and management states exist.
-- Public-service cache invalidation is called after profile/gig/admin mutations. Account-level moderation invalidates both public resource domains, and anonymous queries/RLS independently enforce visibility flags.
-- Transactional email intentionally fails best-effort so messaging persistence is not rolled back. Actual Resend configuration/delivery was not verified.
-- The read-only smoke suite currently has one false failure due solely to URL-encoding expectation. Existing issue #15 already covers making tests and CI trustworthy; no duplicate MVP issue was created.
+- 40/40 read-only Playwright cases passed, including all concrete public/protected inventory routes,
+  auth form presence, unknown route 404, and malformed/missing profile/gig IDs.
+- Browser instrumentation found no uncaught page errors on the reviewed routes.
+- Loading/error surfaces exist across major async route segments; branded not-found behavior exists
+  for global and dynamic-resource routes.
+- Public directories degrade failed reads to empty inventory, which avoids a public 500 but makes
+  operational monitoring important so database failures are not mistaken for a genuinely empty
+  marketplace.
+- The fast CI lane passed at current `main`, while the manually triggered write lane failed. A green
+  normal CI run is therefore not evidence that the MVP works end to end.
+
+## Existing Issues That Already Cover Findings
+
+- #59 documents the original privileged-own-row vulnerability and is closed. MVP-09 is a regression
+  caused by its fix, not a duplicate of the vulnerability report.
+- #41 documents the four historically failing write cases and is closed even though four matching
+  tests remain skipped. MVP-11 references it rather than recreating the old diagnosis.
+- #49 remains open for legal routes, but current pages and tests satisfy its written acceptance
+  criteria. It should be triaged separately; no new legal issue was created.
+- #9 (performance), #4/#5/#17 (visual work), and the completed August 15 MVP hierarchy are not
+  duplicated.
+
+## GitHub Issue Hierarchy
+
+GitHub's native parent/sub-issue relationship was used:
+
+- [#67 — Restore and prove marketplace write safety](https://github.com/escentohq/escento/issues/67)
+  - [#68 — Fix transactional profile and gig create permissions](https://github.com/escentohq/escento/issues/68) — MVP-09 / P0
+  - [#69 — Verify and gate hosted Supabase schema parity](https://github.com/escentohq/escento/issues/69) — MVP-10 / P1
+  - [#70 — Unskip and pass the remaining required write flows](https://github.com/escentohq/escento/issues/70) — MVP-11 / P2
+
+The parent contains a linked checklist and each child includes implementation scope, non-goals,
+acceptance criteria, testing requirements, the audit link, and its finding ID.
+
+## Out of Scope / Rejected Suggestions
+
+No issues were created for payments/escrow, contracts, scheduling, ratings/reviews, favorites,
+profile scores, feeds/follows, AI matching/recommendations, group chat, realtime presence, calls,
+push/SMS/digests, native apps, subscriptions, monetization, advanced analytics, advanced portfolio
+hosting, or identity-verification infrastructure.
+
+No issue was created merely because the public gig directory is currently empty: the two stored
+gigs observed through existing read-only data have passed deadlines, and excluding them is the
+intended lifecycle behavior.
+
+## Recommended Execution Order
+
+1. Fix MVP-09 on a fresh local stack while retaining every issue #59 security assertion.
+2. Run the complete write suite. Resolve and unskip the four MVP-11 cases before trusting downstream
+   flow results.
+3. Apply the corrected migration set to hosted Supabase and complete MVP-10 schema/security/write
+   verification.
+4. Rehearse OAuth/reset/email/storage and the two-account musician/creator loop on desktop and mobile.
+5. Start only a supervised pilot after every launch checklist item below is checked.
+
+## Launch Checklist
+
+- [ ] A fresh migrated stack creates and edits a musician profile through the real wizard.
+- [ ] A fresh migrated stack creates, edits, fills/reopens, and deletes a gig through the real UI.
+- [ ] Authenticated users cannot set support-account, moderation, visibility, or verification flags.
+- [ ] Hosted Supabase is proven to match the corrected migration set.
+- [ ] Hosted signup, role selection, one profile, and one gig complete in a supervised smoke test.
+- [ ] Every required write-flow test runs without `test.skip` and the full workflow passes once with
+      no retry.
+- [ ] Request send/duplicate/reject/cancel/accept and two-way persisted messaging pass with two users.
+- [ ] Unread/read, return-to-thread, block/unblock, and report/admin handling pass.
+- [ ] Profile/gig/account hide and restore leave cached public home/list/detail reads correct.
+- [ ] Account deletion removes product rows, Auth, Storage, and public cache state, and retry converges.
+- [ ] Google OAuth, password reset, request/message email links, sender domain, Geoapify, and profile
+      image upload are verified in the deployed pilot environment.
+- [ ] Authenticated core flows complete at desktop and 390×844 without overflow or dead ends.
+- [x] Read-only public/protected/404 browser suite passes (40/40).
+- [x] `npm run lint`, `npm run typecheck`, 102 unit tests, and `npm run build` pass.
+- [x] Production dependency audit reports no known vulnerabilities.
 
 ## Verification Results
 
 | Check | Result |
 | --- | --- |
-| `git diff --check` | Passed |
+| `git diff --check` | Passed after the final report and issue links |
 | `npm run lint` | Passed |
 | `npm run typecheck` | Passed |
-| `npm run build` | Passed; 38 static/dynamic application routes generated |
-| `npx playwright test e2e/smoke.spec.ts --project=chromium` | 22 passed, 1 failed due to percent-encoding-only URL expectation; redirect behavior itself was correct |
-| `supabase test db` | Passed on ephemeral Supabase in CI: 1 file, 20 tests |
-| Focused moderation Playwright spec | Passed on ephemeral Supabase in CI: 2 tests; covers cached home/directory/detail reads, direct anonymous RLS, resource and owner-account hide/restore, and owner access |
-| `npm run test:e2e:write` | Executed in CI run 31908575319: 26 passed, 2 flaky, 6 failed, 1 did not run. The failures are pre-existing broader-suite concerns outside #26 and remain tracked by #15/#34 and their applicable flows. |
-
-The August 15 resolution update changes only moderation visibility policy/query/cache behavior, its focused ephemeral regression coverage and CI wiring, the admin status notice, and the directly applicable documentation. It does not change role behavior, closed-gig semantics, automated moderation, verification, or trust scoring.
-
-## Existing Issues That Already Cover Findings
-
-- [#10 — Finish Terms of Use and Compliance pages](https://github.com/escentohq/escento/issues/10): directly covers MVP-06 and already calls for Privacy reconciliation.
-- [#15 — CI hardening: make green mean green](https://github.com/escentohq/escento/issues/15): continues to cover broader write-flow stability, schema drift, and admin/auth/storage/email-related blind spots. The focused moderation database and browser regressions are now independently enforced in CI.
-- [#9 — Cut click latency](https://github.com/escentohq/escento/issues/9): much of its static shell/cache/image scope is now present in source. No remaining performance problem severe enough to create an additional MVP ticket was demonstrated.
-- [#4, #5, #17](https://github.com/escentohq/escento/issues): visual/landing work is outside this functional audit and was not duplicated.
-
-## GitHub Issue Hierarchy Created
-
-GitHub's native parent/sub-issue API was available and used for every child below.
-
-- [#23 — Enforce public moderation visibility](https://github.com/escentohq/escento/issues/23)
-  - [#25 — Enforce hide/restore across public RLS and cached reads](https://github.com/escentohq/escento/issues/25) — resolved August 15, 2026
-  - [#26 — Add moderation visibility regression coverage](https://github.com/escentohq/escento/issues/26) — resolved August 15, 2026
-- [#24 — Harden onboarding roles and marketplace identity](https://github.com/escentohq/escento/issues/24)
-  - [#27 — Make first role assignment immutable](https://github.com/escentohq/escento/issues/27)
-  - [#28 — Keep incomplete musician profiles out of public discovery](https://github.com/escentohq/escento/issues/28)
-  - [#29 — Require creator-facing identity before marketplace actions](https://github.com/escentohq/escento/issues/29)
-- [#21 — Make critical marketplace writes failure-safe](https://github.com/escentohq/escento/issues/21)
-  - [#30 — Make profile and taxonomy writes atomic](https://github.com/escentohq/escento/issues/30)
-  - [#31 — Make gig and taxonomy writes atomic](https://github.com/escentohq/escento/issues/31)
-  - [#32 — Make account deletion idempotent and recoverable](https://github.com/escentohq/escento/issues/32)
-- [#22 — Correct gig and resource lifecycle behavior](https://github.com/escentohq/escento/issues/22)
-  - [#33 — Enforce gig deadline semantics](https://github.com/escentohq/escento/issues/33)
-  - [#34 — Preserve a non-actionable Filled detail for closed gigs](https://github.com/escentohq/escento/issues/34)
-  - [#35 — Return 404 for malformed profile and gig IDs](https://github.com/escentohq/escento/issues/35)
-- Existing parent [#10 — Finish Terms of Use and Compliance pages](https://github.com/escentohq/escento/issues/10)
-  - [#36 — Replace the Terms placeholder with reviewed current terms](https://github.com/escentohq/escento/issues/36)
-  - [#37 — Reconcile Privacy with actual MVP data flows](https://github.com/escentohq/escento/issues/37)
-  - [#38 — Resolve the Compliance placeholder and consent link](https://github.com/escentohq/escento/issues/38)
-
-## Observed Constraints That Are Not Launch Findings
-
-- Directories filter the cached full dataset and then return at most 50 results. Search can still reach older matching data, but default browse has no pagination. Current inventory is far below that limit; revisit only before the pilot exceeds it.
-- Messaging is not realtime. Persisted send/refresh/return behavior is sufficient for this MVP.
-- Connection requests are generalized rather than a separate application object. The gig title is included in the intro and the accepted request opens a conversation; a separate application system is unnecessary.
-- Transactional email has no preferences/digest/push/SMS layer. Those are not required.
-
-## Out of Scope / Rejected Suggestions
-
-No issues were created for:
-
-- payments, escrow, invoicing, contracts, insurance, or dispute infrastructure;
-- scheduling/calendar booking;
-- ratings, reviews, endorsements, trust scores, or identity verification;
-- favorites, saved profiles, completion scores, response metrics, or popularity counts;
-- AI matching/recommendations, feeds, follows, or ranking;
-- group chat, realtime presence, attachments, voice/video calls, SMS, push, or notification digests;
-- native apps, subscriptions, monetization, or advanced analytics;
-- advanced portfolio hosting or media processing;
-- dual-role/view switching (#6), Microsoft OAuth (#1), AI recommendations (#2), outreach (#14), or further visual redesign.
-
-## Recommended Execution Order
-
-1. **MVP-02:** lock role assignment at mutation/database boundaries.
-2. **MVP-03 and MVP-04:** make profile/gig mutations and deletion failure-safe.
-3. **MVP-05:** align deadlines, closed detail, directory visibility, and contact actions.
-4. **MVP-06 / #10:** complete the documents required by signup before recruiting pilot users.
-5. **MVP-08:** gate public marketplace readiness on minimal existing identity fields.
-6. **MVP-07:** make malformed/stale dynamic links safe.
-7. Run the complete ephemeral-Supabase role suite, including moderation visibility, on desktop and 390×844, then perform a supervised two-account pilot rehearsal.
-
-## Launch Checklist
-
-- [x] Hidden users/profiles/gigs are denied by anonymous RLS and public queries; restore invalidates home/list/detail caches; ephemeral database and browser regressions enforce the contract.
-- [ ] A role can be assigned once and cannot be changed through direct action/database access.
-- [ ] Profile and gig create/edit failure injection leaves no partial public state.
-- [ ] Account deletion is idempotent/recoverable and verified across DB, Auth, Storage, public cache, requests, and conversations.
-- [ ] Past-deadline gigs cannot remain open/actionable.
-- [ ] Closed gigs are absent from open discovery, linked as filled where promised, and cannot receive gig-context outreach.
-- [ ] Terms and Compliance are substantive (or Compliance is consistently removed), and Privacy matches actual MVP data flows.
-- [ ] Public musician and creator identities meet the small documented publishability threshold.
-- [ ] Malformed and missing profile/gig IDs render a 404 without database errors.
-- [ ] Email/password signup, Google OAuth, sign-in/out, refresh, expiry recovery, and password reset are rehearsed in a safe environment.
-- [ ] Musician creates/edits a discoverable profile; creator creates/edits/closes/reopens/deletes a discoverable gig.
-- [ ] Both directions of request, accept/reject/cancel, two-way messaging, unread/read, return-to-thread, block/unblock, and report are rehearsed with two test accounts.
-- [ ] Admin receives a report, hides/restores content, audits the action, and deletes an abusive test account safely.
-- [ ] Request/message email links are delivered from the deployed environment and land on the intended authenticated state.
-- [ ] Desktop and 390×844 authenticated core flows complete without clipping, dead ends, or inaccessible controls.
-- [ ] `npm run lint`, `npm run typecheck`, `npm run build`, signed-out smoke, and the local-Supabase write-flow suite pass.
+| `npm run test:unit` | Passed: 15 files, 102 tests |
+| `npm run build` | Passed: 41 application routes generated |
+| `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3200 npm run test:e2e` | Passed: 40 tests |
+| Manual Chrome review | 1440×900, 768×1024, 390×844; no reviewed overflow/page errors |
+| `npm audit --omit=dev` | Passed: 0 vulnerabilities |
+| `supabase test db` | Passed in write-flow shard 1 |
+| Write-flow E2E run `31933990213` | **Failed** on `663d7c3`: all 3 shards hit profile/gig insert `42501`; four tests remain skipped |
+| Hosted schema comparison | Not run/unavailable; no recorded schema-drift workflow run |
