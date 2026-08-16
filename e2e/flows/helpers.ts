@@ -77,9 +77,9 @@ export async function signIn(
 
 /**
  * Create a musician profile through step one of the create wizard. The display
- * name is the only required field anywhere in the flow, and step one lands on
- * the directory rather than the profile, so the id is read off the "finish your
- * profile" strip instead of the URL.
+ * name is the only required field anywhere in the flow. Step one advances to
+ * craft; the helper briefly opens the directory to read the draft profile id
+ * from the setup prompt.
  *
  * The saved row is a draft: it is not anonymous inventory until
  * `makeProfileLaunchReady` (or the rest of the wizard) adds craft and context.
@@ -88,9 +88,10 @@ export async function createMusicianProfile(page: Page, displayName: string): Pr
   await page.goto("/profile/create");
   await expect(page).toHaveURL(/\/profile\/create\/identity/);
   await page.locator('input[name="displayName"]').fill(displayName);
-  await page.getByRole("button", { name: "Create Profile" }).click();
-  await page.waitForURL(/\/musicians$/, { timeout: 30_000 });
+  await page.getByRole("button", { name: "Create and continue" }).click();
+  await page.waitForURL(/\/profile\/create\/craft/, { timeout: 30_000 });
 
+  await page.goto("/musicians");
   const href = await page.getByRole("link", { name: "View your profile" }).getAttribute("href");
   expect(href).toBeTruthy();
   return String(href).split("/musicians/")[1];
@@ -112,6 +113,25 @@ export async function makeProfileLaunchReady(page: Page): Promise<void> {
   await page.locator('input[name="school"]').fill("UT Austin");
   await page.getByRole("button", { name: "Save and continue" }).click();
   await page.waitForURL(/\/profile\/create\/reach/, { timeout: 30_000 });
+}
+
+/** Fill every remaining wizard step so the combined edit form becomes available. */
+export async function completeMusicianProfile(
+  page: Page,
+  profileId: string,
+): Promise<void> {
+  await makeProfileLaunchReady(page);
+  await finishMusicianProfile(page, profileId);
+}
+
+/** Finish the reach step when the preceding wizard steps are already saved. */
+export async function finishMusicianProfile(
+  page: Page,
+  profileId: string,
+): Promise<void> {
+  await page.locator('input[name="websiteUrl"]').fill("https://example.test/portfolio");
+  await page.getByRole("button", { name: "Finish" }).click();
+  await page.waitForURL(`/musicians/${profileId}`, { timeout: 30_000 });
 }
 
 /**

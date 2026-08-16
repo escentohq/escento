@@ -7,7 +7,7 @@ import {
   completedStepCount,
   isProfileLaunchReady,
   nextIncompleteStep,
-  stepPath,
+  resolveMusicianProfileNavigation,
 } from "@/lib/profile-progress";
 
 const STEP_PROMPT: Record<string, string> = {
@@ -39,6 +39,7 @@ export async function FinishProfileNudge() {
   // to be listed. Send them back to context in that case.
   if (!step && listed) return null;
   const resumeStep = step ?? "context";
+  const navigation = resolveMusicianProfileNavigation(profile);
 
   const done = completedStepCount(profile);
 
@@ -59,7 +60,7 @@ export async function FinishProfileNudge() {
 
       <div className="flex shrink-0 flex-wrap items-center gap-5">
         <Link
-          href={stepPath(resumeStep)}
+          href={navigation.href}
           className="text-control text-brand transition-colors duration-150 hover:text-ink focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2"
         >
           Continue setup

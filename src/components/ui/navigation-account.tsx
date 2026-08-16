@@ -51,6 +51,8 @@ export function NavigationAccount() {
         image={state.image}
         role={state.role}
         musicianProfilePath={state.musicianProfilePath}
+        musicianProfileLabel={state.musicianProfileLabel}
+        musicianProfileMode={state.musicianProfileMode}
         isCreator={state.isCreator}
         unreadConversationCount={state.unreadConversationCount}
       />

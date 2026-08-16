@@ -5,7 +5,7 @@ import Link from "next/link";
  * yet launch-ready. Anonymous visitors never reach this page for a draft — they
  * get the branded 404 — so this is a preview, not a public listing.
  */
-export function DraftProfileBanner() {
+export function DraftProfileBanner({ href }: { href: string }) {
   return (
     <aside className="mb-8 flex flex-col gap-4 border-y border-rule bg-surface px-1 py-5 md:flex-row md:items-center md:justify-between md:px-4">
       <div className="min-w-0">
@@ -15,7 +15,7 @@ export function DraftProfileBanner() {
         </p>
       </div>
       <Link
-        href="/profile/create"
+        href={href}
         className="shrink-0 text-control text-brand transition-colors duration-150 hover:text-ink focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2"
       >
         Continue setup

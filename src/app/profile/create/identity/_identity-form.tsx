@@ -14,7 +14,13 @@ import { countFieldErrors, emptyActionState, type ActionState } from "@/lib/form
 
 import { saveIdentityAction } from "./actions";
 
-export function IdentityForm({ initial }: { initial: { displayName: string; bio: string } }) {
+export function IdentityForm({
+  initial,
+  hasExistingProfile,
+}: {
+  initial: { displayName: string; bio: string };
+  hasExistingProfile: boolean;
+}) {
   const [values, setValues] = useState(initial);
   const formFields = useFormFieldState();
   const [state, formAction] = useActionState<ActionState, FormData>(saveIdentityAction, emptyActionState);
@@ -97,8 +103,11 @@ export function IdentityForm({ initial }: { initial: { displayName: string; bio:
           >
             Cancel
           </Link>
-          <FormSubmitButton pendingLabel="Creating…" className="w-full sm:w-auto">
-            Create profile
+          <FormSubmitButton
+            pendingLabel={hasExistingProfile ? "Saving…" : "Creating…"}
+            className="w-full sm:w-auto"
+          >
+            {hasExistingProfile ? "Save and continue" : "Create and continue"}
           </FormSubmitButton>
         </div>
       </form>

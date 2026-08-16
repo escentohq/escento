@@ -3,6 +3,7 @@ import { expect, test, type Browser, type Page } from "@playwright/test";
 
 import {
   TEST_PASSWORD,
+  finishMusicianProfile,
   newContextPage,
   newMusicianWithProfile,
   signIn,
@@ -82,6 +83,9 @@ async function ensureLocalAdminAccount() {
     id: adminUser.id,
     email: ADMIN_EMAIL,
     name: "Test Admin",
+    // Admin access is email-based; a product role is still required to pass
+    // the shared post-sign-in onboarding gate.
+    role: "CREATOR",
     is_public: true,
     moderation_status: "active",
   });
@@ -159,6 +163,7 @@ test.describe("moderation visibility", () => {
       "moderation-profile",
       displayName,
     );
+    await finishMusicianProfile(owner, profileId);
     const anonymous = await newContextPage(browser);
     const adminPage = await newContextPage(browser);
 

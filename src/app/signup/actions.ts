@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 
 import {
   fieldError,
@@ -109,11 +110,14 @@ export async function signUpWithPasswordAction(
     }
 
     if (data.session && data.user) {
-      await sendWelcomeMessageFromEscentoBestEffort({
-        userId: data.user.id,
-        email: data.user.email ?? email,
-        name: name || null,
-      });
+      const user = data.user;
+      after(() =>
+        sendWelcomeMessageFromEscentoBestEffort({
+          userId: user.id,
+          email: user.email ?? email,
+          name: name || null,
+        }),
+      );
       redirect(next);
     }
 

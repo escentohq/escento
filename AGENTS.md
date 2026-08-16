@@ -80,6 +80,7 @@ This table lists what is **actually installed**. If a library is not here, it is
 | UI | React | `^19.1.1` |
 | Styling | Tailwind CSS v4 (`@tailwindcss/postcss`) | `^4.1.13` |
 | Accessible primitives | `@radix-ui/react-dropdown-menu` | `^2.1.16` |
+| Image cropping | `react-easy-crop` | `^6.2.3` |
 | Icons | `lucide-react` | `^1.14.0` |
 | Database | PostgreSQL | Supabase |
 | DB Client | Supabase JS SDK (`@supabase/supabase-js`, `@supabase/ssr`) | `^2.105.4`, `^0.6.1` |

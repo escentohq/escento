@@ -1,6 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { sendWelcomeMessageFromEscentoBestEffort } from "@/lib/api/support-account";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -9,24 +9,26 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createSupabaseServerClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      const { data: { user } } = await supabase.auth.getUser();
       const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+      const user = data.user;
 
       // Route new users (no role set) to onboarding, regardless of ?next parameter
       if (user) {
-        await sendWelcomeMessageFromEscentoBestEffort({
-          userId: user.id,
-          email: user.email ?? null,
-          name:
-            typeof user.user_metadata?.full_name === "string"
-              ? user.user_metadata.full_name
-              : typeof user.user_metadata?.name === "string"
-                ? user.user_metadata.name
-                : null,
-        });
+        after(() =>
+          sendWelcomeMessageFromEscentoBestEffort({
+            userId: user.id,
+            email: user.email ?? null,
+            name:
+              typeof user.user_metadata?.full_name === "string"
+                ? user.user_metadata.full_name
+                : typeof user.user_metadata?.name === "string"
+                  ? user.user_metadata.name
+                  : null,
+          }),
+        );
 
         const { data: appUser } = await supabase
           .from("app_user")

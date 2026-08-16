@@ -18,6 +18,7 @@ export default async function IdentityStepPage() {
     >
       <WizardProgress current={stepNumber("identity")} />
       <IdentityForm
+        hasExistingProfile={Boolean(profile)}
         initial={{
           displayName: profile?.displayName ?? "",
           bio: profile?.bio ?? "",

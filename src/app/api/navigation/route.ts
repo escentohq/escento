@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 
 import { getCurrentSession } from "@/lib/auth-guards";
-import { hasProfileForUser } from "@/lib/api/profiles";
+import { getProfileByUserId } from "@/lib/api/profiles";
 import { getUnreadConversationCountForUser } from "@/lib/api/messaging";
+import { resolveMusicianProfileNavigation } from "@/lib/profile-progress";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +14,12 @@ export async function GET() {
       return NextResponse.json({ signedIn: false }, { headers: { "Cache-Control": "private, no-store" } });
     }
 
-    const [hasProfile, unreadConversationCount] = await Promise.all([
-      session.user.role === "MUSICIAN" ? hasProfileForUser(session.user.id) : false,
+    const [profile, unreadConversationCount] = await Promise.all([
+      session.user.role === "MUSICIAN" ? getProfileByUserId(session.user.id) : null,
       getUnreadConversationCountForUser(session.user.id).catch(() => 0),
     ]);
+    const musicianProfileNavigation =
+      session.user.role === "MUSICIAN" ? resolveMusicianProfileNavigation(profile) : null;
 
     return NextResponse.json({
       signedIn: true,
@@ -24,9 +27,9 @@ export async function GET() {
       name: session.user.name,
       image: session.user.image,
       role: session.user.role,
-      musicianProfilePath: session.user.role === "MUSICIAN"
-        ? hasProfile ? "/profile/edit" : "/profile/create"
-        : null,
+      musicianProfilePath: musicianProfileNavigation?.href ?? null,
+      musicianProfileLabel: musicianProfileNavigation?.label ?? null,
+      musicianProfileMode: musicianProfileNavigation?.mode ?? null,
       isCreator: session.user.role === "CREATOR",
       unreadConversationCount,
     }, { headers: { "Cache-Control": "private, no-store" } });

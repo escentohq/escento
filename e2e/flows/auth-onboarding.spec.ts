@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { test, expect } from "@playwright/test";
 
-import { signUp, chooseRole } from "./helpers";
+import { signOut, signUp, chooseRole } from "./helpers";
 
 /** Service-role client — bypasses RLS, so it isolates the database invariant. */
 function adminClient(): SupabaseClient {
@@ -28,6 +28,18 @@ test.describe("auth + onboarding", () => {
     await expect(page).toHaveURL(/\/onboarding\/role/);
     await expect(page.getByRole("button", { name: "I play music" })).toBeVisible();
     await expect(page.getByRole("button", { name: "I need musicians" })).toBeVisible();
+  });
+
+  test("password sign-in without a role returns to the role picker", async ({ page }) => {
+    const { email, password } = await signUp(page, "signin-role");
+    await signOut(page);
+
+    await page.goto("/signin?callbackUrl=%2F");
+    await page.locator('input[name="email"]').fill(email);
+    await page.locator('input[name="password"]').fill(password);
+    await page.getByRole("button", { name: "Sign in" }).click();
+
+    await expect(page).toHaveURL(/\/onboarding\/role/);
   });
 
   test("choosing Musician routes to profile create", async ({ page }) => {

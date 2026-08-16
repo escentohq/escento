@@ -50,7 +50,7 @@ export async function createGigAction(_state: ActionState, fd: FormData): Promis
   if (deadlineRaw && !deadline) fieldError(fieldErrors, "deadline", "Use a valid date.");
   // A gig posted with a deadline that has already passed is unactionable the
   // moment it is published, so it never gets created in that state.
-  if (deadline && isDeadlinePast(deadline)) {
+  if (deadline && isDeadlinePast(deadlineRaw)) {
     fieldError(fieldErrors, "deadline", "Choose today or a later date.");
   }
   validateStructuredLocation(fieldErrors, location, isRemote);

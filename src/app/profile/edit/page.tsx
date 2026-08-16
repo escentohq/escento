@@ -4,6 +4,7 @@ import { PageShell } from "@/components/ui/page-shell";
 import { requireRole } from "@/lib/auth-guards";
 import { getProfileByUserId } from "@/lib/api/profiles";
 import { listGenres, listInstruments } from "@/lib/api/tags";
+import { resolveMusicianProfileNavigation } from "@/lib/profile-progress";
 import { ProfileForm } from "../_profile-form";
 import { updateMusicianProfileAction } from "./actions";
 
@@ -17,7 +18,9 @@ export default async function EditProfilePage() {
   const session = await requireRole("MUSICIAN", "/profile/edit");
 
   const profile = await getProfileByUserId(session.user.id);
-  if (!profile) redirect("/profile/create");
+  const navigation = resolveMusicianProfileNavigation(profile);
+  if (!profile) redirect(navigation.href);
+  if (navigation.mode !== "edit") redirect(navigation.href);
   const [instruments, genres] = await tagsPromise;
 
   const instrumentsCsv = (profile.instruments || []).join(", ");
