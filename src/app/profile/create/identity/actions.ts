@@ -8,13 +8,12 @@ import { createProfile, getProfileByUserId, updateProfile } from "@/lib/api/prof
 import { emptyProfileInput, validateIdentity } from "@/lib/profile-validation";
 import { profileValuesFromFormData } from "@/lib/form-snapshots";
 import { formLevelMessage, type ActionState } from "@/lib/form-utils";
+import { resolveMusicianProfileNavigation } from "@/lib/profile-progress";
 import { invalidatePublicProfile } from "@/lib/public-cache-invalidation";
 
 /**
- * Step one. Creates the profile row from a display name (and optional bio),
- * then drops the musician on the directory. The row is saved and resumable, but
- * it is not anonymous inventory until it also has craft and a piece of context
- * — the reminder strip on this page is the path back into the wizard.
+ * Step one creates a row only when one does not exist. Returning musicians
+ * update that row and continue from the next unfinished step.
  */
 export async function saveIdentityAction(_state: ActionState, fd: FormData): Promise<ActionState> {
   const session = await requireRole("MUSICIAN", "/profile/create/identity");
@@ -42,5 +41,5 @@ export async function saveIdentityAction(_state: ActionState, fd: FormData): Pro
   revalidatePath("/");
   revalidatePath("/musicians");
   invalidatePublicProfile(profile.id);
-  redirect("/musicians");
+  redirect(resolveMusicianProfileNavigation(profile).href);
 }

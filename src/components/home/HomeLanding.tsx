@@ -5,10 +5,12 @@ import { PrimaryCta } from "@/components/ui/primary-cta";
 import type { Gig, MusicianProfile } from "@/lib/api/types";
 import { compensationLabel, projectTypeLabel } from "@/lib/display";
 import { displayLocation } from "@/lib/location";
+import type { MusicianProfileNavigation } from "@/lib/profile-progress";
 
 type HomeLandingProps = {
   featuredProfiles: MusicianProfile[];
   featuredGigs: Gig[];
+  musicianProfileNavigation?: MusicianProfileNavigation;
 };
 
 type PreviewRow = {
@@ -75,6 +77,7 @@ function gigRow(gig: Gig): PreviewRow {
 export function HomeLanding({
   featuredProfiles,
   featuredGigs,
+  musicianProfileNavigation,
 }: HomeLandingProps) {
   const leadProfile =
     featuredProfiles.find(
@@ -245,8 +248,11 @@ export function HomeLanding({
             <p className="mt-4 max-w-xl text-body text-muted">
               Add instruments, genres, location, availability, and work links.
             </p>
-            <Link href="/profile/create" className="mt-7 inline-block text-control text-brand underline-offset-4 hover:underline">
-              Create a musician profile
+            <Link
+              href={musicianProfileNavigation?.href ?? "/profile/create"}
+              className="mt-7 inline-block text-control text-brand underline-offset-4 hover:underline"
+            >
+              {musicianProfileNavigation?.label ?? "Create a musician profile"}
             </Link>
           </div>
           <div className="border-t border-rule py-10 lg:border-t-0 lg:pl-14">

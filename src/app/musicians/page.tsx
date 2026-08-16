@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import { DirectoryResultsSkeleton } from "@/components/ui/directory-results-skeleton";
 import { FinishProfileNudge } from "@/components/profile/finish-profile-nudge";
 import { listInstruments, listGenres } from "@/lib/api/tags";
-import { listProfiles } from "@/lib/api/profiles";
+import { getProfileByUserId, listProfiles } from "@/lib/api/profiles";
 import { clampText, tagLine } from "@/lib/display";
 import { displayLocation, parseLocationSearch } from "@/lib/location";
 import { Chip } from "@/components/ui/chip";
@@ -15,6 +15,8 @@ import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { LocationDirectoryFilters } from "@/components/location/location-directory-filters";
 import { parseSelectedTags } from "@/lib/tag-taxonomy";
+import { getCurrentSession } from "@/lib/auth-guards";
+import { resolveMusicianProfileNavigation } from "@/lib/profile-progress";
 
 export const metadata: Metadata = {
   title: "Musicians",
@@ -22,6 +24,19 @@ export const metadata: Metadata = {
 };
 
 type ProfileFilters = Parameters<typeof listProfiles>[0];
+
+async function MusicianProfileCta() {
+  const session = await getCurrentSession();
+  const profile =
+    session?.user.role === "MUSICIAN" ? await getProfileByUserId(session.user.id) : null;
+  const navigation = resolveMusicianProfileNavigation(profile);
+
+  return (
+    <PrimaryCta href={navigation.href} prefetch={false}>
+      {navigation.label}
+    </PrimaryCta>
+  );
+}
 
 /**
  * Split out so the page shell and filter bar stream immediately; only the result rows
@@ -48,7 +63,7 @@ async function MusicianResults({
                   Clear filters
                 </Link>
               ) : (
-                <PrimaryCta href="/profile/create" prefetch={false}>Create profile</PrimaryCta>
+                <MusicianProfileCta />
               )
             }
           />
@@ -149,7 +164,11 @@ export default async function MusiciansPage({
     <PageShell
       title="Musicians"
         body="Filter by instrument, genre, and location. Open a profile for full details."
-      action={<PrimaryCta href="/profile/create" prefetch={false}>Create profile</PrimaryCta>}
+      action={
+        <Suspense fallback={<PrimaryCta href="/profile/create" prefetch={false}>Create profile</PrimaryCta>}>
+          <MusicianProfileCta />
+        </Suspense>
+      }
     >
         {/* Reads the session, so it streams separately and never blocks the shell. */}
         <Suspense fallback={null}>

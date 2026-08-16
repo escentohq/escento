@@ -45,6 +45,12 @@ export type ProfileLaunchInput = Pick<
   | "availabilityText"
 > & { instruments?: string[]; genres?: string[] };
 
+export type MusicianProfileNavigation = {
+  href: string;
+  label: "Create profile" | "Continue setup" | "Edit profile";
+  mode: "create" | "resume" | "edit";
+};
+
 function hasText(value?: string | null): boolean {
   return Boolean(value?.trim());
 }
@@ -122,4 +128,35 @@ export function isProfileLaunchReady(profile: ProfileLaunchInput): boolean {
     profile.isRemote === true ||
     hasText(profile.availabilityText)
   );
+}
+
+/**
+ * One source of truth for every profile CTA. A profile with all four wizard
+ * steps filled can still need context before it is useful enough to list.
+ */
+export function resolveMusicianProfileNavigation(
+  profile: (ProfileProgressInput & ProfileLaunchInput) | null,
+): MusicianProfileNavigation {
+  if (!profile) {
+    return {
+      href: stepPath("identity"),
+      label: "Create profile",
+      mode: "create",
+    };
+  }
+
+  const incompleteStep = nextIncompleteStep(profile);
+  if (!incompleteStep && isProfileLaunchReady(profile)) {
+    return {
+      href: "/profile/edit",
+      label: "Edit profile",
+      mode: "edit",
+    };
+  }
+
+  return {
+    href: stepPath(incompleteStep ?? "context"),
+    label: "Continue setup",
+    mode: "resume",
+  };
 }

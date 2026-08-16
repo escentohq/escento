@@ -12,6 +12,7 @@ import { getProfile, getProfileByUserId } from "@/lib/api/profiles";
 import { getCurrentSession } from "@/lib/auth-guards";
 import { displayLocation } from "@/lib/location";
 import { isUuid } from "@/lib/ids";
+import { resolveMusicianProfileNavigation } from "@/lib/profile-progress";
 
 export async function generateMetadata({
   params,
@@ -83,7 +84,9 @@ export default async function MusicianPublicProfilePage({
         <div className="mb-8">
           <BackLink href="/musicians">Back to musicians</BackLink>
         </div>
-        {isOwnerDraft ? <DraftProfileBanner /> : null}
+        {isOwnerDraft ? (
+          <DraftProfileBanner href={resolveMusicianProfileNavigation(profile).href} />
+        ) : null}
 
         <div className="grid gap-12 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
           {/* ── Main column ── */}

@@ -4,7 +4,9 @@ export type NavigationState = {
   name?: string | null;
   image?: string | null;
   role?: string | null;
-  musicianProfilePath?: "/profile/create" | "/profile/edit" | null;
+  musicianProfilePath?: string | null;
+  musicianProfileLabel?: "Create profile" | "Continue setup" | "Edit profile" | null;
+  musicianProfileMode?: "create" | "resume" | "edit" | null;
   isCreator?: boolean;
   unreadConversationCount?: number;
 };

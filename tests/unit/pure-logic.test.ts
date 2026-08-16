@@ -22,6 +22,7 @@ import {
   nextIncompleteStep,
   nextStepAfter,
   previousStepBefore,
+  resolveMusicianProfileNavigation,
 } from "@/lib/profile-progress";
 import { filterSearchResults } from "@/lib/search";
 
@@ -320,6 +321,66 @@ describe("isProfileLaunchReady", () => {
   it("trims whitespace so a blank name or bio does not count", () => {
     expect(isProfileLaunchReady({ ...draft, displayName: "   " })).toBe(false);
     expect(isProfileLaunchReady({ ...draft, instruments: ["Cello"], bio: "   " })).toBe(false);
+  });
+});
+
+describe("profile navigation", () => {
+  const draft = {
+    displayName: "Ada",
+    bio: null,
+    school: null,
+    location: null,
+    locationDisplayName: null,
+    locationCity: null,
+    isRemote: false,
+    yearsExperience: null,
+    availabilityText: null,
+    instagramUrl: null,
+    youtubeUrl: null,
+    spotifyUrl: null,
+    soundcloudUrl: null,
+    websiteUrl: null,
+    instruments: [] as string[],
+    genres: [] as string[],
+  } satisfies NonNullable<Parameters<typeof resolveMusicianProfileNavigation>[0]>;
+
+  it("distinguishes create, resume, and edit targets", () => {
+    expect(resolveMusicianProfileNavigation(null)).toEqual({
+      href: "/profile/create/identity",
+      label: "Create profile",
+      mode: "create",
+    });
+    expect(resolveMusicianProfileNavigation(draft)).toEqual({
+      href: "/profile/create/craft",
+      label: "Continue setup",
+      mode: "resume",
+    });
+
+    const complete = {
+      ...draft,
+      instruments: ["Cello"],
+      school: "UT Austin",
+      websiteUrl: "https://example.com",
+    };
+    expect(resolveMusicianProfileNavigation(complete)).toEqual({
+      href: "/profile/edit",
+      label: "Edit profile",
+      mode: "edit",
+    });
+  });
+
+  it("returns to context when all steps have data but the profile is not launch-ready", () => {
+    const completeButUnlisted = {
+      ...draft,
+      instruments: ["Cello"],
+      yearsExperience: 2,
+      websiteUrl: "https://example.com",
+    };
+    expect(resolveMusicianProfileNavigation(completeButUnlisted)).toEqual({
+      href: "/profile/create/context",
+      label: "Continue setup",
+      mode: "resume",
+    });
   });
 });
 

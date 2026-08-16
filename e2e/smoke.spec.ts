@@ -76,7 +76,11 @@ test.describe("auth trust boundary (signed-out)", () => {
 
   test("onboarding redirects to sign-in", async ({ page }) => {
     await page.goto("/onboarding/role");
-    await expect(page).toHaveURL(/\/signin\?callbackUrl=%2Fonboarding%2Frole/);
+    await expect(page).toHaveURL(
+      (url) =>
+        url.pathname === "/signin" &&
+        url.searchParams.get("callbackUrl") === "/onboarding/role",
+    );
   });
 });
 

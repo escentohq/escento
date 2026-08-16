@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 
 import {
   countFieldErrors,
@@ -55,16 +56,28 @@ export async function signInWithPasswordAction(
     }
 
     if (data.user) {
-      await sendWelcomeMessageFromEscentoBestEffort({
-        userId: data.user.id,
-        email: data.user.email ?? email,
-        name:
-          typeof data.user.user_metadata?.full_name === "string"
-            ? data.user.user_metadata.full_name
-            : typeof data.user.user_metadata?.name === "string"
-              ? data.user.user_metadata.name
-              : null,
-      });
+      after(() =>
+        sendWelcomeMessageFromEscentoBestEffort({
+          userId: data.user.id,
+          email: data.user.email ?? email,
+          name:
+            typeof data.user.user_metadata?.full_name === "string"
+              ? data.user.user_metadata.full_name
+              : typeof data.user.user_metadata?.name === "string"
+                ? data.user.user_metadata.name
+                : null,
+        }),
+      );
+
+      const { data: appUser } = await supabase
+        .from("app_user")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+
+      if (!appUser?.role) {
+        redirect("/onboarding/role");
+      }
     }
 
     redirect(callbackUrl);

@@ -14,6 +14,11 @@ test.describe("profile create wizard", () => {
     await signUpAs(page, "MUSICIAN", "wizard-resume");
     const profileId = await createMusicianProfile(page, displayName);
 
+    await page.getByRole("button", { name: "Account menu" }).click();
+    const resumeItem = page.getByRole("menuitem", { name: "Continue setup" });
+    await expect(resumeItem).toHaveAttribute("href", "/profile/create/craft");
+    await page.keyboard.press("Escape");
+
     // Step 2: save instruments, then abandon the flow entirely.
     await page.goto("/profile/create/craft");
     await expect(page.getByText("Step 2 of 4")).toBeVisible();
@@ -58,7 +63,7 @@ test.describe("profile create wizard", () => {
     await page.waitForURL(`/musicians/${profileId}`, { timeout: 30_000 });
 
     // Skip did not persist the typed value.
-    await page.goto("/profile/edit");
+    await page.goto("/profile/create/context");
     await expect(page.locator('input[name="school"]')).toHaveValue("");
   });
 
@@ -82,7 +87,7 @@ test.describe("profile create wizard", () => {
 
     await page.goto("/profile/create");
     await expect(page).toHaveURL(/\/profile\/create\/identity/);
-    await page.getByRole("button", { name: "Create Profile" }).click();
+    await page.getByRole("button", { name: "Create and continue" }).click();
     await expect(page.getByText("Add the name creators should see.")).toBeVisible();
   });
 });

@@ -22,7 +22,9 @@ type UserMenuProps = {
   name?: string | null;
   image?: string | null;
   role?: string | null;
-  musicianProfilePath?: "/profile/create" | "/profile/edit" | null;
+  musicianProfilePath?: string | null;
+  musicianProfileLabel?: "Create profile" | "Continue setup" | "Edit profile" | null;
+  musicianProfileMode?: "create" | "resume" | "edit" | null;
   isCreator?: boolean;
   unreadConversationCount?: number;
 };
@@ -42,9 +44,15 @@ export function UserMenu({
   image,
   role,
   musicianProfilePath,
+  musicianProfileLabel,
+  musicianProfileMode,
   isCreator,
   unreadConversationCount = 0,
 }: UserMenuProps) {
+  const profileMode =
+    musicianProfileMode ?? (musicianProfilePath?.includes("/profile/create") ? "create" : "edit");
+  const profileLabel =
+    musicianProfileLabel ?? (profileMode === "create" ? "Create profile" : "Edit profile");
   const avatarContent = image ? (
     <Image src={image} alt="" width={36} height={36} sizes="36px" className="media-avatar h-full w-full object-cover" />
   ) : name ? (
@@ -121,15 +129,15 @@ export function UserMenu({
                 href={musicianProfilePath}
                 className="flex cursor-pointer select-none items-center gap-2.5 px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:bg-[#F1F5F9] focus:bg-[#F1F5F9] focus:outline-none"
               >
-                {musicianProfilePath === "/profile/create" ? (
+                {profileMode === "create" ? (
                   <>
                     <Plus className="h-4 w-4" />
-                    Create profile
+                    {profileLabel}
                   </>
                 ) : (
                   <>
                     <Pencil className="h-4 w-4" />
-                    Edit profile
+                    {profileLabel}
                   </>
                 )}
               </Link>
