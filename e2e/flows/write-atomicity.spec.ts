@@ -99,8 +99,9 @@ test.describe("profile writes are atomic", () => {
   });
 
   test("another account cannot update a profile through the RPC", async ({ page, browser }) => {
-    await signUpAs(page, "MUSICIAN", "atomicowner");
+    const owner = await signUpAs(page, "MUSICIAN", "atomicowner");
     const profileId = await createMusicianProfile(page, "Atomic Owner Only");
+    const ownerClient = await signedInClient(owner.email, owner.password);
 
     const intruderContext = await browser.newContext();
     const intruderPage = await intruderContext.newPage();
@@ -115,7 +116,9 @@ test.describe("profile writes are atomic", () => {
     });
     expect(error).not.toBeNull();
 
-    const { data: row } = await client
+    // Draft profiles are intentionally hidden from other accounts, so verify
+    // the preserved value through the owner's session.
+    const { data: row } = await ownerClient
       .from("musician_profile")
       .select("display_name")
       .eq("id", profileId)
