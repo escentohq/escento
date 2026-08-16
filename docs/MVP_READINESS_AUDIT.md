@@ -6,6 +6,33 @@ Repository: `escentohq/escento` at `663d7c3`
 
 Supersedes the August 15, 2026 snapshot in this file
 
+---
+
+> ## Status: MVP-09, MVP-10 and MVP-11 are resolved
+>
+> This document is a point-in-time record of the audit at `663d7c3`. It is kept
+> as written — the findings below describe the repository as it was, not as it
+> is. Everything the audit blocked on has since been fixed and verified:
+>
+> | Finding | Issue | Resolution |
+> | --- | --- | --- |
+> | MVP-09 — privilege hardening blocks profile and gig creation | #68 | Fixed in `20260816130000_fix_transactional_write_grants.sql`. The create RPCs name only granted columns and let table defaults supply the privileged ones; `updated_at` moved to a `BEFORE UPDATE` trigger. The audit did not catch that the *edit* RPCs were broken by the same migration for the same reason — they were, and they are fixed too. |
+> | MVP-10 — hosted migration state neither deployed nor verified | #69 | Hosted was missing `20260816040000` entirely and had `20260816120000` applied but unrecorded, so production had been failing every profile and gig write. Both applied, migration history restated to match the repository, and `supabase/parity_check.sql` added as the read-only gate. `docs/DEPLOYMENT.md` is the runbook. |
+> | MVP-11 — four required regressions remain skipped | #70 | All four skips removed. Two flows were already passing, one had an obsolete fixture, and one was a real product bug: `ConnectButton` froze on its initial `null` relationship, so returning visitors never saw Pending, Message, or Respond to request. |
+>
+> Verified on `main` at `506982e`: the write-flow suite passes unsharded on the
+> first attempt (60 passed, plus 63 pgTAP assertions), the 3-shard workflow
+> passes on the first attempt, and `supabase/parity_check.sql` returns PASS on
+> every check against hosted Supabase.
+>
+> One audit criterion is **not** met and is tracked in #72: `schema-drift.yml`
+> still has no recorded run, because it needs a `SUPABASE_DB_URL` secret that
+> does not exist. Until it does, the parity check is a human gate, and
+> `docs/DEPLOYMENT.md` says so rather than implying a green deploy is a verified
+> one.
+
+---
+
 ## Executive Summary
 
 Escento is **not ready for pilot users today**. The public product, auth gates, discovery surfaces,
