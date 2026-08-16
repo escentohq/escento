@@ -14,8 +14,11 @@
 
 ## Definition of Done
 
-CI already enforces lint, typecheck, the unit suite, the build, and the
-write-flow E2E suite — do not re-tick those here. What is left is what a machine
+CI already enforces lint, typecheck, the unit suite, and the build — do not
+re-tick those here. It does **not** run the write-flow E2E suite, which is
+manual (Actions → Write-flow E2E → Run workflow) and is the only thing that
+exercises auth, messaging, gigs, moderation, migrations, and RLS together.
+What is left is what a machine
 cannot check:
 
 - [ ] Page is a Server Component unless it genuinely needs to be client.
@@ -37,4 +40,6 @@ cannot check:
 ### If this PR changes the database
 
 - [ ] The change is in `supabase/migrations/`, not only in the Supabase dashboard.
-- [ ] After merge, the same SQL is pasted into the hosted Supabase SQL editor (there is no `SUPABASE_DB_URL` deploy secret).
+- [ ] Added to the `expected_migrations` list in `supabase/parity_check.sql` (the unit suite fails otherwise).
+- [ ] Write-flow E2E run on this branch, linked above — `ci.yml` does not exercise migrations, grants, or RLS.
+- [ ] Release steps 5–7 of [`docs/DEPLOYMENT.md`](../docs/DEPLOYMENT.md) scheduled: apply to hosted, record the version, run `supabase/parity_check.sql` and get all PASS.
