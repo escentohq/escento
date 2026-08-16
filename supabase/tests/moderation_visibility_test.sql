@@ -27,7 +27,11 @@ values
   ('10000000-0000-0000-0000-000000000001', 'moderation-musician@example.test', 'Visible Musician', 'MUSICIAN'),
   ('10000000-0000-0000-0000-000000000002', 'moderation-creator@example.test', 'Visible Creator', 'CREATOR')
 on conflict (id) do update
-set is_public = true, moderation_status = 'active';
+set
+  name = excluded.name,
+  role = excluded.role,
+  is_public = true,
+  moderation_status = 'active';
 
 insert into public.musician_profile (id, user_id, display_name)
 values ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Visible Musician');
