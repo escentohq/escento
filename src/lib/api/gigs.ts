@@ -6,6 +6,7 @@ import { createSupabasePublicClient } from "@/lib/supabase/public";
 import { PUBLIC_GIGS_TAG, PUBLIC_HOME_TAG, publicGigTag } from "@/lib/cache-tags";
 import { distanceMiles, type LocationSearch } from "@/lib/location";
 import { isGigActionable } from "@/lib/gig-deadline";
+import { isMalformedIdError } from "@/lib/ids";
 import { filterSearchResults } from "@/lib/search";
 import { tagMatchesQuery } from "@/lib/tag-taxonomy";
 import { ensureInstruments, ensureGenres } from "./tags";
@@ -78,7 +79,9 @@ async function queryPublicGig(id: string): Promise<Gig | null> {
     .eq("moderation_status", "active")
     .single();
 
-  if (error && error.code !== "PGRST116") throw error;
+  // A malformed id is a stale link, not a fault: it reads as "no such gig" so
+  // the route renders the branded 404 instead of an error boundary.
+  if (error && error.code !== "PGRST116" && !isMalformedIdError(error)) throw error;
   if (!data) return null;
 
   const [gig] = await withCreatorSummaries([data]);
@@ -102,7 +105,7 @@ export async function getGigForCreator(id: string, creatorId: string): Promise<G
     .eq("creator_id", creatorId)
     .single();
 
-  if (error && error.code !== "PGRST116") throw error;
+  if (error && error.code !== "PGRST116" && !isMalformedIdError(error)) throw error;
   if (!data) return null;
 
   const [gig] = await withCreatorSummaries([data]);

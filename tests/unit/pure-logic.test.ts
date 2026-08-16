@@ -12,6 +12,7 @@ import {
   parseOptionalInteger,
   pickEnum,
 } from "@/lib/form-utils";
+import { isMalformedIdError, isUuid } from "@/lib/ids";
 import { displayLocation, distanceMiles, parseLocationSearch } from "@/lib/location";
 import { getPasswordStrength, validatePassword } from "@/lib/password";
 import { completedStepCount, nextIncompleteStep, nextStepAfter, previousStepBefore } from "@/lib/profile-progress";
@@ -261,5 +262,37 @@ describe("profile wizard progress", () => {
   it("treats a zero years-experience answer as answered", () => {
     const zeroYears = { ...empty, yearsExperience: 0 };
     expect(completedStepCount(zeroYears)).toBe(1);
+  });
+});
+
+describe("isUuid", () => {
+  it("accepts a canonical uuid in either case", () => {
+    expect(isUuid("00000000-0000-4000-8000-000000000000")).toBe(true);
+    expect(isUuid("A1B2C3D4-E5F6-4A7B-8C9D-0E1F2A3B4C5D")).toBe(true);
+  });
+
+  it("rejects the shapes that used to reach Postgres as 22P02", () => {
+    for (const value of [
+      "not-a-real-id",
+      "",
+      "00000000-0000-4000-8000-00000000000",
+      "00000000-0000-4000-8000-0000000000000",
+      "00000000_0000_4000_8000_000000000000",
+      "zzzzzzzz-0000-4000-8000-000000000000",
+      null,
+      undefined,
+      42,
+    ]) {
+      expect(isUuid(value)).toBe(false);
+    }
+  });
+});
+
+describe("isMalformedIdError", () => {
+  it("recognises only the malformed-id Postgres code", () => {
+    expect(isMalformedIdError({ code: "22P02" })).toBe(true);
+    expect(isMalformedIdError({ code: "PGRST116" })).toBe(false);
+    expect(isMalformedIdError(null)).toBe(false);
+    expect(isMalformedIdError(undefined)).toBe(false);
   });
 });

@@ -85,3 +85,36 @@ test("unknown route renders the branded 404", async ({ page }) => {
   expect(response?.status()).toBe(404);
   await expect(page.locator("body")).toContainText("Page not found");
 });
+
+/**
+ * Stale and mistyped detail links (MVP-07, issue #35). Both routes are keyed by
+ * uuid, so a malformed id used to reach Postgres and come back as a 22P02 error
+ * boundary. Signed-out and read-only, so this is safe against a deployment.
+ */
+const MISSING_UUID = "00000000-0000-4000-8000-000000000000";
+
+for (const [label, id] of [
+  ["malformed", "not-a-real-id"],
+  ["well-formed but missing", MISSING_UUID],
+] as const) {
+  for (const section of ["musicians", "gigs"] as const) {
+    test(`a ${label} /${section} id renders the branded 404 without a database error`, async ({ page }) => {
+      const pageErrors: string[] = [];
+      const consoleErrors: string[] = [];
+      page.on("pageerror", (error) => pageErrors.push(error.message));
+      page.on("console", (message) => {
+        if (message.type() === "error") consoleErrors.push(message.text());
+      });
+
+      await page.goto(`/${section}/${id}`);
+      // The rendered page is what is asserted, not the status code: both detail
+      // routes have a `loading.tsx`, so the response streams and its 200 header
+      // is already on the wire before `notFound()` resolves. That is framework
+      // behaviour and predates this check; what matters here is that a bad id
+      // lands on the branded 404 instead of an error boundary.
+      await expect(page.locator("body")).toContainText("Page not found");
+      expect(pageErrors).toEqual([]);
+      expect(consoleErrors.join("\n")).not.toMatch(/22P02|invalid input syntax/i);
+    });
+  }
+}
