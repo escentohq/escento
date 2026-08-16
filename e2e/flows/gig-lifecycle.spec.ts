@@ -25,10 +25,12 @@ test.describe("gig lifecycle", () => {
     await expect(page.getByRole("heading", { name: updated })).toBeVisible();
   });
 
-  // QUARANTINED — see #41. Fails on `main` on both attempts, not flake: the
-  // mutation reaches the server but the client never reflects it. Skipped so a
-  // red suite means a NEW regression; unskip with the fix in #41.
-  test.skip("closing a gig hides it from the directory; reopening restores it", async ({ page }) => {
+  // Unquarantined with #34. The failure was real, not flake, and it was the
+  // detail assertion: closing a gig used to make `/gigs/[id]` a 404 because the
+  // anonymous read policy gated on `status = 'OPEN'`, so the "Call filled" state
+  // this test looks for could never render. Visibility is now decided by
+  // moderation alone; the directory keeps filtering the lifecycle.
+  test("closing a gig hides it from the directory; reopening restores it", async ({ page }) => {
     const title = `Lifecycle ${stamp()}`;
     // Filter the directory to just this gig so the assertion is immune to other
     // gigs accumulating in the directory (the new gig may otherwise be far down
@@ -57,7 +59,8 @@ test.describe("gig lifecycle", () => {
     await expect(page.getByText(title)).toHaveCount(0);
 
     await page.goto(`/gigs/${gigId}`);
-    await expect(page.getByText("Filled", { exact: true })).toBeVisible();
+    await expect(page.getByText("Call filled")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Contact Creator" })).toHaveCount(0);
 
     await page.goto("/gigs/manage");
     await clickUntil(
@@ -102,5 +105,45 @@ test.describe("gig lifecycle", () => {
 
     // The edit route redirects non-owners back to management.
     await expect(intruder).toHaveURL(/\/gigs\/manage$/);
+  });
+
+  test("a closed gig keeps a readable, non-actionable detail page for anonymous visitors", async ({
+    page,
+    browser,
+  }) => {
+    const title = `Filled Detail ${stamp()}`;
+    await signUpAs(page, "CREATOR", "gig-filled");
+    const gigId = await createGig(page, {
+      title,
+      description: "Closed calls stay linkable so a shared URL does not rot.",
+    });
+
+    await page.goto("/gigs/manage");
+    await clickUntil(
+      page.getByRole("button", { name: "Mark Filled" }),
+      page.getByRole("button", { name: "Reopen Gig" }),
+    );
+
+    const visitor = await newContextPage(browser);
+    await visitor.goto(`/gigs/${gigId}`);
+    await expect(visitor.getByRole("heading", { name: title })).toBeVisible();
+    await expect(visitor.getByText("Call filled")).toBeVisible();
+    await expect(visitor.getByRole("button", { name: "Contact Creator" })).toHaveCount(0);
+
+    // ...and it is not inventory: the open directory does not carry it.
+    await visitor.goto(`/gigs?q=${encodeURIComponent(title)}`);
+    await expect(visitor.getByText(title)).toHaveCount(0);
+
+    // Reopening restores both discovery and the contact action.
+    await page.goto("/gigs/manage");
+    await clickUntil(
+      page.getByRole("button", { name: "Reopen Gig" }),
+      page.getByRole("button", { name: "Mark Filled" }),
+    );
+
+    await visitor.goto(`/gigs/${gigId}`);
+    await expect(visitor.getByText("Open call")).toBeVisible();
+    await visitor.goto(`/gigs?q=${encodeURIComponent(title)}`);
+    await expect(visitor.getByText(title).first()).toBeVisible();
   });
 });
