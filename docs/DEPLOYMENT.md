@@ -4,12 +4,12 @@ How application code and database schema reach production, and how to prove the
 two agree. Written for issue #69, after an audit found that nobody could answer
 "which migrations are applied to production?" without guessing.
 
-The short version: **code deploys itself, schema does not.** A green deploy
-proves nothing about the database. That gap is the single most expensive thing
-in this repo's history — it produced the `DB_REBUILD.md` incident, and then
-issue #68, where production ran a security migration that had been pasted in by
-hand, was never recorded, and silently broke every profile and gig write for a
-full release cycle while CI stayed green.
+The short version, updated by issue #72: **code and schema now deploy together,
+and a broken or unverified schema blocks the code.** That was not always true —
+this gap produced the `DB_REBUILD.md` incident, and then issue #68, where
+production ran a security migration that had been pasted in by hand, was never
+recorded, and silently broke every profile and gig write for a full release
+cycle while CI stayed green.
 
 ---
 
@@ -17,22 +17,23 @@ full release cycle while CI stayed green.
 
 | Thing | Trigger | Workflow |
 | --- | --- | --- |
-| Application code | push to `main` | `deploy-production.yml` → Vercel, then a read-only Playwright smoke |
+| Database schema | push to `main` | `deploy-production.yml` → `migrate` job: `supabase db push`, then `supabase/parity_check.sql` must return no `FAIL` rows |
+| Application code | push to `main`, after `migrate` succeeds | `deploy-production.yml` → `deploy` job → Vercel, then a read-only Playwright smoke |
 | Lint, typecheck, unit, build | every PR and push to `main` | `ci.yml`, ~90 seconds |
 | Secret scan | every PR and push to `main` | `secret-scan.yml` |
+| Hosted schema drift | daily at 09:00 UTC, and on demand | `schema-drift.yml` |
 
 `vercel.json` sets `{"git": {"deploymentEnabled": false}}`, so Vercel never
-deploys on its own — `deploy-production.yml` is the only path.
+deploys on its own — `deploy-production.yml` is the only path. `deploy` has
+`needs: migrate`, so it does not run at all if the migration or the parity check
+fails — a red `migrate` job is a release that did not happen, not a release that
+happened with an unverified database.
 
 ## What does not deploy automatically
 
-**Database migrations.** There is no `SUPABASE_DB_URL` repository secret, so
-`deploy-production.yml` has no migrate step and `schema-drift.yml` cannot run
-(it is currently `disabled_manually` and has never recorded a run). Applying a
-migration is a deliberate human action, described below.
-
-`write-flows.yml` is also manual: three shards, each booting its own ephemeral
+`write-flows.yml` is manual: three shards, each booting its own ephemeral
 Supabase stack, about 13 minutes. See [When to run the slow lane](#when-to-run-the-slow-lane).
+This is unaffected by #72 — it is a pre-merge check, not a release step.
 
 ---
 
@@ -64,30 +65,23 @@ If you added a migration, add its version and name to the
 `tests/unit/hosted-parity-check.test.ts` fails the fast lane if you forget, so
 this is enforced rather than remembered.
 
-### 4. Merge, and let the code deploy
+### 4. Merge
 
-`deploy-production.yml` runs on push to `main`.
+`deploy-production.yml` runs on push to `main`. As of issue #72, merging is what
+applies the migration — steps 5 and 6 are no longer things you do by hand, they
+are things you watch.
 
-> **Ordering.** If the new code requires the new schema, apply the migration
-> (step 5) *before* merging, not after. Additive schema changes are safe in
-> either order; anything the code depends on is not.
+### 5. `migrate` applies it to hosted Supabase
 
-### 5. Apply the migration to hosted Supabase
+The `migrate` job runs `supabase db push --db-url "$SUPABASE_DB_URL"`, which
+applies every migration not yet in `supabase_migrations.schema_migrations` on
+hosted and records it under its own filename version — no manual bookkeeping,
+no mismatched timestamp to fix by hand.
 
-Either route is acceptable. Both end at step 6.
-
-**Via the Supabase SQL editor** — open the project's SQL editor, paste the
-migration file verbatim, run it. Then record it, or the next parity check will
-report drift:
-
-```sql
-insert into supabase_migrations.schema_migrations (version, name)
-values ('<timestamp>', '<name_without_timestamp>');
-```
-
-**Via Supabase MCP** — `apply_migration` with the file's contents. It stamps its
-own timestamp rather than the file's, so afterwards correct the recorded version
-to match the filename:
+If you must apply one out of band (an MCP `apply_migration` call for
+exploration, say), it stamps its own timestamp rather than the file's; correct
+it before the next `migrate` run, or `db push` will try to apply the same
+migration again under a second version:
 
 ```sql
 update supabase_migrations.schema_migrations
@@ -95,31 +89,26 @@ update supabase_migrations.schema_migrations
  where name = '<name_without_timestamp>';
 ```
 
-Getting this right is not bookkeeping. `supabase db push` and `supabase db diff`
-both key off `version`, so a mismatched stamp means a migration re-runs or a
-drift check compares the wrong things.
+### 6. `migrate` verifies it — this is the gate
 
-### 6. Run the parity check — this is the gate
+The same job then runs `supabase/parity_check.sql` against hosted and fails if
+any row comes back other than `PASS`. `deploy` has `needs: migrate`, so the
+Vercel deploy simply does not run when this fails — the release stops here, not
+after code has already gone out ahead of a broken database.
 
-Paste **all** of `supabase/parity_check.sql` into the Supabase SQL editor and
-run it. It is read-only: it writes nothing and locks nothing, and it is safe
-against production at any time.
+The checks: migration history matches `supabase/migrations/` in both
+directions; the privileged columns from issue #59 are unreachable for
+`authenticated` (`is_public`, `is_verified`, `moderation_status`, `admin_notes`
+on `musician_profile` and `gig`; the support/moderation flags on `app_user`);
+the columns the write RPCs need *are* granted, and `updated_at` is not — the
+`BEFORE UPDATE` trigger owns it; the objects each migration created are
+present; the write RPCs are still `SECURITY INVOKER` with no regression to the
+bare `INSERT INTO … SELECT` form that caused issue #68; RLS is enabled on all
+seven content tables.
 
-Every row must come back `PASS`. It checks:
-
-- migration history matches `supabase/migrations/` in both directions;
-- the privileged columns from issue #59 are unreachable for `authenticated`
-  (`is_public`, `is_verified`, `moderation_status`, `admin_notes` on
-  `musician_profile` and `gig`; the support/moderation flags on `app_user`);
-- the columns the write RPCs need *are* granted, and `updated_at` is not —
-  the `BEFORE UPDATE` trigger owns it, so a client cannot forge a timestamp;
-- the objects each migration created are present;
-- the write RPCs are still `SECURITY INVOKER`, and none has regressed to the
-  bare `INSERT INTO … SELECT` form that caused issue #68;
-- RLS is enabled on all seven content tables.
-
-A single `FAIL` means hosted has drifted and the release is not safe to hand to
-users. Fix the drift, do not edit the check.
+You can still run it by hand at any time — paste all of
+`supabase/parity_check.sql` into the Supabase SQL editor. It is read-only: it
+writes nothing and locks nothing.
 
 ### 7. Smoke it
 
@@ -171,18 +160,34 @@ reports it.
 
 ## Known gaps
 
-These are real and tracked, not oversights:
+`SUPABASE_DB_URL` was added as of issue #72: `deploy-production.yml` now has a
+`migrate` job the `deploy` job depends on, and `schema-drift.yml` /
+`secret-scan.yml` are both enabled with recorded runs. What remains real and
+tracked, not an oversight:
 
-- **`schema-drift.yml` has never run.** It requires a `SUPABASE_DB_URL`
-  repository secret that does not exist, and it is currently
-  `disabled_manually`. `supabase/parity_check.sql` is the manual stand-in.
-  Automating it needs the secret (Supabase → Project Settings → Database →
-  Connection string → URI, session mode), after which the workflow can be
-  enabled and wired into `deploy-production.yml` as a job the deploy depends on.
-- **`deploy-production.yml` has no migrate step**, for the same reason.
-- **`secret-scan.yml` is also `disabled_manually`**, despite being described
-  elsewhere as running alongside CI.
+- **`schema-drift.yml` (`supabase db diff`) does not reliably detect
+  privilege-only or default-only drift.** Verified directly: an unmigrated
+  extra table, an added column `DEFAULT`, and a revoked `GRANT` were each
+  applied to hosted as disposable, intentional drift, and none of the three
+  produced a failing run — `supabase db diff` reported "No schema changes
+  found" every time. `migra`-based structural diffing is known to focus on
+  relations (tables, columns, types, indexes, functions) and can be blind to
+  privilege state and default-only changes, and this may be compounded by
+  diffing through the session pooler rather than a direct connection. This
+  workflow still catches the case it is best at — a manually-created or
+  manually-altered relation that the migrations do not know about at all — and
+  it has a recorded successful run, but do not rely on it for the #59/#68 class
+  of regression.
+  - **`supabase/parity_check.sql`, wired into `migrate`, is what actually
+    catches that class.** It queries `has_column_privilege` and specific
+    known-good state directly rather than diffing, and its red path is proven:
+    a rolled-back transaction introducing four kinds of drift (migration
+    history, the #59 privileged-column grants, the #68 write-path grants, a
+    missing trigger) produced four `FAIL` rows, all correctly identified.
+  - Tracked in #76: try `supabase db diff` against a **direct** (non-pooler)
+    connection and re-test the same three drift scenarios before concluding
+    the tool itself cannot detect this class of change.
 
-Until the secret exists, step 6 is the gate, and it is a human one. That is a
-weaker guarantee than a workflow, and it is stated here rather than implied so
-nobody mistakes a green deploy for a verified one.
+Reading a red `migrate` job: `db push` failures and parity `FAIL` rows are
+printed in the job log; `deploy` will not run, so the previous good deployment
+stays live.

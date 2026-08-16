@@ -25,11 +25,14 @@ Supersedes the August 15, 2026 snapshot in this file
 > passes on the first attempt, and `supabase/parity_check.sql` returns PASS on
 > every check against hosted Supabase.
 >
-> One audit criterion is **not** met and is tracked in #72: `schema-drift.yml`
-> still has no recorded run, because it needs a `SUPABASE_DB_URL` secret that
-> does not exist. Until it does, the parity check is a human gate, and
-> `docs/DEPLOYMENT.md` says so rather than implying a green deploy is a verified
-> one.
+> **Update:** `SUPABASE_DB_URL` was added and #72 closed the remaining
+> automation gap. `deploy-production.yml` now applies migrations and runs
+> `supabase/parity_check.sql` before every production deploy, and
+> `schema-drift.yml` / `secret-scan.yml` are enabled with recorded runs. See
+> `docs/DEPLOYMENT.md`, which also records a real limitation found while
+> verifying this: `schema-drift.yml`'s structural diff does not reliably catch
+> privilege-only drift (tracked in #76) — `parity_check.sql` is what actually
+> guards the #59/#68 class of regression, and its red path is proven.
 
 ---
 
