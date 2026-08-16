@@ -149,8 +149,9 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 # Claude Code local settings (sensitive credentials)
-.claude/settings.local.json
+.claude
 .vercel
+.cursor
 .env*
 
 # Playwright E2E
