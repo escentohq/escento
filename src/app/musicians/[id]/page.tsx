@@ -6,7 +6,9 @@ import { BackLink } from "@/components/ui/back-link";
 import { Chip } from "@/components/ui/chip";
 import { SectionCard } from "@/components/ui/section-card";
 import { MusicianContactActions } from "@/components/messaging/public-contact-actions";
-import { getProfile } from "@/lib/api/profiles";
+import { DraftProfileBanner } from "@/components/profile/draft-profile-banner";
+import { getProfile, getProfileByUserId } from "@/lib/api/profiles";
+import { getCurrentSession } from "@/lib/auth-guards";
 import { displayLocation } from "@/lib/location";
 import { isUuid } from "@/lib/ids";
 
@@ -26,7 +28,23 @@ export default async function MusicianPublicProfilePage({
   const { id } = await params;
   if (!isUuid(id)) notFound();
 
-  const profile = await getProfile(id);
+  const listed = await getProfile(id);
+  let profile = listed;
+  let isOwnerDraft = false;
+
+  if (!profile) {
+    // Drafts stay off anonymous inventory, but the owner can still open the
+    // same URL the nudge links to — otherwise "View your profile" 404s the
+    // person who just saved it.
+    const session = await getCurrentSession();
+    if (session?.user?.id) {
+      const owned = await getProfileByUserId(session.user.id);
+      if (owned?.id === id) {
+        profile = owned;
+        isOwnerDraft = true;
+      }
+    }
+  }
   if (!profile) notFound();
 
   const links: Array<{ label: string; url: string }> = [
@@ -46,6 +64,7 @@ export default async function MusicianPublicProfilePage({
         <div className="mb-8">
           <BackLink href="/musicians">Back to musicians</BackLink>
         </div>
+        {isOwnerDraft ? <DraftProfileBanner /> : null}
 
         <div className="grid gap-12 lg:grid-cols-[minmax(0,2fr)_minmax(18rem,1fr)]">
           {/* ── Main column ── */}
@@ -177,11 +196,13 @@ export default async function MusicianPublicProfilePage({
 
           {/* ── Sidebar ── */}
           <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
-            <MusicianContactActions
-              recipientId={profile.userId}
-              profileId={profile.id}
-              profileName={profile.displayName}
-            />
+            {isOwnerDraft ? null : (
+              <MusicianContactActions
+                recipientId={profile.userId}
+                profileId={profile.id}
+                profileName={profile.displayName}
+              />
+            )}
 
           </aside>
         </div>

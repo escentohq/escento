@@ -26,7 +26,7 @@ test.describe("profile create wizard", () => {
 
     // Leave mid-wizard. Step 2 must survive.
     await page.goto("/musicians");
-    await expect(page.getByText("Your profile is 2 of 4 done")).toBeVisible();
+    await expect(page.getByText("Saved, not listed yet")).toBeVisible();
 
     // Re-entering the wizard resumes at the first unfinished step, not step 1.
     await page.goto("/profile/create");
@@ -37,9 +37,10 @@ test.describe("profile create wizard", () => {
     await page.waitForURL(/\/profile\/create\/craft/, { timeout: 30_000 });
     await expect(page.getByRole("button", { name: "Remove Cello" })).toBeVisible();
 
-    // And it reached the public profile.
+    // The owner can still preview the draft; it is not listed yet (no context).
     await page.goto(`/musicians/${profileId}`);
     await expect(page.getByText("Cello").first()).toBeVisible();
+    await expect(page.getByText("Not listed yet")).toBeVisible();
   });
 
   test("skip advances without writing, and the last step finishes on the profile", async ({ page }) => {

@@ -14,7 +14,7 @@ export default async function IdentityStepPage() {
     <PageShell
       eyebrow="Profile basics"
       title="What name should people see?"
-      body="Add a display name to create your profile. You can fill in the rest later."
+      body="Add a display name to save your profile. It is not listed until you add an instrument or genre and a bit of context."
       size="narrow"
     >
       <WizardProgress current={stepNumber("identity")} />

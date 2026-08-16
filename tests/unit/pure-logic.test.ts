@@ -15,7 +15,13 @@ import {
 import { isMalformedIdError, isUuid } from "@/lib/ids";
 import { displayLocation, distanceMiles, parseLocationSearch } from "@/lib/location";
 import { getPasswordStrength, validatePassword } from "@/lib/password";
-import { completedStepCount, nextIncompleteStep, nextStepAfter, previousStepBefore } from "@/lib/profile-progress";
+import {
+  completedStepCount,
+  isProfileLaunchReady,
+  nextIncompleteStep,
+  nextStepAfter,
+  previousStepBefore,
+} from "@/lib/profile-progress";
 import { filterSearchResults } from "@/lib/search";
 
 /**
@@ -262,6 +268,54 @@ describe("profile wizard progress", () => {
   it("treats a zero years-experience answer as answered", () => {
     const zeroYears = { ...empty, yearsExperience: 0 };
     expect(completedStepCount(zeroYears)).toBe(1);
+  });
+});
+
+describe("isProfileLaunchReady", () => {
+  const draft = {
+    displayName: "Ada",
+    bio: null,
+    school: null,
+    location: null,
+    locationDisplayName: null,
+    locationCity: null,
+    isRemote: false,
+    availabilityText: null,
+    instruments: [] as string[],
+    genres: [] as string[],
+  };
+
+  it("rejects a name-only draft", () => {
+    expect(isProfileLaunchReady(draft)).toBe(false);
+  });
+
+  it("rejects name plus craft with no context", () => {
+    expect(isProfileLaunchReady({ ...draft, instruments: ["Cello"] })).toBe(false);
+  });
+
+  it("rejects name plus context with no craft", () => {
+    expect(isProfileLaunchReady({ ...draft, school: "UT Austin" })).toBe(false);
+  });
+
+  it("accepts name, craft, and one piece of context", () => {
+    expect(isProfileLaunchReady({ ...draft, instruments: ["Cello"], school: "UT Austin" })).toBe(true);
+    expect(isProfileLaunchReady({ ...draft, genres: ["Jazz"], bio: "Film scoring." })).toBe(true);
+    expect(isProfileLaunchReady({ ...draft, instruments: ["Voice"], isRemote: true })).toBe(true);
+  });
+
+  it("does not treat years of experience as enough context", () => {
+    expect(
+      isProfileLaunchReady({
+        ...draft,
+        instruments: ["Cello"],
+        // yearsExperience is wizard progress, not launch context.
+      }),
+    ).toBe(false);
+  });
+
+  it("trims whitespace so a blank name or bio does not count", () => {
+    expect(isProfileLaunchReady({ ...draft, displayName: "   " })).toBe(false);
+    expect(isProfileLaunchReady({ ...draft, instruments: ["Cello"], bio: "   " })).toBe(false);
   });
 });
 

@@ -7,6 +7,7 @@ import { createSupabasePublicClient } from "@/lib/supabase/public";
 import { PUBLIC_HOME_TAG, PUBLIC_MUSICIANS_TAG, publicMusicianTag } from "@/lib/cache-tags";
 import { distanceMiles, type LocationSearch } from "@/lib/location";
 import { isMalformedIdError } from "@/lib/ids";
+import { isProfileLaunchReady } from "@/lib/profile-progress";
 import { filterSearchResults } from "@/lib/search";
 import { tagMatchesQuery } from "@/lib/tag-taxonomy";
 import { ensureInstruments, ensureGenres } from "./tags";
@@ -73,7 +74,10 @@ async function queryPublicProfile(id: string): Promise<MusicianProfile | null> {
   if (!data) return null;
 
   const images = await getProfileImages([data.user_id]);
-  return toPublicProfile(data, null, images.get(data.user_id) ?? null);
+  const profile = toPublicProfile(data, null, images.get(data.user_id) ?? null);
+  // RLS already hides drafts; this also drops a stale cache entry that was
+  // written before readiness was part of anonymous visibility.
+  return isProfileLaunchReady(profile) ? profile : null;
 }
 
 export const getProfile = cache(async (id: string): Promise<MusicianProfile | null> => (
@@ -135,9 +139,9 @@ async function queryPublicProfiles(): Promise<MusicianProfile[]> {
   if (error) throw error;
 
   const images = await getProfileImages((data ?? []).map((raw: any) => raw.user_id));
-  return (data || []).map((raw: any) =>
-    toPublicProfile(raw, null, images.get(raw.user_id) ?? null),
-  );
+  return (data || [])
+    .map((raw: any) => toPublicProfile(raw, null, images.get(raw.user_id) ?? null))
+    .filter(isProfileLaunchReady);
 }
 
 /**

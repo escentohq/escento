@@ -11,9 +11,10 @@ import { formLevelMessage, type ActionState } from "@/lib/form-utils";
 import { invalidatePublicProfile } from "@/lib/public-cache-invalidation";
 
 /**
- * Step one. Creates the profile row from a display name alone, then drops the
- * user straight into the directory — the rest of the wizard is reachable from
- * the reminder strip there, so nobody is held behind three more screens.
+ * Step one. Creates the profile row from a display name (and optional bio),
+ * then drops the musician on the directory. The row is saved and resumable, but
+ * it is not anonymous inventory until it also has craft and a piece of context
+ * — the reminder strip on this page is the path back into the wizard.
  */
 export async function saveIdentityAction(_state: ActionState, fd: FormData): Promise<ActionState> {
   const session = await requireRole("MUSICIAN", "/profile/create/identity");

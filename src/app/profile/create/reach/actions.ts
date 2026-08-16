@@ -11,7 +11,7 @@ import { formLevelMessage, type ActionState } from "@/lib/form-utils";
 import { stepPath } from "@/lib/profile-progress";
 import { invalidatePublicProfile } from "@/lib/public-cache-invalidation";
 
-/** Step four: how creators reach and pay you. Finishes on the public profile. */
+/** Step four: how creators reach and pay you. Finishes on the profile page. */
 export async function saveReachAction(_state: ActionState, fd: FormData): Promise<ActionState> {
   const session = await requireRole("MUSICIAN", "/profile/create/reach");
 
