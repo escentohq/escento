@@ -16,9 +16,9 @@ export default async function ContextStepPage() {
 
   return (
     <PageShell
-      eyebrow="Soundcheck"
+      eyebrow="Location and availability"
       title="Where are you, and when are you free?"
-      body="All optional. Skip anything that does not apply yet."
+      body="These fields are optional. Skip anything you do not want to add yet."
       size="narrow"
     >
       <WizardProgress current={stepNumber("context")} />

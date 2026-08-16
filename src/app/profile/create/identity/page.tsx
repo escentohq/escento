@@ -12,9 +12,9 @@ export default async function IdentityStepPage() {
 
   return (
     <PageShell
-      eyebrow="On stage"
-      title="What should creators call you?"
-      body="One field is all it takes to get listed. Everything else can wait."
+      eyebrow="Profile basics"
+      title="What name should people see?"
+      body="Add a display name to create your profile. You can fill in the rest later."
       size="narrow"
     >
       <WizardProgress current={stepNumber("identity")} />

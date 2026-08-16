@@ -99,8 +99,8 @@ export function MusicianContactActions({
     <>
       <div className="border-t-4 border-brand bg-ink p-6 text-white">
         <span className="text-meta uppercase text-on-ink-muted">Contact</span>
-        <h2 className="mt-3 text-section-heading">Message this musician</h2>
-        <p className="mt-3 text-secondary text-on-ink-body">Send a request. If they accept, a message thread opens.</p>
+        <h2 className="mt-3 text-section-heading">Contact this musician</h2>
+        <p className="mt-3 text-secondary text-on-ink-body">Send a request with a short note. You can message them if they accept.</p>
         <ContactControls recipientId={recipientId} callbackUrl={`/musicians/${profileId}`} context={context} />
       </div>
       {context?.role === "CREATOR" ? (

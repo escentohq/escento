@@ -36,7 +36,7 @@ export default async function SignInPage({
             Sign in
           </h1>
           <p className="mt-4 max-w-md text-body text-muted">
-            Continue with Google, or use your email and password.
+            Use Google or sign in with your email and password.
           </p>
         </header>
 
@@ -44,7 +44,7 @@ export default async function SignInPage({
           <div className="space-y-6">
             {authError ? (
               <div className="border-l-4 border-coral px-4 py-3 text-secondary font-semibold text-[#B42318]">
-                Something went wrong finishing sign-in. Try again.
+                {"We couldn't finish signing you in. Try again."}
               </div>
             ) : null}
             <GoogleButton callbackUrl={base} />
@@ -52,7 +52,7 @@ export default async function SignInPage({
             <div className="flex items-center gap-4">
               <div className="h-px flex-1 bg-[#F1F5F9]" />
               <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
-                Or continue with email
+                Or use email
               </span>
               <div className="h-px flex-1 bg-[#F1F5F9]" />
             </div>

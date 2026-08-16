@@ -55,7 +55,7 @@ function TaxonomyTable({
         <div>
           <h2 className="text-item-heading text-ink">{title}</h2>
           <p className="mt-1 text-sm font-medium text-[#64748B]">
-            Review, add, or remove terms used by profiles and gigs.
+        Add or remove terms used by profiles and gigs.
           </p>
         </div>
         <Chip tone="neutral">{rows.length} terms</Chip>
@@ -124,7 +124,7 @@ export default async function AdminTaxonomyPage() {
     <PageShell
       eyebrow="Admin"
       title="Taxonomy"
-      body="Review instrument and genre terms used across Escento."
+      body="Manage the instrument and genre terms used in listings."
     >
       <AdminNav />
       <div className="grid gap-6 xl:grid-cols-2">

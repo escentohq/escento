@@ -76,7 +76,7 @@ Recommended browsers and devices:
   - Expected: Route skeleton/loading UI appears where routes are slow, then content replaces it.
 - [ ] **Visit an invalid route such as `/this-route-does-not-exist`.**
   - Check: 404 page.
-  - Expected: Branded "Lost in the mix." 404 page appears with a button back home.
+  - Expected: "Page not found" appears with a button back home.
 - [ ] **Open footer links from any page.**
   - Check: Footer navigation.
   - Expected: Musicians, gigs, privacy, terms, and compliance links navigate correctly.
@@ -313,7 +313,7 @@ Recommended browsers and devices:
   - Expected: Menu offers Create Profile.
 - [ ] **As musician with profile, open menu.**
   - Check: Role-specific link.
-  - Expected: Menu offers Edit Profile.
+  - Expected: Menu offers Edit profile.
 - [ ] **As creator, open menu.**
   - Check: Role-specific links.
   - Expected: Menu offers Manage Gigs and Post a Gig.
@@ -1343,7 +1343,7 @@ Run these on at least 375x812, 430x932, 768x1024, and 1024x768.
 
 - [ ] **Create profile, sign out, sign back in.**
   - Check: Persistence.
-  - Expected: Profile still exists and Edit Profile link appears.
+  - Expected: Profile still exists and Edit profile link appears.
 - [ ] **Create gig, sign out, sign back in.**
   - Check: Persistence.
   - Expected: Gig still appears in Manage Gigs.

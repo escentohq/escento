@@ -57,7 +57,7 @@ export default async function MessageRequestsPage() {
 
   return (
     <PageShell
-      eyebrow="Introductions"
+      eyebrow="Inbox"
       title="Connection requests"
       body="Accept to open a conversation, or decline without starting a thread."
     >
@@ -81,7 +81,7 @@ export default async function MessageRequestsPage() {
             <EmptyState
               eyebrow="Clear"
               title="No incoming requests."
-              body="New connection requests will land here."
+              body="New requests will appear here."
             />
           ) : (
             <div className="divide-y divide-rule border-y border-rule">
@@ -137,10 +137,10 @@ export default async function MessageRequestsPage() {
 
           {outgoing.length === 0 ? (
             <EmptyState
-              eyebrow="No sends"
-              title="You have not reached out yet."
-              body="Open a profile and send a connection request."
-              cta={<Link href="/musicians" className="control-secondary">Browse Musicians</Link>}
+              eyebrow="Sent requests"
+              title="No sent requests."
+              body="Open a profile or gig to send one."
+              cta={<Link href="/musicians" className="control-secondary">Browse musicians</Link>}
             />
           ) : (
             <div className="divide-y divide-rule border-y border-rule">

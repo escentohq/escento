@@ -8,7 +8,7 @@ import { getEscentoSupportAccountEmail } from "@/lib/support-identity";
 
 const SUPPORT_DISPLAY_NAME = "Escento";
 const WELCOME_MESSAGE_BODY =
-  "Welcome to Escento! We’re excited to have you here. If you have any questions, run into issues, or need help getting started, just reply to this message and the Escento team will help you out.";
+  "Your Escento account is ready. Reply here if you need help.";
 
 export type SupportUserSearchResult = {
   id: string;

@@ -74,7 +74,7 @@ export function SupportForm() {
 
           <FormField
             id="email"
-            label="Email Address"
+            label="Email address"
             required
             error={emailError}
             showError={formFields.shouldShowError("email", emailError)}
@@ -120,8 +120,8 @@ export function SupportForm() {
             />
           </FormField>
 
-          <FormSubmitButton pendingLabel="Sending..." className="w-full sm:w-auto">
-            Submit
+          <FormSubmitButton pendingLabel="Sending…" className="w-full sm:w-auto">
+            Send message
           </FormSubmitButton>
         </div>
       </form>
@@ -132,7 +132,7 @@ export function SupportForm() {
             Still need help?
           </p>
           <p className="mt-2 text-sm font-medium leading-relaxed text-[#475569]">
-            Automatic delivery is not available right now. You can email{" "}
+            Email{" "}
             <a
               href={`mailto:${fallbackEmail}`}
               className="font-bold text-[#0055FF] underline-offset-2 hover:underline"

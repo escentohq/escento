@@ -124,12 +124,12 @@ export function UserMenu({
                 {musicianProfilePath === "/profile/create" ? (
                   <>
                     <Plus className="h-4 w-4" />
-                    Create Profile
+                    Create profile
                   </>
                 ) : (
                   <>
                     <Pencil className="h-4 w-4" />
-                    Edit Profile
+                    Edit profile
                   </>
                 )}
               </Link>
@@ -144,7 +144,7 @@ export function UserMenu({
                   className="flex cursor-pointer select-none items-center gap-2.5 px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:bg-[#F1F5F9] focus:bg-[#F1F5F9] focus:outline-none"
                 >
                   <LayoutList className="h-4 w-4" />
-                  Manage Gigs
+                  Manage gigs
                 </Link>
               </DropdownMenu.Item>
 
@@ -154,7 +154,7 @@ export function UserMenu({
                   className="flex cursor-pointer select-none items-center gap-2.5 px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:bg-[#F1F5F9] focus:bg-[#F1F5F9] focus:outline-none"
                 >
                   <PlusCircle className="h-4 w-4" />
-                  Post a Gig
+                  Post a gig
                 </Link>
               </DropdownMenu.Item>
             </>

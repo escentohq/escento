@@ -2,20 +2,13 @@
 
 ## Voice
 
-Confident. Cultural. Performance-energy. Talks like a senior music supervisor, not a sales page.
+Direct, concise, plainspoken, and specific. Write like a founder explaining the product to a user, not like a sales page.
 
-**Feels like:** a tour poster, a campus radio bumper, a late-night studio session.
-**Does not feel like:** generic SaaS, enterprise marketing, crypto-dashboard, university IT.
+[`/docs/COPY_STYLE.md`](../COPY_STYLE.md) is the canonical guide for all user-facing text. This document retains product vocabulary and status-label guidance.
 
 ## Tagline
 
-> **Take the Stage.**
-
-This is the canonical headline framing. Variations are fine for sub-pages but the verb-first, two-word, period-terminated rhythm should be preserved. Examples that fit:
-
-- *Make Some Noise.*
-- *Run the Set.*
-- *Cue the Lights.*
+Escento has no default tagline. Describe the product or the current action directly.
 
 ## Copy patterns
 
@@ -25,11 +18,11 @@ Short. High-confidence. Active voice. Names the next action.
 
 | Do | Don't |
 |---|---|
-| "Find your next collaborator." | "Discover top-tier student talent on our platform." |
-| "Take the Stage." | "Welcome to Escento — your one-stop solution for music collaboration." |
-| "Now playing" | "Featured users" |
-| "Browse Musicians" | "Click here to view available musicians" |
-| "Post a Gig" | "Create a new gig opportunity" |
+| "Find musicians who fit the project." | "Discover top-tier student talent on our platform." |
+| "Post a gig and say what you need." | "Welcome to Escento, your one-stop solution for music collaboration." |
+| "Musicians" | "Now playing" |
+| "Browse musicians" | "Click here to view available musicians" |
+| "Post a gig" | "Create a new gig opportunity" |
 | "Open" / "Filled" | "Active" / "Inactive" |
 | "Three-week turnaround. Great for portfolio building." | "We are seeking a highly motivated composer for collaboration." |
 | "UT Austin junior. Film scoring focus." | "Talented multi-instrumentalist with extensive experience." |
@@ -41,21 +34,11 @@ Short. High-confidence. Active voice. Names the next action.
 - Specifics over adjectives. ("Tracked on four student shorts this semester" beats "very experienced".)
 - Numbers stay numerals when small and concrete. ("3 weeks", "$200", "10-minute short").
 
-## Eyebrow / label vocabulary
+## Eyebrow and label vocabulary
 
-Approved short labels for section eyebrows, status pills, and small headers. Use these before inventing new ones.
+Eyebrows should identify the section: `Musicians`, `Open gigs`, `Messages`, `Settings`, `Support`, or `Admin`. Do not use music metaphors as a default label pattern.
 
-- `Live and loud`
-- `Now playing`
-- `Spotlight`
-- `Connect`
-- `Create`
-- `Available` (musician availability)
-- `Open` (gig status)
-- `Filled` (gig status — replaces "Closed" in UI)
-- `On stage`
-- `Backstage`
-- `Soundcheck`
+Status labels remain `Available`, `Open`, and `Filled` (not `Closed` in UI).
 
 Style: `font-mono text-xs font-bold uppercase tracking-[0.2em]`. See [`DESIGN.md`](./DESIGN.md) §Typography.
 
@@ -65,6 +48,8 @@ Do not generate copy containing these words or constructions:
 
 - "leverage", "synergy", "ecosystem", "solution", "robust", "seamless", "cutting-edge", "next-gen", "world-class", "best-in-class", "revolutionize", "unlock", "empower"
 - "Welcome to [Product]"
+- Em dashes in user-facing copy
+- Forced music metaphors such as "soundcheck," "backstage," "quiet room," or "lost in the mix"
 - "Click here"
 - "Lorem ipsum" — write real placeholder copy instead, even for mocks
 - Hashtags, `@`-handles as decoration, marketing emoji (🚀 🎵 ✨)
@@ -88,12 +73,12 @@ Do not generate copy containing these words or constructions:
 
 ## Empty-state copy patterns
 
-Pattern: **One short sentence describing the void → one CTA labeled with the next concrete action.**
+Pattern: **One short sentence describing the empty state, then one CTA with the next concrete action.**
 
-- `/musicians` empty after filter → "No one matches yet." + `Clear filters`
-- `/musicians` empty cold → "Nobody on stage yet." + `Create Profile` (when authed musician)
-- `/gigs` empty → "No open gigs right now." + `Post a Gig` (when authed creator)
-- `/gigs/manage` empty → "You haven't posted anything yet." + `Post a Gig`
+- `/musicians` empty after filter: "No musicians match." + `Clear filters`
+- `/musicians` empty cold: "No musician profiles yet." + `Create profile` (when signed in as a musician)
+- `/gigs` empty: "No open gigs right now." + `Post a gig` (when signed in as a creator)
+- `/gigs/manage` empty: "No gigs posted yet." + `Post a gig`
 
 Never: "Oops!", "It looks like…", "Sorry, no results found."
 
@@ -110,11 +95,11 @@ See [`FORMS.md`](./FORMS.md) for full patterns. Error copy table:
 | Password rules | Mirror `getPasswordRequirements()` labels | |
 | Auth failure | `That email or password isn't right.` | |
 | Multi-field submit | `Fix {n} fields to continue.` | |
-| Server failure | `Something went wrong. Try again.` | Never raw Supabase strings |
+| Server failure | Name the failed action and offer a next step. | Never raw Supabase strings |
 
 Forbidden for field errors: "ERROR", "Invalid input", "Wrong", "Failed validation", "Oops".
 
-- Submit labels: `Save`, `Publish Gig`, `Update Gig`, `Create Profile`, `Mark Filled`, `Delete`.
+- Submit labels: `Save`, `Publish gig`, `Update gig`, `Create profile`, `Mark filled`, `Delete`.
 - Pending: append `…` (`Saving…`, `Publishing…`).
 - Cancel link reads `Cancel` and routes back to the relevant index.
 - Required-field marker: a small `*` after the label, not the word "required".
@@ -126,5 +111,5 @@ Forbidden for field errors: "ERROR", "Invalid input", "Wrong", "Failed validatio
 
 ## Meta / SEO copy (when adding `<Metadata>`)
 
-- Title pattern: `<Page> · Escento`.
-- Description: ≤ 155 chars, ends with a period, uses the voice above. Example: *"Find student musicians for your next film, podcast, or live show. Post a gig in two minutes."*
+- Title pattern: `<Page> | Escento`.
+- Description: ≤ 155 characters, ends with a period, and describes the page plainly. Example: *"Find musicians, post gigs, and message people directly on Escento."*

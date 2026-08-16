@@ -48,7 +48,7 @@ export async function createGigAction(_state: ActionState, fd: FormData): Promis
   if (Object.keys(fieldErrors).length) {
     return {
       ok: false,
-      message: formLevelMessage(fieldErrors, "Tighten the set before publishing."),
+      message: formLevelMessage(fieldErrors, "Fix the highlighted fields."),
       fieldErrors,
       values: gigValuesFromFormData(fd),
     };

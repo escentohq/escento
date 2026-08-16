@@ -42,7 +42,7 @@ export function ConnectButton({
         prefetch={false}
         className="mt-5 flex w-full cursor-pointer items-center justify-between bg-brand px-5 py-3 text-control text-white transition-colors hover:bg-white hover:text-ink focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
       >
-        <span>Sign in to Connect</span>
+        <span>Sign in to send a request</span>
         <UserPlus className="h-4 w-4" aria-hidden />
       </Link>
     );

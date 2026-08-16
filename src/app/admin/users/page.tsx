@@ -27,7 +27,7 @@ export default async function AdminUsersPage() {
     <PageShell
       eyebrow="Admin"
       title="Users"
-      body="View Escento user accounts and admin moderation metadata."
+      body="Review, hide, restore, or delete user accounts."
     >
       <AdminNav />
       <ModerationVisibilityNotice />

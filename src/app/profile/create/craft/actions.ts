@@ -22,7 +22,10 @@ export async function saveCraftAction(_state: ActionState, fd: FormData): Promis
   if (Object.keys(parsed.fieldErrors).length) {
     return {
       ok: false,
-      message: formLevelMessage(parsed.fieldErrors, "Something went wrong. Try again."),
+      message: formLevelMessage(
+        parsed.fieldErrors,
+        "We couldn't save your instruments and genres. Try again.",
+      ),
       fieldErrors: parsed.fieldErrors,
       values: profileValuesFromFormData(fd),
     };

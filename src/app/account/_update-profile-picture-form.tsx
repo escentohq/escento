@@ -115,7 +115,7 @@ export function UpdateProfilePictureForm({ name, image }: Props) {
       </div>
 
       <FormSubmitButton pendingLabel="Uploading…">
-        Update Picture
+        Update picture
       </FormSubmitButton>
     </form>
   );

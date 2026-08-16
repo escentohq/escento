@@ -82,7 +82,7 @@ export default async function AdminSupportPage({
     <PageShell
       eyebrow="Admin"
       title="Escento support"
-      body="Message users as the official Escento support account. Normal user messaging rules remain unchanged."
+      body="Send and review messages from the official Escento support account."
     >
       <AdminNav supportBadgeCount={supportInbox.needsResponseCount} />
 
@@ -219,7 +219,7 @@ export default async function AdminSupportPage({
               <EmptyState
                 eyebrow="Support"
                 title="Choose a user"
-                body="Search for a user to view or start their official Escento support conversation."
+              body="Search for a user to open or start a support conversation."
               />
             </div>
           ) : (

@@ -35,7 +35,7 @@ export default function NotFound() {
       <div className="w-full max-w-2xl">
         <EmptyState
           eyebrow="404 Error"
-          title="Lost in the mix."
+          title="Page not found"
           body="The page you're looking for doesn't exist, has been moved, or hasn't been built yet."
           cta={<PrimaryCta href="/">Return Home</PrimaryCta>}
         />
@@ -56,4 +56,3 @@ Add segment-level `loading.tsx` and `error.tsx` files when adding new async rout
 - No custom `error.tsx` boundaries exist for forms or data routes.
 - ID validation is only length-based; CUID format validation could be stronger.
 - Redirects sometimes go to `/api/auth/signin` rather than the branded `/signin` page with callback.
-

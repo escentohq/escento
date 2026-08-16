@@ -29,7 +29,7 @@ export default async function AdminGigsPage() {
     <PageShell
       eyebrow="Admin"
       title="Gigs"
-      body="Review gig listings and mark moderation metadata."
+      body="Review, edit, hide, or restore gig listings."
     >
       <AdminNav />
       <ModerationVisibilityNotice />

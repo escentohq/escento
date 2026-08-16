@@ -83,7 +83,7 @@ export default async function AdminReportsPage() {
     <PageShell
       eyebrow="Admin"
       title="Reports"
-      body="Review reports submitted from musician profiles and gig pages."
+      body="Review reports about musician profiles and gigs."
     >
       <AdminNav />
 
@@ -92,8 +92,7 @@ export default async function AdminReportsPage() {
           {activeCount} report{activeCount === 1 ? "" : "s"} need review.
         </p>
         <p className="mt-1 text-sm font-medium text-[#64748B]">
-          Reports are private to admins. Reported users do not see who submitted
-          them.
+          Reports are private. Reported users cannot see who submitted them.
         </p>
       </div>
 
@@ -101,7 +100,7 @@ export default async function AdminReportsPage() {
         <EmptyState
           eyebrow="Clear"
           title="No reports yet."
-          body="New user reports will appear here and send an email notification."
+          body="New reports will appear here."
         />
       ) : (
         <div className="divide-y divide-rule border-y border-rule">

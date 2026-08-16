@@ -76,7 +76,7 @@ export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: Ho
 ```
 
 ## How It Works
-The server route resolves auth and role state, then hands the client landing component a secondary CTA destination. Unroled signed-in users are immediately redirected to onboarding. Musicians get either `Create Profile` or `Edit Profile`; creators get `Post a Gig`; anonymous visitors get `Sign In`.
+The server route resolves auth and role state, then hands the client landing component a secondary CTA destination. Unroled signed-in users are immediately redirected to onboarding. Musicians get either `Create profile` or `Edit profile`; creators get `Post a gig`; anonymous visitors get `Sign in`.
 
 `HomeLanding` is a client component because it uses Framer Motion, GSAP, scroll transforms, and reduced-motion detection. It renders a hero, `TheCallsheet` (sample musician/gig cards), `ProductStory` (the five-step explainer), and a final CTA.
 

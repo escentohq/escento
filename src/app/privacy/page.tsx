@@ -3,7 +3,7 @@ import { type Metadata } from "next";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "Escento Privacy Policy - Learn how we collect, use, and protect your personal information.",
+    "Read Escento's Privacy Policy and how it describes the handling of personal information.",
 };
 
 export default function PrivacyPage() {

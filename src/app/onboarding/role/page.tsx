@@ -11,9 +11,9 @@ export default async function RoleOnboardingPage() {
 
   return (
     <PageShell
-      eyebrow="Soundcheck"
-      title="What brings you here first?"
-      body="This sets what you see first. Escento keeps the tools focused around that choice."
+      eyebrow="Choose a role"
+      title="How will you use Escento?"
+      body="Choose once. You cannot switch roles from your account later."
       size="medium"
     >
       <RoleOnboardingPicker />

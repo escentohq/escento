@@ -19,7 +19,7 @@ const siteUrl = SITE_URL;
 const siteDescription = SITE_DESCRIPTION;
 
 export const metadata: Metadata = {
-  title: "Escento",
+  title: "Escento | Find Musicians and Gigs",
   description: siteDescription,
   metadataBase: new URL(siteUrl),
   applicationName: "Escento",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
   },
   openGraph: {
-    title: "Escento",
+    title: "Escento | Find Musicians and Gigs",
     siteName: "Escento",
     description: siteDescription,
     url: siteUrl,

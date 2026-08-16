@@ -98,7 +98,7 @@ export function IdentityForm({ initial }: { initial: { displayName: string; bio:
             Cancel
           </Link>
           <FormSubmitButton pendingLabel="Creating…" className="w-full sm:w-auto">
-            Create Profile
+            Create profile
           </FormSubmitButton>
         </div>
       </form>

@@ -113,7 +113,7 @@ export default async function GigPage({
                 </span>
                 <h2 className="mt-3 text-section-heading">Contact the creator</h2>
                 <p className="mt-3 text-secondary text-on-ink-body">
-                  Send a request about this gig. If accepted, a message thread opens.
+                  Send a short note. You can message the creator if they accept.
                 </p>
 
                 <div className="mt-6 border-y border-ink-muted py-4">

@@ -44,7 +44,7 @@ export default async function AdminEditGigPage({
     <PageShell
       eyebrow="Admin"
       title={`Edit ${gig.title}`}
-      body="Full admin edit access for this gig. Changes affect the public listing immediately."
+      body="Changes appear on the public listing immediately."
       size="medium"
     >
       <AdminNav />
@@ -73,7 +73,7 @@ export default async function AdminEditGigPage({
           genresCsv: gig.genres?.join(", ") ?? "",
         }}
         action={updateAction}
-        submitLabel="Save Changes"
+        submitLabel="Save changes"
         pendingLabel="Saving..."
         cancelHref="/admin/gigs"
         instruments={instruments}

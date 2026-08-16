@@ -94,7 +94,7 @@ export default async function MusicianPublicProfilePage({
                       {profile.yearsExperience != null && (
                         <span className="inline-flex items-center gap-1.5">
                           <Clock className="h-3.5 w-3.5" aria-hidden />
-                          {profile.yearsExperience}y exp
+                          {profile.yearsExperience} {profile.yearsExperience === 1 ? "year" : "years"} experience
                         </span>
                       )}
                     </div>

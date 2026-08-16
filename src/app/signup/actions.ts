@@ -46,7 +46,7 @@ export async function validateSignUp(
   if (Object.keys(fieldErrors).length) {
     return {
       ok: false,
-      message: formLevelMessage(fieldErrors, "Tighten the account details."),
+      message: formLevelMessage(fieldErrors, "Fix the highlighted fields."),
       fieldErrors,
     };
   }
@@ -101,7 +101,7 @@ export async function signUpWithPasswordAction(
       }
       return {
         ok: false,
-        message: "Something went wrong. Try again.",
+        message: "We couldn't create your account. Try again.",
       };
     }
 
@@ -124,6 +124,6 @@ export async function signUpWithPasswordAction(
       throw err;
     }
     console.error("Sign up error:", err);
-    return { ok: false, message: "Something went wrong. Try again." };
+    return { ok: false, message: "We couldn't create your account. Try again." };
   }
 }

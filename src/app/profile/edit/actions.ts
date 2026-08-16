@@ -23,7 +23,7 @@ export async function updateMusicianProfileAction(
   if (Object.keys(parsed.fieldErrors).length) {
     return {
       ok: false,
-      message: formLevelMessage(parsed.fieldErrors, "Tighten the set before saving."),
+      message: formLevelMessage(parsed.fieldErrors, "Fix the highlighted fields."),
       fieldErrors: parsed.fieldErrors,
       values: profileValuesFromFormData(fd),
     };

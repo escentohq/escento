@@ -50,7 +50,7 @@ export async function signInWithPasswordAction(
       const message =
         error.message.toLowerCase().includes("invalid login")
           ? "That email or password isn't right."
-          : "Something went wrong. Try again.";
+          : "We couldn't sign you in. Try again.";
       return { ok: false, message };
     }
 
@@ -73,6 +73,6 @@ export async function signInWithPasswordAction(
       throw err;
     }
     console.error("Sign in error:", err);
-    return { ok: false, message: "Something went wrong. Try again." };
+    return { ok: false, message: "We couldn't sign you in. Try again." };
   }
 }

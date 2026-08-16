@@ -96,10 +96,6 @@ export function AdminSetupRequired() {
           </code>{" "}
           configured.
         </div>
-        <p className="mt-4 text-xs font-medium leading-relaxed text-[#64748B]">
-          Public user pages, gigs, messaging, onboarding, and normal auth flows
-          are not changed by this admin setup.
-        </p>
       </div>
     </div>
   );

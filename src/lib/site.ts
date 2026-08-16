@@ -10,4 +10,4 @@
 export const SITE_URL = "https://www.escento.com";
 
 export const SITE_DESCRIPTION =
-  "Escento helps musicians get discovered for gigs, collaborations, and creative opportunities.";
+  "Find musicians, post gigs, and message people directly on Escento.";

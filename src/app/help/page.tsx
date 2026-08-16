@@ -6,7 +6,7 @@ export default function HelpPage() {
     <PageShell
       eyebrow="Support"
       title="Contact support"
-      body="Tell us what went wrong and include the account or listing details we need to investigate."
+      body="Tell us what you need help with. Include any relevant account or listing details."
       size="medium"
     >
       <SupportForm />

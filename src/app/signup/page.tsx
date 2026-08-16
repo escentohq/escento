@@ -35,7 +35,7 @@ export default async function SignUpPage({
             Create account
           </h1>
           <p className="mt-4 max-w-md text-body text-muted">
-            Continue with Google, or start with email and password.
+            Use Google or create an account with email and password.
           </p>
         </header>
 
@@ -63,7 +63,7 @@ export default async function SignUpPage({
             <div className="flex items-center gap-4">
               <div className="h-px flex-1 bg-[#F1F5F9]" />
               <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
-                Or continue with email
+              Or use email
               </span>
               <div className="h-px flex-1 bg-[#F1F5F9]" />
             </div>

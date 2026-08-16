@@ -59,7 +59,7 @@ export function NavBar({ signedIn, email, role, musicianProfilePath, isCreator }
         <div className="hidden items-center gap-6 text-sm font-bold text-[#475569] md:flex">
           <Link href="/musicians">Browse Musicians</Link>
           <Link href="/gigs">Browse Gigs</Link>
-          {musicianProfilePath && <Link href={musicianProfilePath}>{musicianProfilePath === "/profile/create" ? "Create Profile" : "Edit Profile"}</Link>}
+          {musicianProfilePath && <Link href={musicianProfilePath}>{musicianProfilePath === "/profile/create" ? "Create profile" : "Edit profile"}</Link>}
           {isCreator && <>
             <Link href="/gigs/manage">Manage</Link>
             <Link href="/gigs/create">Post a Gig</Link>
@@ -92,7 +92,7 @@ export default function NotFound() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 py-24">
       <div className="w-full max-w-2xl">
-        <EmptyState eyebrow="404 Error" title="Lost in the mix." body="The page you're looking for doesn't exist, has been moved, or hasn't been built yet." cta={<PrimaryCta href="/">Return Home</PrimaryCta>} />
+        <EmptyState eyebrow="404 Error" title="Page not found" body="This page doesn't exist or may have moved." cta={<PrimaryCta href="/">Return home</PrimaryCta>} />
       </div>
     </div>
   );
@@ -100,7 +100,7 @@ export default function NotFound() {
 ```
 
 ## How It Works
-`RootLayout` is a Server Component. It reads the session once, determines whether a signed-in musician should see `Create Profile` or `Edit Profile`, then passes plain props to `NavBar`. The navbar itself is a simple presentational component with conditional links.
+`RootLayout` is a Server Component. It reads the session once, determines whether a signed-in musician should see `Create profile` or `Edit profile`, then passes plain props to `NavBar`. The navbar itself is a simple presentational component with conditional links.
 
 The global CSS file defines legacy utility classes used by current directory, form, and detail pages. Newer landing components use brighter design tokens and separate CTA components.
 
@@ -112,4 +112,3 @@ When adding new role-aware navigation, add the data decision in `layout.tsx` and
 - `gigs/_ui.tsx` and `musicians/_ui.tsx` duplicate `Chip`, `SectionCard`, and `PrimaryLink`.
 - Mobile navigation hides core browse links and has no menu yet.
 - The root layout queries for musician profile existence on every request by musicians; this is acceptable now but can be cached or derived from session metadata later.
-

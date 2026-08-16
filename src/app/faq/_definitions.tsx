@@ -27,9 +27,9 @@ const ROLES = [
 
 export function RoleDefinitions() {
   return (
-    <section aria-labelledby="who-is-who" className="bg-brand p-6 md:p-8">
-      <h2 id="who-is-who" className="text-meta uppercase text-on-brand-muted">
-        Who is who
+    <section aria-labelledby="account-types" className="bg-brand p-6 md:p-8">
+      <h2 id="account-types" className="text-meta uppercase text-on-brand-muted">
+        Account types
       </h2>
 
       <dl className="mt-5 grid gap-6 md:grid-cols-2 md:gap-10">

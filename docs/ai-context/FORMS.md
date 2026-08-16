@@ -150,7 +150,7 @@ See [`BRAND.md`](./BRAND.md) §Microcopy for forms. Quick reference:
 | Invalid email | `Enter a valid email address.` |
 | Multi-field | `Fix {n} fields to continue.` |
 | Auth failure | `That email or password isn't right.` |
-| Server failure | `Something went wrong. Try again.` |
+| Server failure | Name the failed action and offer a next step. |
 
 Forbidden: "ERROR", "Invalid input", "Oops", raw Supabase strings.
 
