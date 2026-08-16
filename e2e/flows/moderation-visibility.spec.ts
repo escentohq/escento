@@ -3,6 +3,7 @@ import { expect, test, type Browser, type Page } from "@playwright/test";
 
 import {
   TEST_PASSWORD,
+  completeMusicianProfile,
   newContextPage,
   newMusicianWithProfile,
   signIn,
@@ -162,6 +163,7 @@ test.describe("moderation visibility", () => {
       "moderation-profile",
       displayName,
     );
+    await completeMusicianProfile(owner, profileId);
     const anonymous = await newContextPage(browser);
     const adminPage = await newContextPage(browser);
 
