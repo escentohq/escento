@@ -80,6 +80,9 @@ export async function signIn(
  * name is the only required field anywhere in the flow, and step one lands on
  * the directory rather than the profile, so the id is read off the "finish your
  * profile" strip instead of the URL.
+ *
+ * The saved row is a draft: it is not anonymous inventory until
+ * `makeProfileLaunchReady` (or the rest of the wizard) adds craft and context.
  */
 export async function createMusicianProfile(page: Page, displayName: string): Promise<string> {
   await page.goto("/profile/create");
@@ -91,6 +94,24 @@ export async function createMusicianProfile(page: Page, displayName: string): Pr
   const href = await page.getByRole("link", { name: "View your profile" }).getAttribute("href");
   expect(href).toBeTruthy();
   return String(href).split("/musicians/")[1];
+}
+
+/**
+ * The smallest extra write that makes a draft listed: one instrument and a
+ * school. Used by fixtures that need a public musician, not by the identity
+ * helper itself — identity-only is the state issue #28 is about.
+ */
+export async function makeProfileLaunchReady(page: Page): Promise<void> {
+  await page.goto("/profile/create/craft");
+  await expect(page).toHaveURL(/\/profile\/create\/craft/);
+  await page.getByPlaceholder("Guitar, vocals, piano").fill("Cello");
+  await page.getByRole("button", { name: /^Cello$/ }).click();
+  await page.getByRole("button", { name: "Save and continue" }).click();
+  await page.waitForURL(/\/profile\/create\/context/, { timeout: 30_000 });
+
+  await page.locator('input[name="school"]').fill("UT Austin");
+  await page.getByRole("button", { name: "Save and continue" }).click();
+  await page.waitForURL(/\/profile\/create\/reach/, { timeout: 30_000 });
 }
 
 /**
@@ -158,7 +179,7 @@ export async function newCreator(browser: Browser, prefix: string): Promise<Page
   return page;
 }
 
-/** A signed-in musician with a saved public profile. Returns the page + profile id. */
+/** A signed-in musician with a listed public profile. Returns the page + profile id. */
 export async function newMusicianWithProfile(
   browser: Browser,
   prefix: string,
@@ -167,6 +188,7 @@ export async function newMusicianWithProfile(
   const page = await newContextPage(browser);
   const credentials = await signUpAs(page, "MUSICIAN", prefix);
   const profileId = await createMusicianProfile(page, displayName);
+  await makeProfileLaunchReady(page);
   return { page, profileId, ...credentials };
 }
 
