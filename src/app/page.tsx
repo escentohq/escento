@@ -33,7 +33,7 @@ export default async function Home() {
   return (
     <HomeLanding
       featuredProfiles={featuredProfiles.slice(0, 8)}
-      featuredGigs={featuredGigs.slice(0, 2)}
+      featuredGigs={featuredGigs.slice(0, 3)}
       musicianProfileNavigation={musicianProfileNavigation}
     />
   );

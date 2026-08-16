@@ -74,6 +74,20 @@ function gigRow(gig: Gig): PreviewRow {
   };
 }
 
+function buildPreviewRows(profiles: MusicianProfile[], gigs: Gig[]): PreviewRow[] {
+  const profileRows = profiles.map(profileRow);
+  const gigRows = gigs.map(gigRow);
+  const rows: PreviewRow[] = [];
+  const longestList = Math.max(profileRows.length, gigRows.length);
+
+  for (let index = 0; index < longestList && rows.length < 3; index += 1) {
+    if (profileRows[index]) rows.push(profileRows[index]);
+    if (rows.length < 3 && gigRows[index]) rows.push(gigRows[index]);
+  }
+
+  return rows;
+}
+
 export function HomeLanding({
   featuredProfiles,
   featuredGigs,
@@ -90,16 +104,7 @@ export function HomeLanding({
     ...(leadProfile?.instruments ?? []),
     ...(leadProfile?.genres ?? []),
   ].slice(0, 3);
-  const supportingProfile = featuredProfiles.find((profile) => profile.id !== leadProfile?.id);
-  const previewRows = [
-    leadProfile ? profileRow(leadProfile) : null,
-    featuredGigs[0] ? gigRow(featuredGigs[0]) : null,
-    supportingProfile
-      ? profileRow(supportingProfile)
-      : featuredGigs[1]
-        ? gigRow(featuredGigs[1])
-        : null,
-  ].filter((row): row is PreviewRow => Boolean(row));
+  const previewRows = buildPreviewRows(featuredProfiles, featuredGigs);
 
   return (
     <div className="bg-paper text-ink">
@@ -158,10 +163,7 @@ export function HomeLanding({
                   href={`/musicians/${leadProfile.id}`}
                   className="group block focus-visible:outline-white"
                 >
-                  <p className="text-sm font-medium text-on-brand-muted">
-                    {leadProfile.instruments?.slice(0, 2).join(" · ") || "Musician profile"}
-                  </p>
-                  <div className="mt-2 flex items-end justify-between gap-6">
+                  <div className="flex items-end justify-between gap-6">
                     <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
                       {leadProfile.displayName}
                     </h2>
