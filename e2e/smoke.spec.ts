@@ -85,3 +85,32 @@ test("unknown route renders the branded 404", async ({ page }) => {
   expect(response?.status()).toBe(404);
   await expect(page.locator("body")).toContainText("Page not found");
 });
+
+/**
+ * Stale and mistyped detail links (MVP-07, issue #35). Both routes are keyed by
+ * uuid, so a malformed id used to reach Postgres and come back as a 22P02 error
+ * boundary. Signed-out and read-only, so this is safe against a deployment.
+ */
+const MISSING_UUID = "00000000-0000-4000-8000-000000000000";
+
+for (const [label, id] of [
+  ["malformed", "not-a-real-id"],
+  ["well-formed but missing", MISSING_UUID],
+] as const) {
+  for (const section of ["musicians", "gigs"] as const) {
+    test(`a ${label} /${section} id renders the branded 404 without a database error`, async ({ page }) => {
+      const pageErrors: string[] = [];
+      const consoleErrors: string[] = [];
+      page.on("pageerror", (error) => pageErrors.push(error.message));
+      page.on("console", (message) => {
+        if (message.type() === "error") consoleErrors.push(message.text());
+      });
+
+      const response = await page.goto(`/${section}/${id}`);
+      expect(response?.status()).toBe(404);
+      await expect(page.locator("body")).toContainText("Page not found");
+      expect(pageErrors).toEqual([]);
+      expect(consoleErrors.join("\n")).not.toMatch(/22P02|invalid input syntax/i);
+    });
+  }
+}

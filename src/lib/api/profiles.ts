@@ -6,6 +6,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
 import { PUBLIC_HOME_TAG, PUBLIC_MUSICIANS_TAG, publicMusicianTag } from "@/lib/cache-tags";
 import { distanceMiles, type LocationSearch } from "@/lib/location";
+import { isMalformedIdError } from "@/lib/ids";
 import { filterSearchResults } from "@/lib/search";
 import { tagMatchesQuery } from "@/lib/tag-taxonomy";
 import { ensureInstruments, ensureGenres } from "./tags";
@@ -66,7 +67,9 @@ async function queryPublicProfile(id: string): Promise<MusicianProfile | null> {
     .eq("moderation_status", "active")
     .single<ProfileRow>();
 
-  if (error && error.code !== "PGRST116") throw error;
+  // A malformed id is a stale link, not a fault: it reads as "no such profile"
+  // so the route renders the branded 404 instead of an error boundary.
+  if (error && error.code !== "PGRST116" && !isMalformedIdError(error)) throw error;
   if (!data) return null;
 
   const images = await getProfileImages([data.user_id]);

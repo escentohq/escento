@@ -6,10 +6,7 @@ import { getGigForCreator } from "@/lib/api/gigs";
 import { listGenres, listInstruments } from "@/lib/api/tags";
 import { GigForm } from "../../_gig-form";
 import { updateGigAction } from "./actions";
-
-function isValidId(id: string) {
-  return id.length > 0 && id.length < 64;
-}
+import { isUuid } from "@/lib/ids";
 
 export default async function EditGigPage({
   params,
@@ -26,7 +23,7 @@ export default async function EditGigPage({
 
   const session = await requireRole("CREATOR", `/gigs/${id}/edit`);
 
-  if (!isValidId(id)) redirect("/gigs/manage");
+  if (!isUuid(id)) redirect("/gigs/manage");
 
   const gig = await getGigForCreator(id, session.user.id);
   if (!gig) redirect("/gigs/manage");

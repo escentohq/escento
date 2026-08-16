@@ -8,10 +8,7 @@ import { SectionCard } from "@/components/ui/section-card";
 import { MusicianContactActions } from "@/components/messaging/public-contact-actions";
 import { getProfile } from "@/lib/api/profiles";
 import { displayLocation } from "@/lib/location";
-
-function isValidId(id: string) {
-  return id.length > 0 && id.length < 64;
-}
+import { isUuid } from "@/lib/ids";
 
 function initials(name: string) {
   return name
@@ -27,7 +24,7 @@ export default async function MusicianPublicProfilePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  if (!isValidId(id)) notFound();
+  if (!isUuid(id)) notFound();
 
   const profile = await getProfile(id);
   if (!profile) notFound();

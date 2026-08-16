@@ -8,10 +8,7 @@ import { getGig } from "@/lib/api/gigs";
 import { compensationLabel, projectTypeLabel } from "@/lib/display";
 import { isDeadlinePast } from "@/lib/gig-deadline";
 import { displayLocation } from "@/lib/location";
-
-function isValidId(id: string) {
-  return id.length > 0 && id.length < 64;
-}
+import { isUuid } from "@/lib/ids";
 
 export default async function GigPage({
   params,
@@ -19,7 +16,7 @@ export default async function GigPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  if (!isValidId(id)) notFound();
+  if (!isUuid(id)) notFound();
 
   const gig = await getGig(id);
   if (!gig) notFound();

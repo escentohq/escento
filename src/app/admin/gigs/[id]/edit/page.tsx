@@ -7,10 +7,7 @@ import { getAdminAccess } from "@/lib/admin-auth";
 import { getAdminEditableGig } from "@/lib/api/admin-edits";
 import { listGenres, listInstruments } from "@/lib/api/tags";
 import { adminUpdateGigAction } from "./actions";
-
-function isValidId(id: string) {
-  return id.length > 0 && id.length < 128;
-}
+import { isUuid } from "@/lib/ids";
 
 export default async function AdminEditGigPage({
   params,
@@ -21,7 +18,7 @@ export default async function AdminEditGigPage({
   if (!access.ok) return <AdminUnavailable reason={access.reason} />;
 
   const { id } = await params;
-  if (!isValidId(id)) redirect("/admin/gigs");
+  if (!isUuid(id)) redirect("/admin/gigs");
 
   let gig;
   let instruments;

@@ -7,10 +7,7 @@ import { getAdminAccess } from "@/lib/admin-auth";
 import { getAdminEditableProfile } from "@/lib/api/admin-edits";
 import { listGenres, listInstruments } from "@/lib/api/tags";
 import { adminUpdateMusicianProfileAction } from "./actions";
-
-function isValidId(id: string) {
-  return id.length > 0 && id.length < 128;
-}
+import { isUuid } from "@/lib/ids";
 
 export default async function AdminEditMusicianPage({
   params,
@@ -21,7 +18,7 @@ export default async function AdminEditMusicianPage({
   if (!access.ok) return <AdminUnavailable reason={access.reason} />;
 
   const { id } = await params;
-  if (!isValidId(id)) redirect("/admin/musicians");
+  if (!isUuid(id)) redirect("/admin/musicians");
 
   let profile;
   let instruments;
