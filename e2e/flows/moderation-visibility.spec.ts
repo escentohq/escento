@@ -82,6 +82,7 @@ async function ensureLocalAdminAccount() {
     id: adminUser.id,
     email: ADMIN_EMAIL,
     name: "Test Admin",
+    role: "ADMIN",
     is_public: true,
     moderation_status: "active",
   });
