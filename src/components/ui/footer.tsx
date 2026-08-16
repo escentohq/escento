@@ -28,6 +28,12 @@ export function Footer() {
               Gigs
             </Link>
             <Link
+              href="/about"
+              className="transition-colors hover:text-[#0055FF]"
+            >
+              About
+            </Link>
+            <Link
               href="/faq"
               className="transition-colors hover:text-[#0055FF]"
             >

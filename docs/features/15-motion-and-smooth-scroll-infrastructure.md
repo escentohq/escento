@@ -1,5 +1,13 @@
 # Motion Infrastructure
 
+> **Historical. This describes a layer that no longer exists.**
+>
+> `framer-motion` and `gsap` are uninstalled and blocked by `eslint.config.mjs`, along with
+> `lenis`, `three`, and `@react-three/*`. `ProductStory.tsx` and `TheCallsheet.tsx` were deleted,
+> and `src/components/ui/reveal.tsx` is now a static compatibility wrapper. The current rule is
+> `AGENTS.md` #6: static by default, targeted CSS state transitions only, and adding an animation
+> library needs approval.
+
 ## Feature Summary
 Escento's motion system is Framer Motion for entrances, hover, stagger, and scroll transforms, plus GSAP ScrollTrigger for a handful of landing-page reveals. There is no 3D layer and no smooth-scroll library.
 

@@ -120,10 +120,9 @@ src/
 │   └── form-utils.ts           # CSV parsing, validation
 │
 ├── components/
+│   ├── directory/              # Shared marketplace rows used by /, /musicians, /gigs
 │   ├── home/
-│   │   ├── HomeLanding.tsx     # Landing page hero (bright theme)
-│   │   ├── ProductStory.tsx
-│   │   └── TheCallsheet.tsx
+│   │   └── HomeLanding.tsx     # Editorial composition rendered at /about
 │   ├── ui/
 │   │   ├── nav-bar.tsx         # Top navigation
 │   │   ├── _user-menu.tsx      # Profile avatar dropdown
