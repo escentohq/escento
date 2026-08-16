@@ -1,10 +1,11 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { test, expect } from "@playwright/test";
 
-import { createMusicianProfile, signUp, signUpAs, chooseRole, uniqueEmail } from "./helpers";
+import { createGig, createMusicianProfile, signUp, signUpAs, chooseRole, uniqueEmail } from "./helpers";
 
 /**
- * Failure injection for the transactional profile writes (MVP-03, issue #30).
+ * Failure injection for the transactional marketplace writes (MVP-03, issues
+ * #30 and #31).
  *
  * The happy paths are already covered by the wizard and edit specs. What was
  * never covered is the failure *between* the root row and its taxonomy — the
@@ -120,6 +121,95 @@ test.describe("profile writes are atomic", () => {
       .eq("id", profileId)
       .single();
     expect(row?.display_name).toBe("Atomic Owner Only");
+
+    await intruderContext.close();
+  });
+});
+
+test.describe("gig writes are atomic", () => {
+  test("a failed create publishes nothing", async ({ page }) => {
+    const creds = await signUp(page, "atomicgig");
+    await chooseRole(page, "CREATOR");
+    const client = await signedInClient(creds.email, creds.password);
+
+    const title = `Rollback Gig ${uniqueEmail("g").split("@")[0]}`;
+    const { error } = await client.rpc("create_gig_with_tags", {
+      p_gig: {
+        title,
+        description: "should never be discoverable",
+        project_type: "FILM",
+        compensation_type: "PAID",
+        is_remote: true,
+      },
+      p_instrument_ids: [MISSING_TAG_ID],
+      p_genre_ids: [],
+    });
+    expect(error).not.toBeNull();
+
+    const { data: rows } = await client.from("gig").select("id").eq("title", title);
+    expect(rows).toHaveLength(0);
+  });
+
+  test("a failed edit preserves the previous gig and its tags", async ({ page }) => {
+    const creds = await signUpAs(page, "CREATOR", "atomicgigedit");
+    const gigId = await createGig(page, {
+      title: "Atomic Gig Original",
+      description: "The original description for the atomicity check.",
+    });
+    const client = await signedInClient(creds.email, creds.password);
+
+    const instrumentId = await anyTagId(client, "instrument");
+    const { error: seedError } = await client.rpc("update_gig_with_tags", {
+      p_id: gigId,
+      p_gig: {},
+      p_instrument_ids: [instrumentId],
+      p_genre_ids: null,
+    });
+    expect(seedError).toBeNull();
+
+    const { error } = await client.rpc("update_gig_with_tags", {
+      p_id: gigId,
+      p_gig: { title: "Atomic Gig Overwritten", status: "CLOSED" },
+      p_instrument_ids: [],
+      p_genre_ids: [MISSING_TAG_ID],
+    });
+    expect(error).not.toBeNull();
+
+    const { data: row } = await client.from("gig").select("title, status").eq("id", gigId).single();
+    expect(row?.title).toBe("Atomic Gig Original");
+    expect(row?.status).toBe("OPEN");
+
+    const { data: instruments } = await client
+      .from("gig_instrument")
+      .select("instrument_id")
+      .eq("gig_id", gigId);
+    expect(instruments).toHaveLength(1);
+    expect(instruments?.[0].instrument_id).toBe(instrumentId);
+  });
+
+  test("another account cannot update a gig through the RPC", async ({ page, browser }) => {
+    await signUpAs(page, "CREATOR", "atomicgigowner");
+    const gigId = await createGig(page, {
+      title: "Atomic Gig Owner Only",
+      description: "Only its own creator may edit this gig.",
+    });
+
+    const intruderContext = await browser.newContext();
+    const intruderPage = await intruderContext.newPage();
+    const intruder = await signUpAs(intruderPage, "CREATOR", "atomicgigintruder");
+    const client = await signedInClient(intruder.email, intruder.password);
+
+    const { error } = await client.rpc("update_gig_with_tags", {
+      p_id: gigId,
+      p_gig: { title: "Hijacked", status: "CLOSED" },
+      p_instrument_ids: null,
+      p_genre_ids: null,
+    });
+    expect(error).not.toBeNull();
+
+    const { data: row } = await client.from("gig").select("title, status").eq("id", gigId).single();
+    expect(row?.title).toBe("Atomic Gig Owner Only");
+    expect(row?.status).toBe("OPEN");
 
     await intruderContext.close();
   });
