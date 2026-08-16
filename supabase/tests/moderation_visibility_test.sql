@@ -33,8 +33,13 @@ set
   is_public = true,
   moderation_status = 'active';
 
-insert into public.musician_profile (id, user_id, display_name)
-values ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'Visible Musician');
+insert into public.musician_profile (id, user_id, display_name, school)
+values (
+  '20000000-0000-0000-0000-000000000001',
+  '10000000-0000-0000-0000-000000000001',
+  'Visible Musician',
+  'Visibility Test School'
+);
 
 insert into public.gig (
   id, creator_id, title, project_type, compensation_type, status
