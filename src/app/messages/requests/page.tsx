@@ -63,7 +63,6 @@ export default async function MessageRequestsPage() {
     >
       {messagingUnavailable ? (
         <EmptyState
-          eyebrow="Setup"
           title="Requests are not ready yet."
           body="Apply the messaging database migration, then refresh this page."
         />
@@ -71,15 +70,11 @@ export default async function MessageRequestsPage() {
       <div className="grid gap-8 lg:grid-cols-2">
         <section className="space-y-4">
           <div>
-            <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
-              Incoming
-            </span>
-            <h2 className="mt-2 text-section-heading">Waiting on you</h2>
+            <h2 className="text-section-heading">Incoming</h2>
           </div>
 
           {pendingIncoming.length === 0 ? (
             <EmptyState
-              eyebrow="Clear"
               title="No incoming requests."
               body="New requests will appear here."
             />
@@ -129,15 +124,11 @@ export default async function MessageRequestsPage() {
 
         <section className="space-y-4">
           <div>
-            <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
-              Outgoing
-            </span>
-            <h2 className="mt-2 text-section-heading">Sent requests</h2>
+            <h2 className="text-section-heading">Sent</h2>
           </div>
 
           {outgoing.length === 0 ? (
             <EmptyState
-              eyebrow="Sent requests"
               title="No sent requests."
               body="Open a profile or gig to send one."
               cta={<Link href="/musicians" className="control-secondary">Browse musicians</Link>}

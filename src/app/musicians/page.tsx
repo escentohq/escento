@@ -1,12 +1,13 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import type { Metadata } from "next";
 
 import { DirectoryResultsSkeleton } from "@/components/ui/directory-results-skeleton";
 import { FinishProfileNudge } from "@/components/profile/finish-profile-nudge";
 import { listInstruments, listGenres } from "@/lib/api/tags";
 import { listProfiles } from "@/lib/api/profiles";
-import { clampText, visibleTags } from "@/lib/display";
+import { clampText, tagLine } from "@/lib/display";
 import { displayLocation, parseLocationSearch } from "@/lib/location";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -14,6 +15,11 @@ import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { LocationDirectoryFilters } from "@/components/location/location-directory-filters";
 import { parseSelectedTags } from "@/lib/tag-taxonomy";
+
+export const metadata: Metadata = {
+  title: "Musicians",
+  description: "Browse musician profiles by instrument, genre, and location.",
+};
 
 type ProfileFilters = Parameters<typeof listProfiles>[0];
 
@@ -34,7 +40,6 @@ async function MusicianResults({
       <section className="mt-10">
         {profiles.length === 0 ? (
           <EmptyState
-            eyebrow={hasFilters ? "No results" : "Directory"}
             title={hasFilters ? "No musicians match." : "No musician profiles yet."}
             body={hasFilters ? "Try different filters." : "Create a profile to be the first listing."}
             cta={
@@ -50,14 +55,14 @@ async function MusicianResults({
         ) : (
           <div className="divide-y divide-rule border-y border-rule">
             {profiles.map((profile) => {
-              const instrumentTags = visibleTags(profile.instruments ?? []);
-              const genreTags = visibleTags(profile.genres ?? []);
+              const instruments = tagLine(profile.instruments ?? []);
+              const genres = tagLine(profile.genres ?? []);
 
               return (
                   <Link
                     key={profile.id}
                     href={`/musicians/${profile.id}`}
-                    className="group grid min-w-0 cursor-pointer gap-5 bg-surface px-1 py-6 transition-colors hover:bg-[#F8FAFC] focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)_auto] md:items-start md:px-4"
+                    className="group grid min-w-0 cursor-pointer gap-5 px-1 py-6 transition-colors duration-150 hover:bg-[#F8FAFC] focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.4fr)_auto] md:items-start md:px-4"
                   >
                     <div className="flex min-w-0 items-start justify-between gap-4 md:justify-start">
                       <div className="flex min-w-0 items-center gap-3">
@@ -98,21 +103,8 @@ async function MusicianResults({
                     <p className="text-secondary text-muted">
                       {profile.bio ? clampText(profile.bio, 150) : "No bio yet."}
                     </p>
-
-                    <div className="mt-4 space-y-2">
-                      <div className="flex flex-wrap gap-2">
-                        {instrumentTags.shown.map((name) => (
-                          <Chip key={`${profile.id}-i-${name}`}>{name}</Chip>
-                        ))}
-                        {instrumentTags.hiddenCount ? <Chip>+{instrumentTags.hiddenCount} more</Chip> : null}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {genreTags.shown.map((name) => (
-                          <Chip key={`${profile.id}-g-${name}`}>{name}</Chip>
-                        ))}
-                        {genreTags.hiddenCount ? <Chip>+{genreTags.hiddenCount} more</Chip> : null}
-                      </div>
-                    </div>
+                    {instruments ? <p className="mt-3 text-secondary text-ink">{instruments}</p> : null}
+                    {genres ? <p className="mt-1 text-secondary text-muted">{genres}</p> : null}
                     </div>
 
                     <div className="hidden min-w-24 text-right md:block">
@@ -155,7 +147,6 @@ export default async function MusiciansPage({
 
   return (
     <PageShell
-      eyebrow="Directory"
       title="Musicians"
         body="Filter by instrument, genre, and location. Open a profile for full details."
       action={<PrimaryCta href="/profile/create" prefetch={false}>Create profile</PrimaryCta>}

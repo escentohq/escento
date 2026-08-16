@@ -1,4 +1,5 @@
-import { ExternalLink, MapPin, Clock, Music } from "lucide-react";
+import { type Metadata } from "next";
+import { ExternalLink, MapPin, Clock } from "lucide-react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
@@ -11,6 +12,24 @@ import { getProfile, getProfileByUserId } from "@/lib/api/profiles";
 import { getCurrentSession } from "@/lib/auth-guards";
 import { displayLocation } from "@/lib/location";
 import { isUuid } from "@/lib/ids";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  if (!isUuid(id)) return { title: "Musician" };
+  const profile = await getProfile(id);
+  if (!profile) return { title: "Musician" };
+  const location = displayLocation(profile, "");
+  const craft = [...(profile.instruments ?? []), ...(profile.genres ?? [])].slice(0, 3).join(", ");
+  const description = [craft, location].filter(Boolean).join(". ");
+  return {
+    title: profile.displayName,
+    description: description || `${profile.displayName} on Escento.`,
+  };
+}
 
 function initials(name: string) {
   return name
@@ -102,10 +121,7 @@ export default async function MusicianPublicProfilePage({
                         </span>
                       )}
                       {profile.school && (
-                        <span className="inline-flex items-center gap-1.5">
-                          <Music className="h-3.5 w-3.5" aria-hidden />
-                          {profile.school}
-                        </span>
+                        <span>{profile.school}</span>
                       )}
                       {profile.yearsExperience != null && (
                         <span className="inline-flex items-center gap-1.5">
@@ -130,21 +146,17 @@ export default async function MusicianPublicProfilePage({
                     <h2 className="text-meta uppercase text-muted">
                       Instruments
                     </h2>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {profile.instruments?.length
-                        ? profile.instruments.map((name) => <Chip key={name}>{name}</Chip>)
-                        : <Chip>No instruments listed</Chip>}
-                    </div>
+                    <p className="mt-3 text-body text-ink">
+                      {profile.instruments?.length ? profile.instruments.join(" · ") : "None listed"}
+                    </p>
                   </div>
                   <div>
                     <h2 className="text-meta uppercase text-muted">
                       Genres
                     </h2>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {profile.genres?.length
-                        ? profile.genres.map((name) => <Chip key={name}>{name}</Chip>)
-                        : <Chip>No genres listed</Chip>}
-                    </div>
+                    <p className="mt-3 text-body text-ink">
+                      {profile.genres?.length ? profile.genres.join(" · ") : "None listed"}
+                    </p>
                   </div>
                 </div>
 
@@ -174,7 +186,7 @@ export default async function MusicianPublicProfilePage({
 
             {/* Portfolio links */}
             {links.length > 0 && (
-              <SectionCard eyebrow="Links" title="Portfolio">
+              <SectionCard title="Portfolio">
                 <ul className="divide-y divide-rule border-y border-rule">
                   {links.map((link) => (
                     <li key={link.label}>

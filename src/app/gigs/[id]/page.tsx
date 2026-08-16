@@ -1,4 +1,5 @@
-import { ExternalLink, MapPin, Clock, Music } from "lucide-react";
+import { type Metadata } from "next";
+import { MapPin, Clock } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { BackLink } from "@/components/ui/back-link";
@@ -9,6 +10,21 @@ import { compensationLabel, projectTypeLabel } from "@/lib/display";
 import { isDeadlinePast } from "@/lib/gig-deadline";
 import { displayLocation } from "@/lib/location";
 import { isUuid } from "@/lib/ids";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  if (!isUuid(id)) return { title: "Gig" };
+  const gig = await getGig(id);
+  if (!gig) return { title: "Gig" };
+  return {
+    title: gig.title,
+    description: gig.description.trim().slice(0, 155),
+  };
+}
 
 export default async function GigPage({
   params,
@@ -81,21 +97,17 @@ export default async function GigPage({
                     <h2 className="text-meta uppercase text-muted">
                       Instruments
                     </h2>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {gig.instruments?.length
-                        ? gig.instruments.map((name) => <Chip key={name}>{name}</Chip>)
-                        : <Chip>No instruments specified</Chip>}
-                    </div>
+                    <p className="mt-3 text-body text-ink">
+                      {gig.instruments?.length ? gig.instruments.join(" · ") : "None listed"}
+                    </p>
                   </div>
                   <div>
                     <h2 className="text-meta uppercase text-muted">
                       Genres
                     </h2>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {gig.genres?.length
-                        ? gig.genres.map((name) => <Chip key={name}>{name}</Chip>)
-                        : <Chip>No genres specified</Chip>}
-                    </div>
+                    <p className="mt-3 text-body text-ink">
+                      {gig.genres?.length ? gig.genres.join(" · ") : "None listed"}
+                    </p>
                   </div>
                 </div>
 
@@ -113,7 +125,6 @@ export default async function GigPage({
 
           <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
             <div className="border-t-4 border-brand bg-ink p-6 text-white">
-              <div className="relative z-10">
                 <span className="text-meta uppercase text-on-ink-muted">
                   Contact
                 </span>
@@ -129,7 +140,7 @@ export default async function GigPage({
                 </p>
 
                 <div className="mt-6 border-y border-ink-muted py-4">
-                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-on-ink-muted">
+                  <p className="text-meta uppercase text-on-ink-muted">
                     Posted by
                   </p>
                   <p className="mt-2 text-sm font-bold text-white">
@@ -146,7 +157,6 @@ export default async function GigPage({
                 {acceptingContact ? (
                   <GigContactActions recipientId={gig.creatorId} gigId={gig.id} gigTitle={gig.title} />
                 ) : null}
-              </div>
             </div>
           </aside>
         </div>

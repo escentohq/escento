@@ -62,3 +62,9 @@ export function visibleTags(tags: string[], max = 3) {
   };
 }
 
+export function tagLine(tags: string[], max = 3) {
+  const { shown, hiddenCount } = visibleTags(tags, max);
+  if (shown.length === 0) return "";
+  return hiddenCount > 0 ? `${shown.join(" · ")} · +${hiddenCount} more` : shown.join(" · ");
+}
+

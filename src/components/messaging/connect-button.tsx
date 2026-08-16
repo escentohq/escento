@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { MessageCircle, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
@@ -40,10 +39,9 @@ export function ConnectButton({
       <Link
         href={`/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`}
         prefetch={false}
-        className="mt-5 flex w-full cursor-pointer items-center justify-between bg-brand px-5 py-3 text-control text-white transition-colors hover:bg-white hover:text-ink focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+        className="mt-5 flex w-full cursor-pointer items-center bg-brand px-5 py-3 text-control text-white transition-colors duration-150 hover:bg-white hover:text-ink focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
       >
-        <span>Sign in to send a request</span>
-        <UserPlus className="h-4 w-4" aria-hidden />
+        Sign in to send a request
       </Link>
     );
   }
@@ -78,10 +76,9 @@ export function ConnectButton({
     return (
       <Link
         href={`/messages/${state.conversationId}`}
-        className="mt-5 flex w-full cursor-pointer items-center justify-between bg-brand px-5 py-3 text-control text-white transition-colors hover:bg-white hover:text-ink focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+        className="mt-5 flex w-full cursor-pointer items-center bg-brand px-5 py-3 text-control text-white transition-colors duration-150 hover:bg-white hover:text-ink focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
       >
-        <span>Message</span>
-        <MessageCircle className="h-4 w-4" aria-hidden />
+        Message
       </Link>
     );
   }
@@ -90,10 +87,9 @@ export function ConnectButton({
     return (
       <Link
         href="/messages/requests"
-        className="mt-5 flex w-full cursor-pointer items-center justify-between border border-white px-5 py-3 text-control text-white transition-colors hover:bg-white hover:text-ink focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
+        className="mt-5 flex w-full cursor-pointer items-center border border-white px-5 py-3 text-control text-white transition-colors duration-150 hover:bg-white hover:text-ink focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2"
       >
-        <span>Respond to Request</span>
-        <MessageCircle className="h-4 w-4" aria-hidden />
+        Respond to request
       </Link>
     );
   }
@@ -142,10 +138,9 @@ export function ConnectButton({
         type="button"
         onClick={connect}
         disabled={isPending}
-        className="flex w-full cursor-pointer items-center justify-between bg-brand px-5 py-3 text-control text-white transition-colors hover:bg-white hover:text-ink focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
+        className="flex w-full cursor-pointer items-center bg-brand px-5 py-3 text-control text-white transition-colors duration-150 hover:bg-white hover:text-ink focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
       >
-        <span>{isPending ? "Sending..." : connectLabel}</span>
-        <UserPlus className="h-4 w-4" aria-hidden />
+        {isPending ? "Sending..." : connectLabel}
       </button>
       {error ? <p className="text-sm font-medium text-[#FDA29B]" role="alert">{error}</p> : null}
     </div>

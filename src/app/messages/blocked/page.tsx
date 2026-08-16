@@ -26,23 +26,21 @@ export default async function BlockedUsersPage() {
 
   return (
     <PageShell
-      eyebrow="Messages"
+      eyebrow="Inbox"
       title="Blocked users"
       body="Manage people who cannot send you requests or messages."
       size="medium"
     >
       {messagingUnavailable ? (
         <EmptyState
-          eyebrow="Setup"
           title="Blocking is not ready yet."
           body="Apply the messaging database migration, then refresh this page."
         />
       ) : blockedUsers.length === 0 ? (
         <EmptyState
-          eyebrow="Clear"
           title="No blocked users."
           body="People you block will appear here."
-          cta={<Link href="/messages" className="control-secondary">Back to Messages</Link>}
+          cta={<Link href="/messages" className="control-secondary">Back to messages</Link>}
         />
       ) : (
         <div className="space-y-4">

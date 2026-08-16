@@ -1,7 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MessageCircle } from "lucide-react";
-
 import { requireUser } from "@/lib/auth-guards";
 import {
   listConversationsForUser,
@@ -59,28 +57,25 @@ export default async function MessagesPage() {
       action={
         <PrimaryCta
           href="/messages/requests"
-          icon={MessageCircle}
           badgeCount={pendingIncomingRequestCount}
         >
-          View Requests
+          View requests
         </PrimaryCta>
       }
     >
       <div className="mb-6 flex flex-wrap gap-3">
         <Link href="/messages/blocked" className="control-secondary min-h-11 px-5 text-xs">
-          Blocked Users
+          Blocked users
         </Link>
       </div>
 
       {messagingUnavailable ? (
         <EmptyState
-          eyebrow="Setup"
           title="Messaging is not ready yet."
           body="Apply the messaging database migration, then refresh this page."
         />
       ) : conversations.length === 0 ? (
         <EmptyState
-          eyebrow="Messages"
           title="No conversations yet."
           body="Send a request from a musician profile or gig."
           cta={<PrimaryCta href="/musicians">Browse musicians</PrimaryCta>}

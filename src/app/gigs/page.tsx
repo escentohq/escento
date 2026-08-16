@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import type { Metadata } from "next";
 
 import { DirectoryResultsSkeleton } from "@/components/ui/directory-results-skeleton";
 
@@ -10,7 +11,7 @@ import {
   clampText,
   compensationLabel,
   projectTypeLabel,
-  visibleTags,
+  tagLine,
 } from "@/lib/display";
 import { displayLocation, parseLocationSearch } from "@/lib/location";
 import { Chip } from "@/components/ui/chip";
@@ -19,6 +20,11 @@ import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { LocationDirectoryFilters } from "@/components/location/location-directory-filters";
 import { parseSelectedTags } from "@/lib/tag-taxonomy";
+
+export const metadata: Metadata = {
+  title: "Gigs",
+  description: "Find open projects hiring musicians for film, podcasts, games, and live work.",
+};
 
 type GigFilters = Parameters<typeof listOpenGigs>[0];
 
@@ -39,7 +45,6 @@ async function GigResults({
       <section className="mt-10">
         {gigs.length === 0 ? (
           <EmptyState
-            eyebrow={hasFilters ? "No results" : "Open gigs"}
             title={hasFilters ? "No gigs match." : "No open gigs right now."}
             body={hasFilters ? "Try different filters." : "Post a gig when your project is ready."}
             cta={
@@ -53,14 +58,14 @@ async function GigResults({
         ) : (
           <div className="divide-y divide-rule border-y border-rule">
             {gigs.map((gig) => {
-              const instrumentTags = visibleTags(gig.instruments ?? []);
-              const genreTags = visibleTags(gig.genres ?? []);
+              const instruments = tagLine(gig.instruments ?? []);
+              const genres = tagLine(gig.genres ?? []);
 
               return (
                   <Link
                     key={gig.id}
                     href={`/gigs/${gig.id}`}
-                    className="group grid min-w-0 cursor-pointer gap-5 bg-surface px-1 py-6 transition-colors hover:bg-[#F8FAFC] focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1.35fr)_auto] md:px-4"
+                    className="group grid min-w-0 cursor-pointer gap-5 px-1 py-6 transition-colors duration-150 hover:bg-[#F8FAFC] focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1.35fr)_auto] md:px-4"
                   >
                     <div className="flex min-w-0 items-start justify-between gap-4">
                       <div className="min-w-0">
@@ -87,17 +92,8 @@ async function GigResults({
                     <p className="mt-3 text-secondary text-muted">
                       {clampText(gig.description, 160)}
                     </p>
-
-                    <div className="mt-4 space-y-2">
-                      <div className="flex flex-wrap gap-2">
-                        {instrumentTags.shown.map((name) => <Chip key={`${gig.id}-i-${name}`}>{name}</Chip>)}
-                        {instrumentTags.hiddenCount ? <Chip>+{instrumentTags.hiddenCount} more</Chip> : null}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {genreTags.shown.map((name) => <Chip key={`${gig.id}-g-${name}`}>{name}</Chip>)}
-                        {genreTags.hiddenCount ? <Chip>+{genreTags.hiddenCount} more</Chip> : null}
-                      </div>
-                    </div>
+                    {instruments ? <p className="mt-3 text-secondary text-ink">{instruments}</p> : null}
+                    {genres ? <p className="mt-1 text-secondary text-muted">{genres}</p> : null}
                     </div>
 
                     <div className="hidden min-w-28 text-right md:block">
@@ -143,7 +139,6 @@ export default async function GigsPage({
 
   return (
     <PageShell
-      eyebrow="Open calls"
       title="Gigs"
       body="Find projects hiring musicians for film, podcasts, games, and live work."
       action={<PrimaryCta href="/gigs/create" prefetch={false}>Post a gig</PrimaryCta>}
