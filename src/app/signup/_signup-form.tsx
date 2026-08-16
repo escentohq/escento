@@ -154,7 +154,7 @@ export function SignUpForm({ callbackUrl }: { callbackUrl: string }) {
             </Link>
             , and{" "}
             <Link href="/compliance" className="text-[#0055FF] underline-offset-4 hover:underline">
-              Compliance Policy
+              Acceptable Use
             </Link>
             .
           </span>

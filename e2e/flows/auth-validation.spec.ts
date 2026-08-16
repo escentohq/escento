@@ -26,7 +26,7 @@ test.describe("auth validation", () => {
     await expect(page.getByText("Use at least one letter and one number.")).toBeVisible();
     await expect(page.getByText("Passwords need to match.")).toBeVisible();
     await expect(
-      page.getByText("Agree to the terms, privacy policy, and compliance policy to continue."),
+      page.getByText("Agree to the terms, privacy policy, and acceptable use rules to continue."),
     ).toBeVisible();
   });
 

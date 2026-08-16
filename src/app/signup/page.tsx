@@ -54,7 +54,7 @@ export default async function SignUpPage({
                 </Link>
                 , and{" "}
                 <Link href="/compliance" className="font-bold text-[#0055FF] underline-offset-4 hover:underline">
-                  Compliance Policy
+                  Acceptable Use
                 </Link>
                 .
               </p>
