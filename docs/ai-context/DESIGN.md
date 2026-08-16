@@ -1,7 +1,7 @@
 # DESIGN.md — Escento
 
 > Canonical visual system. **Bright stage-light theme.** All new UI uses these tokens.
-> References: [`src/app/musicians/page.tsx`](../src/app/musicians/page.tsx) for marketplace UI and [`src/components/home/HomeLanding.tsx`](../src/components/home/HomeLanding.tsx) for public editorial UI.
+> References: [`src/app/page.tsx`](../../src/app/page.tsx) for marketplace UI and [`src/components/home/HomeLanding.tsx`](../../src/components/home/HomeLanding.tsx), rendered at `/about`, for public editorial UI.
 
 ## UI overhaul override (2026-08)
 
@@ -13,7 +13,7 @@ This section supersedes conflicting recipes below while those sections are incre
 - Composition: flat editorial rows, rules, alignment, whitespace, and content hierarchy replace floating card grids.
 - Gradients: prohibited everywhere in `src`, including marketing surfaces.
 - Motion: no routine reveals, page transitions, hover lifts, parallax, or scroll choreography. Use only subtle targeted state transitions when an interaction needs feedback.
-- Reference direction: `/musicians` is the canonical marketplace surface. The rebuilt `HomeLanding.tsx` is the static public reference.
+- Reference direction: `/` is the canonical marketplace surface, sharing its rows with `/musicians` and `/gigs` through `src/components/directory/`. `HomeLanding.tsx`, rendered at `/about`, is the static public editorial reference.
 
 ---
 

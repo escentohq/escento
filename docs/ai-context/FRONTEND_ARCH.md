@@ -52,8 +52,9 @@ src/
     password.ts                         # validatePassword helper
   middleware.ts                         # JWT refresh on auth-sensitive requests; public HTML bypasses auth
   components/
+    directory/                          # shared marketplace rows for /, /musicians, /gigs
     home/
-      HomeLanding.tsx                   # static editorial public landing
+      HomeLanding.tsx                   # static editorial composition rendered at /about
     ui/navigation-account.tsx           # client-hydrated private nav identity/unread island
   types/                                # ambient types
 ```

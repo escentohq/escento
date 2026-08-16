@@ -5,7 +5,7 @@
 
 ## UI overhaul directive (2026-08)
 
-This directive overrides older visual examples elsewhere in the docs. Use Archivo through `next/font`. Application controls and containers are square by default; any radius is a rare, named token exception. Do not use gradients anywhere in `src`. Prefer static presentation and add only targeted state transitions needed for interaction feedback—no routine reveals or page transitions. Paper and ink dominate; blue is primary, with coral and amber used sparingly. Treat `/musicians` as the emerging canonical marketplace surface.
+This directive overrides older visual examples elsewhere in the docs. Use Archivo through `next/font`. Application controls and containers are square by default; any radius is a rare, named token exception. Do not use gradients anywhere in `src`. Prefer static presentation and add only targeted state transitions needed for interaction feedback—no routine reveals or page transitions. Paper and ink dominate; blue is primary, with coral and amber used sparingly. Treat `/` as the canonical marketplace surface; its rows are shared with `/musicians` and `/gigs` via `src/components/directory/`.
 
 ---
 
@@ -175,7 +175,7 @@ Everything in that table runs in `ci.yml`, automatically, in about 90 seconds. *
 
 ## UI foundation notice
 
-`src/app/layout.tsx` loads Archivo and `src/app/globals.css` owns the approved shared foundation tokens. Extend those tokens deliberately; keep application surfaces square, use no gradients, and use `/musicians` plus the live shared primitives as the emerging reference.
+`src/app/layout.tsx` loads Archivo and `src/app/globals.css` owns the approved shared foundation tokens. Extend those tokens deliberately; keep application surfaces square, use no gradients, and use `/` plus the live shared primitives as the reference.
 
 ---
 
@@ -229,9 +229,9 @@ Everything in that table runs in `ci.yml`, automatically, in about 90 seconds. *
 
 | File | Why |
 |---|---|
-| `src/app/musicians/page.tsx` | Canonical marketplace composition and result-row reference. |
-| `src/components/home/HomeLanding.tsx` | Static editorial public landing composition. |
-| `src/app/page.tsx` | Static landing host backed by cached public directory reads. |
+| `src/app/page.tsx` | Canonical marketplace composition. `?view=` switches between the two directories. |
+| `src/components/directory/` | The shared result rows, view switch, and profile CTA used by `/`, `/musicians`, and `/gigs`. |
+| `src/components/home/HomeLanding.tsx` | Static editorial composition, rendered at `/about`. |
 | `src/app/layout.tsx` | Static root shell and Archivo font setup; identity hydrates through the navigation island. |
 | `src/app/globals.css` | Shared foundation tokens and named corner exceptions. |
 | `src/lib/supabase/server.ts` | Supabase server client factory. |
@@ -244,3 +244,13 @@ Everything in that table runs in `ci.yml`, automatically, in about 90 seconds. *
 ---
 
 *Last updated: 2026-08-13.*
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

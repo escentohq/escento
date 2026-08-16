@@ -1,89 +1,50 @@
-# Landing Page
+# Landing Page (`/about`)
 
 ## Feature Summary
-The landing page is the public marketing and routing surface for Escento. It explains the two-sided marketplace, exposes the main discovery CTA, adapts its secondary CTA to the signed-in user's role, and uses motion-heavy visual sections to establish the brand.
+The editorial landing page explains the two-sided marketplace and points visitors at the directories. It used to be `/`; since issue #5 the root route shows the marketplace directly and the landing kept its own route at `/about`.
 
 ## Product Intent
-- Position Escento as a campus collaboration platform.
-- Let anonymous visitors browse immediately.
-- Send creators toward gig posting and musicians toward profile creation/editing.
-- Avoid social-network language; the goal is direct discovery and in-app contact.
+- Explain in plain language what Escento does: musicians create profiles, creators post gigs, either side can send a request.
+- Give the footer and outreach links a page that pitches, without putting a pitch between a first-time visitor and the inventory.
+- Send creators toward gig posting and musicians toward profile creation or editing.
 
 ## Routes and Files
-- `/`
-- `src/app/page.tsx`
-- `src/components/home/HomeLanding.tsx`
-- `src/components/home/ProductStory.tsx`
-- `src/components/home/TheCallsheet.tsx`
+- `/about`
+- `src/app/about/page.tsx` — server component; fetches the featured profiles and gigs
+- `src/app/about/loading.tsx`, `src/app/about/error.tsx`
+- `src/components/home/HomeLanding.tsx` — the composition
 - `src/components/ui/primary-cta.tsx`
-- `src/components/ui/secondary-cta.tsx`
 
 ## Relevant Source Code
 
 ```tsx
-// src/app/page.tsx
-export default async function Home() {
-  const session = await getCurrentSession();
+// src/app/about/page.tsx
+const [profilesResult, gigsResult, sessionResult] = await Promise.allSettled([
+  listProfiles(),
+  listOpenGigs(),
+  getCurrentSession(),
+]);
+// Each rejection is logged and falls back to an empty list, so a directory read
+// failure degrades the page instead of 500ing it.
 
-  if (session?.user?.id && !session.user.role) {
-    redirect("/onboarding/role");
-  }
-
-  const isMusician = session?.user?.role === "MUSICIAN";
-  const isCreator = session?.user?.role === "CREATOR";
-
-  let musicianProfilePath: "/profile/create" | "/profile/edit" | null = null;
-  if (isMusician && session?.user?.id) {
-    const existing = await getProfileByUserId(session.user.id);
-    musicianProfilePath = existing ? "/profile/edit" : "/profile/create";
-  }
-
-  const secondaryHref = isCreator
-    ? "/gigs/create"
-    : musicianProfilePath
-      ? musicianProfilePath
-      : "/signin";
-
-  return (
-    <HomeLanding
-      secondaryHref={secondaryHref}
-      secondaryLabel={secondaryLabel}
-      signedInLabel={signedInLabel}
-    />
-  );
-}
-```
-
-```tsx
-// src/components/home/HomeLanding.tsx
-export function HomeLanding({ secondaryHref, secondaryLabel, signedInLabel }: HomeLandingProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const prefersReducedMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end start"] });
-  const heroY = useTransform(scrollYProgress, [0, 1], prefersReducedMotion ? [0, 0] : [0, 260]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.45], [1, 0]);
-```
-
-```tsx
-// Hero CTA section from HomeLanding
-<PrimaryCta href="/musicians" className="w-full sm:w-auto">
-  Browse Musicians
-</PrimaryCta>
-
-<SecondaryCta href={secondaryHref} className="w-full sm:w-auto">
-  {secondaryLabel}
-</SecondaryCta>
+return (
+  <HomeLanding
+    featuredProfiles={featuredProfiles.slice(0, 8)}
+    featuredGigs={featuredGigs.slice(0, 2)}
+    musicianProfileNavigation={musicianProfileNavigation}
+  />
+);
 ```
 
 ## How It Works
-The server route resolves auth and role state, then hands the client landing component a secondary CTA destination. Unroled signed-in users are immediately redirected to onboarding. Musicians get either `Create profile` or `Edit profile`; creators get `Post a gig`; anonymous visitors get `Sign in`.
+`HomeLanding` is a **server** component. It takes real profiles and gigs and composes four sections: a hero with a brand-colored "Live directory" aside built from the lead profile, a preview row list of up to three real listings, a two-column explainer, and a closing CTA to `/signup`. There is no client boundary, no animation library, and no hardcoded sample data.
 
-`HomeLanding` is a client component because it uses Framer Motion, GSAP, scroll transforms, and reduced-motion detection. It renders a hero, `TheCallsheet` (sample musician/gig cards), `ProductStory` (the five-step explainer), and a final CTA.
+The one role-dependent element is the musician CTA, resolved server-side through `resolveMusicianProfileNavigation` so it reads "Create profile", "Continue setup", or "Edit profile".
 
 ## Implementation Details for an LLM
-The landing page has two layers: server role routing in `src/app/page.tsx`, and client visual storytelling in `HomeLanding`. Keep data-sensitive decisions on the server. Keep animation isolated in client components. Respect `useReducedMotion` whenever adding loops, parallax, or scroll-triggered movement. Do not reintroduce `StageFlip`, `StageLightsScene`, or a Three.js background without approval.
+Keep this page a Server Component. There is no animation, 3D, or smooth-scroll layer in the repo, and `framer-motion`, `gsap`, `lenis`, `three`, and `@react-three/*` are all blocked by `eslint.config.mjs` — reintroducing any of them needs approval per `AGENTS.md`.
+
+Do not add a role redirect here. `/about` is public and stays public.
 
 ## Issues and Improvements
-- The landing page uses hardcoded stats and featured examples. Replace with real counts only after product analytics exist.
-- GSAP and Framer Motion are both used on the same page. Keep animation ownership clear to avoid conflicting transforms.
-- No loading state exists for the root route while session/profile checks run.
+- The page renders whatever the directory currently holds, so at pilot scale the hero aside can be sparse. The empty branches are written for that case; keep them honest rather than padding with fake listings.

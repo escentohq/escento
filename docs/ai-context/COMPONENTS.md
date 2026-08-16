@@ -5,8 +5,8 @@
 
 ## Canonical references
 
-- Marketplace composition: `src/app/musicians/page.tsx`
-- Public editorial composition: `src/components/home/HomeLanding.tsx`
+- Marketplace composition: `src/app/page.tsx`, with the result rows in `src/components/directory/`
+- Public editorial composition: `src/components/home/HomeLanding.tsx` (rendered at `/about`)
 - Detail composition: `src/app/musicians/[id]/page.tsx`
 - Form behavior: [`FORMS.md`](./FORMS.md)
 - Visual tokens: [`DESIGN.md`](./DESIGN.md)

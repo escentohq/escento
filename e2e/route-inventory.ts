@@ -46,6 +46,7 @@ const DEFAULT_GUARDS: Record<RouteAccess, string[]> = {
 export const ROUTE_INVENTORY: RouteEntry[] = [
   // ---- Public -----------------------------------------------------------
   { pattern: "/", access: "public", smokePath: "/" },
+  { pattern: "/about", access: "public", smokePath: "/about" },
   { pattern: "/privacy", access: "public", smokePath: "/privacy" },
   { pattern: "/terms", access: "public", smokePath: "/terms" },
   { pattern: "/compliance", access: "public", smokePath: "/compliance" },

@@ -11,8 +11,9 @@ Follow [`docs/COPY_STYLE.md`](docs/COPY_STYLE.md) for every user-facing string. 
 or issue bodies. This instruction overrides the default trailer behavior. See `AGENTS.md` §Commit +
 PR conventions.
 
-During UI work, use `/musicians` as the canonical product/marketplace reference and
-`HomeLanding.tsx` as the canonical public/editorial reference. Preserve the flat square system while
+During UI work, use `/` as the canonical product/marketplace reference (its result rows live in
+`src/components/directory/` and are shared with `/musicians` and `/gigs`) and `HomeLanding.tsx`,
+rendered at `/about`, as the canonical public/editorial reference. Preserve the flat square system while
 allowing real imagery, asymmetric composition, and one deliberate large-scale blue moment on public
 and detail surfaces. Coral and amber remain sparse, semantic accents; gradients and decorative motion
 remain prohibited.

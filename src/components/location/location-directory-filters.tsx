@@ -38,6 +38,11 @@ type Props = {
   genre?: string[];
   genres: Option[];
   hasFilters: boolean;
+  /**
+   * Extra values the GET form must carry through, e.g. `{ view: "gigs" }` on `/`
+   * so searching from the gigs tab does not land back on musicians.
+   */
+  hiddenFields?: Record<string, string>;
 };
 
 export function LocationDirectoryFilters({
@@ -56,6 +61,7 @@ export function LocationDirectoryFilters({
   genre = [],
   genres,
   hasFilters,
+  hiddenFields,
 }: Props) {
   const hasAdvancedFilters = Boolean(
     projectType ||
@@ -82,6 +88,12 @@ export function LocationDirectoryFilters({
 
   return (
     <form method="GET" className="space-y-5" action={action}>
+      {hiddenFields
+        ? Object.entries(hiddenFields).map(([name, value]) => (
+            <input key={name} type="hidden" name={name} value={value} />
+          ))
+        : null}
+
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
         <label htmlFor="q" className="min-w-0 flex-1 text-control text-ink">
           Search
