@@ -1,0 +1,144 @@
+name: Deploy Preview (Vercel)
+
+# Manual-only. Automatic preview deploys are disabled: on the Vercel Hobby tier
+# every branch push/PR burned a deployment and the failures mailed out on each
+# run. Run this workflow by hand (Actions -> Deploy Preview -> Run workflow) when
+# a branch actually needs a preview URL. Production deploys are unaffected —
+# see deploy-production.yml.
+#
+# Consequence: the read-only smoke suite below no longer runs per-PR. Push to
+# main still deploys and `ci.yml` still gates PRs.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-preview-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          # Cache ~/.npm so the global Vercel CLI install and the dependency
+          # install inside `vercel build` reuse downloaded packages.
+          cache: npm
+
+      # Cache the Next.js build cache so `vercel build` recompiles incrementally
+      # instead of from scratch every run. restore-keys lets a previous build's
+      # cache be reused even when source files changed.
+      - name: Cache Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.{js,jsx,ts,tsx}') }}
+          restore-keys: |
+            nextjs-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      # Pull retrieves the project's env vars into .vercel/.env.preview.local.
+      # Build-time vars (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY)
+      # must be NON-sensitive in Vercel so their values come through — sensitive
+      # vars pull as empty strings and crash the prerender build.
+      - name: Pull Vercel preview environment
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Build locally, then upload the prebuilt output.
+      - name: Build project artifacts
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+
+      # Re-author the HEAD commit as the project owner BEFORE deploying. The
+      # Vercel CLI attaches the commit author to the deployment, and on the Hobby
+      # plan a deploy whose commit author lacks project access is BLOCKED — this
+      # fires even for --prebuilt CLI deploys (confirmed via the Vercel API:
+      # collaborator-authored => BLOCKED, owner-authored => READY). Amending the
+      # author to the owner keeps the commit message, SHA and branch (so Vercel
+      # shows a meaningful deployment title) and only swaps the author so the
+      # deploy passes. This rewrites ONLY the ephemeral CI checkout and is never
+      # pushed back; your real GitHub commit and authorship are unaffected.
+      - name: Re-author HEAD as project owner (avoid Hobby commit-author block)
+        run: |
+          git -c user.name="Escento" -c user.email="escentohq@gmail.com" \
+            commit --amend --no-edit --reset-author
+
+      - name: Deploy to Vercel (preview)
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "Preview deployed to $url"
+
+  smoke:
+    name: Read-only smoke (preview URL)
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Resolve Playwright version
+        id: pw
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
+
+      - name: Install Playwright browser
+        run: |
+          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install chromium
+          else
+            npx playwright install --with-deps chromium
+          fi
+
+      - name: Run smoke against the preview deployment
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ needs.deploy.outputs.url }}
+          # Lets Playwright through Vercel Deployment Protection. Create it at
+          # Vercel -> Project -> Settings -> Deployment Protection -> Protection
+          # Bypass for Automation, then add it as the GitHub Actions secret
+          # VERCEL_AUTOMATION_BYPASS_SECRET.
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
+        run: |
+          # A safety check that cannot run is a red check, not a green one. This
+          # previously warned and exited 0, which reported success having executed
+          # zero tests against the deployment.
+          if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
+            echo "::error title=Smoke cannot run::Deployment Protection is on but VERCEL_AUTOMATION_BYPASS_SECRET is not set, so no test could reach the preview. Add the Protection Bypass for Automation secret (Vercel -> Project -> Settings -> Deployment Protection)."
+            exit 1
+          fi
+          npm run test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-smoke-report
+          path: playwright-report/
+          retention-days: 7

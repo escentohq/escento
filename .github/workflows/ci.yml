@@ -1,0 +1,87 @@
+name: CI
+
+# The fast lane. Gates every PR and every push to `main` with `quality`: lint,
+# typecheck, the unit suite, and a production build — about 90 seconds.
+#
+# The write-flow Playwright suite used to run here too, sharded, and cost ~13
+# minutes of wall clock on every commit. It now lives in `write-flows.yml` and
+# runs on demand: Actions -> Write-flow E2E -> Run workflow. Run it by hand
+# before merging anything touching auth, messaging, gigs, moderation, or
+# src/lib/api/ — nothing in this workflow can see those regressions.
+#
+# What that trades away: a PR can be green here and still break a write flow.
+# The unit suite covers the repo invariants that used to justify the wait — the
+# route-guard inventory, the env contract, the frozen globals.css, the service
+# normalizers — so this is not the only thing standing between a bad PR and
+# `main`, but it is no longer sufficient on its own.
+on:
+  pull_request:
+  # Only `main` here. A branch push is already covered by its pull request, and
+  # listening to both ran the whole pipeline twice per PR commit.
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # npm's audit/funding chatter costs a network round trip per install for no
+  # signal we act on. Dependabot covers the advisory side.
+  NPM_CONFIG_AUDIT: "false"
+  NPM_CONFIG_FUND: "false"
+
+jobs:
+  quality:
+    name: Lint, typecheck, unit, build
+    runs-on: ubuntu-latest
+    # A hung install or build must surface as a failure, not as a job that sits
+    # amber until the 6-hour default timeout.
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci --prefer-offline
+
+      # Incremental Next builds. restore-keys lets a previous build's cache be
+      # reused even when source files changed, which is the common case.
+      - name: Cache Next.js build cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: nextjs-quality-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
+          restore-keys: |
+            nextjs-quality-${{ hashFiles('package-lock.json') }}-
+            nextjs-quality-
+
+      # Ordered cheapest-first: a lint error should not wait on a build.
+      - run: npm run lint
+
+      - run: npm run typecheck
+
+      # Seconds. Route-guard inventory, env contract, design invariants, and the
+      # pure-logic layer all fail here rather than in Playwright.
+      - run: npm run test:unit
+
+      - name: Build
+        run: npm run build
+        env:
+          # Non-sensitive public Supabase values come from repo Variables when
+          # present; otherwise harmless placeholders keep the prerender build
+          # from crashing on missing envs. No real secrets are needed to build.
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key' }}
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
+          ADMIN_EMAILS: admin@example.test
+          SUPPORT_EMAIL: support@example.test
+          ESCENTO_SUPPORT_ACCOUNT_EMAIL: support@example.test
+          RESEND_API_KEY: re_placeholder
+          SUPPORT_FROM_EMAIL: "Escento Support <support@example.test>"
+          GEOAPIFY_API_KEY: placeholder
