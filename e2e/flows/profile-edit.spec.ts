@@ -1,11 +1,19 @@
 import { test, expect } from "@playwright/test";
 
-import { createMusicianProfile, signUpAs } from "./helpers";
+import {
+  completeMusicianProfile,
+  createMusicianProfile,
+  signUpAs,
+} from "./helpers";
 
 test.describe("profile edit and validation", () => {
   test("profile edit validates years experience and website url", async ({ page }) => {
     await signUpAs(page, "MUSICIAN", "profile-validate");
-    await createMusicianProfile(page, `Validation Artist ${Date.now().toString(36)}`);
+    const profileId = await createMusicianProfile(
+      page,
+      `Validation Artist ${Date.now().toString(36)}`,
+    );
+    await completeMusicianProfile(page, profileId);
 
     // The edit form keeps every field on one screen, so both rules fire together.
     await page.goto("/profile/edit");
@@ -23,6 +31,7 @@ test.describe("profile edit and validation", () => {
 
     await signUpAs(page, "MUSICIAN", "profile-edit");
     const profileId = await createMusicianProfile(page, originalName);
+    await completeMusicianProfile(page, profileId);
 
     await page.goto("/profile/edit");
     await page.locator('input[name="displayName"]').fill(updatedName);

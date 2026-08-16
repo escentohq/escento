@@ -115,6 +115,17 @@ export async function makeProfileLaunchReady(page: Page): Promise<void> {
   await page.waitForURL(/\/profile\/create\/reach/, { timeout: 30_000 });
 }
 
+/** Fill every remaining wizard step so the combined edit form becomes available. */
+export async function completeMusicianProfile(
+  page: Page,
+  profileId: string,
+): Promise<void> {
+  await makeProfileLaunchReady(page);
+  await page.locator('input[name="websiteUrl"]').fill("https://example.test/portfolio");
+  await page.getByRole("button", { name: "Finish" }).click();
+  await page.waitForURL(`/musicians/${profileId}`, { timeout: 30_000 });
+}
+
 /**
  * Choose a `<select>` value and prove it stuck.
  *
