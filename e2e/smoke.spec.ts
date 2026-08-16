@@ -106,8 +106,12 @@ for (const [label, id] of [
         if (message.type() === "error") consoleErrors.push(message.text());
       });
 
-      const response = await page.goto(`/${section}/${id}`);
-      expect(response?.status()).toBe(404);
+      await page.goto(`/${section}/${id}`);
+      // The rendered page is what is asserted, not the status code: both detail
+      // routes have a `loading.tsx`, so the response streams and its 200 header
+      // is already on the wire before `notFound()` resolves. That is framework
+      // behaviour and predates this check; what matters here is that a bad id
+      // lands on the branded 404 instead of an error boundary.
       await expect(page.locator("body")).toContainText("Page not found");
       expect(pageErrors).toEqual([]);
       expect(consoleErrors.join("\n")).not.toMatch(/22P02|invalid input syntax/i);
