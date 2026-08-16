@@ -93,7 +93,7 @@ export async function setRole(role: AppRole): Promise<void> {
 
   const supabase = await createSupabaseServerClient();
   // Unchanged compare-and-set. It still writes only `role`; the database trigger
-  // (20260817000000) sets the matching capability from it.
+  // (20260816050844) sets the matching capability from it.
   const effectiveRole = await claimRole(supabase, session.user.id, session.user.email, role);
 
   // Always the role the account actually has, never the one that was asked for.

@@ -40,7 +40,7 @@ describe("role vocabulary", () => {
  */
 describe("app_user role and capability invariants", () => {
   const migrationsDir = join(process.cwd(), "supabase", "migrations");
-  const CAPABILITY_MIGRATION = "20260817000000_dual_role_capabilities.sql";
+  const CAPABILITY_MIGRATION = "20260816050844_dual_role_capabilities.sql";
 
   it("ships exactly one migration owning the trigger", () => {
     const files = readdirSync(migrationsDir).filter((file) => file.endsWith(".sql"));

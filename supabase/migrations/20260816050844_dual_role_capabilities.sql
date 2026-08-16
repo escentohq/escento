@@ -61,6 +61,11 @@ GRANT ALL ON FUNCTION "public"."enforce_app_user_role_capabilities"() TO "servic
 DROP TRIGGER IF EXISTS "enforce_immutable_app_user_role" ON "public"."app_user";
 DROP FUNCTION IF EXISTS "public"."enforce_immutable_app_user_role"();
 
+-- `CREATE TRIGGER` has no `IF NOT EXISTS`, so drop our own first: this file has
+-- to survive a re-run (a `db push` against a database that already has it).
+-- Every other statement here is already idempotent.
+DROP TRIGGER IF EXISTS "enforce_app_user_role_capabilities" ON "public"."app_user";
+
 CREATE TRIGGER "enforce_app_user_role_capabilities"
     BEFORE INSERT OR UPDATE ON "public"."app_user"
     FOR EACH ROW EXECUTE FUNCTION "public"."enforce_app_user_role_capabilities"();

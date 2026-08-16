@@ -493,7 +493,7 @@ For each page: route, access, data fetched, layout, components, behaviors.
 - Auth required. If role already set, redirects to `/`.
 - Renders two side-by-side `<form action>` blocks, each invoking inline server action calling `setRole("MUSICIAN" | "CREATOR")`.
 - After role set, redirects to `/`.
-- **Resolved (issue #6).** An account can hold both capabilities. `app_user.role` stays immutable as the first claim, `is_musician` / `is_creator` carry authorization, and `/onboarding/role?add=…` grants the second. See `supabase/migrations/20260817000000_dual_role_capabilities.sql`.
+- **Resolved (issue #6).** An account can hold both capabilities. `app_user.role` stays immutable as the first claim, `is_musician` / `is_creator` carry authorization, and `/onboarding/role?add=…` grants the second. See `supabase/migrations/20260816050844_dual_role_capabilities.sql`.
 
 ### 12.4 `/musicians` — Directory (`src/app/musicians/page.tsx`)
 
