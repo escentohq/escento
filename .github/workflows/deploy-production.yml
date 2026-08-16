@@ -18,7 +18,52 @@ env:
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
+  # Issue #72. Code used to deploy ahead of schema with nothing in between —
+  # the exact gap that let #68's migration ship broken and unrecorded for a
+  # full release cycle. This job applies supabase/migrations/ to hosted
+  # Supabase and verifies supabase/parity_check.sql before `deploy` is allowed
+  # to run at all (a job with `needs:` only runs if its dependency succeeds).
+  migrate:
+    name: Apply and verify hosted schema
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Require the database URL
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error title=Migration gate not configured::SUPABASE_DB_URL is not set, so schema cannot be applied or verified before deploy."
+            exit 1
+          fi
+
+      - name: Apply pending migrations
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: supabase db push --db-url "$SUPABASE_DB_URL"
+
+      - name: Verify hosted schema parity
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -y > /dev/null
+          sudo apt-get install -y postgresql-client > /dev/null
+          output=$(psql "$SUPABASE_DB_URL" -X -A -F'|' -f supabase/parity_check.sql)
+          echo "$output"
+          if echo "$output" | grep -q '|FAIL|'; then
+            echo "::error title=Hosted schema parity check failed::supabase/parity_check.sql returned FAIL for at least one check. See output above."
+            exit 1
+          fi
+
   deploy:
+    needs: migrate
     runs-on: ubuntu-latest
     timeout-minutes: 25
     outputs:
