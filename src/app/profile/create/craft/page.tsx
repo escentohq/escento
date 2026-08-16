@@ -24,9 +24,9 @@ export default async function CraftStepPage() {
 
   return (
     <PageShell
-      eyebrow="Plays"
+      eyebrow="Instruments and genres"
       title="What do you play?"
-      body="Instruments and genres are how creators search. Add what fits and move on."
+      body="Add the instruments you play and the genres you work in."
       size="narrow"
     >
       <WizardProgress current={stepNumber("craft")} />

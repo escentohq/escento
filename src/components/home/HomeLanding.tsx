@@ -93,12 +93,12 @@ export function HomeLanding({
       <section className="mx-auto max-w-[1280px] px-4 py-6 sm:px-6 md:py-16 lg:px-8">
         <div className="grid border-y border-border-strong lg:min-h-[680px] lg:grid-cols-[minmax(0,1.08fr)_minmax(24rem,0.92fr)]">
           <div className="flex flex-col justify-center py-8 md:py-12 lg:pr-14">
-            <p className="text-meta uppercase text-brand">Music work, made legible</p>
+            <p className="text-meta uppercase text-brand">Musicians and gigs</p>
             <h1 className="mt-4 max-w-4xl text-display md:mt-6">
-              Find the musician.<br />Book the work.
+              Find a musician.<br />Post a gig.
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted md:mt-8 md:text-xl">
-              Search student musicians by instrument, genre, and location. Or open the calls already looking for a sound.
+              Browse musicians by instrument, genre, and location. Or find an open gig that fits.
             </p>
             <div className="mt-7 flex flex-col gap-3 md:mt-10 sm:flex-row">
               <PrimaryCta href="/musicians" className="w-full sm:w-auto">
@@ -115,7 +115,7 @@ export function HomeLanding({
                 href="/musicians"
                 className="text-control text-white underline-offset-4 transition-colors duration-150 hover:text-on-brand-muted hover:underline"
               >
-                Open the room
+                Browse all
               </Link>
             </div>
 
@@ -156,8 +156,8 @@ export function HomeLanding({
                 </Link>
               ) : (
                 <div>
-                  <p className="text-meta uppercase text-on-brand-muted">Take the stage</p>
-                  <h2 className="mt-2 text-3xl font-semibold tracking-tight">Put your sound in the directory.</h2>
+                  <p className="text-meta uppercase text-on-brand-muted">Musician profiles</p>
+                  <h2 className="mt-2 text-3xl font-semibold tracking-tight">Add your profile to the directory.</h2>
                 </div>
               )}
             </div>
@@ -179,10 +179,10 @@ export function HomeLanding({
         <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8">
           <div className="grid gap-5 border-b border-rule py-10 md:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] md:items-end">
             <div>
-              <h2 className="text-section-heading">People and projects in the room</h2>
+              <h2 className="text-section-heading">Musicians and open gigs</h2>
             </div>
             <p className="text-secondary text-muted md:text-right">
-              Live profiles and open calls. Enough detail to know what deserves a closer look.
+              Scan the basics, then open a profile or gig for the full details.
             </p>
           </div>
 
@@ -221,8 +221,8 @@ export function HomeLanding({
             </div>
           ) : (
             <div className="border-b border-rule py-12">
-              <p className="text-item-heading">The room is tuning up.</p>
-              <p className="mt-2 text-secondary text-muted">New profiles and open calls will appear here.</p>
+              <p className="text-item-heading">Nothing listed yet.</p>
+              <p className="mt-2 text-secondary text-muted">New profiles and gigs will appear here.</p>
             </div>
           )}
         </div>
@@ -232,18 +232,18 @@ export function HomeLanding({
         <div className="grid border-y border-rule lg:grid-cols-[0.85fr_1.15fr] lg:divide-x lg:divide-rule">
           <div className="py-10 lg:pr-12">
             <p className="text-meta uppercase text-brand">For musicians</p>
-            <h2 className="mt-4 max-w-md text-section-heading">Make the work searchable before the right call opens.</h2>
+            <h2 className="mt-4 max-w-md text-section-heading">List what you play and the work you want.</h2>
             <Link href="/profile/create" className="mt-7 inline-block text-control text-brand underline-offset-4 hover:underline">
               Create a musician profile
             </Link>
           </div>
           <div className="border-t border-rule py-10 lg:border-t-0 lg:pl-14">
             <p className="max-w-xl text-2xl font-normal leading-snug text-muted md:text-3xl">
-              List the instruments, genres, location, availability, and links that help a creator make a real decision.
+              Add your instruments, genres, location, availability, and work links.
             </p>
             <div className="mt-10 border-l-4 border-coral pl-5">
               <p className="text-meta uppercase text-muted">For creators</p>
-              <h3 className="mt-2 text-item-heading">Post the brief. Name the money. Set the date.</h3>
+              <h3 className="mt-2 text-item-heading">Describe the project, pay, and deadline.</h3>
               <Link href="/gigs/create" className="mt-5 inline-block text-control text-brand underline-offset-4 hover:underline">
                 Post a gig
               </Link>
@@ -255,9 +255,9 @@ export function HomeLanding({
       <section className="bg-ink text-white">
         <div className="mx-auto max-w-[1280px] px-4 py-20 sm:px-6 md:py-24 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-[0.65fr_1.35fr] lg:items-end">
-            <h2 className="text-page-title">Three moves. No feed.</h2>
+            <h2 className="text-page-title">How it works</h2>
             <p className="max-w-2xl text-lg leading-relaxed text-on-ink-body lg:justify-self-end">
-              Escento keeps the path short: find specific work, make a direct request, then talk through the project.
+              Find the right listing, send a request, and discuss the project directly.
             </p>
           </div>
 
@@ -265,22 +265,22 @@ export function HomeLanding({
             <li className="py-8 md:pr-8">
               <span className="text-5xl font-semibold tracking-tight text-white">01</span>
               <h3 className="mt-8 text-item-heading">Search the directory</h3>
-              <p className="mt-3 text-secondary text-on-ink-body">Filter people or open calls using the details that matter to the work.</p>
+              <p className="mt-3 text-secondary text-on-ink-body">Filter musicians or gigs by the details you care about.</p>
             </li>
             <li className="border-t border-ink-muted py-8 md:border-l md:border-t-0 md:px-10">
               <span className="text-5xl font-semibold tracking-tight text-white">02</span>
               <h3 className="mt-8 text-item-heading">Send a request</h3>
-              <p className="mt-3 max-w-sm text-secondary text-on-ink-body">Name the project and why the match makes sense. The recipient chooses whether to connect.</p>
+              <p className="mt-3 max-w-sm text-secondary text-on-ink-body">Add a short note. The other person can accept or decline.</p>
             </li>
             <li className="border-t border-ink-muted py-8 md:border-t-0 md:pl-8">
               <span className="text-5xl font-semibold tracking-tight text-white">03</span>
               <h3 className="mt-8 text-item-heading">Continue in messages</h3>
-              <p className="mt-3 text-secondary text-on-ink-body">Keep dates, scope, and project questions in one conversation.</p>
+              <p className="mt-3 text-secondary text-on-ink-body">Discuss dates, scope, and questions in one conversation.</p>
             </li>
           </ol>
 
           <div className="mt-12 flex flex-col items-start justify-between gap-6 border-l-4 border-brand pl-6 md:flex-row md:items-end">
-            <p className="max-w-3xl text-section-heading">The next project starts with a useful listing.</p>
+            <p className="max-w-3xl text-section-heading">Create a profile or post what you need.</p>
             <Link
               href="/signup"
               className="inline-flex min-h-12 shrink-0 items-center justify-center border border-white bg-white px-6 py-3 text-control text-ink transition-colors duration-150 hover:border-brand hover:bg-brand hover:text-white"

@@ -17,8 +17,8 @@ export default async function ReachStepPage() {
   return (
     <PageShell
       eyebrow="Links"
-      title="How should creators hear you?"
-      body="Optional. Add a link or two and set the work you will take."
+      title="Where can people hear your work?"
+      body="Add any work links you want to share, then choose the work you accept."
       size="narrow"
     >
       <WizardProgress current={stepNumber("reach")} />

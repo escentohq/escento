@@ -39,7 +39,7 @@ export async function updatePasswordAction(
     return {
       ok: false,
       fieldErrors,
-      message: formLevelMessage(fieldErrors, "Tighten the password details."),
+      message: formLevelMessage(fieldErrors, "Fix the highlighted fields."),
     };
   }
 
@@ -49,7 +49,7 @@ export async function updatePasswordAction(
 
     if (error) {
       console.error("Password update error:", error.message);
-      return { ok: false, message: "Something went wrong. Try again." };
+      return { ok: false, message: "We couldn't update your password. Try again." };
     }
 
     revalidatePath("/account");
@@ -59,6 +59,6 @@ export async function updatePasswordAction(
       throw err;
     }
     console.error("Password update exception:", err);
-    return { ok: false, message: "Something went wrong. Try again." };
+    return { ok: false, message: "We couldn't update your password. Try again." };
   }
 }

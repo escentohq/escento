@@ -9,7 +9,7 @@ import { RoleDefinitions } from "./_definitions";
 import { FAQ_ITEMS, FAQ_SECTIONS } from "./_faq-content";
 
 const description =
-  "Answers about how Escento works: what it costs, how musicians get found, how creators post gigs, how messaging and reporting work, and how to delete an account.";
+  "Answers about accounts, musician profiles, gigs, messaging, reporting, and account deletion on Escento.";
 
 export const metadata: Metadata = {
   title: "FAQ",
@@ -54,7 +54,7 @@ export default function FaqPage() {
       <PageShell
         eyebrow="Support"
         title="Frequently asked questions"
-        body="How Escento works for musicians and creators — what it costs, how people find each other, and what happens to your account and your data."
+        body="Answers about profiles, gigs, messages, safety, and your account."
         size="medium"
       >
         <div className="flex flex-col gap-12">
@@ -104,7 +104,7 @@ export default function FaqPage() {
           <section className="border border-border-strong bg-surface p-6 md:p-8">
             <h2 className="text-item-heading text-ink">Still need help?</h2>
             <p className="mt-2 max-w-2xl text-body text-muted">
-              If your question is not here, send us the details and we will look into it.
+              Send us your question and the details we need to help.
             </p>
             <Link href="/help" className="control-primary mt-5">
               Contact support

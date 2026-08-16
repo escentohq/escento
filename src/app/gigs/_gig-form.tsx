@@ -204,7 +204,7 @@ export function GigForm({
               value={values.projectType}
               onChange={(event) => setValues((current) => ({ ...current, projectType: event.target.value }))}
             >
-              <option value="">Select...</option>
+              <option value="">Select</option>
               {PROJECT_TYPES.map((type) => (
                 <option key={type} value={type}>
                   {projectTypeLabel(type)}
@@ -273,7 +273,7 @@ export function GigForm({
               error={errors.locationDisplayName}
               showError={formFields.shouldShowError("locationDisplayName", errors.locationDisplayName)}
               onBlur={() => formFields.markTouched("locationDisplayName")}
-              hint="Choose a place from the suggestions, or use Remote option if location does not matter."
+            hint="Choose a place from the suggestions, or mark the gig remote."
             >
               <LocationAutocompleteField
                 value={values as LocationAutocompleteValue}
@@ -293,7 +293,7 @@ export function GigForm({
                 onChange={(event) => setValues((current) => ({ ...current, isRemote: event.target.checked }))}
                 className="h-4 w-4 accent-[#0055FF]"
               />
-              Remote option
+              Remote work
             </label>
           </div>
           <FormField
@@ -330,7 +330,7 @@ export function GigForm({
                 value={values.compensationType}
                 onChange={(event) => setValues((current) => ({ ...current, compensationType: event.target.value }))}
               >
-                <option value="">Select...</option>
+                <option value="">Select</option>
                 {COMPENSATION_TYPES.map((type) => (
                   <option key={type} value={type}>
                     {compensationLabel(type)}

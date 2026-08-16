@@ -118,11 +118,11 @@ export function buildConnectionRequestEmail(
   const recipientName = createNotificationPreview(request.recipient.name ?? "");
   const preview = createNotificationPreview(request.introMessage ?? "");
   const href = `${baseUrl}/messages/requests`;
-  const headline = `${senderName} sent you a request`;
+  const headline = `New request from ${senderName}`;
   const greeting = recipientName ? `Hi ${recipientName},` : "Hi,";
   const description = senderRole
-    ? `${senderName}, a ${senderRole.toLowerCase()} on Escento, sent you a connection request.`
-    : `${senderName} sent you a connection request on Escento.`;
+    ? `${senderName} is a ${senderRole.toLowerCase()} on Escento. Accept or decline the request from your inbox.`
+    : "Accept or decline the request from your inbox.";
   const text = [
     "Escento",
     "",
@@ -138,7 +138,7 @@ export function buildConnectionRequestEmail(
   return {
     from: notificationFromAddress(),
     to: request.recipient.email,
-    subject: `${senderName} sent you a request on Escento`,
+    subject: `Request from ${senderName} on Escento`,
     text,
     html: emailShell({
       headline,
@@ -176,7 +176,7 @@ export function buildMessageEmail(
   const href = `${baseUrl}/messages/${encodeURIComponent(message.conversationId)}`;
   const headline = `New message from ${senderName}`;
   const greeting = recipientName ? `Hi ${recipientName},` : "Hi,";
-  const description = `${senderName} sent you a message on Escento.`;
+  const description = "Open the conversation to read and reply.";
   const text = [
     "Escento",
     "",

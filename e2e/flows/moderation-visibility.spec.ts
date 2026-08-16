@@ -180,10 +180,10 @@ test.describe("moderation visibility", () => {
     await anonymous.goto(`/musicians?q=${encodeURIComponent(displayName)}`);
     await expect(anonymous.getByText(displayName)).toHaveCount(0);
     await anonymous.goto(`/musicians/${profileId}`);
-    await expect(anonymous.getByRole("heading", { name: "Lost in the mix." })).toBeVisible();
+    await expect(anonymous.getByRole("heading", { name: "Page not found" })).toBeVisible();
     await expectAnonymousRow("musician_profile", profileId, 0);
     await owner.goto("/profile/edit");
-    await expect(owner.getByRole("heading", { name: "Edit Profile" })).toBeVisible();
+    await expect(owner.getByRole("heading", { name: "Edit profile" })).toBeVisible();
 
     await moderateRow(adminPage, displayName, "Restore");
     await anonymous.goto("/");
@@ -204,10 +204,10 @@ test.describe("moderation visibility", () => {
     await anonymous.goto(`/musicians?q=${encodeURIComponent(displayName)}`);
     await expect(anonymous.getByText(displayName)).toHaveCount(0);
     await anonymous.goto(`/musicians/${profileId}`);
-    await expect(anonymous.getByRole("heading", { name: "Lost in the mix." })).toBeVisible();
+    await expect(anonymous.getByRole("heading", { name: "Page not found" })).toBeVisible();
     await expectAnonymousRow("musician_profile", profileId, 0);
     await owner.goto("/profile/edit");
-    await expect(owner.getByRole("heading", { name: "Edit Profile" })).toBeVisible();
+    await expect(owner.getByRole("heading", { name: "Edit profile" })).toBeVisible();
 
     await moderateRow(adminPage, ownerEmail, "Restore");
     await anonymous.goto("/");
@@ -254,7 +254,7 @@ test.describe("moderation visibility", () => {
     await anonymous.goto(`/gigs?q=${encodeURIComponent(title)}`);
     await expect(anonymous.getByText(title)).toHaveCount(0);
     await anonymous.goto(`/gigs/${gigId}`);
-    await expect(anonymous.getByRole("heading", { name: "Lost in the mix." })).toBeVisible();
+    await expect(anonymous.getByRole("heading", { name: "Page not found" })).toBeVisible();
     await expectAnonymousRow("gig", gigId, 0);
     await owner.goto("/gigs/manage");
     await expect(owner.getByText(title)).toBeVisible();
@@ -276,7 +276,7 @@ test.describe("moderation visibility", () => {
     await anonymous.goto(`/gigs?q=${encodeURIComponent(title)}`);
     await expect(anonymous.getByText(title)).toHaveCount(0);
     await anonymous.goto(`/gigs/${gigId}`);
-    await expect(anonymous.getByRole("heading", { name: "Lost in the mix." })).toBeVisible();
+    await expect(anonymous.getByRole("heading", { name: "Page not found" })).toBeVisible();
     await expectAnonymousRow("gig", gigId, 0);
     await owner.goto("/gigs/manage");
     await expect(owner.getByText(title)).toBeVisible();

@@ -90,7 +90,7 @@ export function ReachForm({
         onSubmit={() => formFields.setSubmitAttempted(true)}
       >
         <fieldset className="space-y-4">
-          <legend className="text-meta uppercase text-brand">Work you will take</legend>
+          <legend className="text-meta uppercase text-brand">Work preferences</legend>
           <div className="grid gap-4 md:grid-cols-3">
             <CheckboxField
               id="isRemote"
@@ -102,14 +102,14 @@ export function ReachForm({
             <CheckboxField
               id="seekingPaid"
               name="seekingPaid"
-              label="Open to paid"
+              label="Paid work"
               checked={values.seekingPaid}
               onChange={(checked) => setValues((current) => ({ ...current, seekingPaid: checked }))}
             />
             <CheckboxField
               id="seekingUnpaid"
               name="seekingUnpaid"
-              label="Open to unpaid"
+              label="Unpaid work"
               checked={values.seekingUnpaid}
               onChange={(checked) => setValues((current) => ({ ...current, seekingUnpaid: checked }))}
             />

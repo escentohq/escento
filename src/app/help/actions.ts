@@ -12,8 +12,7 @@ import {
 } from "@/lib/form-utils";
 import { sendSupportEmail } from "@/lib/support-email";
 
-const SUPPORT_SUCCESS_MESSAGE =
-  "Thanks! Your message has been sent to the Escento team. We'll get back to you as soon as possible.";
+const SUPPORT_SUCCESS_MESSAGE = "Message sent. We'll reply by email.";
 
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const RATE_LIMIT_MAX_SUBMISSIONS = 3;
@@ -99,7 +98,7 @@ export async function submitHelpRequest(_prevState: HelpFormState, formData: For
   if (!checkRateLimit(rateKey, signature)) {
     return {
       ok: false,
-      message: "Please wait a bit before sending another support request.",
+      message: "Please wait before sending another message.",
       values,
     };
   }
@@ -118,7 +117,7 @@ export async function submitHelpRequest(_prevState: HelpFormState, formData: For
     return {
       ok: false,
       deliveryFailed: true,
-      message: "We could not send your message automatically right now.",
+      message: "We couldn't send your message. Email support instead.",
       values,
     };
   }
@@ -129,4 +128,3 @@ export async function submitHelpRequest(_prevState: HelpFormState, formData: For
     values: { name: "", email: "", subject: "", message: "" },
   };
 }
-

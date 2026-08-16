@@ -101,7 +101,7 @@ export function ProfileForm({
   const formFields = useFormFieldState();
   const [state, formAction] = useActionState(action, emptyActionState);
 
-  const title = mode === "create" ? "Create Profile" : "Save Profile";
+  const title = mode === "create" ? "Create profile" : "Save profile";
   const pending = mode === "create" ? "Creating…" : "Saving…";
   const errors = state.fieldErrors ?? {};
   const fieldErrorCount = countFieldErrors(errors);
@@ -168,7 +168,7 @@ export function ProfileForm({
       >
         <fieldset className="space-y-5">
           <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
-            Spotlight
+            Profile
           </legend>
 
           <FormField
@@ -237,7 +237,7 @@ export function ProfileForm({
 
         <fieldset className="space-y-5">
           <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
-            Soundcheck
+            Work preferences
           </legend>
 
           <div className="grid gap-4 md:grid-cols-3">
@@ -251,14 +251,14 @@ export function ProfileForm({
             <CheckboxField
               id="seekingPaid"
               name="seekingPaid"
-              label="Open to paid"
+              label="Paid work"
               checked={values.seekingPaid}
               onChange={(checked) => setValues((current) => ({ ...current, seekingPaid: checked }))}
             />
             <CheckboxField
               id="seekingUnpaid"
               name="seekingUnpaid"
-              label="Open to unpaid"
+              label="Unpaid work"
               checked={values.seekingUnpaid}
               onChange={(checked) => setValues((current) => ({ ...current, seekingUnpaid: checked }))}
             />

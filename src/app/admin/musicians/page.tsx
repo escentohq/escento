@@ -29,7 +29,7 @@ export default async function AdminMusiciansPage() {
     <PageShell
       eyebrow="Admin"
       title="Musician profiles"
-      body="Review musician profile content without changing public app behavior."
+      body="Review, edit, hide, or restore musician profiles."
     >
       <AdminNav />
       <ModerationVisibilityNotice />

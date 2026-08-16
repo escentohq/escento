@@ -5,8 +5,8 @@ import { NavigationAccount } from "./navigation-account";
 export function NavBar() {
   const publicLinks = (
     <>
-      <Link href="/musicians" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Musicians</Link>
-      <Link href="/gigs" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse Gigs</Link>
+      <Link href="/musicians" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse musicians</Link>
+      <Link href="/gigs" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse gigs</Link>
       <Link href="/help" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Help</Link>
     </>
   );

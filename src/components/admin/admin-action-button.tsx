@@ -76,7 +76,7 @@ export function AdminActionButton({
           <div role="dialog" aria-modal="true" className="surface-overlay relative w-full max-w-lg border border-ink bg-surface p-6">
             <h2 className="text-item-heading text-ink">{label}</h2>
             <p className="mt-2 text-sm font-medium leading-relaxed text-[#475569]">
-              Confirm this admin action. It is isolated to admin metadata and will be logged.
+              Confirm this action. It will be recorded in the admin log.
             </p>
 
             <label className="mt-5 block text-sm font-bold text-[#0F172A]">

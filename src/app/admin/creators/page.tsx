@@ -26,7 +26,7 @@ export default async function AdminCreatorsPage() {
     <PageShell
       eyebrow="Admin"
       title="Creator profiles"
-      body="Creator profiles are represented by creator user accounts in this MVP."
+      body="Review creator accounts and their gig counts."
     >
       <AdminNav />
       <ModerationVisibilityNotice />

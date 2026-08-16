@@ -55,7 +55,7 @@ export async function resetPasswordAction(
     console.error("Password reset error:", err);
     return {
       ok: false,
-      message: "Something went wrong. Try again.",
+      message: "We couldn't send a reset link. Try again.",
     };
   }
 }

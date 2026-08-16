@@ -97,7 +97,7 @@ test("missing identity data degrades safely and self or deleted recipients are s
   request.recipient = user("recipient-id", "recipient@example.test", null);
 
   expect(buildConnectionRequestEmail(request, APP_URL)?.subject).toBe(
-    "Someone sent you a request on Escento",
+    "Request from Someone on Escento",
   );
 
   expect(

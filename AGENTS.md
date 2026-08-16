@@ -60,11 +60,12 @@ python3 ~/.claude/plugins/cache/ui-ux-pro-max-skill/ui-ux-pro-max/2.5.0/.claude/
 1. **AGENTS.md** (this file) — rules, stack, DoD, conventions
 2. [`PRODUCT.md`](./docs/ai-context/PRODUCT.md) — product scope and what NOT to build
 3. [`BRAND.md`](./docs/ai-context/BRAND.md) — voice, copy patterns, forbidden phrases
-4. [`DESIGN.md`](./docs/ai-context/DESIGN.md) — color, type, spacing, motion tokens
-5. [`UX_RULES.md`](./docs/ai-context/UX_RULES.md) — interactions, loading/empty/error, a11y
-6. [`FRONTEND_ARCH.md`](./docs/ai-context/FRONTEND_ARCH.md) — Next.js, server actions, Supabase, auth
-7. [`COMPONENTS.md`](./docs/ai-context/COMPONENTS.md) — live component index and composition rules
-8. [`FORMS.md`](./docs/ai-context/FORMS.md) — form UX system (when touching forms)
+4. [`COPY_STYLE.md`](./docs/COPY_STYLE.md) — canonical rules for every user-facing string
+5. [`DESIGN.md`](./docs/ai-context/DESIGN.md) — color, type, spacing, motion tokens
+6. [`UX_RULES.md`](./docs/ai-context/UX_RULES.md) — interactions, loading/empty/error, a11y
+7. [`FRONTEND_ARCH.md`](./docs/ai-context/FRONTEND_ARCH.md) — Next.js, server actions, Supabase, auth
+8. [`COMPONENTS.md`](./docs/ai-context/COMPONENTS.md) — live component index and composition rules
+9. [`FORMS.md`](./docs/ai-context/FORMS.md) — form UX system (when touching forms)
 
 ---
 

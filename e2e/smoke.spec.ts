@@ -83,5 +83,5 @@ test.describe("auth trust boundary (signed-out)", () => {
 test("unknown route renders the branded 404", async ({ page }) => {
   const response = await page.goto("/this-route-does-not-exist");
   expect(response?.status()).toBe(404);
-  await expect(page.locator("body")).toContainText("Lost in the mix.");
+  await expect(page.locator("body")).toContainText("Page not found");
 });

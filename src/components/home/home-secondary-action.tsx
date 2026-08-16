@@ -20,12 +20,12 @@ export function HomeSecondaryAction() {
     ? "/gigs/create"
     : state?.musicianProfilePath ?? "/signin";
   const label = state?.role === "CREATOR"
-    ? "Post a Gig"
+    ? "Post a gig"
     : state?.musicianProfilePath === "/profile/edit"
-      ? "Edit Profile"
+      ? "Edit profile"
       : state?.musicianProfilePath === "/profile/create"
-        ? "Create Profile"
-        : "Sign In";
+        ? "Create profile"
+        : "Sign in";
 
   return <SecondaryCta href={href} prefetch={false} className="w-full sm:w-auto">{label}</SecondaryCta>;
 }

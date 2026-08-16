@@ -39,14 +39,14 @@ async function GigResults({
       <section className="mt-10">
         {gigs.length === 0 ? (
           <EmptyState
-            eyebrow={hasFilters ? "No match" : "Soundcheck"}
-            title={hasFilters ? "No gigs match yet." : "No open gigs right now."}
-            body={hasFilters ? "Change the filters and run it back." : "Post one when the project is ready."}
+            eyebrow={hasFilters ? "No results" : "Open gigs"}
+            title={hasFilters ? "No gigs match." : "No open gigs right now."}
+            body={hasFilters ? "Try different filters." : "Post a gig when your project is ready."}
             cta={
               hasFilters ? (
                 <Link href="/gigs" className="control-secondary">Clear filters</Link>
               ) : (
-                <PrimaryCta href="/gigs/create" prefetch={false}>Post a Gig</PrimaryCta>
+                <PrimaryCta href="/gigs/create" prefetch={false}>Post a gig</PrimaryCta>
               )
             }
           />
@@ -146,7 +146,7 @@ export default async function GigsPage({
       eyebrow="Open calls"
       title="Gigs"
       body="Find projects hiring musicians for film, podcasts, games, and live work."
-      action={<PrimaryCta href="/gigs/create" prefetch={false}>Post a Gig</PrimaryCta>}
+      action={<PrimaryCta href="/gigs/create" prefetch={false}>Post a gig</PrimaryCta>}
     >
         <div className="border-y border-rule py-5 md:py-6">
           <LocationDirectoryFilters

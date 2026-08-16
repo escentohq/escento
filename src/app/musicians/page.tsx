@@ -34,16 +34,16 @@ async function MusicianResults({
       <section className="mt-10">
         {profiles.length === 0 ? (
           <EmptyState
-            eyebrow={hasFilters ? "No match" : "Soundcheck"}
-            title={hasFilters ? "No one matches yet." : "Nobody on stage yet."}
-            body={hasFilters ? "Change the filters and run it back." : "Create the first musician profile and start the room."}
+            eyebrow={hasFilters ? "No results" : "Directory"}
+            title={hasFilters ? "No musicians match." : "No musician profiles yet."}
+            body={hasFilters ? "Try different filters." : "Create a profile to be the first listing."}
             cta={
               hasFilters ? (
                 <Link href="/musicians" className="control-secondary">
                   Clear filters
                 </Link>
               ) : (
-                <PrimaryCta href="/profile/create" prefetch={false}>Create Profile</PrimaryCta>
+                <PrimaryCta href="/profile/create" prefetch={false}>Create profile</PrimaryCta>
               )
             }
           />
@@ -157,8 +157,8 @@ export default async function MusiciansPage({
     <PageShell
       eyebrow="Directory"
       title="Musicians"
-      body="Filter by instrument, genre, and location. Open a profile when the work fits."
-      action={<PrimaryCta href="/profile/create" prefetch={false}>Create Profile</PrimaryCta>}
+        body="Filter by instrument, genre, and location. Open a profile for full details."
+      action={<PrimaryCta href="/profile/create" prefetch={false}>Create profile</PrimaryCta>}
     >
         {/* Reads the session, so it streams separately and never blocks the shell. */}
         <Suspense fallback={null}>

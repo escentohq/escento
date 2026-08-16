@@ -19,7 +19,7 @@ export default async function UpdatePasswordPage() {
             Choose a new password
           </h1>
           <p className="mt-4 text-base font-medium leading-relaxed text-[#475569]">
-            Set a new password to secure your account.
+          Enter and confirm your new password.
           </p>
         </div>
 

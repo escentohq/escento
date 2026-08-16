@@ -2,7 +2,7 @@ import { type Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Compliance",
-  description: "Escento Compliance - Data protection and regulatory compliance information.",
+  description: "Read Escento's compliance information.",
 };
 
 export default function CompliancePage() {

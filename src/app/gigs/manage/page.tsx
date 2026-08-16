@@ -26,16 +26,16 @@ export default async function ManageGigsPage() {
     <PageShell
       eyebrow="Your listings"
       title="Manage gigs"
-      body="Edit open calls, mark filled roles, or remove old listings."
+      body="Edit your gigs, mark them filled, reopen them, or delete them."
       action={<PrimaryCta href="/gigs/create">Post a New Gig</PrimaryCta>}
     >
       <section>
         {gigs.length === 0 ? (
           <EmptyState
-            eyebrow="Empty stage"
+            eyebrow="Your gigs"
             title="No gigs posted yet."
-            body="Post your first project to find musicians."
-            cta={<PrimaryCta href="/gigs/create">Post a Gig</PrimaryCta>}
+            body="Post a gig when you need a musician."
+            cta={<PrimaryCta href="/gigs/create">Post a gig</PrimaryCta>}
           />
         ) : (
           <div className="divide-y divide-rule border-y border-rule">

@@ -44,7 +44,7 @@ export default async function AdminEditMusicianPage({
     <PageShell
       eyebrow="Admin"
       title={`Edit ${profile.displayName}`}
-      body="Full admin edit access for this musician profile. Changes affect the public profile immediately."
+      body="Changes appear on the public profile immediately."
       size="medium"
     >
       <AdminNav />

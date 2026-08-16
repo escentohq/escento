@@ -11,9 +11,9 @@ import {
 
 const STEP_PROMPT: Record<string, string> = {
   identity: "Add the name creators should see.",
-  craft: "Add your instruments and genres so creators can find you.",
+  craft: "Add the instruments you play and the genres you work in.",
   context: "Add your school, location, and availability.",
-  reach: "Add links to your work so creators can hear you.",
+  reach: "Add links to your work.",
 };
 
 /**
@@ -39,7 +39,7 @@ export async function FinishProfileNudge() {
     <aside className="mb-8 flex flex-col gap-4 border-y border-rule bg-surface px-1 py-5 md:flex-row md:items-center md:justify-between md:px-4">
       <div className="min-w-0">
         <p className="text-meta uppercase text-brand">
-          Your profile is {done} of {PROFILE_WIZARD_TOTAL} done
+          Profile setup: {done} of {PROFILE_WIZARD_TOTAL} steps
         </p>
         <p className="mt-2 text-body text-ink">{STEP_PROMPT[step]}</p>
       </div>
@@ -49,7 +49,7 @@ export async function FinishProfileNudge() {
           href={stepPath(step)}
           className="text-control text-brand transition-colors duration-150 hover:text-ink focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2"
         >
-          Continue
+          Continue setup
         </Link>
         <Link
           href={`/musicians/${profile.id}`}

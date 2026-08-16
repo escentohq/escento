@@ -107,7 +107,7 @@ The secondary CTA is decided in `src/app/page.tsx`:
 
 - creator -> `Post a Gig`
 - musician with no profile -> `Create Profile`
-- musician with existing profile -> `Edit Profile`
+- musician with existing profile -> `Edit profile`
 - signed-out visitor -> `Sign In`
 
 This keeps the landing expressive without losing product usefulness.

@@ -16,9 +16,9 @@ export default async function CreateGigPage() {
 
   return (
     <PageShell
-      eyebrow="Backstage"
-      title="Post a Gig"
-      body="Name the project, the sound, the timeline, and how musicians should think about compensation."
+      eyebrow="New gig"
+      title="Post a gig"
+      body="Tell musicians what the project needs, where it happens, what it pays, and when it is due."
       size="medium"
     >
       <GigForm

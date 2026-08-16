@@ -10,9 +10,9 @@ export default async function AccountPage() {
   const session = await requireSignedIn("/account");
 
   return (
-    <PageShell size="narrow" eyebrow="Settings" title="Your account">
+    <PageShell size="narrow" eyebrow="Settings" title="Account settings">
       <div className="space-y-8">
-        <SectionCard eyebrow="Profile" title="Your Account">
+        <SectionCard eyebrow="Profile" title="Account details">
           <div className="space-y-6">
             <UpdateProfilePictureForm
               name={session.user.name}
@@ -52,14 +52,13 @@ export default async function AccountPage() {
         </SectionCard>
 
         <SectionCard
-          eyebrow="Danger Zone"
-          title="Delete Account"
+          eyebrow="Account deletion"
+          title="Delete account"
           className="border border-[#FF3366]/30"
         >
           <div className="space-y-4">
             <p className="text-sm text-[#475569]">
-              Once you delete your account, there is no going back. All your data
-              will be permanently removed.
+              This permanently removes your account and all of its data. It cannot be undone.
             </p>
             <DeleteAccountButton deleteAction={deleteAccountAction} />
           </div>

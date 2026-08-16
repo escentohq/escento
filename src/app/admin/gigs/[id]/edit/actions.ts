@@ -57,7 +57,7 @@ export async function adminUpdateGigAction(
   if (Object.keys(fieldErrors).length) {
     return {
       ok: false,
-      message: formLevelMessage(fieldErrors, "Tighten the gig before saving."),
+      message: formLevelMessage(fieldErrors, "Fix the highlighted fields."),
       fieldErrors,
       values: gigValuesFromFormData(fd),
     };

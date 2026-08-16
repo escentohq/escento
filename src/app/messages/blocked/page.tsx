@@ -26,8 +26,8 @@ export default async function BlockedUsersPage() {
 
   return (
     <PageShell
-      eyebrow="Backstage"
-      title="Blocked Users"
+      eyebrow="Messages"
+      title="Blocked users"
       body="Manage people who cannot send you requests or messages."
       size="medium"
     >
@@ -41,7 +41,7 @@ export default async function BlockedUsersPage() {
         <EmptyState
           eyebrow="Clear"
           title="No blocked users."
-          body="Blocked people will show up here."
+          body="People you block will appear here."
           cta={<Link href="/messages" className="control-secondary">Back to Messages</Link>}
         />
       ) : (

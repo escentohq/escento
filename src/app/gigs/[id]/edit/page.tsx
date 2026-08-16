@@ -35,9 +35,9 @@ export default async function EditGigPage({
 
   return (
     <PageShell
-      eyebrow="Backstage"
-      title="Edit Gig"
-      body="Fine-tune the project details, timeline, or sound requirements."
+      eyebrow="Your gig"
+      title="Edit gig"
+      body="Update the project details, requirements, pay, or deadline."
       size="medium"
     >
       <GigForm
@@ -65,7 +65,7 @@ export default async function EditGigPage({
           genresCsv: gig.genres?.join(", ") ?? "",
         }}
         action={updateAction}
-        submitLabel="Save Changes"
+        submitLabel="Save changes"
         pendingLabel="Saving..."
         cancelHref={`/gigs/${id}`}
         instruments={instruments}

@@ -55,7 +55,7 @@ export default async function MessagesPage() {
     <PageShell
       eyebrow="Inbox"
       title="Messages"
-      body="Accepted connections appear here. New introductions stay in requests until you respond."
+      body="Accepted requests appear here. New requests stay in your inbox until you respond."
       action={
         <PrimaryCta
           href="/messages/requests"
@@ -80,10 +80,10 @@ export default async function MessagesPage() {
         />
       ) : conversations.length === 0 ? (
         <EmptyState
-          eyebrow="Quiet room"
+          eyebrow="Messages"
           title="No conversations yet."
-          body="Start by connecting with someone from a profile."
-          cta={<PrimaryCta href="/musicians">Browse Musicians</PrimaryCta>}
+          body="Send a request from a musician profile or gig."
+          cta={<PrimaryCta href="/musicians">Browse musicians</PrimaryCta>}
         />
       ) : (
         <div className="divide-y divide-rule border-y border-rule">

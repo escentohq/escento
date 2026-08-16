@@ -127,7 +127,7 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
               Report this {targetType === "gig" ? "gig" : "profile"}
             </h2>
             <p className="mt-3 text-sm font-medium leading-relaxed text-[#475569]">
-              Tell the Escento team what happened. Your report is not shown publicly or sent to the reported user.
+              Tell us what happened. The reported user will not see your report.
             </p>
             <p className="mt-3 border-y border-rule py-3 text-meta uppercase text-muted">
               Reporting: {targetLabel}
@@ -176,7 +176,7 @@ export function ReportButton({ targetType, targetId, targetLabel }: Props) {
                   name="evidence"
                   rows={3}
                   maxLength={2000}
-                  placeholder="Paste links, screenshots URLs, message context, or any other supporting details."
+                placeholder="Add links, screenshot URLs, or relevant message details."
                   className="mt-2"
                 />
               </div>
