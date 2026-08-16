@@ -40,13 +40,13 @@ export function RoleOnboardingPicker() {
         role="MUSICIAN"
         title="I play music"
         body="Create a profile, browse gigs, and message creators."
-        cta="Choose Musician"
+        cta="Choose musician"
       />
       <RoleButton
         role="CREATOR"
         title="I need musicians"
         body="Post gigs, browse musicians, and send requests."
-        cta="Choose Creator"
+        cta="Choose creator"
       />
     </div>
   );

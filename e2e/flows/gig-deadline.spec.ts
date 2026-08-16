@@ -40,7 +40,7 @@ test.describe("gig deadlines", () => {
     await page.locator('select[name="projectType"]').selectOption("FILM");
     await page.locator('select[name="compensationType"]').selectOption("PAID");
     await page.locator('input[name="deadline"]').fill(deadlineDate(-1));
-    await page.getByRole("button", { name: "Publish Gig" }).click();
+    await page.getByRole("button", { name: "Publish gig" }).click();
 
     await expect(page.getByText("Choose today or a later date.")).toBeVisible();
     await expect(page).toHaveURL(/\/gigs\/create/);
@@ -55,7 +55,7 @@ test.describe("gig deadlines", () => {
     await page.locator('select[name="projectType"]').selectOption("FILM");
     await page.locator('select[name="compensationType"]').selectOption("PAID");
     await page.locator('input[name="deadline"]').fill(deadlineDate(0));
-    await page.getByRole("button", { name: "Publish Gig" }).click();
+    await page.getByRole("button", { name: "Publish gig" }).click();
 
     await expect(page).toHaveURL(/\/gigs\/(?!create$)[^/]+$/, { timeout: 30_000 });
     await expect(page.getByText("Open call")).toBeVisible();

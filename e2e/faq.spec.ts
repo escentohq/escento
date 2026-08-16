@@ -14,7 +14,7 @@ test.describe("/faq", () => {
     const response = await page.goto("/faq", { waitUntil: "domcontentloaded" });
     expect(response?.status(), "/faq HTTP status").toBeLessThan(400);
 
-    await expect(page.getByRole("heading", { level: 1 })).toContainText(/frequently asked/i);
+    await expect(page.getByRole("heading", { level: 1 })).toContainText(/faq/i);
 
     for (const item of FAQ_ITEMS) {
       await expect(

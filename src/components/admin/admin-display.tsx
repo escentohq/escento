@@ -55,7 +55,7 @@ export function AdminUnavailable({
   return (
     <div className="bg-[#FAFAFA] px-4 py-16 sm:px-6">
       <div className="mx-auto max-w-xl border-y border-rule py-8">
-        <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
+        <span className="text-meta uppercase text-muted">
           Admin
         </span>
         <h1 className="mt-3 text-page-title text-ink">
@@ -75,7 +75,7 @@ export function AdminSetupRequired() {
   return (
     <div className="bg-[#FAFAFA] px-4 py-16 sm:px-6">
       <div className="mx-auto max-w-2xl border-y border-rule py-8">
-        <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FFB000]">
+        <span className="text-meta uppercase text-muted">
           Admin setup
         </span>
         <h1 className="mt-3 text-page-title text-ink">

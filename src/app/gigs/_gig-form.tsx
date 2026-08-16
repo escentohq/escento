@@ -157,7 +157,7 @@ export function GigForm({
         onSubmit={() => formFields.setSubmitAttempted(true)}
       >
         <fieldset className="space-y-5">
-          <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
+          <legend className="text-meta uppercase text-muted">
             Project
           </legend>
           <FormField
@@ -215,7 +215,7 @@ export function GigForm({
         </fieldset>
 
         <fieldset className="space-y-5">
-          <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
+          <legend className="text-meta uppercase text-muted">
             Looking for
           </legend>
           <div className="grid gap-5 md:grid-cols-2">
@@ -263,7 +263,7 @@ export function GigForm({
         </fieldset>
 
         <fieldset className="space-y-5">
-          <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FFB000]">
+          <legend className="text-meta uppercase text-muted">
             Logistics
           </legend>
           <div className="grid gap-5 md:grid-cols-2">
@@ -313,7 +313,7 @@ export function GigForm({
         </fieldset>
 
         <fieldset className="space-y-5">
-          <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+          <legend className="text-meta uppercase text-muted">
             Compensation
           </legend>
           <div className="grid gap-5 md:grid-cols-2">
@@ -357,7 +357,7 @@ export function GigForm({
 
         {showStatus ? (
           <fieldset className="space-y-5">
-            <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
+            <legend className="text-meta uppercase text-muted">
               Visibility
             </legend>
             <FormField

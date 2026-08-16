@@ -73,7 +73,7 @@ export const FAQ_SECTIONS: FaqSection[] = [
         id: "how-do-i-create-a-musician-profile",
         question: "How do I create a musician profile?",
         answer:
-          "Sign up, choose Musician, and add your name. That saves a draft you can finish later. Your profile is listed once it also has an instrument or genre and a bit of context — school, location, remote availability, or an availability note.",
+          "Sign up, choose Musician, and add your name. That saves a draft you can finish later. Your profile is listed once it also has an instrument or genre and a bit of context: school, location, remote availability, or an availability note.",
         links: [
           { href: "/signup", label: "Create an account" },
           { href: "/musicians", label: "See the directory" },

@@ -128,7 +128,7 @@ export function SupportForm() {
 
       {state.deliveryFailed ? (
         <section className="border-y border-rule py-5">
-          <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+          <p className="text-meta uppercase text-muted">
             Still need help?
           </p>
           <p className="mt-2 text-sm font-medium leading-relaxed text-[#475569]">

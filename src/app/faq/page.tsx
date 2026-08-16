@@ -52,8 +52,7 @@ export default function FaqPage() {
       />
 
       <PageShell
-        eyebrow="Support"
-        title="Frequently asked questions"
+        title="FAQ"
         body="Answers about profiles, gigs, messages, safety, and your account."
         size="medium"
       >
@@ -101,7 +100,7 @@ export default function FaqPage() {
             </section>
           ))}
 
-          <section className="border border-border-strong bg-surface p-6 md:p-8">
+          <section className="border-y border-rule py-8">
             <h2 className="text-item-heading text-ink">Still need help?</h2>
             <p className="mt-2 max-w-2xl text-body text-muted">
               Send us your question and the details we need to help.

@@ -168,7 +168,7 @@ export function UserMenu({
               className="flex cursor-pointer select-none items-center gap-2.5 px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:bg-[#F1F5F9] focus:bg-[#F1F5F9] focus:outline-none"
             >
               <Settings className="h-4 w-4" />
-              Account Settings
+              Account settings
             </Link>
           </DropdownMenu.Item>
 
