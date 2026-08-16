@@ -63,12 +63,6 @@ export const FAQ_SECTIONS: FaqSection[] = [
           "Escento is for musicians and people hiring them. That includes performers, producers, filmmakers, podcasters, game developers, and event organizers. Choose one role when you sign up.",
         links: [{ href: "/signup", label: "Create an account" }],
       },
-      {
-        id: "where-does-escento-work",
-        question: "What cities does Escento cover?",
-        answer:
-          "Escento starts in 12 US markets, but you can enter any city. Directory searches cover 5 to 100 miles from a city. Remote listings are not limited by distance.",
-      },
     ],
   },
   {
@@ -154,13 +148,6 @@ export const FAQ_SECTIONS: FaqSection[] = [
     title: "Account and safety",
     items: [
       {
-        id: "how-do-i-sign-in",
-        question: "How do I sign in to Escento?",
-        answer:
-          "Sign in with email and password or Google. You can request a password-reset link from the sign-in page. Browsing does not require an account.",
-        links: [{ href: "/signup", label: "Create an account" }],
-      },
-      {
         id: "can-i-change-my-role",
         question: "Can I switch between a musician and a creator account?",
         answer:
@@ -180,16 +167,11 @@ export const FAQ_SECTIONS: FaqSection[] = [
           "Signed-in users can report a profile or gig they do not own. Add a short explanation. An admin will review the report and can hide the listing.",
         links: [{ href: "/help", label: "Contact support" }],
       },
-      {
-        id: "how-do-i-delete-my-account",
-        question: "How do I delete my Escento account?",
-        answer:
-          "Open Account settings and choose Delete account. This permanently removes your listings, messages, requests, blocks, profile picture, and sign-in credentials. It cannot be undone.",
-        links: [{ href: "/help", label: "Contact support" }],
-      },
     ],
   },
 ];
 
 /** Flat list in page order — what the JSON-LD and the drift test both count. */
-export const FAQ_ITEMS: FaqItem[] = FAQ_SECTIONS.flatMap((section) => section.items);
+export const FAQ_ITEMS: FaqItem[] = FAQ_SECTIONS.flatMap(
+  (section) => section.items,
+);
