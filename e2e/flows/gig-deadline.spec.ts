@@ -19,15 +19,18 @@ function adminClient(): SupabaseClient {
 
 /** `YYYY-MM-DD`, offset by whole days from today in the deadline timezone. */
 function deadlineDate(offsetDays: number): string {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
+  const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/Los_Angeles",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
-  });
-  const today = new Date(`${formatter.format(new Date())}T12:00:00Z`);
-  today.setUTCDate(today.getUTCDate() + offsetDays);
-  return formatter.format(today);
+  }).formatToParts(new Date());
+  const value = (type: Intl.DateTimeFormatPartTypes) =>
+    Number(parts.find((part) => part.type === type)?.value);
+  const shifted = new Date(
+    Date.UTC(value("year"), value("month") - 1, value("day") + offsetDays),
+  );
+  return shifted.toISOString().slice(0, 10);
 }
 
 test.describe("gig deadlines", () => {

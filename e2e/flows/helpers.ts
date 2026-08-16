@@ -121,6 +121,14 @@ export async function completeMusicianProfile(
   profileId: string,
 ): Promise<void> {
   await makeProfileLaunchReady(page);
+  await finishMusicianProfile(page, profileId);
+}
+
+/** Finish the reach step when the preceding wizard steps are already saved. */
+export async function finishMusicianProfile(
+  page: Page,
+  profileId: string,
+): Promise<void> {
   await page.locator('input[name="websiteUrl"]').fill("https://example.test/portfolio");
   await page.getByRole("button", { name: "Finish" }).click();
   await page.waitForURL(`/musicians/${profileId}`, { timeout: 30_000 });
