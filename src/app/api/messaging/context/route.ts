@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       signedIn: true,
       currentUserId: session.user.id,
-      role: session.user.role,
+      capabilities: session.user.capabilities,
       relationship: { status: "self" },
       blockStatus: { blockedByMe: false, blockedMe: false },
     }, { headers: { "Cache-Control": "private, no-store" } });
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       signedIn: true,
       currentUserId: session.user.id,
-      role: session.user.role,
+      capabilities: session.user.capabilities,
       relationship,
       blockStatus,
     }, { headers: { "Cache-Control": "private, no-store" } });
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       signedIn: true,
       currentUserId: session.user.id,
-      role: session.user.role,
+      capabilities: session.user.capabilities,
       unavailable: true,
     }, { headers: { "Cache-Control": "private, no-store" } });
   }

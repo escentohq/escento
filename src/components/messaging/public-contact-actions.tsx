@@ -6,11 +6,12 @@ import { BlockUserButton } from "@/components/messaging/block-user-button";
 import { ConnectButton } from "@/components/messaging/connect-button";
 import { ReportButton } from "@/components/reports/report-button";
 import type { MessagingBlockStatus, MessagingRelationship } from "@/lib/api/types";
+import type { AppRole } from "@/lib/onboarding-role";
 
 type Context = {
   signedIn: boolean;
   currentUserId?: string;
-  role?: string | null;
+  capabilities?: AppRole[];
   relationship?: MessagingRelationship | null;
   blockStatus?: MessagingBlockStatus | null;
   unavailable?: boolean;
@@ -103,7 +104,7 @@ export function MusicianContactActions({
         <p className="mt-3 text-secondary text-on-ink-body">Send a request with a short note. You can message them if they accept.</p>
         <ContactControls recipientId={recipientId} callbackUrl={`/musicians/${profileId}`} context={context} />
       </div>
-      {context?.role === "CREATOR" ? (
+      {context?.capabilities?.includes("CREATOR") ? (
         <div className="flex justify-end">
           <ReportButton targetType="musician_profile" targetId={profileId} targetLabel={profileName} />
         </div>
@@ -134,7 +135,7 @@ export function GigContactActions({
           context={context}
         />
       ) : null}
-      {context?.role === "MUSICIAN" && !self ? (
+      {context?.capabilities?.includes("MUSICIAN") && !self ? (
         <div className="mt-6 flex justify-end">
           <ReportButton targetType="gig" targetId={gigId} targetLabel={gigTitle} />
         </div>

@@ -54,7 +54,11 @@ export default async function AdminUsersPage() {
                   {user.name || "Unnamed"}
                 </td>
                 <td className="p-4 text-[#475569]">{user.email || "None"}</td>
-                <td className="p-4 text-[#475569]">{user.role || "No role"}</td>
+                <td className="p-4 text-[#475569]">
+                  {[user.isMusician ? "MUSICIAN" : null, user.isCreator ? "CREATOR" : null]
+                    .filter(Boolean)
+                    .join(", ") || "No role"}
+                </td>
                 <td className="p-4">
                   <StatusCells
                     isPublic={user.isPublic}

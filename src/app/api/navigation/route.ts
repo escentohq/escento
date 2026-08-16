@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getActiveView } from "@/lib/active-view";
 import { getCurrentSession } from "@/lib/auth-guards";
 import { getProfileByUserId } from "@/lib/api/profiles";
 import { getUnreadConversationCountForUser } from "@/lib/api/messaging";
@@ -14,23 +15,30 @@ export async function GET() {
       return NextResponse.json({ signedIn: false }, { headers: { "Cache-Control": "private, no-store" } });
     }
 
-    const [profile, unreadConversationCount] = await Promise.all([
-      session.user.role === "MUSICIAN" ? getProfileByUserId(session.user.id) : null,
+    const isMusician = session.user.capabilities.includes("MUSICIAN");
+    const [profile, unreadConversationCount, activeView] = await Promise.all([
+      isMusician ? getProfileByUserId(session.user.id) : null,
       getUnreadConversationCountForUser(session.user.id).catch(() => 0),
+      getActiveView(),
     ]);
-    const musicianProfileNavigation =
-      session.user.role === "MUSICIAN" ? resolveMusicianProfileNavigation(profile) : null;
+    const musicianProfileNavigation = isMusician
+      ? resolveMusicianProfileNavigation(profile)
+      : null;
 
     return NextResponse.json({
       signedIn: true,
       email: session.user.email,
       name: session.user.name,
       image: session.user.image,
+      // `role` is the immutable first claim, kept in the payload so a
+      // sessionStorage blob written before this change still renders.
       role: session.user.role,
+      capabilities: session.user.capabilities,
+      activeView,
       musicianProfilePath: musicianProfileNavigation?.href ?? null,
       musicianProfileLabel: musicianProfileNavigation?.label ?? null,
       musicianProfileMode: musicianProfileNavigation?.mode ?? null,
-      isCreator: session.user.role === "CREATOR",
+      isCreator: session.user.capabilities.includes("CREATOR"),
       unreadConversationCount,
     }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {

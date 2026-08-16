@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { test, expect } from "@playwright/test";
 
-import { signOut, signUp, chooseRole } from "./helpers";
+import { signOut, signUp, signUpDual, chooseRole } from "./helpers";
 
 /** Service-role client — bypasses RLS, so it isolates the database invariant. */
 function adminClient(): SupabaseClient {
@@ -54,19 +54,76 @@ test.describe("auth + onboarding", () => {
     await expect(page).toHaveURL(/\/gigs\/manage/);
   });
 
-  test("role picker is gated once a role is set", async ({ page }) => {
+  /**
+   * Since issue #6 the picker is not a one-time gate. Revisiting it with one
+   * capability offers the other one instead of redirecting away.
+   */
+  test("revisiting the picker offers the capability you do not have", async ({ page }) => {
     await signUp(page, "locked");
     await chooseRole(page, "MUSICIAN");
-    // Revisiting onboarding after a role exists redirects away.
+
+    await page.goto("/onboarding/role");
+    await expect(page).toHaveURL(/\/onboarding\/role/);
+    await expect(page.getByRole("button", { name: "Add creator tools" })).toBeVisible();
+  });
+
+  test("the picker redirects away once both capabilities are held", async ({ page }) => {
+    await signUpDual(page, "MUSICIAN", "bothcaps");
+
     await page.goto("/onboarding/role");
     await expect(page).not.toHaveURL(/\/onboarding\/role/);
+  });
+
+  test("one account can hold a musician profile and post a gig", async ({ page }) => {
+    const { email } = await signUpDual(page, "MUSICIAN", "dualaccess");
+
+    await page.goto("/profile/create");
+    await expect(page).toHaveURL(/\/profile\/create/);
+
+    await page.goto("/gigs/create");
+    await expect(page).toHaveURL(/\/gigs\/create/);
+
+    const admin = adminClient();
+    const { data } = await admin
+      .from("app_user")
+      .select("role, is_musician, is_creator")
+      .eq("email", email)
+      .single();
+    // The first claim stays what it was; both capabilities are now held.
+    expect(data?.role).toBe("MUSICIAN");
+    expect(data?.is_musician).toBe(true);
+    expect(data?.is_creator).toBe(true);
+  });
+});
+
+test.describe("capabilities are additive only", () => {
+  test("a service-role revoke is rejected and leaves the capability held", async ({ page }) => {
+    const { email } = await signUp(page, "revoke");
+    await chooseRole(page, "CREATOR");
+
+    const admin = adminClient();
+    const { error } = await admin.from("app_user").update({ is_creator: false }).eq("email", email);
+    expect(error).not.toBeNull();
+
+    const { data } = await admin.from("app_user").select("is_creator").eq("email", email).single();
+    expect(data?.is_creator).toBe(true);
+  });
+
+  test("re-granting a capability already held is harmless", async ({ page }) => {
+    const { email } = await signUp(page, "regrant");
+    await chooseRole(page, "MUSICIAN");
+
+    const admin = adminClient();
+    const { error } = await admin.from("app_user").update({ is_musician: true }).eq("email", email);
+    expect(error).toBeNull();
   });
 });
 
 /**
  * Issue #27 / MVP-02: the first role choice is one-time. Page navigation is not
  * the enforcement — a direct database update is the strongest bypass available
- * to any caller, so that is what these assert against.
+ * to any caller, so that is what these assert against. Issue #6 kept this
+ * property; `role` is now the immutable *first* claim.
  */
 test.describe("role assignment is immutable", () => {
   test("a cross-role update is rejected and leaves the row untouched", async ({ page }) => {

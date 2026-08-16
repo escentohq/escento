@@ -50,6 +50,8 @@ export function NavigationAccount() {
         name={state.name}
         image={state.image}
         role={state.role}
+        capabilities={state.capabilities}
+        activeView={state.activeView}
         musicianProfilePath={state.musicianProfilePath}
         musicianProfileLabel={state.musicianProfileLabel}
         musicianProfileMode={state.musicianProfileMode}

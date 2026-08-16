@@ -2,7 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { requireSignedIn } from "@/lib/auth-guards";
+import { writeActiveViewCookie } from "@/lib/active-view";
+import { requireSignedIn, requireUser } from "@/lib/auth-guards";
+import { safeInternalPath } from "@/lib/internal-path";
 import { isAppRole, roleDestination, type AppRole } from "@/lib/onboarding-role";
 import { ACCOUNT_NAME_PATH, hasPublicName } from "@/lib/public-name";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -67,27 +69,79 @@ async function claimRole(
   throw new Error("Could not assign a role. Please try again.");
 }
 
-export async function setRole(role: "MUSICIAN" | "CREATOR"): Promise<void> {
+/**
+ * OAuth accounts can arrive with no provider name, and creators have no profile
+ * page to carry one. Returns the path to send them to first, or null.
+ */
+async function creatorNameGate(
+  supabase: SupabaseServerClient,
+  userId: string,
+  sessionName: string | null | undefined,
+): Promise<string | null> {
+  const { data: row } = await supabase
+    .from("app_user")
+    .select("name")
+    .eq("id", userId)
+    .maybeSingle();
+
+  return hasPublicName(row?.name ?? sessionName) ? null : ACCOUNT_NAME_PATH;
+}
+
+export async function setRole(role: AppRole): Promise<void> {
   const session = await requireSignedIn("/onboarding/role");
   if (!isAppRole(role)) throw new Error(`Unsupported role: ${String(role)}`);
 
   const supabase = await createSupabaseServerClient();
+  // Unchanged compare-and-set. It still writes only `role`; the database trigger
+  // (20260817000000) sets the matching capability from it.
   const effectiveRole = await claimRole(supabase, session.user.id, session.user.email, role);
 
-  revalidatePath("/onboarding/role");
-  revalidatePath("/");
   // Always the role the account actually has, never the one that was asked for.
-  // OAuth accounts can arrive with no provider name; send those creators to
-  // Account before they can publish, instead of onto an empty manage page.
+  await writeActiveViewCookie(effectiveRole);
+  revalidatePath("/onboarding/role");
+  revalidatePath("/", "layout");
+
   if (effectiveRole === "CREATOR") {
-    const { data: row } = await supabase
-      .from("app_user")
-      .select("name")
-      .eq("id", session.user.id)
-      .maybeSingle();
-    if (!hasPublicName(row?.name ?? session.user.name)) {
-      redirect(ACCOUNT_NAME_PATH);
-    }
+    const gate = await creatorNameGate(supabase, session.user.id, session.user.name);
+    if (gate) redirect(gate);
   }
   redirect(roleDestination(effectiveRole));
+}
+
+/**
+ * Add a second capability to an account that already has one (issue #6).
+ *
+ * Separate from `setRole` because the two do different things: `setRole` claims
+ * the immutable first `role`, this one only ever flips a capability boolean. The
+ * write is idempotent and additive — the trigger rejects any attempt to turn a
+ * capability back off, including from the service role — so this is safe to call
+ * twice and impossible to use as a downgrade.
+ */
+export async function grantCapability(role: AppRole, next?: string): Promise<void> {
+  const session = await requireUser("/onboarding/role");
+  if (!isAppRole(role)) throw new Error(`Unsupported capability: ${String(role)}`);
+
+  const supabase = await createSupabaseServerClient();
+
+  if (!session.user.capabilities.includes(role)) {
+    // Same publish precondition a first-time creator gets. Checked before the
+    // write so an account cannot end up creator-capable with no public name.
+    if (role === "CREATOR") {
+      const gate = await creatorNameGate(supabase, session.user.id, session.user.name);
+      if (gate) redirect(gate);
+    }
+
+    const column = role === "MUSICIAN" ? "is_musician" : "is_creator";
+    const { error } = await supabase
+      .from("app_user")
+      .update({ [column]: true })
+      .eq("id", session.user.id);
+
+    if (error) throw error;
+  }
+
+  await writeActiveViewCookie(role);
+  revalidatePath("/onboarding/role");
+  revalidatePath("/", "layout");
+  redirect(safeInternalPath(next, roleDestination(role)));
 }

@@ -9,6 +9,7 @@ import { LocationDirectoryFilters } from "@/components/location/location-directo
 import { DirectoryResultsSkeleton } from "@/components/ui/directory-results-skeleton";
 import { PageShell } from "@/components/ui/page-shell";
 import { PrimaryCta } from "@/components/ui/primary-cta";
+import { getActiveView, surfaceForView } from "@/lib/active-view";
 import { listGenres, listInstruments } from "@/lib/api/tags";
 import { PROJECT_TYPES, projectTypeLabel } from "@/lib/display";
 import { parseLocationSearch } from "@/lib/location";
@@ -45,7 +46,13 @@ export default async function Home({
 }) {
   const params = await searchParams;
   const { view: rawView, q, projectType, instrument, genre, locationDisplayName, lat, lng, radius, remote } = params;
-  const view: DirectoryView = rawView === "gigs" ? "gigs" : "musicians";
+  // An explicit ?view= always wins: it has to, or a shared link would render
+  // differently for each visitor. The saved view only supplies the default, and
+  // it resolves to null (so, musicians) for anyone signed out.
+  const view: DirectoryView =
+    rawView === "gigs" || rawView === "musicians"
+      ? rawView
+      : surfaceForView(await getActiveView());
 
   const locationSearch = parseLocationSearch({ q, lat, lng, radius, remote });
   const selectedInstruments = parseSelectedTags(instrument);

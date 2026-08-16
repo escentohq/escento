@@ -37,7 +37,7 @@ export default async function AboutPage() {
   const featuredGigs = gigsResult.status === "fulfilled" ? gigsResult.value : [];
   const session = sessionResult.status === "fulfilled" ? sessionResult.value : null;
   const musicianProfile =
-    session?.user.role === "MUSICIAN"
+    session?.user.capabilities.includes("MUSICIAN")
       ? await getProfileByUserId(session.user.id).catch((error) => {
           console.error("[about] musician profile navigation unavailable", error);
           return undefined;
