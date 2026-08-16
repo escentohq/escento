@@ -90,7 +90,7 @@ export function ReachForm({
         onSubmit={() => formFields.setSubmitAttempted(true)}
       >
         <fieldset className="space-y-4">
-          <legend className="text-meta uppercase text-brand">Work preferences</legend>
+          <legend className="text-meta uppercase text-muted">Work preferences</legend>
           <div className="grid gap-4 md:grid-cols-3">
             <CheckboxField
               id="isRemote"

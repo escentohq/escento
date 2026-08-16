@@ -20,14 +20,13 @@ export default async function CreateGigPage() {
 
   return (
     <PageShell
-      eyebrow="New gig"
       title="Post a gig"
       body="Tell musicians what the project needs, where it happens, what it pays, and when it is due."
       size="medium"
     >
       <GigForm
         action={createGigAction}
-        submitLabel="Publish Gig"
+        submitLabel="Publish gig"
         pendingLabel="Publishing..."
         cancelHref="/gigs"
         instruments={instruments}

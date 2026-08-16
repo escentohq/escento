@@ -167,7 +167,7 @@ export function ProfileForm({
         onSubmit={() => formFields.setSubmitAttempted(true)}
       >
         <fieldset className="space-y-5">
-          <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
+          <legend className="text-meta uppercase text-muted">
             Profile
           </legend>
 
@@ -236,7 +236,7 @@ export function ProfileForm({
         </fieldset>
 
         <fieldset className="space-y-5">
-          <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FF3366]">
+          <legend className="text-meta uppercase text-muted">
             Work preferences
           </legend>
 
@@ -306,7 +306,7 @@ export function ProfileForm({
         </fieldset>
 
         <fieldset className="space-y-5">
-          <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#FFB000]">
+          <legend className="text-meta uppercase text-muted">
             Plays
           </legend>
           <div className="grid gap-5 md:grid-cols-2">
@@ -354,7 +354,7 @@ export function ProfileForm({
         </fieldset>
 
         <fieldset className="space-y-5">
-          <legend className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+          <legend className="text-meta uppercase text-muted">
             Links
           </legend>
 

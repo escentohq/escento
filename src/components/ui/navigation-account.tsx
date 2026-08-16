@@ -70,7 +70,7 @@ export function NavigationAccount() {
       <Link
         href="/signup"
         prefetch={false}
-        className="hidden min-h-11 items-center border border-brand bg-brand px-4 py-2 text-xs font-semibold text-white transition-colors hover:border-ink hover:bg-ink focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 sm:inline-flex"
+        className="inline-flex min-h-11 items-center border border-brand bg-brand px-4 py-2 text-xs font-semibold text-white transition-colors duration-150 hover:border-ink hover:bg-ink focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2"
       >
         Sign up
       </Link>

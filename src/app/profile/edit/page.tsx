@@ -25,7 +25,6 @@ export default async function EditProfilePage() {
 
   return (
     <PageShell
-      eyebrow="Your profile"
       title="Edit profile"
       body="Update the information people see in the musician directory."
       size="medium"

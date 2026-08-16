@@ -217,7 +217,6 @@ export default async function AdminSupportPage({
           {!conversation ? (
             <div className="p-6">
               <EmptyState
-                eyebrow="Support"
                 title="Choose a user"
               body="Search for a user to open or start a support conversation."
               />
@@ -227,8 +226,8 @@ export default async function AdminSupportPage({
               <header className="border-b border-[#F1F5F9] p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
-                    <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#0055FF]">
-                      Escento Support
+                    <span className="text-meta uppercase text-muted">
+                      Support
                     </span>
                     <h2 className="mt-2 truncate text-section-heading text-ink">
                       {displayUserName(conversation.targetUser)}
@@ -280,7 +279,7 @@ export default async function AdminSupportPage({
                         className={`flex ${fromSupport ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-[82%] border-l-4 px-4 py-3 ${
+                          className={`max-w-[82%] px-4 py-3 ${
                             fromSupport
                               ? "bg-[#0F172A] text-white"
                               : "border border-[#F1F5F9] bg-[#F8FAFC] text-[#0F172A]"

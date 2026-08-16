@@ -37,7 +37,7 @@ export default async function AdminDashboardPage() {
       </dl>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <SectionCard eyebrow="Recent" title="Profiles">
+        <SectionCard title="Profiles">
           <div className="divide-y divide-rule border-y border-rule">
             {dashboard.recentProfiles.map((profile) => (
               <div key={profile.id} className="py-4">
@@ -54,7 +54,7 @@ export default async function AdminDashboardPage() {
           </div>
         </SectionCard>
 
-        <SectionCard eyebrow="Recent" title="Gigs">
+        <SectionCard title="Gigs">
           <div className="divide-y divide-rule border-y border-rule">
             {dashboard.recentGigs.map((gig) => (
               <div key={gig.id} className="py-4">

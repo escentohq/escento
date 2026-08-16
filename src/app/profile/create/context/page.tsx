@@ -16,7 +16,6 @@ export default async function ContextStepPage() {
 
   return (
     <PageShell
-      eyebrow="Location and availability"
       title="Where are you, and when are you free?"
       body="These fields are optional. Skip anything you do not want to add yet."
       size="narrow"

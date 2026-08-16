@@ -65,16 +65,15 @@ export default async function ConversationPage({
                 )}
               </div>
               <div className="min-w-0">
-                <span className="text-meta uppercase text-muted">
-                  Conversation
-                </span>
-                <h1 className="mt-1 truncate text-section-heading text-ink">
+                <h1 className="truncate text-section-heading text-ink">
                   {name}
                 </h1>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Chip tone="blue">{officialSupport ? "Official support" : "Direct"}</Chip>
-                  {messagingUnavailable ? <Chip tone="pink">Blocked</Chip> : null}
-                </div>
+                {officialSupport || messagingUnavailable ? (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {officialSupport ? <Chip tone="blue">Official support</Chip> : null}
+                    {messagingUnavailable ? <Chip tone="pink">Blocked</Chip> : null}
+                  </div>
+                ) : null}
               </div>
             </div>
             {other && !officialSupport ? (

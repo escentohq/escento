@@ -105,14 +105,11 @@ export function ConversationThread({
   }
 
   return (
-    <div className="flex min-h-[60vh] flex-col border-y border-rule bg-surface">
+    <div className="flex min-h-[60vh] flex-col border-y border-rule">
       <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
         {messages.length === 0 ? (
-          <div className="border-y border-rule py-8">
-            <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
-              No messages
-            </span>
-            <p className="mt-2 text-sm font-medium text-[#475569]">Start the conversation.</p>
+          <div className="py-8">
+            <p className="text-secondary text-muted">No messages yet. Start the conversation.</p>
           </div>
         ) : (
           messages.map((message) => {
@@ -120,10 +117,10 @@ export function ConversationThread({
             return (
               <div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[82%] border-l-4 px-4 py-3 ${
+                  className={`max-w-[82%] px-4 py-3 ${
                     mine
-                      ? "border-brand bg-ink text-white"
-                      : "border-rule bg-[#F8FAFC] text-ink"
+                      ? "bg-ink text-white"
+                      : "border border-rule bg-[#F8FAFC] text-ink"
                   }`}
                 >
                   <p className="whitespace-pre-wrap text-sm font-medium leading-relaxed">{message.body}</p>

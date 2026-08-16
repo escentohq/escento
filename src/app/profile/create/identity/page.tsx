@@ -12,7 +12,6 @@ export default async function IdentityStepPage() {
 
   return (
     <PageShell
-      eyebrow="Profile basics"
       title="What name should people see?"
       body="Add a display name to save your profile. It is not listed until you add an instrument or genre and a bit of context."
       size="narrow"

@@ -7,7 +7,7 @@ import {
   compensationLabel,
   gigStatusLabel,
   projectTypeLabel,
-  visibleTags,
+  tagLine,
 } from "@/lib/display";
 import { Chip } from "@/components/ui/chip";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -24,15 +24,13 @@ export default async function ManageGigsPage() {
 
   return (
     <PageShell
-      eyebrow="Your listings"
       title="Manage gigs"
       body="Edit your gigs, mark them filled, reopen them, or delete them."
-      action={<PrimaryCta href="/gigs/create">Post a New Gig</PrimaryCta>}
+      action={<PrimaryCta href="/gigs/create">Post a gig</PrimaryCta>}
     >
       <section>
         {gigs.length === 0 ? (
           <EmptyState
-            eyebrow="Your gigs"
             title="No gigs posted yet."
             body="Post a gig when you need a musician."
             cta={<PrimaryCta href="/gigs/create">Post a gig</PrimaryCta>}
@@ -40,11 +38,11 @@ export default async function ManageGigsPage() {
         ) : (
           <div className="divide-y divide-rule border-y border-rule">
             {gigs.map((gig) => {
-              const instrumentTags = visibleTags(gig.instruments ?? []);
-              const genreTags = visibleTags(gig.genres ?? []);
+              const instruments = tagLine(gig.instruments ?? []);
+              const genres = tagLine(gig.genres ?? []);
 
               return (
-                  <div key={gig.id} className="grid min-w-0 gap-5 bg-surface py-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)_auto] md:items-start md:px-4">
+                  <div key={gig.id} className="grid min-w-0 gap-5 py-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)_auto] md:items-start md:px-4">
                     <div className="flex min-w-0 items-start justify-between gap-4">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
@@ -60,39 +58,18 @@ export default async function ManageGigsPage() {
                         <h2 className="mt-2 break-words text-item-heading text-ink">
                           {gig.title}
                         </h2>
+                        <p className="mt-2 text-secondary text-muted">
+                          {compensationLabel(gig.compensationType)}
+                        </p>
                       </div>
-                      <Chip tone="gold">
-                        {compensationLabel(gig.compensationType)}
-                      </Chip>
                     </div>
 
                     <div>
                     <p className="text-secondary text-muted">
                       {clampText(gig.description, 160)}
                     </p>
-
-                    <div className="mt-4 space-y-2">
-                      <div className="flex flex-wrap gap-2">
-                        {instrumentTags.shown.map((name) => (
-                          <Chip key={`${gig.id}-i-${name}`}>
-                            {name}
-                          </Chip>
-                        ))}
-                        {instrumentTags.hiddenCount ? (
-                          <Chip>+{instrumentTags.hiddenCount} more</Chip>
-                        ) : null}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {genreTags.shown.map((name) => (
-                          <Chip key={`${gig.id}-g-${name}`}>
-                            {name}
-                          </Chip>
-                        ))}
-                        {genreTags.hiddenCount ? (
-                          <Chip>+{genreTags.hiddenCount} more</Chip>
-                        ) : null}
-                      </div>
-                    </div>
+                    {instruments ? <p className="mt-3 text-secondary text-ink">{instruments}</p> : null}
+                    {genres ? <p className="mt-1 text-secondary text-muted">{genres}</p> : null}
                     </div>
 
                     <div className="flex flex-wrap gap-2 md:max-w-44 md:flex-col">

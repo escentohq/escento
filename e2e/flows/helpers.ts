@@ -145,7 +145,7 @@ export async function createGig(
   await page.locator('textarea[name="description"]').fill(opts.description);
   await selectOptionStably(page, "projectType", opts.projectType ?? "FILM");
   await selectOptionStably(page, "compensationType", opts.compensationType ?? "PAID");
-  await page.getByRole("button", { name: "Publish Gig" }).click();
+  await page.getByRole("button", { name: "Publish gig" }).click();
   // Exclude the create page itself: the form lives at /gigs/create which also
   // matches /gigs/<id>, so without the negative lookahead waitForURL resolves
   // immediately and returns "create" instead of the real gig id.

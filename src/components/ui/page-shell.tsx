@@ -20,13 +20,13 @@ export function PageShell({
     <div className="bg-paper px-4 py-10 sm:px-6 md:py-14 lg:px-8 lg:py-16">
       <div className={`mx-auto w-full ${maxWidth}`}>
           <header className="mb-8 flex flex-col gap-6 border-b border-border-strong pb-8 md:mb-10 md:flex-row md:items-end md:justify-between">
-            <div className="min-w-0 border-l-4 border-brand pl-5 md:pl-6">
+            <div className="min-w-0">
               {eyebrow ? (
                 <span className="text-meta uppercase text-brand">
                   {eyebrow}
                 </span>
               ) : null}
-              <h1 className="mt-3 text-page-title text-ink">
+              <h1 className={`${eyebrow ? "mt-3" : ""} text-page-title text-ink`}>
                 {title}
               </h1>
               {body ? (

@@ -19,7 +19,10 @@ const siteUrl = SITE_URL;
 const siteDescription = SITE_DESCRIPTION;
 
 export const metadata: Metadata = {
-  title: "Escento | Find Musicians and Gigs",
+  title: {
+    default: "Escento | Find Musicians and Gigs",
+    template: "%s | Escento",
+  },
   description: siteDescription,
   metadataBase: new URL(siteUrl),
   applicationName: "Escento",

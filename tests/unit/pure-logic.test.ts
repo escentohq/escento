@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { parseAdminEmails } from "@/lib/admin-auth";
-import { clampText, compensationLabel, formatDate, projectTypeLabel, visibleTags } from "@/lib/display";
+import { clampText, compensationLabel, formatDate, projectTypeLabel, tagLine, visibleTags } from "@/lib/display";
 import {
   formLevelMessage,
   isValidEmail,
@@ -211,6 +211,9 @@ describe("display helpers", () => {
     expect(shown).toEqual(["a", "b", "c"]);
     expect(hiddenCount).toBe(2);
     expect(visibleTags(["a"], 3).hiddenCount).toBe(0);
+    expect(tagLine(["Piano", "Drums", "Vocals", "Bass"], 3)).toBe("Piano · Drums · Vocals · +1 more");
+    expect(tagLine(["Jazz"])).toBe("Jazz");
+    expect(tagLine([])).toBe("");
   });
 
   it("formats a date and tolerates null", () => {

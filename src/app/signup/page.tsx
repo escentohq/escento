@@ -1,9 +1,15 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 
 import { GoogleButton } from "@/app/signin/_google-button";
 import { getCurrentSession } from "@/lib/auth-guards";
 import { SignUpForm } from "./_signup-form";
+
+export const metadata: Metadata = {
+  title: "Create account",
+  description: "Create an Escento account with Google or email.",
+};
 
 function safeCallbackUrl(callbackUrl?: string) {
   if (!callbackUrl || !callbackUrl.startsWith("/") || callbackUrl.startsWith("//")) {
@@ -27,11 +33,8 @@ export default async function SignUpPage({
   return (
     <div className="bg-paper px-4 py-12 sm:px-6 md:py-20 lg:px-8">
       <div className="mx-auto grid w-full max-w-5xl gap-10 lg:grid-cols-[minmax(0,0.8fr)_minmax(22rem,1fr)] lg:gap-20">
-        <header className="border-t-4 border-brand pt-6">
-          <span className="text-meta uppercase text-brand">
-            New account
-          </span>
-          <h1 className="mt-3 text-page-title text-ink">
+        <header>
+          <h1 className="text-page-title text-ink">
             Create account
           </h1>
           <p className="mt-4 max-w-md text-body text-muted">
@@ -62,7 +65,7 @@ export default async function SignUpPage({
 
             <div className="flex items-center gap-4">
               <div className="h-px flex-1 bg-[#F1F5F9]" />
-              <span className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-[#64748B]">
+              <span className="text-meta uppercase text-muted">
               Or use email
               </span>
               <div className="h-px flex-1 bg-[#F1F5F9]" />
