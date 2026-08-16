@@ -56,7 +56,7 @@ export async function updateGigAction(
   // Only a *newly chosen* past deadline is rejected. A gig that has already
   // expired still has to be editable — otherwise fixing the deadline, or
   // anything else about the gig, would be blocked by the deadline itself.
-  const nextDeadline = toDeadlineDate(deadline);
+  const nextDeadline = toDeadlineDate(deadlineRaw);
   if (nextDeadline && nextDeadline !== toDeadlineDate(gig.deadline) && isDeadlinePast(nextDeadline)) {
     fieldError(fieldErrors, "deadline", "Choose today or a later date.");
   }
