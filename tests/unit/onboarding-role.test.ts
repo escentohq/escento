@@ -32,45 +32,16 @@ describe("role vocabulary", () => {
   });
 });
 
-/**
- * This used to concatenate every migration and grep the result, which could not
- * detect the change it was guarding: a later migration dropping the trigger left
- * the old file's text in the haystack and the test green. It now reads the one
- * migration that owns the invariant, by name.
- */
-describe("app_user role and capability invariants", () => {
+describe("app_user.role immutability invariant", () => {
   const migrationsDir = join(process.cwd(), "supabase", "migrations");
-  const CAPABILITY_MIGRATION = "20260816050844_dual_role_capabilities.sql";
+  const sql = readdirSync(migrationsDir)
+    .filter((file) => file.endsWith(".sql"))
+    .map((file) => readFileSync(join(migrationsDir, file), "utf8"))
+    .join("\n");
 
-  it("ships exactly one migration owning the trigger", () => {
-    const files = readdirSync(migrationsDir).filter((file) => file.endsWith(".sql"));
-    expect(files).toContain(CAPABILITY_MIGRATION);
-  });
-
-  const sql = readFileSync(join(migrationsDir, CAPABILITY_MIGRATION), "utf8");
-
-  it("keeps role immutable once assigned", () => {
+  it("ships a BEFORE UPDATE trigger on app_user that guards role", () => {
+    expect(sql).toContain("enforce_immutable_app_user_role");
+    expect(sql).toMatch(/BEFORE UPDATE ON "public"\."app_user"/i);
     expect(sql).toMatch(/OLD\.role IS NOT NULL AND NEW\.role IS DISTINCT FROM OLD\.role/i);
-  });
-
-  it("makes capabilities additive only", () => {
-    expect(sql).toMatch(/OLD\.is_musician AND NOT NEW\.is_musician/i);
-    expect(sql).toMatch(/OLD\.is_creator AND NOT NEW\.is_creator/i);
-  });
-
-  /** INSERT too, so claimRole's fallback insert path is covered without editing it. */
-  it("fires on insert as well as update, and derives capability from role", () => {
-    expect(sql).toMatch(/BEFORE INSERT OR UPDATE ON "public"\."app_user"/i);
-    expect(sql).toMatch(/NEW\.role = 'MUSICIAN' THEN NEW\.is_musician := true/i);
-    expect(sql).toMatch(/NEW\.role = 'CREATOR'\s+THEN NEW\.is_creator\s+:= true/i);
-  });
-
-  it("replaces the older single-role trigger rather than leaving both installed", () => {
-    expect(sql).toMatch(/DROP TRIGGER IF EXISTS "enforce_immutable_app_user_role"/i);
-  });
-
-  it("backfills existing accounts so no one loses access", () => {
-    expect(sql).toMatch(/SET "is_musician" = true WHERE "role" = 'MUSICIAN'/i);
-    expect(sql).toMatch(/SET "is_creator"\s+= true WHERE "role" = 'CREATOR'/i);
   });
 });

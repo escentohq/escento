@@ -46,7 +46,6 @@ const DEFAULT_GUARDS: Record<RouteAccess, string[]> = {
 export const ROUTE_INVENTORY: RouteEntry[] = [
   // ---- Public -----------------------------------------------------------
   { pattern: "/", access: "public", smokePath: "/" },
-  { pattern: "/about", access: "public", smokePath: "/about" },
   { pattern: "/privacy", access: "public", smokePath: "/privacy" },
   { pattern: "/terms", access: "public", smokePath: "/terms" },
   { pattern: "/compliance", access: "public", smokePath: "/compliance" },
@@ -83,7 +82,7 @@ export const ROUTE_INVENTORY: RouteEntry[] = [
     pattern: "/onboarding/role",
     access: "mixed",
     reason:
-      "Middleware bounces signed-out visitors to /signin. The page itself is the first-run picker, the add-a-capability confirm step (?add=), and a redirect once both capabilities are held. Covered by a dedicated smoke case.",
+      "Middleware bounces signed-out visitors to /signin; the page itself redirects home once a role exists. Covered by a dedicated smoke case.",
   },
 
   // ---- Protected ---------------------------------------------------------

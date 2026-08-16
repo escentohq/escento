@@ -15,7 +15,6 @@ const ROUTES: Array<{
   { path: "/", changeFrequency: "daily", priority: 1 },
   { path: "/musicians", changeFrequency: "daily", priority: 0.9 },
   { path: "/gigs", changeFrequency: "daily", priority: 0.9 },
-  { path: "/about", changeFrequency: "monthly", priority: 0.6 },
   { path: "/faq", changeFrequency: "monthly", priority: 0.7 },
   { path: "/help", changeFrequency: "yearly", priority: 0.4 },
   { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },

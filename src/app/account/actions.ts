@@ -2,7 +2,6 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { clearActiveViewCookie } from "@/lib/active-view";
 import { requireSignedIn } from "@/lib/auth-guards";
 import {
   ADMIN_CREDENTIALS_ERROR,
@@ -48,9 +47,6 @@ async function ensureProfilePicturesBucket() {
 export async function signOutAction(): Promise<void> {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
-  // The active view outlives the session cookie, so the next account to sign in
-  // on this browser would inherit the previous one's mode.
-  await clearActiveViewCookie();
   revalidatePath("/");
   redirect("/");
 }

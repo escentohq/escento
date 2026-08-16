@@ -9,10 +9,7 @@
 > What is stale here: the table is `app_user`, not `"user"`; `app_user` rows come
 > from the `handle_new_user()` trigger in the baseline migration, not from a
 > `src/lib/auth/sync-app-user.ts` file, which does not exist; and schema is no
-> longer applied by pasting SQL into the dashboard. The `role TEXT CHECK (...)`
-> below is also wrong — the real column is the `app_role` enum from the baseline
-> migration, and since issue #6 authorization reads `app_user.is_musician` /
-> `is_creator` rather than `role` at all.
+> longer applied by pasting SQL into the dashboard.
 >
 > **Current source of truth: `supabase/migrations/`.** Schema changes ship as
 > migration files, and `.github/workflows/schema-drift.yml` fails when the hosted

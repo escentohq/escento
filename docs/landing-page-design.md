@@ -1,17 +1,7 @@
 # Landing Page Design Doc
 
-> **Superseded. Kept for the rationale, not as a description of the code.**
->
-> Two things below are no longer true. The landing page is no longer at `/` — since issue #5, `/`
-> is the marketplace and the landing lives at `/about` (see
-> [`features/03-landing-page.md`](./features/03-landing-page.md)). And the cinematic-motion
-> direction was reversed by the 2026-08 UI overhaul: `ProductStory.tsx`, `TheCallsheet.tsx`, and
-> `StageLightsScene.tsx` were deleted, `framer-motion` / `gsap` / `lenis` / `three` were
-> uninstalled and are now blocked by `eslint.config.mjs`, and `HomeLanding.tsx` is a static Server
-> Component. For the current visual system read [`ai-context/DESIGN.md`](./ai-context/DESIGN.md).
-
 ## Purpose
-This document describes the landing page as it was originally implemented on `/`.
+This document describes the current production landing page for Escento as implemented on `/`.
 
 The goal of the landing page is to present Escento as a high-energy social platform for student musicians and creators, while keeping the primary actions obvious:
 

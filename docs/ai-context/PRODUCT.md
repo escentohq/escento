@@ -11,7 +11,7 @@ Tagline: **Take the Stage.**
 - **Musicians** create one public profile (profile picture, instruments, genres, location, availability, portfolio links, contact email).
 - **Creators** post structured gig listings (project type, requirements, location/remote, compensation, deadline) and receive connection requests from interested musicians.
 
-A `User` holds one or both capabilities (`MUSICIAN`, `CREATOR`). The first is chosen at onboarding and stored in the immutable `role` column; the other can be added later from `/onboarding/role?add=…`. Capabilities are additive: they can be granted, never removed. A dual account switches which mode it is acting in from the user menu, and that view is a display preference only.
+A `User` has exactly one `role` (`MUSICIAN` | `CREATOR`), chosen once at onboarding. There is no mechanism to switch or be both today.
 
 ## Personas
 
@@ -34,10 +34,9 @@ A `User` holds one or both capabilities (`MUSICIAN`, `CREATOR`). The first is ch
 
 | Feature | Route(s) | Auth | Role |
 |---|---|---|---|
-| Marketplace directory (musicians / gigs, `?view=`) | `/` | Optional | Any |
-| Editorial landing | `/about` | Optional | Any |
+| Landing with role-aware CTAs | `/` | Optional | Any |
 | Sign-in/sign-up (email/password + Google OAuth) | `/signin`, `/signup`, `/auth/callback` | — | — |
-| First capability, and adding the second | `/onboarding/role` | Required | Any |
+| Role selection (one-time) | `/onboarding/role` | Required | None → set |
 | Musician directory + filters | `/musicians` | Optional | Any |
 | Musician public profile | `/musicians/[id]` | Optional | Any |
 | Create musician profile | `/profile/create` | Required | `MUSICIAN` |
@@ -73,6 +72,7 @@ The following are **explicitly out of scope** for the MVP. Do not implement them
 - Keyword search input
 - `PortfolioItem` repeatable items (table exists in schema, **unused**)
 - `MusicianInstrument.proficiency` display (column exists, **unused**)
+- Multi-role users / role switching
 
 If a user request implies any of the above, **stop and confirm scope** before building.
 
@@ -85,7 +85,7 @@ If a user request implies any of the above, **stop and confirm scope** before bu
 - **ProjectType** (enum) — `FILM | LIVE_EVENT | PODCAST | GAME | YOUTUBE | OTHER`.
 - **CompensationType** (enum) — `PAID | UNPAID | NEGOTIABLE`.
 - **GigStatus** — `OPEN | CLOSED` (currently stored as text/string).
-- **UserRole** (enum) — `MUSICIAN | CREATOR`. Names both the immutable first claim (`app_user.role`) and each capability (`app_user.is_musician` / `is_creator`).
+- **UserRole** (enum) — `MUSICIAN | CREATOR`.
 
 ## Contact model
 

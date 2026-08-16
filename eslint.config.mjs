@@ -78,36 +78,6 @@ const eslintConfig = [
     files: [...SUPABASE_AUTH_PLUMBING, ...SUPABASE_LEGACY_EXCEPTIONS],
     rules: { "no-restricted-imports": "off" },
   },
-  {
-    /**
-     * Issue #6: the auth guards must not be able to see the active view.
-     *
-     * The view is a cookie the user controls. If a guard could read it,
-     * every `requireRole` call in the app would be bypassable by editing that
-     * cookie. Keeping the two in separate modules makes that property something
-     * a linter can check instead of something a reviewer has to notice.
-     *
-     * This block must come **after** the SUPABASE_AUTH_PLUMBING override above,
-     * which turns `no-restricted-imports` off for this file entirely. Flat config
-     * takes the last matching definition, and the Supabase patterns are
-     * deliberately absent here so that exemption survives.
-     */
-    files: ["src/lib/auth-guards.ts"],
-    rules: {
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: ["@/lib/active-view"],
-              message:
-                "The active view is a presentation preference. Authorizing on it would make every guard bypassable by editing a cookie (issue #6).",
-            },
-          ],
-        },
-      ],
-    },
-  },
 ];
 
 export default eslintConfig;
