@@ -11,12 +11,6 @@ import { ensureInstruments, ensureGenres } from "./tags";
 import type { Gig, CreateGigInput, UpdateGigInput } from "./types";
 import { toGig, type GigCreatorSummary } from "./normalizers";
 
-function firstError(
-  results: Array<{ error: unknown | null }>,
-): unknown | null {
-  return results.find((result) => result.error)?.error ?? null;
-}
-
 function normalizeDeadline(deadline: Date | string | null | undefined): string | null {
   if (!deadline) return null;
   if (typeof deadline === "string") return deadline;
@@ -258,6 +252,84 @@ export async function listGigsByCreator(creatorId: string): Promise<Gig[]> {
   return withCreatorSummaries(data || []);
 }
 
+
+/**
+ * camelCase input → the snake_case column names the RPCs merge into the row.
+ * Only keys the caller supplied are included: the update RPC treats a present
+ * key as "write this" (explicit nulls included) and an absent key as "keep the
+ * stored value".
+ */
+function gigColumnPayload(input: Partial<CreateGigInput & UpdateGigInput>): Record<string, unknown> {
+  const pairs: Array<[string, unknown]> = [
+    ["title", input.title],
+    ["description", input.description],
+    ["project_type", input.projectType],
+    ["location", input.location],
+    ["location_display_name", input.locationDisplayName],
+    ["location_place_id", input.locationPlaceId],
+    ["location_lat", input.locationLat],
+    ["location_lng", input.locationLng],
+    ["location_city", input.locationCity],
+    ["location_state", input.locationState],
+    ["location_country", input.locationCountry],
+    ["location_provider", input.locationProvider],
+    ["provider_place_id", input.providerPlaceId],
+    ["location_visibility", input.locationVisibility],
+    ["is_remote", input.isRemote],
+    ["compensation_type", input.compensationType],
+    ["compensation_details", input.compensationDetails],
+    ["deadline", input.deadline === undefined ? undefined : normalizeDeadline(input.deadline)],
+    ["status", input.status],
+  ];
+
+  const payload: Record<string, unknown> = {};
+  for (const [column, value] of pairs) {
+    if (value !== undefined) payload[column] = value;
+  }
+  return payload;
+}
+
+/** The RPCs return the gig row itself, so the shape matches a table read. */
+function gigFromRow(row: Record<string, any>, instruments: string[], genres: string[]): Gig {
+  return {
+    id: row.id,
+    creatorId: row.creator_id,
+    title: row.title,
+    description: row.description,
+    projectType: row.project_type,
+    location: row.location,
+    locationDisplayName: row.location_display_name,
+    locationPlaceId: row.location_place_id,
+    locationLat: row.location_lat,
+    locationLng: row.location_lng,
+    locationCity: row.location_city,
+    locationState: row.location_state,
+    locationCountry: row.location_country,
+    locationProvider: row.location_provider,
+    providerPlaceId: row.provider_place_id,
+    locationVisibility: row.location_visibility ?? "public_region",
+    isRemote: row.is_remote,
+    distanceMiles: null,
+    compensationType: row.compensation_type,
+    compensationDetails: row.compensation_details,
+    deadline: row.deadline,
+    status: row.status,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    instruments,
+    genres,
+  };
+}
+
+/**
+ * Publish a gig and its taxonomy in one database transaction
+ * (`create_gig_with_tags`). The root row used to commit as OPEN — and therefore
+ * discoverable — before any junction row was written, so a failure in between
+ * published a gig with none of the instruments or genres it was posted for.
+ *
+ * Tag rows themselves are ensured beforehand: they are shared reference data,
+ * and an orphan tag name is not partial user state.
+ */
 export async function createGig(
   creatorId: string,
   input: CreateGigInput,
@@ -270,82 +342,27 @@ export async function createGig(
     ensureGenres(genreNames, creatorId),
   ]);
 
-  const { data: gig, error: gigError } = await supabase
-    .from("gig")
-    .insert({
-      creator_id: creatorId,
-      title: input.title,
-      description: input.description,
-      project_type: input.projectType,
-      location: input.location,
-      location_display_name: input.locationDisplayName,
-      location_place_id: input.locationPlaceId,
-      location_lat: input.locationLat,
-      location_lng: input.locationLng,
-      location_city: input.locationCity,
-      location_state: input.locationState,
-      location_country: input.locationCountry,
-      location_provider: input.locationProvider,
-      provider_place_id: input.providerPlaceId,
-      location_visibility: input.locationVisibility,
-      is_remote: input.isRemote,
-      compensation_type: input.compensationType,
-      compensation_details: input.compensationDetails,
-      deadline: normalizeDeadline(input.deadline),
-      status: "OPEN",
-    })
-    .select()
-    .single();
+  const { data, error } = await supabase.rpc("create_gig_with_tags", {
+    p_gig: gigColumnPayload(input),
+    p_instrument_ids: instruments.map((tag) => tag.id),
+    p_genre_ids: genres.map((tag) => tag.id),
+  });
 
-  if (gigError) throw gigError;
+  if (error) throw error;
+  if (!data) throw new Error("Gig create returned no row.");
 
-  const junctionResults = await Promise.all([
-    ...instruments.map((inst) =>
-      supabase.from("gig_instrument").insert({
-        gig_id: gig.id,
-        instrument_id: inst.id,
-      })
-    ),
-    ...genres.map((genre) =>
-      supabase.from("gig_genre").insert({
-        gig_id: gig.id,
-        genre_id: genre.id,
-      })
-    ),
-  ]);
-  const junctionError = firstError(junctionResults);
-  if (junctionError) throw junctionError;
-
-  return {
-    id: gig.id,
-    creatorId: gig.creator_id,
-    title: gig.title,
-    description: gig.description,
-    projectType: gig.project_type,
-    location: gig.location,
-    locationDisplayName: gig.location_display_name,
-    locationPlaceId: gig.location_place_id,
-    locationLat: gig.location_lat,
-    locationLng: gig.location_lng,
-    locationCity: gig.location_city,
-    locationState: gig.location_state,
-    locationCountry: gig.location_country,
-    locationProvider: gig.location_provider,
-    providerPlaceId: gig.provider_place_id,
-    locationVisibility: gig.location_visibility ?? "public_region",
-    isRemote: gig.is_remote,
-    distanceMiles: null,
-    compensationType: gig.compensation_type,
-    compensationDetails: gig.compensation_details,
-    deadline: gig.deadline,
-    status: gig.status,
-    createdAt: gig.created_at,
-    updatedAt: gig.updated_at,
-    instruments: instrumentNames,
-    genres: genreNames,
-  };
+  return gigFromRow(data as Record<string, any>, instrumentNames, genreNames);
 }
 
+/**
+ * Update a gig and, when tag lists are supplied, replace its taxonomy — both in
+ * one transaction (`update_gig_with_tags`). The old sequence deleted every
+ * junction row before touching the root, so a later failure left a live gig with
+ * no tags while the UI said the save had failed.
+ *
+ * Ownership is enforced inside the function; this path previously relied on RLS
+ * alone and silently updated nothing when it did not match.
+ */
 export async function updateGig(
   id: string,
   input: UpdateGigInput,
@@ -355,76 +372,32 @@ export async function updateGig(
 ): Promise<Gig> {
   const supabase = await createSupabaseServerClient();
 
-  const updateData: Record<string, any> = {};
-  if (input.title !== undefined) updateData.title = input.title;
-  if (input.description !== undefined) updateData.description = input.description;
-  if (input.projectType !== undefined) updateData.project_type = input.projectType;
-  if (input.location !== undefined) updateData.location = input.location;
-  if (input.locationDisplayName !== undefined) updateData.location_display_name = input.locationDisplayName;
-  if (input.locationPlaceId !== undefined) updateData.location_place_id = input.locationPlaceId;
-  if (input.locationLat !== undefined) updateData.location_lat = input.locationLat;
-  if (input.locationLng !== undefined) updateData.location_lng = input.locationLng;
-  if (input.locationCity !== undefined) updateData.location_city = input.locationCity;
-  if (input.locationState !== undefined) updateData.location_state = input.locationState;
-  if (input.locationCountry !== undefined) updateData.location_country = input.locationCountry;
-  if (input.locationProvider !== undefined) updateData.location_provider = input.locationProvider;
-  if (input.providerPlaceId !== undefined) updateData.provider_place_id = input.providerPlaceId;
-  if (input.locationVisibility !== undefined) updateData.location_visibility = input.locationVisibility;
-  if (input.isRemote !== undefined) updateData.is_remote = input.isRemote;
-  if (input.compensationType !== undefined) updateData.compensation_type = input.compensationType;
-  if (input.compensationDetails !== undefined) updateData.compensation_details = input.compensationDetails;
-  if (input.deadline !== undefined) updateData.deadline = normalizeDeadline(input.deadline);
-  if (input.status !== undefined) updateData.status = input.status;
+  const [instruments, genres] = await Promise.all([
+    instrumentNames ? ensureInstruments(instrumentNames, creatorId) : Promise.resolve(null),
+    genreNames ? ensureGenres(genreNames, creatorId) : Promise.resolve(null),
+  ]);
 
-  if (instrumentNames || genreNames) {
-    const deleteResults = await Promise.all([
-      supabase.from("gig_instrument").delete().eq("gig_id", id),
-      supabase.from("gig_genre").delete().eq("gig_id", id),
-    ]);
-    const deleteError = firstError(deleteResults);
-    if (deleteError) throw deleteError;
-  }
+  const { error } = await supabase.rpc("update_gig_with_tags", {
+    p_id: id,
+    p_gig: gigColumnPayload(input),
+    p_instrument_ids: instruments ? instruments.map((tag) => tag.id) : null,
+    p_genre_ids: genres ? genres.map((tag) => tag.id) : null,
+  });
 
-  const { error: updateError } = await supabase
-    .from("gig")
-    .update(updateData)
-    .eq("id", id);
+  if (error) throw error;
 
-  if (updateError) throw updateError;
-
-  if (instrumentNames || genreNames) {
-    const [instruments, genres] = await Promise.all([
-      instrumentNames ? ensureInstruments(instrumentNames, creatorId) : Promise.resolve([]),
-      genreNames ? ensureGenres(genreNames, creatorId) : Promise.resolve([]),
-    ]);
-
-    const junctionResults = await Promise.all([
-      ...instruments.map((inst) =>
-        supabase.from("gig_instrument").insert({
-          gig_id: id,
-          instrument_id: inst.id,
-        })
-      ),
-      ...genres.map((genre) =>
-        supabase.from("gig_genre").insert({
-          gig_id: id,
-          genre_id: genre.id,
-        })
-      ),
-    ]);
-    const junctionError = firstError(junctionResults);
-    if (junctionError) throw junctionError;
-  }
-
-  const { data, error } = await supabase
+  // Read the committed row back with its joins so callers get the same shape a
+  // page read produces, including tags they did not just write.
+  const { data, error: readError } = await supabase
     .from("gig")
     .select(GIG_SELECT)
     .eq("id", id)
     .single();
 
-  if (error) throw error;
+  if (readError) throw readError;
   return toGig(data);
 }
+
 
 export async function closeGig(id: string): Promise<void> {
   const supabase = await createSupabaseServerClient();
