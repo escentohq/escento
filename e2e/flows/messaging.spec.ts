@@ -6,6 +6,7 @@ import {
   createMusicianProfile,
   newContextPage,
   newMusicianWithProfile,
+  sendConnectRequest,
   signUp,
 } from "./helpers";
 
@@ -35,9 +36,10 @@ test("connection request, accept, and two-way messaging", async ({ browser }) =>
   await chooseRole(pageA, "MUSICIAN");
   await createMusicianProfile(pageA, `Requester ${Date.now().toString(36)}`);
 
-  // A sends a connection request from B's public profile.
-  await pageA.goto(`/musicians/${bProfileId}`);
-  await clickUntil(pageA.getByRole("button", { name: "Connect" }), pageA.getByText("Pending"));
+  // A sends a connection request from B's public profile. The helper waits for
+  // the Server Action's POST, not just the optimistic "Pending", so B's request
+  // list below is guaranteed to have something in it.
+  await sendConnectRequest(pageA, bProfileId);
 
   // B accepts the incoming request and lands in the new conversation.
   await pageB.goto("/messages/requests");
