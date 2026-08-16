@@ -1,19 +1,19 @@
 name: CI
 
-# Gates every PR and every push, including `main`, with:
-#   - `quality`  : lint, typecheck, unit suite, production build
-#   - `write-flows`: the Playwright write-flow suite, sharded, each shard against
-#                    its own ephemeral local Supabase stack
+# The fast lane. Gates every PR and every push to `main` with `quality`: lint,
+# typecheck, the unit suite, and a production build — about 90 seconds.
 #
-# Neither job needs a repository secret — the write-flow shards spin up their own
-# Supabase — so forked PRs are gated the same way.
+# The write-flow Playwright suite used to run here too, sharded, and cost ~13
+# minutes of wall clock on every commit. It now lives in `write-flows.yml` and
+# runs on demand: Actions -> Write-flow E2E -> Run workflow. Run it by hand
+# before merging anything touching auth, messaging, gigs, moderation, or
+# src/lib/api/ — nothing in this workflow can see those regressions.
 #
-# `write-flows-complete` is the job to mark as a required status check: it stays
-# green when the shards are legitimately skipped (docs-only change) and turns red
-# the moment any shard fails, so a required check can never be silently skipped.
-#
-# Manual runs: Actions tab -> CI -> "Run workflow". Untick "run_write_flows" for
-# a fast quality-only pass.
+# What that trades away: a PR can be green here and still break a write flow.
+# The unit suite covers the repo invariants that used to justify the wait — the
+# route-guard inventory, the env contract, the frozen globals.css, the service
+# normalizers — so this is not the only thing standing between a bad PR and
+# `main`, but it is no longer sufficient on its own.
 on:
   pull_request:
   # Only `main` here. A branch push is already covered by its pull request, and
@@ -21,11 +21,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      run_write_flows:
-        description: "Run the database write-flow E2E suite (slower)"
-        type: boolean
-        default: true
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -38,48 +33,6 @@ env:
   NPM_CONFIG_FUND: "false"
 
 jobs:
-  # Decides whether the expensive suite has anything to verify. Kept as its own
-  # tiny job so the answer is visible in the run summary rather than buried in a
-  # step condition.
-  changes:
-    name: Detect changed surfaces
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    outputs:
-      code: ${{ steps.filter.outputs.code }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - id: filter
-        name: Does this change touch anything runnable?
-        run: |
-          set -euo pipefail
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            base="origin/${{ github.base_ref }}"
-            git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
-            files=$(git diff --name-only "$base"...HEAD)
-          elif [ -n "${{ github.event.before }}" ] && git cat-file -e "${{ github.event.before }}" 2>/dev/null; then
-            files=$(git diff --name-only "${{ github.event.before }}" HEAD)
-          else
-            # First push on a branch, or a force push that orphaned the old tip —
-            # no reliable base, so assume everything changed.
-            files="__unknown__"
-          fi
-
-          echo "Changed files:"
-          echo "$files"
-
-          # Docs and research are the only things that can skip the suite. The
-          # default is to run it: an unrecognised path counts as code.
-          if echo "$files" | grep -qvE '^(docs/|README\.md$|LICENSE$|\.github/ISSUE_TEMPLATE/)'; then
-            echo "code=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "code=false" >> "$GITHUB_OUTPUT"
-            echo "Docs-only change — write flows will be skipped."
-          fi
-
   quality:
     name: Lint, typecheck, unit, build
     runs-on: ubuntu-latest
@@ -132,196 +85,3 @@ jobs:
           RESEND_API_KEY: re_placeholder
           SUPPORT_FROM_EMAIL: "Escento Support <support@example.test>"
           GEOAPIFY_API_KEY: placeholder
-
-  write-flows:
-    name: Write-flow E2E ${{ matrix.shard }}/3
-    needs: changes
-    if: >-
-      needs.changes.outputs.code == 'true' &&
-      (github.event_name != 'workflow_dispatch' || inputs.run_write_flows)
-    runs-on: ubuntu-latest
-    # Each shard boots its own Supabase stack, builds, and runs its slice. Thirty
-    # minutes is roughly 2x the observed worst case, so a stack that never comes
-    # up dies here instead of burning a runner.
-    timeout-minutes: 30
-    strategy:
-      # Fail fast: the first failing shard cancels the other two. The signal we
-      # act on is "the suite is red", and we get it in the time of the fastest
-      # failure rather than the slowest shard. The trade is that a second,
-      # unrelated failure in another shard is not surfaced in the same run — it
-      # shows up on the next run once the first is fixed.
-      fail-fast: true
-      matrix:
-        shard: [1, 2, 3]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
-
-      - name: Set up Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
-
-      # `supabase start` pulls and boots ~10 containers and needs nothing from
-      # the repo's dependencies, so it runs concurrently with npm ci, the browser
-      # install, and the Next build instead of in front of them. This overlap is
-      # the single largest saving in this job.
-      - name: Start local Supabase (background)
-        run: |
-          nohup supabase start > /tmp/supabase-start.log 2>&1 &
-          echo $! > /tmp/supabase.pid
-
-      - run: npm ci --prefer-offline
-
-      # Playwright re-downloaded the browser on every run. The cache key is the
-      # resolved Playwright version, so a dependency bump invalidates it.
-      - name: Resolve Playwright version
-        id: pw
-        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Playwright browsers
-        id: pw-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
-
-      # System deps come from apt and are not cacheable, so they are only paid
-      # for on a cache miss; the browser binary itself is what the cache holds.
-      - name: Install Playwright browser
-        run: |
-          if [ "${{ steps.pw-cache.outputs.cache-hit }}" = "true" ]; then
-            npx playwright install chromium
-          else
-            npx playwright install --with-deps chromium
-          fi
-
-      - name: Cache Next.js build cache
-        uses: actions/cache@v4
-        with:
-          path: .next/cache
-          key: nextjs-e2e-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
-          restore-keys: |
-            nextjs-e2e-${{ hashFiles('package-lock.json') }}-
-            nextjs-e2e-
-
-      - name: Wait for local Supabase
-        run: |
-          set -euo pipefail
-          # `supabase status` exits 0 while the stack is still coming up, printing
-          # a partial block with no API_URL in it. Readiness is therefore the
-          # presence of the keys we need, not the exit code — waiting on the exit
-          # code alone left API_URL unbound and failed the job under `set -u`.
-          ready=""
-          for _ in $(seq 1 60); do
-            supabase status -o env > /tmp/supabase.env 2>/dev/null || true
-            if grep -q '^API_URL=' /tmp/supabase.env 2>/dev/null \
-              && grep -q '^ANON_KEY=' /tmp/supabase.env \
-              && grep -q '^SERVICE_ROLE_KEY=' /tmp/supabase.env; then
-              ready="yes"
-              break
-            fi
-            sleep 5
-          done
-
-          if [ -z "$ready" ]; then
-            echo "::error title=Supabase never became ready::supabase start did not report API_URL, ANON_KEY and SERVICE_ROLE_KEY within 5 minutes."
-            echo "--- last status output ---"
-            cat /tmp/supabase.env || true
-            echo "--- supabase start log ---"
-            cat /tmp/supabase-start.log || true
-            docker ps -a || true
-            exit 1
-          fi
-
-          # The block is KEY="value" lines (valid shell assignments), so sourcing
-          # it is the robust way to read the values.
-          source /tmp/supabase.env
-          {
-            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
-            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
-            echo "SUPABASE_SERVICE_ROLE_KEY=$SERVICE_ROLE_KEY"
-          } >> "$GITHUB_ENV"
-
-      # Built here rather than inside the Playwright webServer command so the
-      # build is a named, separately-timed step and the test step starts a server
-      # that is already compiled.
-      - name: Build against the local stack
-        run: npm run build
-        env:
-          NEXT_PUBLIC_APP_URL: http://localhost:3100
-          ADMIN_EMAILS: admin@example.test
-          SUPPORT_EMAIL: support@example.test
-          ESCENTO_SUPPORT_ACCOUNT_EMAIL: support@example.test
-          SUPPORT_FROM_EMAIL: "Escento Support <support@example.test>"
-          GEOAPIFY_API_KEY: placeholder
-
-      # The pgTAP policy tests check the database, not the app, so the answer is
-      # identical on every shard. Running them once keeps two shards from paying
-      # for a third copy of the same result.
-      - name: Run database policy tests
-        if: matrix.shard == 1
-        run: supabase test db
-
-      # The moderation spec used to get its own invocation here. Sharding already
-      # runs it exactly once, and a second run per push is the duplicated work
-      # this pipeline is trying to remove.
-      - name: Run write-flow E2E (shard ${{ matrix.shard }}/3)
-        run: npm run test:e2e:write -- --shard=${{ matrix.shard }}/3
-        env:
-          # The build above is current; the managed server skips rebuilding it.
-          E2E_PREBUILT: "1"
-
-      - name: Upload Playwright report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-write-report-shard-${{ matrix.shard }}
-          path: playwright-report/
-          retention-days: 7
-
-      # `supabase logs` was removed from the CLI, so the old step printed a usage
-      # error instead of logs. Go to the container directly.
-      - name: Dump Supabase database logs on failure
-        if: failure()
-        run: |
-          docker ps -a || true
-          docker logs --tail 200 "$(docker ps -aqf name=supabase_db)" 2>&1 || true
-
-      - name: Stop local Supabase
-        if: always()
-        run: supabase stop || true
-
-  # The status check to require on `main`. A skipped matrix job reports neither
-  # success nor failure, so requiring the shards directly would let a docs-only
-  # PR sit forever pending — and would let a cancelled shard read as "not failed".
-  # This gate is explicit about which of those outcomes is acceptable.
-  write-flows-complete:
-    name: Write-flow E2E
-    needs: [changes, write-flows]
-    if: always()
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Check shard results
-        run: |
-          result="${{ needs.write-flows.result }}"
-          echo "write-flows result: $result"
-          case "$result" in
-            success) echo "All shards passed." ;;
-            skipped)
-              if [ "${{ needs.changes.outputs.code }}" = "true" ]; then
-                echo "::error title=Write flows skipped on a code change::The suite must run whenever code changes."
-                exit 1
-              fi
-              echo "Docs-only change — nothing to run."
-              ;;
-            *)
-              echo "::error title=Write flows did not pass::result=$result"
-              exit 1
-              ;;
-          esac

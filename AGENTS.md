@@ -167,6 +167,8 @@ Several rules above stopped being prose. They now fail a build, with the rule na
 
 **Adding a route means classifying it in `e2e/route-inventory.ts`.** That file is the single place declaring whether a signed-out visitor may load a page; the unit suite checks it against the files on disk, and the smoke suite derives its expectations from it.
 
+Everything in that table runs in `ci.yml`, automatically, in about 90 seconds. **The write-flow E2E suite does not.** It is manual — Actions → Write-flow E2E → Run workflow — so a green PR check has verified nothing about auth, messaging, gigs, or moderation actually working end to end. Trigger it yourself when your change touches those, or run `npm run test:e2e:write` locally with Docker running.
+
 ---
 
 ## UI foundation notice

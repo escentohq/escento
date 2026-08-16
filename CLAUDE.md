@@ -28,11 +28,21 @@ Three layers, in order of what they cost:
 
 - **`test:unit`** (`tests/unit/`) is pure logic plus the checks that read the repo itself: the route-guard inventory, the `.env.example` contract, the frozen `globals.css`, and the service-layer normalizers. It runs in the `quality` CI job alongside lint, because none of it needs a browser.
 - **`test:e2e`** (`e2e/smoke.spec.ts`) is signed-out and read-only, safe against a live deployment. Its path lists come from `e2e/route-inventory.ts`.
-- **`test:e2e:write`** (`e2e/flows/`) drives the real mutation flows against the guarded local Supabase setup in `playwright.write.config.ts`; never point it at hosted Supabase. CI runs it in 3 shards, each with its own ephemeral stack.
+- **`test:e2e:write`** (`e2e/flows/`) drives the real mutation flows against the guarded local Supabase setup in `playwright.write.config.ts`; never point it at hosted Supabase.
 
 **Adding a route requires classifying it in `e2e/route-inventory.ts`.** The unit suite enumerates `src/app/**/page.tsx` and fails, naming the file, if a route is unclassified — or if a route classified `protected`/`admin` no longer calls an auth guard.
 
 Verification is `lint` + `typecheck` + `test:unit` + `build`, plus manual browser checks for UI work.
+
+### What CI runs, and what it does not
+
+`ci.yml` is the only automatic gate on a PR: lint, typecheck, unit, build — about 90 seconds. `secret-scan.yml` runs alongside it. A push to `main` also deploys production.
+
+The write-flow suite is **manual**: `write-flows.yml`, triggered from Actions → Write-flow E2E → Run workflow. Three shards, each booting its own ephemeral Supabase stack, ~13 minutes. It ran on every commit and the cost was that the 90-second answer arrived behind it. Run it by hand before merging anything touching auth, messaging, gigs, moderation, or `src/lib/api/` — a green `ci.yml` says nothing about those flows. `schema-drift.yml` (daily) and `deploy-preview.yml` are likewise on demand.
+
+Neither Playwright suite retries in CI, and both stop at the first failure (`retries: 0`, `maxFailures: 1`). A test that only passes on a second attempt is a failure — fix the flake rather than re-running.
+
+Five write-flow tests are quarantined with `test.skip`, all tracked by #41. Do not add to that list without an issue; unskipping is part of the fix.
 
 ---
 
