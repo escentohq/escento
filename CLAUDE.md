@@ -49,7 +49,9 @@ The write-flow suite is **manual**: `write-flows.yml`, triggered from Actions �
 
 Neither Playwright suite retries in CI, and both stop at the first failure (`retries: 0`, `maxFailures: 1`). A test that only passes on a second attempt is a failure — fix the flake rather than re-running.
 
-Five write-flow tests are quarantined with `test.skip`, all tracked by #41. Do not add to that list without an issue; unskipping is part of the fix.
+No write-flow test is quarantined. `test.skip` in `e2e/flows/` needs an open issue and a stated reason — the last four skips were left behind when #41 closed, and three of them were passing by the time anyone looked (#70). A skip that outlives its cause silently removes a required flow from the suite.
+
+Dispatching the workflow with `shards: 1` runs the whole suite unsharded in one process against one database. That is the stricter check and the one to run before a pilot-sensitive merge; see `docs/DEPLOYMENT.md`.
 
 ---
 

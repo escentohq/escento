@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { sendConnectionRequest } from "@/app/messages/actions";
+import { invalidateContactContext } from "@/components/messaging/contact-context";
 import type {
   MessagingBlockStatus,
   MessagingRelationship,
@@ -31,8 +32,24 @@ export function ConnectButton({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [state, setState] = useState<MessagingRelationship | null>(relationship);
   const [error, setError] = useState<string | null>(null);
+
+  // `relationship` is not available on the first render. The contact context is
+  // fetched client side, so this component mounts with `null` and receives the
+  // real value a moment later. Seeding `useState(relationship)` therefore froze
+  // it on `null` forever, and every returning visitor saw a fresh Connect button
+  // instead of Pending, Message, or Respond to request.
+  //
+  // Keep the optimistic value separate from the server value and re-sync when
+  // the server value changes, rather than deriving one from the other once.
+  const [optimistic, setOptimistic] = useState<MessagingRelationship | null>(null);
+  const [lastRelationship, setLastRelationship] = useState(relationship);
+  if (relationship !== lastRelationship) {
+    setLastRelationship(relationship);
+    setOptimistic(null);
+  }
+
+  const state = optimistic ?? relationship;
 
   if (!signedIn) {
     return (
@@ -104,9 +121,8 @@ export function ConnectButton({
 
   function connect() {
     setError(null);
-    const previous = state;
     const now = new Date().toISOString();
-    setState({
+    setOptimistic({
       status: "pending_outgoing",
       request: {
         id: `optimistic-${Date.now()}`,
@@ -123,10 +139,14 @@ export function ConnectButton({
     startTransition(async () => {
       try {
         const request = await sendConnectionRequest(recipientId, introMessage);
-        setState({ status: "pending_outgoing", request });
+        setOptimistic({ status: "pending_outgoing", request });
+        // The context fetch is memoised per recipient for the lifetime of the
+        // module, so without this the next mount would replay the pre-request
+        // answer and show Connect again.
+        invalidateContactContext(recipientId);
         router.refresh();
       } catch {
-        setState(previous);
+        setOptimistic(null);
         setError("Could not send this request.");
       }
     });

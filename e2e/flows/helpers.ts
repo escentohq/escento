@@ -232,13 +232,26 @@ export async function clickUntil(trigger: Locator, settled: Locator): Promise<vo
   }).toPass({ timeout: 30_000 });
 }
 
-/** Send a connection request to a musician from their public profile. */
+/**
+ * Send a connection request to a musician from their public profile, and do not
+ * return until the server has accepted it.
+ *
+ * "Pending" appears optimistically the instant the button is clicked, so waiting
+ * only for that would let a caller move on before the row exists. The next step
+ * is usually the recipient loading /messages/requests, which then renders an
+ * empty list, and the failure surfaces 90 seconds later as a timeout clicking an
+ * Accept button that was never going to be there. Awaiting the Server Action's
+ * POST alongside the click makes the handoff a fact rather than a race.
+ */
 export async function sendConnectRequest(page: Page, profileId: string): Promise<void> {
   await page.goto(`/musicians/${profileId}`);
-  await clickUntil(
-    page.getByRole("button", { name: "Connect", exact: true }),
-    page.getByText("Pending"),
-  );
+  await Promise.all([
+    page.waitForResponse((r) => r.request().method() === "POST" && r.status() < 400),
+    clickUntil(
+      page.getByRole("button", { name: "Connect", exact: true }),
+      page.getByText("Pending"),
+    ),
+  ]);
 }
 
 /** Sign out from the account menu and land back on the homepage. */

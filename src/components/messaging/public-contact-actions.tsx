@@ -4,38 +4,8 @@ import { useEffect, useState } from "react";
 
 import { BlockUserButton } from "@/components/messaging/block-user-button";
 import { ConnectButton } from "@/components/messaging/connect-button";
+import { loadContactContext, type ContactContext as Context } from "@/components/messaging/contact-context";
 import { ReportButton } from "@/components/reports/report-button";
-import type { MessagingBlockStatus, MessagingRelationship } from "@/lib/api/types";
-
-type Context = {
-  signedIn: boolean;
-  currentUserId?: string;
-  role?: string | null;
-  relationship?: MessagingRelationship | null;
-  blockStatus?: MessagingBlockStatus | null;
-  unavailable?: boolean;
-};
-
-// A page can mount several of these for the same recipient (contact panel + report
-// button), and each mount otherwise fired its own uncached request. Share the in-flight
-// promise per recipient, the way navigation-state.ts does for identity.
-const contextRequests = new Map<string, Promise<Context>>();
-
-function loadContactContext(recipientId: string) {
-  const existing = contextRequests.get(recipientId);
-  if (existing) return existing;
-
-  const request = fetch(`/api/messaging/context?recipientId=${encodeURIComponent(recipientId)}`, { cache: "no-store" })
-    .then(async (response) => response.ok ? response.json() as Promise<Context> : Promise.reject())
-    .catch((): Context => {
-      // Don't cache a failure — the next mount should be able to retry.
-      contextRequests.delete(recipientId);
-      return { signedIn: false, unavailable: true };
-    });
-
-  contextRequests.set(recipientId, request);
-  return request;
-}
 
 function useContactContext(recipientId: string) {
   const [context, setContext] = useState<Context | null>(null);

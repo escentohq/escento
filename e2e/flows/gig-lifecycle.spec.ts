@@ -72,10 +72,7 @@ test.describe("gig lifecycle", () => {
     await expect(page.getByText(title).first()).toBeVisible();
   });
 
-  // QUARANTINED — see #41. Fails on `main` on both attempts, not flake: the
-  // mutation reaches the server but the client never reflects it. Skipped so a
-  // red suite means a NEW regression; unskip with the fix in #41.
-  test.skip("deleting a gig removes it from management", async ({ page }) => {
+  test("deleting a gig removes it from management", async ({ page }) => {
     const title = `Delete Me ${stamp()}`;
     await signUpAs(page, "CREATOR", "gig-del");
     await createGig(page, { title, description: "A gig to delete in an automated test." });

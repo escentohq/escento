@@ -1,38 +1,45 @@
-import { test, expect, type Browser, type Page } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
-import { signUp, chooseRole, clickUntil, createMusicianProfile } from "./helpers";
+import {
+  chooseRole,
+  clickUntil,
+  createMusicianProfile,
+  newContextPage,
+  newMusicianWithProfile,
+  sendConnectRequest,
+  signUp,
+} from "./helpers";
 
 /**
  * Full messaging write flow across two isolated browser contexts (two real
  * users): connection request -> accept -> send -> cross-user receive on first
  * load, plus a reply from the second participant into the shared thread.
- *
- * QUARANTINED — see #41. Fails on `main` on both attempts, not flake: the
- * mutation reaches the server but the client never reflects it. Skipped so a red
- * suite means a NEW regression; unskip with the fix in #41.
  */
-async function newUserPage(browser: Browser): Promise<Page> {
-  const context = await browser.newContext();
-  return context.newPage();
-}
-
-test.skip("connection request, accept, and two-way messaging", async ({ browser }) => {
+test("connection request, accept, and two-way messaging", async ({ browser }) => {
   // ── User B: musician with a public profile (the recipient) ──
-  const pageB = await newUserPage(browser);
-  await signUp(pageB, "msg-b");
-  await chooseRole(pageB, "MUSICIAN");
-  const bDisplayName = `Recipient ${Date.now().toString(36)}`;
-  const bProfileId = await createMusicianProfile(pageB, bDisplayName);
+  //
+  // B has to be *launch ready*, not merely saved. Since issue #28 a profile with
+  // only a display name is a draft: its owner can see and resume it, but it is
+  // not anonymous inventory, so A would get a 404 here instead of a Connect
+  // button. This test predates that rule and was quarantined rather than updated.
+  const { page: pageB, profileId: bProfileId } = await newMusicianWithProfile(
+    browser,
+    "msg-b",
+    `Recipient ${Date.now().toString(36)}`,
+  );
 
   // ── User A: musician who initiates the connection (the requester) ──
-  const pageA = await newUserPage(browser);
+  // A's own profile stays a draft on purpose: nobody has to look at it, and it
+  // keeps this test honest about which profile needs to be public.
+  const pageA = await newContextPage(browser);
   await signUp(pageA, "msg-a");
   await chooseRole(pageA, "MUSICIAN");
   await createMusicianProfile(pageA, `Requester ${Date.now().toString(36)}`);
 
-  // A sends a connection request from B's public profile.
-  await pageA.goto(`/musicians/${bProfileId}`);
-  await clickUntil(pageA.getByRole("button", { name: "Connect" }), pageA.getByText("Pending"));
+  // A sends a connection request from B's public profile. The helper waits for
+  // the Server Action's POST, not just the optimistic "Pending", so B's request
+  // list below is guaranteed to have something in it.
+  await sendConnectRequest(pageA, bProfileId);
 
   // B accepts the incoming request and lands in the new conversation.
   await pageB.goto("/messages/requests");

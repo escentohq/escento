@@ -16,6 +16,12 @@ name: Write-flow E2E
 # running; see CLAUDE.md.
 on:
   workflow_dispatch:
+    inputs:
+      shards:
+        description: "Shards to split the suite across. Use 1 for a single unsharded run."
+        type: choice
+        default: "3"
+        options: ["3", "1"]
 
 concurrency:
   group: write-flows-${{ github.ref }}
@@ -27,7 +33,7 @@ env:
 
 jobs:
   write-flows:
-    name: Write-flow E2E ${{ matrix.shard }}/3
+    name: Write-flow E2E ${{ matrix.shard }}/${{ inputs.shards || '3' }}
     runs-on: ubuntu-latest
     # Each shard boots its own Supabase stack, builds, and runs its slice. Thirty
     # minutes is roughly 2x the observed worst case, so a stack that never comes
@@ -40,8 +46,12 @@ jobs:
       # unrelated failure in another shard is not surfaced in the same run — it
       # shows up on the next run once the first is fixed.
       fail-fast: true
+      # Sharding is a speed optimisation, not part of the contract. A single
+      # unsharded run is the stricter check — it is the only way to see the whole
+      # suite execute in one process, in order, against one database — so it is
+      # dispatchable and is what to run before a pilot-sensitive merge.
       matrix:
-        shard: [1, 2, 3]
+        shard: ${{ inputs.shards == '1' && fromJSON('[1]') || fromJSON('[1, 2, 3]') }}
     steps:
       - uses: actions/checkout@v4
 
@@ -159,8 +169,8 @@ jobs:
       # The moderation spec used to get its own invocation here. Sharding already
       # runs it exactly once, and a second run per push is the duplicated work
       # this pipeline is trying to remove.
-      - name: Run write-flow E2E (shard ${{ matrix.shard }}/3)
-        run: npm run test:e2e:write -- --shard=${{ matrix.shard }}/3
+      - name: Run write-flow E2E (shard ${{ matrix.shard }}/${{ inputs.shards || '3' }})
+        run: npm run test:e2e:write -- --shard=${{ matrix.shard }}/${{ inputs.shards || '3' }}
         env:
           # The build above is current; the managed server skips rebuilding it.
           E2E_PREBUILT: "1"

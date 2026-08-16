@@ -146,8 +146,26 @@ anything that touches:
 A green `ci.yml` says nothing about any of those. It checks lint, types, pure
 logic and that the app compiles.
 
+**Before a pilot-sensitive merge, dispatch it with `shards: 1`.** Sharding is a
+speed optimisation; a single unsharded run is the stricter check, because it is
+the only way to watch the whole suite execute in one process, in order, against
+one database. It takes about 4 minutes of test time against a ~25 minute job.
+Use the 3-shard default for ordinary iteration.
+
 Neither Playwright suite retries (`retries: 0`, `maxFailures: 1`). A test that
-passes only on a second run is a failure — fix the flake, do not re-run.
+passes only on a second run is a failure — fix the flake, do not re-run. Note
+that `maxFailures: 1` also means a shard stops at its first failure, so a green
+result for the *tests after* that point has not been observed. Read a red run as
+"at least one failure", never "exactly one".
+
+### Never quarantine silently
+
+`test.skip` in `e2e/flows/` requires an open issue and a written reason. When #41
+closed, its four skips stayed behind for weeks; #70 found that two of them
+described flows that had been working for some time, one was a fixture that had
+never been updated for a rule change, and only one was a live product bug. A skip
+that outlives its cause removes a required flow from the suite and nothing
+reports it.
 
 ---
 
