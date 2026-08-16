@@ -1,0 +1,40 @@
+name: Apply capability-schema revert
+
+# One-shot. Uses SUPABASE_DB_URL to drop the #6 columns and restore the
+# original role-immutability trigger. Do not keep dispatching after it succeeds.
+on:
+  workflow_dispatch:
+
+jobs:
+  apply:
+    name: Apply revert SQL
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require the database URL
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::SUPABASE_DB_URL is not set"
+            exit 1
+          fi
+
+      - name: Apply revert and record it
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+          psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 \
+            -f supabase/migrations/20260816050845_revert_dual_role_capabilities.sql
+          psql "$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 <<'SQL'
+          DELETE FROM supabase_migrations.schema_migrations
+          WHERE name = 'dual_role_capabilities';
+          INSERT INTO supabase_migrations.schema_migrations (version, name)
+          VALUES ('20260816050845', 'revert_dual_role_capabilities')
+          ON CONFLICT (version) DO NOTHING;
+          SQL
