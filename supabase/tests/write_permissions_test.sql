@@ -15,7 +15,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(40);
+select plan(42);
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -34,12 +34,19 @@ values
     '50000000-0000-0000-0000-000000000002',
     'authenticated', 'authenticated', 'writes-other@example.test', '', now(),
     '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''
+  ),
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '50000000-0000-0000-0000-000000000003',
+    'authenticated', 'authenticated', 'writes-smuggler@example.test', '', now(),
+    '{"provider":"email","providers":["email"]}', '{}', now(), now(), '', '', '', ''
   );
 
 insert into public.app_user (id, email, name, role)
 values
   ('50000000-0000-0000-0000-000000000001', 'writes-owner@example.test', 'Write Owner', 'MUSICIAN'),
-  ('50000000-0000-0000-0000-000000000002', 'writes-other@example.test', 'Write Other', 'CREATOR')
+  ('50000000-0000-0000-0000-000000000002', 'writes-other@example.test', 'Write Other', 'CREATOR'),
+  ('50000000-0000-0000-0000-000000000003', 'writes-smuggler@example.test', 'Write Smuggler', 'MUSICIAN')
 on conflict (id) do update
 set name = excluded.name, role = excluded.role;
 
@@ -175,14 +182,20 @@ select lives_ok(
   'an owner can edit their gig through the transactional RPC'
 );
 
--- Cross-owner edits stay refused.
+-- Cross-owner edits stay refused, and it is worth pinning *which* layer stops
+-- them. `SELECT ... FOR UPDATE` makes PostgreSQL apply the UPDATE policy as well
+-- as the SELECT policy, so for an ordinary signed-in caller RLS filters the row
+-- out first and the RPC reports it as missing. The in-function ownership
+-- assertion never gets a chance to fire here; it is the backstop for callers
+-- that bypass RLS, which the service-role cases below cover.
 select throws_ok(
   $$ select public.update_musician_profile_with_tags(
        '70000000-0000-0000-0000-000000000009'::uuid,
        jsonb_build_object('bio', 'hijacked'),
        null::uuid[], null::uuid[]
      ) $$,
-  '42501', null::text, 'editing another account''s profile through the RPC is refused'
+  'P0002', null::text,
+  'RLS hides another account''s profile from the update RPC'
 );
 select throws_ok(
   $$ select public.update_gig_with_tags(
@@ -190,8 +203,38 @@ select throws_ok(
        jsonb_build_object('title', 'hijacked'),
        null::uuid[], null::uuid[]
      ) $$,
-  '42501', null::text, 'editing another account''s gig through the RPC is refused'
+  'P0002', null::text,
+  'RLS hides another account''s gig from the update RPC'
 );
+
+-- The in-function ownership assertion, tested where it is actually reachable.
+-- service_role bypasses RLS, so the row is found and the explicit check is what
+-- refuses the write. Without this, a future change could delete that assertion
+-- and every RLS-enforced test above would still pass.
+reset role;
+set local role service_role;
+
+select throws_ok(
+  $$ select public.update_musician_profile_with_tags(
+       '70000000-0000-0000-0000-000000000009'::uuid,
+       jsonb_build_object('bio', 'hijacked'),
+       null::uuid[], null::uuid[]
+     ) $$,
+  '42501', null::text,
+  'the RPC refuses a cross-owner profile edit even when RLS is bypassed'
+);
+select throws_ok(
+  $$ select public.update_gig_with_tags(
+       '80000000-0000-0000-0000-000000000009'::uuid,
+       jsonb_build_object('title', 'hijacked'),
+       null::uuid[], null::uuid[]
+     ) $$,
+  '42501', null::text,
+  'the RPC refuses a cross-owner gig edit even when RLS is bypassed'
+);
+
+reset role;
+set local role authenticated;
 
 -- ---------------------------------------------------------------------------
 -- Privileged columns stay out of reach (issue #59)
@@ -262,6 +305,14 @@ select lives_ok(
 -- The RPC payload is not a side door into those same columns
 -- ---------------------------------------------------------------------------
 
+-- A third account, because `musician_profile_user_id_key` allows one profile per
+-- user and the owner above already has theirs.
+select set_config(
+  'request.jwt.claims',
+  '{"role":"authenticated","sub":"50000000-0000-0000-0000-000000000003"}',
+  true
+);
+
 select lives_ok(
   $$ select public.create_musician_profile_with_tags(
        jsonb_build_object(
@@ -270,11 +321,17 @@ select lives_ok(
          'is_verified', true,
          'moderation_status', 'hidden',
          'admin_notes', 'smuggled',
-         'user_id', '50000000-0000-0000-0000-000000000002'
+         'user_id', '50000000-0000-0000-0000-000000000001'
        ),
        null::uuid[], null::uuid[]
      ) $$,
   'privileged keys in the create payload do not fail the call'
+);
+
+select set_config(
+  'request.jwt.claims',
+  '{"role":"authenticated","sub":"50000000-0000-0000-0000-000000000001"}',
+  true
 );
 
 select lives_ok(
@@ -328,7 +385,7 @@ select is(
 
 select is(
   (select user_id from public.musician_profile where display_name = 'Smuggler Profile'),
-  '50000000-0000-0000-0000-000000000001'::uuid,
+  '50000000-0000-0000-0000-000000000003'::uuid,
   'a smuggled user_id is ignored in favour of the session user'
 );
 select is(
