@@ -43,7 +43,7 @@ export function DeleteAccountButton({ deleteAction }: Props) {
         type="button"
         onClick={() => setOpen(true)}
         disabled={pending}
-        className="inline-flex items-center gap-2 border border-coral px-4 py-2.5 text-control text-coral transition-colors hover:bg-coral hover:text-white focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
+        className="inline-flex items-center gap-2 border border-[#B42318] px-4 py-2.5 text-control text-[#B42318] transition-colors hover:bg-[#B42318] hover:text-white focus-visible:outline-2 focus-visible:outline-[#B42318] focus-visible:outline-offset-2 disabled:cursor-wait disabled:opacity-60"
       >
         <Trash2 className="h-4 w-4" aria-hidden />
         {pending ? "Deleting…" : "Delete account"}

@@ -69,10 +69,10 @@ export default async function AccountPage({
         <SectionCard
           eyebrow="Account deletion"
           title="Delete account"
-          className="border border-[#FF3366]/30"
+          className="[&>h2]:text-[#B42318] [&>span]:text-[#B42318]"
         >
           <div className="space-y-4">
-            <p className="text-sm text-[#475569]">
+            <p className="text-sm font-semibold text-[#B42318]">
               This permanently removes your account and all of its data. It cannot be undone.
             </p>
             <DeleteAccountButton deleteAction={deleteAccountAction} />
