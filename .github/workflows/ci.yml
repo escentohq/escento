@@ -40,9 +40,9 @@ jobs:
     # amber until the 6-hour default timeout.
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -52,7 +52,7 @@ jobs:
       # Incremental Next builds. restore-keys lets a previous build's cache be
       # reused even when source files changed, which is the common case.
       - name: Cache Next.js build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .next/cache
           key: nextjs-quality-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
