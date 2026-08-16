@@ -7,6 +7,7 @@ export function NavBar() {
     <>
       <Link href="/musicians" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse musicians</Link>
       <Link href="/gigs" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Browse gigs</Link>
+      <Link href="/about" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">About</Link>
       <Link href="/help" className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]">Help</Link>
     </>
   );
