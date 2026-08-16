@@ -1,4 +1,5 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { type AppRole } from "@/lib/onboarding-role";
 import { queueReportEmail } from "@/lib/report-email";
 
 export type ReportTargetType = "musician_profile" | "gig";
@@ -99,7 +100,7 @@ async function getReportTarget(targetType: ReportTargetType, targetId: string) {
 
 export async function createContentReport({
   reporterId,
-  reporterRole,
+  reporterCapabilities,
   targetType,
   targetId,
   subject,
@@ -107,7 +108,11 @@ export async function createContentReport({
   evidence,
 }: {
   reporterId: string;
-  reporterRole: string | null | undefined;
+  /**
+   * What the reporter *can* be, not what they started as. An account holding both
+   * capabilities can legitimately report in both directions (issue #6).
+   */
+  reporterCapabilities: AppRole[];
   targetType: ReportTargetType;
   targetId: string;
   subject: string;
@@ -118,11 +123,11 @@ export async function createContentReport({
     throw new Error("Invalid report target.");
   }
 
-  if (targetType === "gig" && reporterRole !== "MUSICIAN") {
+  if (targetType === "gig" && !reporterCapabilities.includes("MUSICIAN")) {
     throw new Error("Only musician accounts can report gigs.");
   }
 
-  if (targetType === "musician_profile" && reporterRole !== "CREATOR") {
+  if (targetType === "musician_profile" && !reporterCapabilities.includes("CREATOR")) {
     throw new Error("Only creator accounts can report musician profiles.");
   }
 

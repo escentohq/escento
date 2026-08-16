@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { safeInternalPath } from "@/lib/internal-path";
 import { sendWelcomeMessageFromEscentoBestEffort } from "@/lib/api/support-account";
 import { after, NextResponse } from "next/server";
 
@@ -12,7 +13,7 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      const safeNext = next.startsWith("/") && !next.startsWith("//") ? next : "/";
+      const safeNext = safeInternalPath(next, "/");
       const user = data.user;
 
       // Route new users (no role set) to onboarding, regardless of ?next parameter

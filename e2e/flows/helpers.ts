@@ -58,6 +58,34 @@ export async function signUpAs(
   return creds;
 }
 
+/**
+ * Add the second capability to an account that already has one (issue #6).
+ *
+ * The grant is an explicit confirm, not a silent side effect, so this walks the
+ * same screen a guard would send a real user to.
+ */
+export async function addCapability(page: Page, role: Role): Promise<void> {
+  const label = role === "CREATOR" ? "Add creator tools" : "Add musician profile";
+  const destination = role === "MUSICIAN" ? /\/profile\/create/ : /\/gigs\/manage/;
+  await page.goto(`/onboarding/role?add=${role}`);
+  await page.getByRole("button", { name: label }).click();
+  await page.waitForURL(destination, { timeout: 30_000 });
+}
+
+/**
+ * An account holding both capabilities. `signUpAs` bakes in exactly one, so
+ * without this no spec could express the thing issue #6 is actually about.
+ */
+export async function signUpDual(
+  page: Page,
+  first: Role = "MUSICIAN",
+  prefix = "dual",
+): Promise<{ email: string; password: string }> {
+  const creds = await signUpAs(page, first, prefix);
+  await addCapability(page, first === "MUSICIAN" ? "CREATOR" : "MUSICIAN");
+  return creds;
+}
+
 /** Sign in with an existing email/password and wait for the callback destination. */
 export async function signIn(
   page: Page,

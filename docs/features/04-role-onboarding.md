@@ -1,12 +1,12 @@
 # Role Onboarding
 
 ## Feature Summary
-Role onboarding is the one-time step that turns a newly authenticated user into either a musician or creator. The selected role drives navigation, authorization, and primary creation flows.
+Role onboarding is where a newly authenticated user claims their first capability, musician or creator. Since issue #6 it is no longer one-time: the same route adds the second capability later via `?add=`. Capabilities drive navigation, authorization, and the primary creation flows; the first claim is stored immutably in `app_user.role`.
 
 ## Product Intent
 - Force an explicit marketplace side before users create data.
 - Keep the choice simple: `MUSICIAN` or `CREATOR`.
-- Redirect users with an existing role away from onboarding.
+- Redirect users who already hold both capabilities away from onboarding; offer the missing one to everybody else.
 
 ## Routes and Files
 - `/onboarding/role`

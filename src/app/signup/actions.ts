@@ -9,6 +9,7 @@ import {
   isValidEmail,
   type FieldErrors,
 } from "@/lib/form-utils";
+import { safeInternalPath } from "@/lib/internal-path";
 import { validatePassword } from "@/lib/password";
 import { validatePublicName } from "@/lib/public-name";
 import { sendWelcomeMessageFromEscentoBestEffort } from "@/lib/api/support-account";
@@ -74,7 +75,7 @@ export async function signUpWithPasswordAction(
 
   try {
     const origin = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const next = callbackUrl.startsWith("/") ? callbackUrl : "/onboarding/role";
+    const next = safeInternalPath(callbackUrl, "/onboarding/role");
 
     const supabase = await createSupabaseServerClient();
     const { data, error } = await supabase.auth.signUp({

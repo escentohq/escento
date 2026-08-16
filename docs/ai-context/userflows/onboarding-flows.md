@@ -362,6 +362,6 @@ All actions call auth guards first, before any business logic.
 - **Musician onboarding is mandatory**: profile creation form must be completed before accessing musician features
 - **Creator onboarding is optional**: role selection lands on gig management hub, but users can view empty state without creating a gig
 - **Both flows sync auth → app user**: `syncAppUserFromAuth` is called by auth guards, ensuring `user` table is current
-- **Role cannot be changed after selection**: no UI currently exists to switch roles post-onboarding (would require explicit migration)
+- **The first role cannot be changed, but the other can be added** (issue #6): `app_user.role` stays immutable, and `/onboarding/role?add=CREATOR` grants the second capability. Capabilities are additive, so nothing is ever removed.
 - **Tag deduplication**: instruments & genres use `normalizeTagName` before insert to prevent duplicates across profiles/gigs
 - **Form validation is client-facing**: errors returned via `ActionState` and rendered inline below each field

@@ -2,7 +2,8 @@
 
 import { useTransition } from "react";
 
-import { setRole } from "./actions";
+import { type AppRole } from "@/lib/onboarding-role";
+import { grantCapability, setRole } from "./actions";
 
 function RoleButton({
   role,
@@ -10,7 +11,7 @@ function RoleButton({
   body,
   cta,
 }: {
-  role: "MUSICIAN" | "CREATOR";
+  role: AppRole;
   title: string;
   body: string;
   cta: string;
@@ -48,6 +49,39 @@ export function RoleOnboardingPicker() {
         body="Post gigs, browse musicians, and send requests."
         cta="Choose creator"
       />
+    </div>
+  );
+}
+
+/**
+ * The confirm step for adding a second capability. Explicit rather than a silent
+ * grant on first use: the change cannot be undone from the product, so it should
+ * not happen as a side effect of clicking a link.
+ */
+export function AddCapabilityCard({
+  role,
+  cta,
+  next,
+}: {
+  role: AppRole;
+  cta: string;
+  next?: string;
+}) {
+  const [isPending, startTransition] = useTransition();
+
+  return (
+    <div className="border-t-4 border-ink bg-surface py-6 md:px-6">
+      <p className="max-w-xl text-body text-muted">
+        Adding this is permanent. You can hold both, but you cannot remove one later.
+      </p>
+      <button
+        type="button"
+        disabled={isPending}
+        onClick={() => startTransition(() => grantCapability(role, next))}
+        className="control-primary mt-6 min-h-12 cursor-pointer px-6 disabled:cursor-wait disabled:opacity-70"
+      >
+        {isPending ? "Setting up…" : cta}
+      </button>
     </div>
   );
 }

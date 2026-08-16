@@ -81,13 +81,17 @@ All documentation lives under `docs/`. Do not add new Markdown to the repo root.
 
 Supabase Auth and the app's own `app_user` table are two separate identity stores, merged on read (not by a sync/upsert step). It all lives in `src/lib/auth-guards.ts`:
 
-`getCurrentSession()` is wrapped in React's `cache()`, so it runs at most once per request. It calls `supabase.auth.getClaims()` — not `getUser()` — then selects `role, name, image` from `app_user` by the `sub` claim. `getClaims()` verifies the JWT locally when the project uses asymmetric signing keys, saving a network round trip to the Auth server on every request, and falls back to a `getUser()` call under legacy HS256 secrets. `middleware.ts` uses the same call for the same reason. Do not switch these back to `getUser()` without measuring. A `PGRST116` (no rows) error is expected and ignored — it just means the auth user has no `app_user` row yet, which surfaces as `role: null`. Any other error is logged and the session still returns. The shape is always:
+`getCurrentSession()` is wrapped in React's `cache()`, so it runs at most once per request. It calls `supabase.auth.getClaims()` — not `getUser()` — then selects `role, is_musician, is_creator, name, image` from `app_user` by the `sub` claim. `getClaims()` verifies the JWT locally when the project uses asymmetric signing keys, saving a network round trip to the Auth server on every request, and falls back to a `getUser()` call under legacy HS256 secrets. `middleware.ts` uses the same call for the same reason. Do not switch these back to `getUser()` without measuring. A `PGRST116` (no rows) error is expected and ignored — it just means the auth user has no `app_user` row yet, which surfaces as `role: null`. Any other error is logged and the session still returns. The shape is always:
 
 ```ts
-{ user: { id, email, role, name, image } }  // id = the Supabase auth user id, reused as the app_user TEXT id
+{ user: { id, email, role, capabilities, name, image } }  // id = the Supabase auth user id
 ```
 
-The guards layer on top, each delegating to the previous: `getCurrentSession()` → `requireSignedIn(callbackUrl)` (redirects to `/signin?callbackUrl=…`) → `requireUser(callbackUrl)` (redirects to `/onboarding/role` if no role) → `requireRole("MUSICIAN"|"CREATOR", callbackUrl)` (redirects to `/` on role mismatch). Every protected page and server action calls one of these.
+**`role` vs `capabilities` (issue #6).** An account can be both a musician and a creator. `capabilities` is an `AppRole[]` derived from the `is_musician` / `is_creator` columns and is **the only thing you may authorize on**. `role` is the immutable *first* claim: it is the right input for a one-word label and for "has this account onboarded at all", and the wrong input for a permission check. Capabilities are additive — grantable, never revocable, enforced by a database trigger because RLS lets a client PATCH its own row.
+
+The guards layer on top, each delegating to the previous: `getCurrentSession()` → `requireSignedIn(callbackUrl)` (redirects to `/signin?callbackUrl=…`) → `requireUser(callbackUrl)` (redirects to `/onboarding/role` when the account holds no capability) → `requireRole("MUSICIAN"|"CREATOR", callbackUrl)` (membership check; redirects to `/onboarding/role?add=…&next=…` so the user can add what they are missing). Every protected page and server action calls one of these. `hasCapability(session, role)` is the non-redirecting predicate.
+
+**The active view is not authorization.** `src/lib/active-view.ts` owns which mode a dual-capability account is acting in, stored in the `escento_view` cookie. It is a presentation preference: `resolveActiveView` ignores a cookie naming a capability the account does not hold, and `eslint.config.mjs` forbids `auth-guards.ts` from importing that module at all, so no guard can be bypassed by editing the cookie.
 
 `middleware.ts` lives at the **project root, not `src/`** — Next.js resolves the root file, so a `src/middleware.ts` would be silently dead. It bails out early if the Supabase env vars are missing, refreshes the Supabase cookie inside a `try/catch` (a deleted account 403s here and must not 500 the request), and blocks `/onboarding/*` for unauthenticated users. All other route-level auth is enforced at the page or action level, not in middleware.
 
@@ -97,7 +101,7 @@ Product data access is concentrated here — no direct Supabase calls for produc
 
 - Private `toX(raw)` normalizer converts Postgres snake_case → TypeScript camelCase and flattens junction arrays (e.g., `gig_instrument` rows → `instruments: string[]`).
 - All functions call `await createSupabaseServerClient()` at the top — never cached, never a module singleton.
-- IDs are `TEXT` generated via `crypto.randomUUID()` in application code before insert, not Postgres-native `uuid`.
+- Product-table IDs are `TEXT` generated via `crypto.randomUUID()` in application code before insert, not Postgres-native `uuid`. (`app_user.id` is the exception: it is a `uuid`, mirroring the Supabase auth user id.)
 
 Tags (instruments, genres) are deduplicated via `normalizeTagName` and upserted via `ensureInstruments`/`ensureGenres` in `tags.ts`. Gig and profile mutations delete-and-reinsert junction rows on every update.
 
@@ -155,6 +159,6 @@ Not currently used in the codebase. The browser client (`src/lib/supabase/client
 
 **Source of truth: `supabase/migrations/`.** This changed — the dashboard used to be authoritative, and the cost was invisible drift: CI tests against the migrations, so a dashboard-only edit left CI green while production broke. That is exactly the `DB_REBUILD.md` incident, where a prod-only `role` DEFAULT bounced every fresh signup off `/onboarding/role`.
 
-Apply schema changes as a migration file. A dashboard or MCP edit is allowed for exploration but must be exported back into a migration before the change ships. `.github/workflows/schema-drift.yml` diffs the hosted schema against the migrations on a schedule and fails on divergence (it needs the `SUPABASE_DB_URL` repo secret; it fails rather than skips when that is missing). No RLS — auth enforced server-side. IDs are `TEXT` (not `uuid` type). All FK constraints use `ON DELETE CASCADE`.
+Apply schema changes as a migration file. A dashboard or MCP edit is allowed for exploration but must be exported back into a migration before the change ships. `.github/workflows/schema-drift.yml` diffs the hosted schema against the migrations on a schedule and fails on divergence (it needs the `SUPABASE_DB_URL` repo secret; it fails rather than skips when that is missing). RLS **is** enabled on most tables (including `app_user`, whose `users update own row` policy lets an authenticated client PATCH its own row straight through PostgREST) — but it is not the app's access-control model: authorization is enforced server-side in `auth-guards.ts` and the service layer. Where a column must hold an invariant against a direct client write, that invariant is a trigger. Product-table IDs are `TEXT` generated with `crypto.randomUUID()`; `app_user.id` is a `uuid` mirroring the Supabase auth user id. All FK constraints use `ON DELETE CASCADE`.
 
 Service layer (`src/lib/api/`) makes all DB calls — never direct queries outside this directory.

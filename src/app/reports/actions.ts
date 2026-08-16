@@ -30,7 +30,7 @@ export async function submitContentReport(
 
     await createContentReport({
       reporterId: session.user.id,
-      reporterRole: session.user.role,
+      reporterCapabilities: session.user.capabilities,
       targetType,
       targetId,
       subject,

@@ -14,14 +14,20 @@ import {
   LogOut,
   MessageCircle,
   HelpCircle,
+  Repeat,
 } from "lucide-react";
 import { signOutAction } from "@/app/account/actions";
+import { setActiveViewAction } from "@/app/actions";
+import { refreshNavigationState } from "@/lib/navigation-state";
+import type { AppRole } from "@/lib/onboarding-role";
 
 type UserMenuProps = {
   email?: string | null;
   name?: string | null;
   image?: string | null;
   role?: string | null;
+  capabilities?: AppRole[];
+  activeView?: AppRole | null;
   musicianProfilePath?: string | null;
   musicianProfileLabel?: "Create profile" | "Continue setup" | "Edit profile" | null;
   musicianProfileMode?: "create" | "resume" | "edit" | null;
@@ -43,12 +49,21 @@ export function UserMenu({
   name,
   image,
   role,
+  capabilities = [],
+  activeView,
   musicianProfilePath,
   musicianProfileLabel,
   musicianProfileMode,
   isCreator,
   unreadConversationCount = 0,
 }: UserMenuProps) {
+  // What the account is acting as right now. Falls back to the first claim so a
+  // single-capability account and a pre-#6 cached payload both still show a badge.
+  const mode = activeView ?? (role as AppRole | null | undefined) ?? capabilities[0] ?? null;
+  const otherView = capabilities.find((capability) => capability !== mode) ?? null;
+  const missing: AppRole | null =
+    capabilities.length === 1 ? (capabilities[0] === "MUSICIAN" ? "CREATOR" : "MUSICIAN") : null;
+
   const profileMode =
     musicianProfileMode ?? (musicianProfilePath?.includes("/profile/create") ? "create" : "edit");
   const profileLabel =
@@ -99,9 +114,9 @@ export function UserMenu({
           <DropdownMenu.Label className="flex flex-col gap-1 px-3 py-2">
             {name && <div className="text-sm font-bold text-[#0F172A]">{name}</div>}
             <div className="text-xs text-[#475569]">{email}</div>
-            {role && (
+            {mode && (
               <div className="inline-flex w-fit border border-[#CBD5E1] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[#64748B]">
-                {role.toLowerCase()}
+                {mode.toLowerCase()}
               </div>
             )}
           </DropdownMenu.Label>
@@ -167,6 +182,33 @@ export function UserMenu({
               </DropdownMenu.Item>
             </>
           )}
+
+          {otherView ? (
+            <DropdownMenu.Item
+              onSelect={() => {
+                void setActiveViewAction(otherView).then(() => {
+                  // The switch changes `?view=` on the same pathname, and
+                  // NavigationAccount only refetches identity when the pathname
+                  // changes. Without this the menu keeps the old mode's actions.
+                  refreshNavigationState();
+                });
+              }}
+              className="flex cursor-pointer select-none items-center gap-2.5 px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:bg-[#F1F5F9] focus:bg-[#F1F5F9] focus:outline-none"
+            >
+              <Repeat className="h-4 w-4" />
+              Switch to {otherView.toLowerCase()}
+            </DropdownMenu.Item>
+          ) : missing ? (
+            <DropdownMenu.Item asChild>
+              <Link
+                href={`/onboarding/role?add=${missing}`}
+                className="flex cursor-pointer select-none items-center gap-2.5 px-3 py-2 text-sm font-semibold text-[#0F172A] transition-colors hover:bg-[#F1F5F9] focus:bg-[#F1F5F9] focus:outline-none"
+              >
+                <Repeat className="h-4 w-4" />
+                {missing === "CREATOR" ? "Add creator tools" : "Add musician profile"}
+              </Link>
+            </DropdownMenu.Item>
+          ) : null}
 
           <DropdownMenu.Separator className="my-1.5 border-t border-[#F1F5F9]" />
 

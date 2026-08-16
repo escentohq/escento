@@ -13,6 +13,7 @@ import {
   pickEnum,
 } from "@/lib/form-utils";
 import { isMalformedIdError, isUuid } from "@/lib/ids";
+import { safeInternalPath } from "@/lib/internal-path";
 import { displayLocation, distanceMiles, parseLocationSearch } from "@/lib/location";
 import { getPasswordStrength, validatePassword } from "@/lib/password";
 import { hasPublicName, validatePublicName } from "@/lib/public-name";
@@ -428,5 +429,27 @@ describe("public name", () => {
     expect(validatePublicName("  Maya Singh  ")).toEqual({ name: "Maya Singh" });
     expect(hasPublicName("Maya Singh")).toBe(true);
     expect(validatePublicName("x".repeat(81)).error).toBeTruthy();
+  });
+});
+
+describe("safeInternalPath", () => {
+  it("keeps an ordinary in-app path", () => {
+    expect(safeInternalPath("/gigs/create", "/")).toBe("/gigs/create");
+    expect(safeInternalPath("/musicians?q=jazz", "/")).toBe("/musicians?q=jazz");
+  });
+
+  /**
+   * `startsWith("/")` alone accepted these, which is an open redirect: the
+   * browser reads them as protocol-relative and leaves the site.
+   */
+  it("rejects protocol-relative targets", () => {
+    expect(safeInternalPath("//evil.example", "/")).toBe("/");
+    expect(safeInternalPath("/\\evil.example", "/")).toBe("/");
+  });
+
+  it("rejects absolute URLs and non-strings", () => {
+    for (const value of ["https://evil.example", "javascript:alert(1)", "", null, undefined, 7, {}]) {
+      expect(safeInternalPath(value, "/fallback")).toBe("/fallback");
+    }
   });
 });

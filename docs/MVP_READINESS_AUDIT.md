@@ -333,7 +333,7 @@ No issues were created for:
 - group chat, realtime presence, attachments, voice/video calls, SMS, push, or notification digests;
 - native apps, subscriptions, monetization, or advanced analytics;
 - advanced portfolio hosting or media processing;
-- dual-role/view switching (#6), Microsoft OAuth (#1), AI recommendations (#2), outreach (#14), or further visual redesign.
+- Microsoft OAuth (#1), AI recommendations (#2), outreach (#14), or further visual redesign. (Dual-role/view switching, #6, has shipped.)
 
 ## Recommended Execution Order
 

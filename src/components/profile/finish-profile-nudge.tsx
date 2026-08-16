@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-import { getCurrentSession } from "@/lib/auth-guards";
+import { getActiveView } from "@/lib/active-view";
+import { getCurrentSession, hasCapability } from "@/lib/auth-guards";
 import { getProfileByUserId } from "@/lib/api/profiles";
 import {
   PROFILE_WIZARD_TOTAL,
@@ -25,8 +26,12 @@ const STEP_PROMPT: Record<string, string> = {
  * and every step holds something. Each remaining step is one click away.
  */
 export async function FinishProfileNudge() {
-  const session = await getCurrentSession();
-  if (session?.user?.role !== "MUSICIAN") return null;
+  const [session, activeView] = await Promise.all([getCurrentSession(), getActiveView()]);
+  // Capability decides whether the nudge is *possible*; the active view decides
+  // whether it is *wanted*. A dual account working in creator mode is not nagged
+  // about a half-finished musician profile.
+  if (!hasCapability(session, "MUSICIAN") || activeView !== "MUSICIAN") return null;
+  if (!session) return null;
 
   const profile = await getProfileByUserId(session.user.id);
   if (!profile) return null;

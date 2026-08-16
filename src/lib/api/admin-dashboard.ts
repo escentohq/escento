@@ -8,6 +8,8 @@ export type AdminUserRow = {
   email: string | null;
   name: string | null;
   role: string | null;
+  isMusician: boolean;
+  isCreator: boolean;
   isPublic: boolean | null;
   isVerified: boolean | null;
   moderationStatus: string | null;
@@ -55,6 +57,8 @@ function userRow(raw: any): AdminUserRow {
     email: raw.email ?? null,
     name: raw.name ?? null,
     role: raw.role ?? null,
+    isMusician: raw.is_musician ?? false,
+    isCreator: raw.is_creator ?? false,
     isPublic: raw.is_public ?? null,
     isVerified: raw.is_verified ?? null,
     moderationStatus: raw.moderation_status ?? null,
@@ -102,7 +106,7 @@ export async function getAdminDashboardData() {
   const [users, musicians, creators, gigs, recentProfiles, recentGigs] = await Promise.all([
     supabase.from("app_user").select("id", { count: "exact", head: true }),
     supabase.from("musician_profile").select("id", { count: "exact", head: true }),
-    supabase.from("app_user").select("id", { count: "exact", head: true }).eq("role", "CREATOR"),
+    supabase.from("app_user").select("id", { count: "exact", head: true }).eq("is_creator", true),
     supabase.from("gig").select("id", { count: "exact", head: true }),
     supabase
       .from("musician_profile")
@@ -134,7 +138,7 @@ export async function listAdminUsers() {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("app_user")
-    .select("id, email, name, role, is_public, is_verified, moderation_status, admin_notes, created_at, updated_at")
+    .select("id, email, name, role, is_musician, is_creator, is_public, is_verified, moderation_status, admin_notes, created_at, updated_at")
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map(userRow);
@@ -155,7 +159,7 @@ export async function listAdminCreators(): Promise<AdminCreatorRow[]> {
   const [users, gigs] = await Promise.all([
     supabase
       .from("app_user")
-      .select("id, email, name, role, is_public, is_verified, moderation_status, admin_notes, created_at, updated_at")
+      .select("id, email, name, role, is_musician, is_creator, is_public, is_verified, moderation_status, admin_notes, created_at, updated_at")
       .order("created_at", { ascending: false }),
     supabase.from("gig").select("creator_id"),
   ]);
@@ -168,7 +172,7 @@ export async function listAdminCreators(): Promise<AdminCreatorRow[]> {
   }
 
   return (users.data ?? [])
-    .filter((user) => user.role === "CREATOR" || gigCounts.has(user.id))
+    .filter((user) => user.is_creator || gigCounts.has(user.id))
     .map((user) => ({
       ...userRow(user),
       gigCount: gigCounts.get(user.id) ?? 0,

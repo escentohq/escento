@@ -11,7 +11,7 @@ This file is the product-side record. It is **not** a lawyer sign-off.
 | Claim | Source |
 |---|---|
 | Email/password + Google sign-in | `src/app/signup`, `src/app/signin`, `src/app/auth/callback` |
-| One immutable role | `src/app/onboarding/role`, `20260816000000_lock_first_role_assignment.sql` |
+| One immutable first role, plus additive capabilities | `src/app/onboarding/role`, `20260816050844_dual_role_capabilities.sql` |
 | Musician profile + gig fields | `src/lib/api/types.ts`, create/edit actions |
 | No phone, mailing address, or job title | those fields are not in the schema or forms |
 | No payments / Stripe | `PRODUCT.md` hard scope; no Stripe dependency |

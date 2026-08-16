@@ -119,12 +119,13 @@ Do not add: 3D libraries (`three`, `@react-three/*`), smooth-scroll libraries (`
 **Why.** Centralizes auth cookies, keeps service-role access server-only, avoids connection leaks, types queries.
 
 ### 4. Auth via `getCurrentSession()` / `requireRole()`
-**Rule.** Protected pages/actions call helpers from `@/lib/auth-guards` and re-check role inside the handler.
+**Rule.** Protected pages/actions call helpers from `@/lib/auth-guards` and re-check the capability inside the handler.
 **Why.** Per-request server checks are the trust boundary. Middleware refreshes Supabase sessions and blocks `/onboarding/*` for signed-out users, but it does **not** replace page/action checks.
 **Do.**
 ```ts
 const session = await requireRole("CREATOR", "/gigs/create");
 ```
+**Authorize on `session.user.capabilities`, never on `session.user.role`.** An account can hold both (issue #6); `role` is only the immutable first claim, for labels and for "has this account onboarded". `requireRole` is a membership check. The active view (`src/lib/active-view.ts`) is a cookie the user controls and grants nothing — `auth-guards.ts` is lint-forbidden from importing it.
 
 ### 5. Bright stage-light theme — no dark zinc
 **Rule.** Use tokens in [`DESIGN.md`](./docs/ai-context/DESIGN.md): `#FAFAFA` page, `#0F172A` ink, `#0055FF`/`#FF3366`/`#FFB000` accents. Do **not** introduce `bg-zinc-950`, `text-zinc-100`, `border-zinc-800`, `violet-500`, or any class from the legacy dark shell into new code.
@@ -182,7 +183,7 @@ Everything in that table runs in `ci.yml`, automatically, in about 90 seconds. *
 ## Definition of Done (agent self-check before reporting complete)
 
 - [ ] Page is a Server Component unless it genuinely needs to be client.
-- [ ] All mutations are Server Actions; session + role re-checked inside via `requireSignedIn()`, `requireUser()`, or `requireRole()`.
+- [ ] All mutations are Server Actions; session + capability re-checked inside via `requireSignedIn()`, `requireUser()`, or `requireRole()`. Never branch on `session.user.role` for access.
 - [ ] Bright stage-light tokens used. No `bg-zinc-*`, no `violet-*`, no `text-zinc-*`.
 - [ ] Icons are `lucide-react`. No emoji.
 - [ ] No new routine motion (reveals, page transitions, hover lifts, parallax). Targeted CSS state transitions only.
@@ -236,7 +237,8 @@ Everything in that table runs in `ci.yml`, automatically, in about 90 seconds. *
 | `src/app/globals.css` | Shared foundation tokens and named corner exceptions. |
 | `src/lib/supabase/server.ts` | Supabase server client factory. |
 | `src/lib/supabase/admin.ts` | Server-only service-role client for auth admin + profile-picture storage. |
-| `src/lib/auth-guards.ts` | Auth helpers: `getCurrentSession()`, `requireSignedIn()`, `requireUser()`, `requireRole()`. |
+| `src/lib/auth-guards.ts` | Auth helpers: `getCurrentSession()`, `requireSignedIn()`, `requireUser()`, `requireRole()`, `hasCapability()`. |
+| `src/lib/active-view.ts` | Which mode a dual-capability account is acting in. Presentation only; never authorize on it. |
 | `src/lib/api/` | Service layer with typed DB helpers (`profiles.ts`, `gigs.ts`, `messaging.ts`, `tags.ts`, …). |
 | `middleware.ts` | Supabase session refresh + `/onboarding/*` protection. Project root, **not** `src/`. |
 | Supabase Dashboard | Source of truth for current schema/storage config when no migration file exists locally. |

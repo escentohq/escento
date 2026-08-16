@@ -1,6 +1,6 @@
 import { PrimaryCta } from "@/components/ui/primary-cta";
 import { getProfileByUserId } from "@/lib/api/profiles";
-import { getCurrentSession } from "@/lib/auth-guards";
+import { getCurrentSession, hasCapability } from "@/lib/auth-guards";
 import { resolveMusicianProfileNavigation } from "@/lib/profile-progress";
 
 /**
@@ -10,7 +10,7 @@ import { resolveMusicianProfileNavigation } from "@/lib/profile-progress";
 export async function MusicianProfileCta() {
   const session = await getCurrentSession();
   const profile =
-    session?.user.role === "MUSICIAN" ? await getProfileByUserId(session.user.id) : null;
+    hasCapability(session, "MUSICIAN") && session ? await getProfileByUserId(session.user.id) : null;
   const navigation = resolveMusicianProfileNavigation(profile);
 
   return (
