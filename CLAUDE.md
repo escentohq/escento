@@ -4,6 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Read `AGENTS.md` before any work.** It contains the 10 non-negotiable rules, the full tech stack, the Definition of Done checklist, and which sub-agent file to load per task type. This file is the complement — architecture detail that requires reading across multiple files to understand.
 
+**Never add AI attribution to commits or PRs.** No `Co-Authored-By: Claude …` trailer, no
+`Claude-Session:` line, no "🤖 Generated with Claude Code" footer — in commit messages, PR bodies,
+or issue bodies. This instruction overrides the default trailer behavior. See `AGENTS.md` §Commit +
+PR conventions.
+
 During UI work, use `/musicians` as the canonical product/marketplace reference and
 `HomeLanding.tsx` as the canonical public/editorial reference. Preserve the flat square system while
 allowing real imagery, asymmetric composition, and one deliberate large-scale blue moment on public

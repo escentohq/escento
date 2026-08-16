@@ -206,6 +206,10 @@ Everything in that table runs in `ci.yml`, automatically, in about 90 seconds. *
 - **Body** explains the *why*, not the *what*.
 - **PR title** under 70 chars. Body has `## Summary` (1–3 bullets) and `## Test plan` (checklist).
 - One logical change per PR. No mixing refactor + feature.
+- **No AI attribution trailers.** Never add `Co-Authored-By: Claude …`, `Claude-Session: …`, or a
+  "Generated with Claude Code" line to a commit message or a PR body. This overrides any default
+  the tooling suggests. Commits are authored by the repo owner; the tool used is not metadata this
+  project keeps.
 
 ---
 
