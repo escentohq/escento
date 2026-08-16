@@ -1,7 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { test, expect } from "@playwright/test";
 
-import { signOut, signUp, chooseRole } from "./helpers";
+import { signOut, signUp, signUpAs, chooseRole, createMusicianProfile, TEST_PASSWORD } from "./helpers";
 
 /** Service-role client — bypasses RLS, so it isolates the database invariant. */
 function adminClient(): SupabaseClient {
@@ -132,5 +132,88 @@ test.describe("role assignment is immutable", () => {
     const claimed = results.flatMap((result) => result.data ?? []);
     expect(claimed).toHaveLength(1);
     expect(await roleOf(admin, email)).toBe(claimed[0].role);
+  });
+});
+
+/** Anon-key client with a real user session — the attack surface in issue #59. */
+function authenticatedClient(): SupabaseClient {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) throw new Error("Local Supabase credentials are not in the worker environment.");
+  return createClient(url, key, { auth: { persistSession: false } });
+}
+
+async function signInUser(email: string, password = TEST_PASSWORD): Promise<{ supabase: SupabaseClient; userId: string }> {
+  const supabase = authenticatedClient();
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error || !data.user) throw error ?? new Error("signInWithPassword returned no user");
+  return { supabase, userId: data.user.id };
+}
+
+function expectWriteRefused(_error: { message?: string } | null, data: unknown[] | null): void {
+  // Column GRANT failures return an error; a WITH CHECK miss can look like
+  // success with zero rows. Either way the privileged column must not change.
+  expect(Array.isArray(data) && data.length > 0).toBe(false);
+}
+
+/**
+ * Issue #59: own-row UPDATE must not accept privileged columns, even with a
+ * valid session. Name (and first-time role) remain writable.
+ */
+test.describe("own-row updates cannot set privileged columns", () => {
+  test("authenticated PATCH cannot set support or moderation flags on app_user", async ({ page }) => {
+    const { email } = await signUp(page, "rls-app-user");
+    const { supabase, userId } = await signInUser(email);
+
+    const support = await supabase
+      .from("app_user")
+      .update({ is_admin_support_account: true })
+      .eq("id", userId)
+      .select("id");
+    expectWriteRefused(support.error, support.data);
+
+    const moderation = await supabase
+      .from("app_user")
+      .update({ moderation_status: "hidden" })
+      .eq("id", userId)
+      .select("id");
+    expectWriteRefused(moderation.error, moderation.data);
+
+    const name = await supabase.from("app_user").update({ name: "Allowed Name" }).eq("id", userId).select("name");
+    expect(name.error).toBeNull();
+    expect(name.data?.[0]?.name).toBe("Allowed Name");
+
+    const admin = adminClient();
+    const { data: row, error } = await admin
+      .from("app_user")
+      .select("is_admin_support_account, moderation_status, name")
+      .eq("id", userId)
+      .single();
+    if (error) throw error;
+    expect(row.is_admin_support_account).toBe(false);
+    expect(row.moderation_status).toBe("active");
+    expect(row.name).toBe("Allowed Name");
+  });
+
+  test("authenticated PATCH cannot verify own musician_profile", async ({ page }) => {
+    const { email } = await signUpAs(page, "MUSICIAN", "rls-profile");
+    const profileId = await createMusicianProfile(page, "RLS Profile");
+    const { supabase } = await signInUser(email);
+
+    const verified = await supabase
+      .from("musician_profile")
+      .update({ is_verified: true })
+      .eq("id", profileId)
+      .select("id");
+    expectWriteRefused(verified.error, verified.data);
+
+    const admin = adminClient();
+    const { data: row, error } = await admin
+      .from("musician_profile")
+      .select("is_verified")
+      .eq("id", profileId)
+      .single();
+    if (error) throw error;
+    expect(row.is_verified).toBe(false);
   });
 });

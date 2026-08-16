@@ -195,7 +195,7 @@ Everything in that table runs in `ci.yml`, automatically, in about 90 seconds. *
 - [ ] `npm run test:unit` passes.
 - [ ] `npm run build` passes.
 - [ ] Any new route is classified in `e2e/route-inventory.ts`.
-- [ ] Any schema change is a file in `supabase/migrations/`, not a dashboard-only edit.
+- [ ] Any schema change is a file in `supabase/migrations/`, not a dashboard-only edit. After merge, paste that file into the hosted SQL editor until a `SUPABASE_DB_URL` secret exists.
 - [ ] No new dependencies were added without approval.
 - [ ] Reused existing helpers (`createSupabaseServerClient()`, `createSupabaseAdminClient()`, service layer in `src/lib/api/`, auth guards) — did not duplicate.
 
