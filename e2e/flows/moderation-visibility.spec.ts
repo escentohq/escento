@@ -224,10 +224,7 @@ test.describe("moderation visibility", () => {
     await expectAnonymousRow("musician_profile", profileId, 1);
   });
 
-  // QUARANTINED — see #41. Fails on `main` on both attempts, not flake: the
-  // mutation reaches the server but the client never reflects it. Skipped so a
-  // red suite means a NEW regression; unskip with the fix in #41.
-  test.skip("gig and creator-account hide/restore update cached public reads", async ({ browser }) => {
+  test("gig and creator-account hide/restore update cached public reads", async ({ browser }) => {
     test.setTimeout(240_000);
     const title = `Moderated Gig ${Date.now().toString(36)}`;
     // This suite tests moderation, not gig creation. Build its representative
