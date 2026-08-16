@@ -82,7 +82,9 @@ async function ensureLocalAdminAccount() {
     id: adminUser.id,
     email: ADMIN_EMAIL,
     name: "Test Admin",
-    role: "ADMIN",
+    // Admin access is email-based; a product role is still required to pass
+    // the shared post-sign-in onboarding gate.
+    role: "CREATOR",
     is_public: true,
     moderation_status: "active",
   });
