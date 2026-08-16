@@ -20,7 +20,5 @@ test("musician can report a gig with validation and success path", async ({ brow
   );
   await reporter.getByRole("button", { name: "Send report" }).click();
 
-  await expect(
-    reporter.getByText("Thanks. Your report has been sent to the Escento team."),
-  ).toBeVisible();
+  await expect(reporter.getByText("Report sent. Our team will review it.")).toBeVisible();
 });
