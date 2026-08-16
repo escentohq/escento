@@ -6,6 +6,7 @@ import { Chip } from "@/components/ui/chip";
 import { GigContactActions } from "@/components/messaging/public-contact-actions";
 import { getGig } from "@/lib/api/gigs";
 import { compensationLabel, projectTypeLabel } from "@/lib/display";
+import { isDeadlinePast } from "@/lib/gig-deadline";
 import { displayLocation } from "@/lib/location";
 
 function isValidId(id: string) {
@@ -23,6 +24,10 @@ export default async function GigPage({
   const gig = await getGig(id);
   if (!gig) notFound();
   const gigLocation = displayLocation(gig, "");
+  // Past the deadline the page stays readable, but it is a record of a call
+  // that has closed rather than an invitation to answer it.
+  const deadlinePassed = isDeadlinePast(gig.deadline);
+  const acceptingContact = gig.status === "OPEN" && !deadlinePassed;
 
   return (
     <div className="bg-paper px-4 py-10 sm:px-6 md:py-14 lg:px-8 lg:py-16">
@@ -37,7 +42,11 @@ export default async function GigPage({
               <div className="bg-brand px-6 py-8 text-white md:px-8 md:py-10">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-meta uppercase text-on-brand-muted">
-                    {gig.status === "OPEN" ? "Open call" : "Call filled"}
+                    {gig.status !== "OPEN"
+                      ? "Call filled"
+                      : deadlinePassed
+                        ? "Deadline passed"
+                        : "Open call"}
                   </span>
                 </div>
 
@@ -111,9 +120,15 @@ export default async function GigPage({
                 <span className="text-meta uppercase text-on-ink-muted">
                   Contact
                 </span>
-                <h2 className="mt-3 text-section-heading">Contact the creator</h2>
+                <h2 className="mt-3 text-section-heading">
+                  {acceptingContact ? "Contact the creator" : "This call is closed"}
+                </h2>
                 <p className="mt-3 text-secondary text-on-ink-body">
-                  Send a short note. You can message the creator if they accept.
+                  {acceptingContact
+                    ? "Send a short note. You can message the creator if they accept."
+                    : deadlinePassed
+                      ? "The deadline for this call has passed, so it is no longer taking replies."
+                      : "This call has been filled, so it is no longer taking replies."}
                 </p>
 
                 <div className="mt-6 border-y border-ink-muted py-4">
@@ -131,7 +146,9 @@ export default async function GigPage({
                   </div>
                 )}
 
-                <GigContactActions recipientId={gig.creatorId} gigId={gig.id} gigTitle={gig.title} />
+                {acceptingContact ? (
+                  <GigContactActions recipientId={gig.creatorId} gigId={gig.id} gigTitle={gig.title} />
+                ) : null}
               </div>
             </div>
           </aside>

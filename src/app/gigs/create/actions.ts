@@ -17,6 +17,7 @@ import {
   strOrEmpty,
 } from "@/lib/form-utils";
 import { gigValuesFromFormData } from "@/lib/form-snapshots";
+import { isDeadlinePast } from "@/lib/gig-deadline";
 import { parseStructuredLocation, validateStructuredLocation } from "@/lib/location";
 import { invalidatePublicGig } from "@/lib/public-cache-invalidation";
 
@@ -43,6 +44,11 @@ export async function createGigAction(_state: ActionState, fd: FormData): Promis
   if (!projectType) fieldError(fieldErrors, "projectType", "Choose a project type.");
   if (!compensationType) fieldError(fieldErrors, "compensationType", "Choose a compensation type.");
   if (deadlineRaw && !deadline) fieldError(fieldErrors, "deadline", "Use a valid date.");
+  // A gig posted with a deadline that has already passed is unactionable the
+  // moment it is published, so it never gets created in that state.
+  if (deadline && isDeadlinePast(deadline)) {
+    fieldError(fieldErrors, "deadline", "Choose today or a later date.");
+  }
   validateStructuredLocation(fieldErrors, location, isRemote);
 
   if (Object.keys(fieldErrors).length) {

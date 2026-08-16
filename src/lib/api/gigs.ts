@@ -5,6 +5,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
 import { PUBLIC_GIGS_TAG, PUBLIC_HOME_TAG, publicGigTag } from "@/lib/cache-tags";
 import { distanceMiles, type LocationSearch } from "@/lib/location";
+import { isGigActionable } from "@/lib/gig-deadline";
 import { filterSearchResults } from "@/lib/search";
 import { tagMatchesQuery } from "@/lib/tag-taxonomy";
 import { ensureInstruments, ensureGenres } from "./tags";
@@ -159,7 +160,12 @@ async function readPublicOpenGigs(): Promise<Gig[]> {
 }
 
 function filterGigs(all: Gig[], filters?: ListOpenGigsFilters): Gig[] {
-  let gigs = all;
+  // Expiry is evaluated per request rather than pushed into the cached query:
+  // the cache holds the whole open dataset for everyone, and a gig expires by
+  // the clock rather than by a write, so there is nothing to invalidate on and
+  // no scheduler to run. A gig simply stops being inventory the day after its
+  // deadline.
+  let gigs = all.filter((gig) => isGigActionable(gig));
   const q = filters?.q ? safeSearchPattern(filters.q) : "";
   const location = filters?.location;
   const instrumentFilters = filters?.instruments ?? [];

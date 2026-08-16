@@ -17,6 +17,7 @@ import {
   strOrEmpty,
 } from "@/lib/form-utils";
 import { gigValuesFromFormData } from "@/lib/form-snapshots";
+import { isDeadlinePast, toDeadlineDate } from "@/lib/gig-deadline";
 import { parseStructuredLocation, validateStructuredLocation } from "@/lib/location";
 import { invalidatePublicGig } from "@/lib/public-cache-invalidation";
 
@@ -52,6 +53,13 @@ export async function updateGigAction(
   if (!compensationType) fieldError(fieldErrors, "compensationType", "Choose a compensation type.");
   if (!status) fieldError(fieldErrors, "status", "Choose a gig status.");
   if (deadlineRaw && !deadline) fieldError(fieldErrors, "deadline", "Use a valid date.");
+  // Only a *newly chosen* past deadline is rejected. A gig that has already
+  // expired still has to be editable — otherwise fixing the deadline, or
+  // anything else about the gig, would be blocked by the deadline itself.
+  const nextDeadline = toDeadlineDate(deadline);
+  if (nextDeadline && nextDeadline !== toDeadlineDate(gig.deadline) && isDeadlinePast(nextDeadline)) {
+    fieldError(fieldErrors, "deadline", "Choose today or a later date.");
+  }
   validateStructuredLocation(fieldErrors, location, isRemote);
 
   if (Object.keys(fieldErrors).length) {
