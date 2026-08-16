@@ -1,14 +1,9 @@
-import type { AppRole } from "@/lib/onboarding-role";
-
 export type NavigationState = {
   signedIn: boolean;
   email?: string | null;
   name?: string | null;
   image?: string | null;
-  /** The immutable first claim. Display only; branch on `capabilities`. */
   role?: string | null;
-  capabilities?: AppRole[];
-  activeView?: AppRole | null;
   musicianProfilePath?: string | null;
   musicianProfileLabel?: "Create profile" | "Continue setup" | "Edit profile" | null;
   musicianProfileMode?: "create" | "resume" | "edit" | null;
@@ -20,10 +15,7 @@ let navigationRequest: Promise<NavigationState | null> | null = null;
 
 export const NAVIGATION_REFRESH_EVENT = "escento:navigation-refresh";
 
-// Bumped for the capability fields (issue #6): readCachedNavigationState only
-// validates `signedIn`, so a blob written by the previous version would be
-// accepted while missing `capabilities` and `activeView`.
-const CACHE_KEY = "escento:navigation-state:v2";
+const CACHE_KEY = "escento:navigation-state";
 
 /**
  * Last known identity, kept per-tab so a full page load can paint the signed-in nav

@@ -33,7 +33,7 @@ export async function sendConnectionRequest(
   optionalIntroMessage?: string | null,
 ) {
   const session = await requireUser(MESSAGES_CALLBACK_URL);
-  if (session.user.capabilities.includes("CREATOR") && !hasPublicName(session.user.name)) {
+  if (session.user.role === "CREATOR" && !hasPublicName(session.user.name)) {
     redirect(ACCOUNT_NAME_PATH);
   }
   const request = await createConnectionRequest(

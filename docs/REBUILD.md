@@ -493,7 +493,7 @@ For each page: route, access, data fetched, layout, components, behaviors.
 - Auth required. If role already set, redirects to `/`.
 - Renders two side-by-side `<form action>` blocks, each invoking inline server action calling `setRole("MUSICIAN" | "CREATOR")`.
 - After role set, redirects to `/`.
-- **Resolved (issue #6).** An account can hold both capabilities. `app_user.role` stays immutable as the first claim, `is_musician` / `is_creator` carry authorization, and `/onboarding/role?add=…` grants the second. See `supabase/migrations/20260816050844_dual_role_capabilities.sql`.
+- **Issue**: role is one-time. There is no UI to switch roles, change role, or hold both roles. PRD does not allow dual role; if a user is both musician and creator this fails. Consider supporting both.
 
 ### 12.4 `/musicians` — Directory (`src/app/musicians/page.tsx`)
 
@@ -931,7 +931,7 @@ A pragmatic order if redoing this from scratch with the lessons above baked in.
 - Lock stack changes (Auth.js v5? Clerk? Drizzle?).
 - Pick component library (shadcn/ui assumed).
 - Confirm dark-only vs adding light mode.
-- ~~Confirm whether to support dual-role users.~~ Resolved: yes, shipped in issue #6 as additive capability columns.
+- Confirm whether to support dual-role users.
 
 ### Phase 1 — Foundation (1–2 days)
 

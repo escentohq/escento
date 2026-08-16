@@ -54,8 +54,7 @@ export interface AppUser {
   email: string;               // from auth.users
   name: string | null;
   image: string | null;
-  role: "MUSICIAN" | "CREATOR" | null;     // immutable first claim; labels only
-  capabilities: ("MUSICIAN" | "CREATOR")[]; // authorization truth
+  role: "MUSICIAN" | "CREATOR" | null;
 }
 ```
 
@@ -223,14 +222,13 @@ Handles musician profile CRUD + queries.
 The current codebase does not have a `users.ts` service module. `app_user` is used as the app metadata table:
 
 - `app_user.id` matches `auth.users.id`
-- `app_user.is_musician` / `app_user.is_creator` drive the role guards. Additive only: a trigger rejects any update that turns one off, including from the service role.
-- `app_user.role` is the immutable first claim. Use it for a one-word label and for "has this account onboarded"; never for a permission check.
+- `app_user.role` drives role guards
 - `app_user.name` drives account/nav display
 - `app_user.image` stores the public Supabase Storage URL for account avatars
 
 Current write locations:
 
-- `src/app/onboarding/role/actions.ts` claims `app_user.role` (`setRole`) and grants a second capability (`grantCapability`)
+- `src/app/onboarding/role/actions.ts` updates `app_user.role`
 - `src/app/account/actions.ts` updates `app_user.name` and `app_user.image`
 - `src/app/account/actions.ts` deletes `app_user` during hard account deletion
 

@@ -36,47 +36,6 @@ test.describe("app is alive", () => {
     expect(pageErrors, `uncaught errors on homepage: ${pageErrors.join(", ")}`).toHaveLength(0);
   });
 
-  /**
-   * `/` is the marketplace, and `?view=` is what a signed-out visitor uses to reach
-   * the other directory. An unrecognized value must fall back rather than render an
-   * empty toggle.
-   */
-  test("the homepage view switch reaches both directories signed out", async ({ page }) => {
-    // Scoped to the switch: the footer and nav carry their own Musicians/Gigs links.
-    const directory = page.getByRole("navigation", { name: "Directory" });
-
-    await page.goto("/?view=gigs", { waitUntil: "domcontentloaded" });
-    await expect(directory.getByRole("link", { name: "Gigs" })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
-    await expect(page.getByRole("link", { name: "Post a gig" }).first()).toBeVisible();
-
-    await directory.getByRole("link", { name: "Musicians" }).click();
-    await expect(page).toHaveURL(/[?&]view=musicians/);
-    await expect(directory.getByRole("link", { name: "Musicians" })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
-
-    // Anything unrecognized falls back to musicians.
-    await page.goto("/?view=nonsense", { waitUntil: "domcontentloaded" });
-    await expect(directory.getByRole("link", { name: "Musicians" })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
-  });
-
-  /** A search from the gigs tab must stay on the gigs tab. */
-  test("the homepage filter form keeps the active view", async ({ page }) => {
-    await page.goto("/?view=gigs", { waitUntil: "domcontentloaded" });
-    await page.locator("#q").fill("zzzznomatch");
-    await page.locator('form[method="GET"] button[type="submit"]').click();
-
-    await expect(page).toHaveURL(/[?&]view=gigs/);
-    await expect(page.getByText("No gigs match.")).toBeVisible();
-  });
-
   for (const path of [...PUBLIC_PATHS, ...MIXED_PATHS]) {
     test(`public page loads: ${path}`, async ({ page }) => {
       const response = await page.goto(path, { waitUntil: "domcontentloaded" });

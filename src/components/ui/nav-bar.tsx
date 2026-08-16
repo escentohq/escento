@@ -6,12 +6,6 @@ export function NavBar() {
   const publicLinks = (
     <>
       <Link
-        href="/about"
-        className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]"
-      >
-        About
-      </Link>
-      <Link
         href="/musicians"
         className="inline-flex min-h-11 items-center whitespace-nowrap transition-colors hover:text-[#0055FF]"
       >
