@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 
-import { DELETE_ACCOUNT_UNAVAILABLE } from "@/lib/account-deletion";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { FormErrorBanner } from "@/components/ui/form-error-banner";
 
 type Props = {
-  deleteAction: () => Promise<void>;
+  /** Resolves with a message when the deletion did not finish; redirects on success. */
+  deleteAction: () => Promise<{ ok: false; message: string } | void>;
 };
 
 export function DeleteAccountButton({ deleteAction }: Props) {
@@ -20,14 +20,16 @@ export function DeleteAccountButton({ deleteAction }: Props) {
     setMessage(null);
     setPending(true);
     try {
-      await deleteAction();
+      const result = await deleteAction();
+      // A finished deletion redirects, so anything returned here is a failure
+      // the action has already described accurately.
+      if (result && !result.ok) {
+        setMessage(result.message);
+        setOpen(false);
+      }
     } catch (error) {
       console.error(error);
-      setMessage(
-        error instanceof Error && error.message === DELETE_ACCOUNT_UNAVAILABLE
-          ? DELETE_ACCOUNT_UNAVAILABLE
-          : "Account deletion could not finish. Try again in a moment.",
-      );
+      setMessage("Account deletion could not finish. Try again in a moment.");
       setOpen(false);
     } finally {
       setPending(false);

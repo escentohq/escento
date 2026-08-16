@@ -5,13 +5,15 @@ import { revalidatePath } from "next/cache";
 import { requireSignedIn } from "@/lib/auth-guards";
 import {
   ADMIN_CREDENTIALS_ERROR,
+  DELETE_ACCOUNT_NOT_STARTED,
+  DELETE_ACCOUNT_PARTIAL,
   DELETE_ACCOUNT_UNAVAILABLE,
 } from "@/lib/account-deletion";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getProfileByUserId } from "@/lib/api/profiles";
 import { fieldError, type ActionState } from "@/lib/form-utils";
-import { deleteUserCompletely } from "@/lib/user-deletion";
+import { AccountDeletionError, deleteUserCompletely } from "@/lib/user-deletion";
 import { invalidatePublicGig, invalidatePublicProfile } from "@/lib/public-cache-invalidation";
 
 const PROFILE_PICTURES_BUCKET = "profile-pictures";
@@ -48,7 +50,14 @@ export async function signOutAction(): Promise<void> {
   redirect("/");
 }
 
-export async function deleteAccountAction(): Promise<void> {
+/**
+ * Delete the signed-in account. Returns a message instead of throwing: a thrown
+ * Server Action error is redacted in production, so the user would have seen a
+ * generic failure regardless of which stage failed, and the stages mean
+ * different things — after a `data` failure nothing was removed, after the
+ * others everything but the sign-in is already gone and retrying finishes it.
+ */
+export async function deleteAccountAction(): Promise<{ ok: false; message: string } | void> {
   const session = await requireSignedIn("/account");
   const supabase = await createSupabaseServerClient();
   const userId = session.user.id;
@@ -56,14 +65,28 @@ export async function deleteAccountAction(): Promise<void> {
   try {
     await deleteUserCompletely(userId);
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message === ADMIN_CREDENTIALS_ERROR
-    ) {
+    if (error instanceof Error && error.message === ADMIN_CREDENTIALS_ERROR) {
       console.error("[deleteAccount] missing SUPABASE_SERVICE_ROLE_KEY");
-      throw new Error(DELETE_ACCOUNT_UNAVAILABLE);
+      return { ok: false, message: DELETE_ACCOUNT_UNAVAILABLE };
     }
-    throw error;
+
+    if (error instanceof AccountDeletionError) {
+      console.error(`[deleteAccount] failed at the ${error.stage} stage:`, error.cause);
+      if (error.stage === "data") {
+        return { ok: false, message: DELETE_ACCOUNT_NOT_STARTED };
+      }
+
+      // The rows are gone, so the public surfaces have to be refreshed even
+      // though the deletion did not finish. The session stays valid on purpose:
+      // it is what lets the owner retry and converge.
+      invalidatePublicProfile();
+      invalidatePublicGig();
+      revalidatePath("/");
+      return { ok: false, message: DELETE_ACCOUNT_PARTIAL };
+    }
+
+    console.error("[deleteAccount] unexpected failure:", error);
+    return { ok: false, message: DELETE_ACCOUNT_NOT_STARTED };
   }
 
   await supabase.auth.signOut().catch(() => {});
