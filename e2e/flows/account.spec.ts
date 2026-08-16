@@ -41,7 +41,15 @@ test.describe("account", () => {
       return canvas.toDataURL("image/jpeg", 0.9);
     });
 
-    await page.locator('input[name="profilePicture"]').setInputFiles({
+    const pictureInput = page.locator('input[name="profilePicture"]');
+    await page.waitForFunction(() => {
+      const input = document.querySelector('input[name="profilePicture"]');
+      return Boolean(
+        input &&
+          Object.keys(input).some((key) => key.startsWith("__reactProps$")),
+      );
+    });
+    await pictureInput.setInputFiles({
       name: "profile-photo.jpg",
       mimeType: "image/jpeg",
       buffer: Buffer.from(dataUrl.split(",")[1], "base64"),
