@@ -37,3 +37,4 @@ cannot check:
 ### If this PR changes the database
 
 - [ ] The change is in `supabase/migrations/`, not only in the Supabase dashboard.
+- [ ] After merge, the same SQL is pasted into the hosted Supabase SQL editor (there is no `SUPABASE_DB_URL` deploy secret).
