@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { GoogleMark } from "@/components/ui/brand";
+
 export function GoogleButton({
   callbackUrl,
   label = "Continue with Google",
@@ -50,8 +52,9 @@ export function GoogleButton({
         type="button"
         disabled={pending}
         onClick={() => void signInWithGoogle()}
-        className="flex min-h-12 w-full cursor-pointer items-center justify-center border border-ink bg-surface px-5 text-control text-ink transition-colors hover:bg-ink hover:text-white focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex min-h-12 w-full cursor-pointer items-center justify-center gap-3 border border-ink bg-surface px-5 text-control text-ink transition-colors hover:bg-ink hover:text-white focus-visible:outline-2 focus-visible:outline-brand focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
       >
+        <GoogleMark className="h-5 w-5 shrink-0" />
         {pending ? "Redirecting…" : label}
       </button>
     </div>
