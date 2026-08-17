@@ -46,7 +46,19 @@ jobs:
       - name: Apply pending migrations
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: supabase db push --db-url "$SUPABASE_DB_URL"
+        run: |
+          set -euo pipefail
+          # `db push` printed "Connect to your database by setting the env var
+          # correctly: SUPABASE_DB_PASSWORD" on its first run here even though
+          # `db diff --db-url` (schema-drift.yml) authenticates fine with the
+          # same secret — db push appears to want the password separately from
+          # the URL. Derive it rather than storing it twice. Username has no
+          # colon (postgres.<ref>), so splitting on the first ':' in the
+          # userinfo is unambiguous.
+          userinfo="${SUPABASE_DB_URL#*://}"
+          userinfo="${userinfo%%@*}"
+          export SUPABASE_DB_PASSWORD="${userinfo#*:}"
+          supabase db push --db-url "$SUPABASE_DB_URL"
 
       - name: Verify hosted schema parity
         env:
