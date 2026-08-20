@@ -1,8 +1,8 @@
 # Escento 🎶
 
-Platform connecting student musicians with student creators for film, podcasts, live events, games, YouTube videos, and creative projects.
+Platform connecting musicians with creators for film, podcasts, live events, games, YouTube videos, and creative projects.
 
-**Vision:** Students can find collaborators fast. Musicians discover opportunities. Creators cast talent.
+**Vision:** Anyone can find collaborators fast. Musicians discover opportunities. Creators cast talent.
 
 ## Features
 
