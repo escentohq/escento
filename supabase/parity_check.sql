@@ -27,7 +27,8 @@ with expected_migrations(version, name) as (
     ('20260816050000','auth_user_profile_trigger'),
     ('20260816050845','revert_dual_role_capabilities'),
     ('20260816120000','lock_app_user_self_update'),
-    ('20260816130000','fix_transactional_write_grants')
+    ('20260816130000','fix_transactional_write_grants'),
+    ('20260820000000','fast_messaging_reads')
 ),
 
 -- 1. Migration history matches the repository, in both directions.
@@ -151,8 +152,28 @@ objects as (
                    where n.nspname='public'
                      and p.proname in ('create_musician_profile_with_tags','create_gig_with_tags')
                      and pg_get_functiondef(p.oid) ~* 'INSERT INTO public\.(musician_profile|gig)\s+SELECT'),
-       'guards the #68 regression')
-  ) as t(check_name, present, detail)
+       'guards the #68 regression'),
+      ('messaging read RPCs exist',
+       (select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+         where n.nspname='public'
+           and p.proname in ('messaging_list_conversation_summaries','messaging_get_conversation_detail',
+                             'messaging_unread_conversation_count','messaging_list_connection_requests',
+                             'messaging_user_summary_json')) = 5,
+       'from 20260820000000'),
+      ('messaging read RPCs are not callable by anon',
+       not exists (select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+                   where n.nspname='public'
+                     and p.proname in ('messaging_list_conversation_summaries','messaging_get_conversation_detail',
+                                       'messaging_unread_conversation_count','messaging_list_connection_requests',
+                                       'messaging_user_summary_json')
+                     and has_function_privilege('anon', p.oid, 'EXECUTE')),
+       'they are SECURITY DEFINER over another user''s inbox'),
+      ('messaging RLS policies hoist auth.uid()',
+       not exists (select 1 from pg_policies
+                   where schemaname='public'
+                     and tablename in ('messages','conversations','conversation_participants')
+                     and (coalesce(qual,'') || coalesce(with_check,'')) ~* '(?<!select )auth\.uid\(\)'),
+       'unwrapped auth.uid() is re-evaluated per row')
 ),
 
 -- 5. RLS is still on for every table that carries user content.
