@@ -109,7 +109,6 @@ function toParticipant(raw: any): ConversationParticipant {
 /** Columns the normalizers below actually read; `select("*")` pulled the rest for nothing. */
 const PARTICIPANT_COLUMNS = "id, conversation_id, user_id, joined_at, last_read_at, deleted_at";
 const MESSAGE_COLUMNS = "id, conversation_id, sender_id, body, created_at, updated_at, deleted_at";
-const CONVERSATION_COLUMNS = "id, type, created_at, updated_at, last_message_at";
 
 function toMessage(raw: any): MessageRecord {
   return {
@@ -206,15 +205,6 @@ async function enrichParticipants(participants: ConversationParticipant[]) {
   }));
 }
 
-async function enrichMessages(messages: MessageRecord[]) {
-  const summaries = await getUserSummaries(messages.map((message) => message.senderId));
-
-  return messages.map((message) => ({
-    ...message,
-    sender: summaries.get(message.senderId) ?? message.sender,
-  }));
-}
-
 async function enrichBlockedUsers(blockedUsers: BlockedUser[]) {
   const summaries = await getUserSummaries(blockedUsers.map((block) => block.blockedId));
 
@@ -292,27 +282,18 @@ async function hasActiveDirectConversation(userA: string, userB: string) {
   return Boolean(data);
 }
 
-async function getActiveParticipant(userId: string, conversationId: string) {
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("conversation_participants")
-    .select(PARTICIPANT_COLUMNS)
-    .eq("conversation_id", conversationId)
-    .eq("user_id", userId)
-    .is("deleted_at", null)
-    .single();
-
-  if (error && error.code !== "PGRST116") throw error;
-  return data ? toParticipant(data) : null;
-}
-
+/**
+ * Reads the participant rows for a conversation. The `user:app_user!…` embed these selects
+ * used to carry always resolved to null — `app_user` RLS is select-own — so the identity
+ * still has to come from the service-role pass in `enrichParticipants`.
+ */
 async function getConversationParticipantRows(conversationIds: string[]) {
   if (!conversationIds.length) return [];
 
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("conversation_participants")
-    .select(`${PARTICIPANT_COLUMNS}, user:app_user!conversation_participants_user_id_fkey(id, email, name, image, role)`)
+    .select(PARTICIPANT_COLUMNS)
     .in("conversation_id", conversationIds)
     .is("deleted_at", null);
 
@@ -320,90 +301,149 @@ async function getConversationParticipantRows(conversationIds: string[]) {
   return enrichParticipants((data ?? []).map(toParticipant));
 }
 
-async function getMessageRows(conversationIds: string[], ascending = false) {
-  if (!conversationIds.length) return [];
+/**
+ * One row per conversation out of `messaging_list_conversation_summaries()`, which resolves
+ * the other party, the last message and the unread count in the database. Rebuilding these
+ * in TypeScript meant transferring every message of every conversation to render a preview
+ * line; see the migration header for the shape.
+ */
+type ConversationSummaryRow = {
+  conversation_id: string;
+  conversation_type: string;
+  created_at: string;
+  updated_at: string;
+  last_message_at: string | null;
+  created_by: string;
+  source_request_id: string | null;
+  own_participant_id: string;
+  own_joined_at: string;
+  own_last_read_at: string | null;
+  other_participant_id: string | null;
+  other_joined_at: string | null;
+  other_last_read_at: string | null;
+  other_user_id: string | null;
+  other_email: string | null;
+  other_name: string | null;
+  other_image: string | null;
+  other_role: "MUSICIAN" | "CREATOR" | null;
+  other_is_system_account: boolean | null;
+  other_is_admin_support_account: boolean | null;
+  last_message_id: string | null;
+  last_message_body: string | null;
+  last_message_sender_id: string | null;
+  last_message_created_at: string | null;
+  last_message_updated_at: string | null;
+  unread_count: number;
+};
 
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("messages")
-    .select(`${MESSAGE_COLUMNS}, sender:app_user!messages_sender_id_fkey(id, email, name, image, role)`)
-    .in("conversation_id", conversationIds)
-    .is("deleted_at", null)
-    .order("created_at", { ascending });
+function toSummaryFromRow(row: ConversationSummaryRow, userId: string): ConversationSummary {
+  const ownParticipant: ConversationParticipant = {
+    id: row.own_participant_id,
+    conversationId: row.conversation_id,
+    userId,
+    joinedAt: row.own_joined_at,
+    lastReadAt: row.own_last_read_at,
+    deletedAt: null,
+  };
 
-  if (error) throw error;
-  return enrichMessages((data ?? []).map(toMessage));
-}
+  const otherParticipant: ConversationParticipant | null =
+    row.other_participant_id && row.other_user_id
+      ? {
+          id: row.other_participant_id,
+          conversationId: row.conversation_id,
+          userId: row.other_user_id,
+          joinedAt: row.other_joined_at ?? row.created_at,
+          lastReadAt: row.other_last_read_at,
+          deletedAt: null,
+          user: {
+            id: row.other_user_id,
+            email: row.other_email,
+            name: row.other_name,
+            image: row.other_image,
+            role: row.other_role,
+            isSystemAccount: row.other_is_system_account ?? false,
+            isAdminSupportAccount: row.other_is_admin_support_account ?? false,
+          },
+        }
+      : null;
 
-function getUnreadCount(
-  userId: string,
-  participant: ConversationParticipant | undefined,
-  messages: MessageRecord[],
-) {
-  if (!participant) return 0;
-  const lastReadTime = participant.lastReadAt
-    ? new Date(participant.lastReadAt).getTime()
-    : 0;
-
-  return messages.filter((message) => {
-    if (message.senderId === userId) return false;
-    if (message.deletedAt) return false;
-    return new Date(message.createdAt).getTime() > lastReadTime;
-  }).length;
-}
-
-function buildConversationSummary(
-  raw: any,
-  userId: string,
-  participants: ConversationParticipant[],
-  messages: MessageRecord[],
-): ConversationSummary {
-  const ownParticipant = participants.find((participant) => participant.userId === userId);
-  const otherParticipant = participants.find((participant) => participant.userId !== userId) ?? null;
-  const sortedMessages = [...messages].sort((a, b) =>
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
+  const lastMessage: MessageRecord | null = row.last_message_id
+    ? {
+        id: row.last_message_id,
+        conversationId: row.conversation_id,
+        senderId: row.last_message_sender_id ?? "",
+        body: row.last_message_body ?? "",
+        createdAt: row.last_message_created_at ?? row.created_at,
+        updatedAt: row.last_message_updated_at ?? row.created_at,
+        deletedAt: null,
+      }
+    : null;
 
   return {
-    id: raw.id,
-    type: raw.type,
-    createdAt: raw.created_at,
-    updatedAt: raw.updated_at,
-    lastMessageAt: raw.last_message_at,
-    createdBy: raw.created_by,
-    sourceRequestId: raw.source_request_id,
-    participants,
+    id: row.conversation_id,
+    type: row.conversation_type as ConversationSummary["type"],
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    lastMessageAt: row.last_message_at,
+    createdBy: row.created_by,
+    sourceRequestId: row.source_request_id,
+    participants: otherParticipant ? [ownParticipant, otherParticipant] : [ownParticipant],
     otherParticipant,
-    lastMessage: sortedMessages[0] ?? null,
-    unreadCount: getUnreadCount(userId, ownParticipant, messages),
+    lastMessage,
+    unreadCount: row.unread_count ?? 0,
   };
 }
 
-async function getConversationRowsForUser(userId: string) {
+type ConnectionRequestRow = {
+  id: string;
+  requester_id: string;
+  recipient_id: string;
+  status: ConnectionRequest["status"];
+  intro_message: string | null;
+  created_at: string;
+  updated_at: string;
+  accepted_at: string | null;
+  rejected_at: string | null;
+  requester: any;
+  recipient: any;
+};
+
+function toUserSummaryFromJson(raw: any): MessagingUserSummary | undefined {
+  if (!raw) return undefined;
+  return {
+    id: raw.id,
+    email: raw.email ?? null,
+    name: raw.name ?? null,
+    image: raw.image ?? null,
+    role: raw.role ?? null,
+    isSystemAccount: raw.is_system_account ?? false,
+    isAdminSupportAccount: raw.is_admin_support_account ?? false,
+  };
+}
+
+async function listConnectionRequests(
+  direction: "incoming" | "outgoing",
+): Promise<ConnectionRequest[]> {
   const supabase = await createSupabaseServerClient();
-  const { data: ownParticipants, error: participantsError } = await supabase
-    .from("conversation_participants")
-    .select("conversation_id")
-    .eq("user_id", userId)
-    .is("deleted_at", null);
+  const { data, error } = await supabase.rpc("messaging_list_connection_requests", {
+    p_direction: direction,
+  });
 
-  if (participantsError) throw participantsError;
+  if (error) throw error;
 
-  const conversationIds = Array.from(
-    new Set((ownParticipants ?? []).map((participant) => participant.conversation_id)),
-  );
-
-  if (!conversationIds.length) return [];
-
-  const { data: conversations, error: conversationsError } = await supabase
-    .from("conversations")
-    .select(CONVERSATION_COLUMNS)
-    .in("id", conversationIds)
-    .order("last_message_at", { ascending: false, nullsFirst: false })
-    .order("updated_at", { ascending: false });
-
-  if (conversationsError) throw conversationsError;
-  return conversations ?? [];
+  return ((data ?? []) as ConnectionRequestRow[]).map((row) => ({
+    id: row.id,
+    requesterId: row.requester_id,
+    recipientId: row.recipient_id,
+    status: row.status,
+    introMessage: row.intro_message,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    acceptedAt: row.accepted_at,
+    rejectedAt: row.rejected_at,
+    requester: toUserSummaryFromJson(row.requester),
+    recipient: toUserSummaryFromJson(row.recipient),
+  }));
 }
 
 export async function createConnectionRequest(
@@ -467,32 +507,12 @@ export async function createConnectionRequest(
 
 export async function listIncomingConnectionRequests(userId: string): Promise<ConnectionRequest[]> {
   assertValidId(userId, "user id");
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("conversation_requests")
-    .select(
-      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image, role), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image, role)",
-    )
-    .eq("recipient_id", userId)
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  return enrichConnectionRequests((data ?? []).map(toConnectionRequest));
+  return listConnectionRequests("incoming");
 }
 
 export async function listOutgoingConnectionRequests(userId: string): Promise<ConnectionRequest[]> {
   assertValidId(userId, "user id");
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase
-    .from("conversation_requests")
-    .select(
-      "*, requester:app_user!conversation_requests_requester_id_fkey(id, email, name, image, role), recipient:app_user!conversation_requests_recipient_id_fkey(id, email, name, image, role)",
-    )
-    .eq("requester_id", userId)
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  return enrichConnectionRequests((data ?? []).map(toConnectionRequest));
+  return listConnectionRequests("outgoing");
 }
 
 export async function acceptConnectionRequestForUser(
@@ -557,30 +577,16 @@ export async function cancelConnectionRequestForUser(
   if (error) throw error;
 }
 
-export async function listConversationsForUser(userId: string): Promise<ConversationSummary[]> {
+/** One round trip. The RPC only ever reports on `auth.uid()`, so `userId` is the caller's own. */
+export const listConversationsForUser = cache(async (userId: string): Promise<ConversationSummary[]> => {
   assertValidId(userId, "user id");
-  const conversations = await getConversationRowsForUser(userId);
-  const conversationIds = conversations.map((conversation) => conversation.id);
-  const [participants, messages] = await Promise.all([
-    getConversationParticipantRows(conversationIds),
-    getMessageRows(conversationIds, false),
-  ]);
 
-  return conversations.map((conversation) => {
-    const conversationParticipants = participants.filter(
-      (participant) => participant.conversationId === conversation.id,
-    );
-    const conversationMessages = messages.filter(
-      (message) => message.conversationId === conversation.id,
-    );
-    return buildConversationSummary(
-      conversation,
-      userId,
-      conversationParticipants,
-      conversationMessages,
-    );
-  });
-}
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("messaging_list_conversation_summaries");
+
+  if (error) throw error;
+  return ((data ?? []) as ConversationSummaryRow[]).map((row) => toSummaryFromRow(row, userId));
+});
 
 export async function getConversationForUser(
   userId: string,
@@ -589,26 +595,62 @@ export async function getConversationForUser(
   assertValidId(userId, "user id");
   assertValidId(conversationId, "conversation id");
 
-  const ownParticipant = await getActiveParticipant(userId, conversationId);
-  if (!ownParticipant) return null;
-
   const supabase = await createSupabaseServerClient();
-  const { data: conversation, error } = await supabase
-    .from("conversations")
-    .select(CONVERSATION_COLUMNS)
-    .eq("id", conversationId)
-    .single();
+  const { data, error } = await supabase.rpc("messaging_get_conversation_detail", {
+    p_conversation_id: conversationId,
+  });
 
-  if (error && error.code !== "PGRST116") throw error;
-  if (!conversation) return null;
+  if (error) throw error;
+  // Null means the caller is not an active participant, or the conversation is gone. The
+  // RPC does the membership check itself, so there is no separate probe to run first.
+  if (!data) return null;
 
-  const [participants, messages] = await Promise.all([
-    getConversationParticipantRows([conversationId]),
-    getMessageRows([conversationId], true),
-  ]);
+  const detail = data as {
+    conversation: any;
+    own_participant: any;
+    other_participant: any;
+    messages: any[];
+    unread_count: number;
+  };
+
+  const summary = toSummaryFromRow(
+    {
+      conversation_id: detail.conversation.id,
+      conversation_type: detail.conversation.type,
+      created_at: detail.conversation.created_at,
+      updated_at: detail.conversation.updated_at,
+      last_message_at: detail.conversation.last_message_at,
+      created_by: detail.conversation.created_by,
+      source_request_id: detail.conversation.source_request_id,
+      own_participant_id: detail.own_participant.id,
+      own_joined_at: detail.own_participant.joined_at,
+      own_last_read_at: detail.own_participant.last_read_at,
+      other_participant_id: detail.other_participant?.id ?? null,
+      other_joined_at: detail.other_participant?.joined_at ?? null,
+      other_last_read_at: detail.other_participant?.last_read_at ?? null,
+      other_user_id: detail.other_participant?.user_id ?? null,
+      other_email: detail.other_participant?.user?.email ?? null,
+      other_name: detail.other_participant?.user?.name ?? null,
+      other_image: detail.other_participant?.user?.image ?? null,
+      other_role: detail.other_participant?.user?.role ?? null,
+      other_is_system_account: detail.other_participant?.user?.is_system_account ?? null,
+      other_is_admin_support_account:
+        detail.other_participant?.user?.is_admin_support_account ?? null,
+      last_message_id: null,
+      last_message_body: null,
+      last_message_sender_id: null,
+      last_message_created_at: null,
+      last_message_updated_at: null,
+      unread_count: detail.unread_count,
+    },
+    userId,
+  );
+
+  const messages = (detail.messages ?? []).map(toMessage);
 
   return {
-    ...buildConversationSummary(conversation, userId, participants, messages),
+    ...summary,
+    lastMessage: messages.length ? messages[messages.length - 1] : null,
     messages,
   };
 }
@@ -781,34 +823,18 @@ export async function getUnreadMessageCountForUser(userId: string): Promise<numb
   return conversations.reduce((total, conversation) => total + conversation.unreadCount, 0);
 }
 
+/**
+ * The nav badge asks for this on every authenticated page render. It used to fetch every
+ * message row the user could see and count them in JS; it is now one aggregate served off
+ * `messages_unread_lookup_idx`.
+ */
 export const getUnreadConversationCountForUser = cache(async (userId: string): Promise<number> => {
   assertValidId(userId, "user id");
   const supabase = await createSupabaseServerClient();
-  const { data: participants, error: participantError } = await supabase
-    .from("conversation_participants")
-    .select("conversation_id, last_read_at")
-    .eq("user_id", userId)
-    .is("deleted_at", null);
+  const { data, error } = await supabase.rpc("messaging_unread_conversation_count");
 
-  if (participantError) throw participantError;
-  if (!participants?.length) return 0;
-
-  const { data: messages, error: messageError } = await supabase
-    .from("messages")
-    .select("conversation_id, created_at")
-    .in("conversation_id", participants.map((row) => row.conversation_id))
-    .neq("sender_id", userId)
-    .is("deleted_at", null);
-
-  if (messageError) throw messageError;
-  const lastReadByConversation = new Map(
-    participants.map((row) => [row.conversation_id, row.last_read_at ? Date.parse(row.last_read_at) : 0]),
-  );
-  return new Set(
-    (messages ?? [])
-      .filter((message) => Date.parse(message.created_at) > (lastReadByConversation.get(message.conversation_id) ?? 0))
-      .map((message) => message.conversation_id),
-  ).size;
+  if (error) throw error;
+  return Number(data ?? 0);
 });
 
 export async function getUnreadConversationSummariesForUser(
