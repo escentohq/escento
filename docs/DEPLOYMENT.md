@@ -21,7 +21,7 @@ cycle while CI stayed green.
 | Application code | push to `main`, after `migrate` succeeds | `deploy-production.yml` → `deploy` job → Vercel, then a read-only Playwright smoke |
 | Lint, typecheck, unit, build | every PR and push to `main` | `ci.yml`, ~90 seconds |
 | Secret scan | every PR and push to `main` | `secret-scan.yml` |
-| Hosted schema drift | daily at 09:00 UTC, and on demand | `schema-drift.yml` |
+| Hosted schema drift | on demand only | `schema-drift.yml` |
 
 `vercel.json` sets `{"git": {"deploymentEnabled": false}}`, so Vercel never
 deploys on its own — `deploy-production.yml` is the only path. `deploy` has
