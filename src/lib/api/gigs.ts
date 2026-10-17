@@ -147,7 +147,7 @@ async function queryPublicOpenGigs(): Promise<Gig[]> {
  */
 const getCachedPublicOpenGigs = unstable_cache(
   queryPublicOpenGigs,
-  ["public-gigs"],
+  ["public-gigs-v2"],
   { tags: [PUBLIC_GIGS_TAG, PUBLIC_HOME_TAG] },
 );
 

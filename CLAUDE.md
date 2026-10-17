@@ -106,7 +106,7 @@ Tags (instruments, genres) are deduplicated via `normalizeTagName` and upserted 
 
 `listProfiles(filters)` and `listOpenGigs(filters)` are thin wrappers, and the split matters:
 
-- `getCachedPublicProfiles` / `getCachedPublicOpenGigs` are **module-level** `unstable_cache` entries keyed `["public-musicians"]` / `["public-gigs"]` with no filter in the key. They read the whole public dataset through `createSupabasePublicClient()` (cookie-free, which is what makes the read cacheable at all) and are invalidated only by tag, via `updateTag()` in `src/lib/public-cache-invalidation.ts`.
+- `getCachedPublicProfiles` / `getCachedPublicOpenGigs` are **module-level** `unstable_cache` entries keyed `["public-musicians"]` / `["public-gigs-v2"]` with no filter in the key. They read the whole public dataset through `createSupabasePublicClient()` (cookie-free, which is what makes the read cacheable at all) and are invalidated only by tag, via `updateTag()` in `src/lib/public-cache-invalidation.ts`.
 - `filterProfiles` / `filterGigs` then apply search, instrument, genre, project-type, remote, and radius filtering **in JS** against that one cached array.
 
 Do not move the cache key back onto the filters. None of these filters were ever pushed into SQL, so a per-filter key just made every distinct search string a cold full-table read. Keeping one entry means `?q=jazz` and `?q=blues` both hit the same warm data. If filtering ever does move into SQL, this arrangement has to be revisited together.
