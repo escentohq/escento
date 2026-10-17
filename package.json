@@ -12,7 +12,9 @@
     "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:write": "playwright test --config playwright.write.config.ts"
+    "test:e2e:write": "playwright test --config playwright.write.config.ts",
+    "demo:seed": "node --env-file=.env scripts/demo-gigs.mjs seed",
+    "demo:clear": "node --env-file=.env scripts/demo-gigs.mjs clear"
   },
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "^2.1.24",
