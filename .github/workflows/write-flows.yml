@@ -63,7 +63,7 @@ jobs:
       - name: Set up Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: 2.121.0
 
       # `supabase start` pulls and boots ~10 containers and needs nothing from
       # the repo's dependencies, so it runs concurrently with npm ci, the browser
