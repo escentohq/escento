@@ -10,17 +10,21 @@ name: Schema drift
 #
 # It cannot be a PR gate: the database URL is a secret and secrets are not
 # available to forked PRs, so a PR-triggered version would be skippable exactly
-# when it matters. It runs on a schedule and on demand instead, and it FAILS
-# rather than skips when it cannot run — an unconfigured drift check is a drift
-# check that is not protecting anything.
+# when it matters. It is on demand only, and it FAILS rather than skips when it
+# cannot run — an unconfigured drift check is a drift check that is not
+# protecting anything.
+#
+# The daily schedule was removed in September 2026. Every scheduled run since
+# late August failed inside `supabase db diff` itself ("error diffing schema:
+# error running script"), not because of drift, and docs/DEPLOYMENT.md records
+# that the diff is blind to privilege-only and default-only drift anyway. The
+# real gate is `deploy-production.yml`, whose `migrate` job runs
+# `supabase/parity_check.sql` before every production deploy.
 #
 # Setup: add the repository secret SUPABASE_DB_URL with the project's pooler
 # connection string (Supabase -> Project Settings -> Database -> Connection
 # string -> URI, session mode).
 on:
-  schedule:
-    # 09:00 UTC daily — before the working day, so drift is found before it ships.
-    - cron: "0 9 * * *"
   workflow_dispatch:
 
 concurrency:
